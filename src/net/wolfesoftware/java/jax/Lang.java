@@ -24,6 +24,7 @@ public final class Lang
     public static final String SYMBOL_ASTERISK = "*";
     public static final String SYMBOL_OPEN_BRACE = "{";
     public static final String SYMBOL_CLOSE_BRACE = "}";
+    public static final String SYMBOL_COMMA = ",";
 
     public static final ArrayList<String> ALL = new ArrayList<String>();
     static {

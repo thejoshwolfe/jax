@@ -49,18 +49,18 @@ $VariableDeclaration = TypeId ID
     $Addition = Expression(121) "+" Expression(120)
     $Subtraction = Expression(121) "-" Expression(120)
     $Multiplication = Expression(131) "*" Expression(130)
-    $Division = Expression(131) "/" Expression(130)
-    |InfixOperation = Addition | Subtraction | Multiplication | Division
+    #$Division = Expression(131) "/" Expression(130)
+    |InfixOperation = Addition | Subtraction | Multiplication #| Division
 
     ### unary prefix operators
-    $Negation = "-" Expression(140)
-    |PrefixOperation = Negation
+    #$Negation = "-" Expression(140)
+    #|PrefixOperation = Negation
 
-    |Operation = -InfixOperation | -PrefixOperation
+    |Operation = -InfixOperation # | -PrefixOperation
 
-    ### function invocation
-    ~Arguments = Expression : ","
-    $FunctionInvocation = ID "(" Arguments ")"
+    #### function invocation
+    #~Arguments = Expression : ","
+    #$FunctionInvocation = ID "(" Arguments ")"
 
     ### variable initialization
     $VariableCreation = VariableDeclaration "=" Expression
@@ -78,25 +78,27 @@ $VariableDeclaration = TypeId ID
     ~BlockContents = Expression : ";"
     $Block = "{" BlockContents "}"
 
-    ### try-catch-finally
-    $TryPart = "try" Expression
-    $CatchBody = "(" VariableDeclaration ")" Expression
-    ~CatchList = CatchBody : "catch"
-    $CatchPart = "catch" CatchList
-    $FinallyPart = "finally" Expression
-    $TryCatch = TryPart CatchPart
-    $TryFinally = TryPart FinallyPart
-    $TryCatchFinally = TryPart CatchPart FinallyPart
-    |TryGroup = TryCatch | TryFinally | TryCatchFinally
+    #### try-catch-finally
+    #$TryPart = "try" Expression
+    #$CatchBody = "(" VariableDeclaration ")" Expression
+    #~CatchList = CatchBody : "catch"
+    #$CatchPart = "catch" CatchList
+    #$FinallyPart = "finally" Expression
+    #$TryCatch = TryPart CatchPart
+    #$TryFinally = TryPart FinallyPart
+    #$TryCatchFinally = TryPart CatchPart FinallyPart
+    #|TryGroup = TryCatch | TryFinally | TryCatchFinally
 
-|Expression = LITERAL | FunctionInvocation | ID | Operation | VariableCreation | Block | ControlStucture | -TryGroup  # | ControlStatement
+|Expression = LITERAL | FunctionInvocation | ID | -Operation | Block | -ControlStucture 
+
+# | VariableCreation | -TryGroup | ControlStatement
 
 ### function definition
 ~ArgumentDeclarations = VariableDeclaration : ","
 $FunctionDefinition = TypeId ID "(" ArgumentDeclarations ")" Expression
 
 ### program
-|TopLevelItem = FunctionDefinition | VariableCreation
+|TopLevelItem = FunctionDefinition    # | VariableCreation
 ~Program = TopLevelItem : ";"
 
 

@@ -1,7 +1,7 @@
 package net.wolfesoftware.java.jax.parser;
 
 import java.util.ArrayList;
-import net.wolfesoftware.java.jax.parser.elements.Program;
+import net.wolfesoftware.java.jax.ast.Program;
 
 public class Parsing
 {

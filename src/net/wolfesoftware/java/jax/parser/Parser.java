@@ -3,7 +3,7 @@ package net.wolfesoftware.java.jax.parser;
 import java.util.*;
 import net.wolfesoftware.java.common.Util;
 import net.wolfesoftware.java.jax.Lang;
-import net.wolfesoftware.java.jax.parser.elements.*;
+import net.wolfesoftware.java.jax.ast.*;
 import net.wolfesoftware.java.jax.tokenizer.*;
 
 public final class Parser
@@ -36,57 +36,114 @@ public final class Parser
 
     private SubParsing<Program> parseProgram(int offset)
     {
-        int i = offset;
-        LinkedList<Declaration> declarations = new LinkedList<Declaration>();
+        LinkedList<TopLevelItem> topLevelItems = new LinkedList<TopLevelItem>();
         while (true)
         {
-            SubParsing<Declaration> declaration = parseDeclaration(i);
-            if (declaration != null) {
-                declarations.add(declaration.element);
-                i = declaration.end;
+            SubParsing<TopLevelItem> topLevelItem = parseTopLevelItem(offset);
+            if (topLevelItem != null) {
+                topLevelItems.add(topLevelItem.element);
+                offset = topLevelItem.end;
             } else
-                declarations.add(null);
-            Token semicolon = getToken(i);
+                topLevelItems.add(null);
+            Token semicolon = getToken(offset);
             if (semicolon.text != Lang.SYMBOL_SEMICOLON)
                 break;
-            i++;
+            offset++;
         }
-        return new SubParsing<Program>(new Program(declarations), i);
+        return new SubParsing<Program>(new Program(topLevelItems), offset);
     }
 
-    private SubParsing<Declaration> parseDeclaration(int offset)
+    private SubParsing<TopLevelItem> parseTopLevelItem(int offset)
     {
-        SubParsing<TypeId> type = parseType(offset);
-        if (type == null)
+        SubParsing<?> content;
+        
+        content = parseFunctionDefinition(offset);
+        if (content == null)
             return null;
+        offset = content.end;
+        
+        return new SubParsing<TopLevelItem>(new TopLevelItem(content.element), offset);
+    }
 
-        Id id = parseId(getToken(type.end));
+    private SubParsing<FunctionDefinition> parseFunctionDefinition(int offset)
+    {
+        TypeId typeId = parseTypeId(offset);
+        if (typeId == null)
+            return null;
+        offset++;
+
+        Id id = parseId(offset);
         if (id == null)
             return null;
+        offset++;
 
-        Token equals = getToken(type.end + 1);
-        if (equals.text != Lang.SYMBOL_EQUALS)
+        if (getToken(offset).text != Lang.SYMBOL_OPEN_PARENS)
             return null;
+        offset++;
 
-        SubParsing<Expression> expression = new ExpressionParser().parseExpression(type.end + 2);
+        SubParsing<ArgumentDeclarations> argumentDeclarations = parseArgumentDeclarations(offset);
+        if (argumentDeclarations == null)
+            return null;
+        offset = argumentDeclarations.end;
+
+        if (getToken(offset).text != Lang.SYMBOL_CLOSE_PARENS)
+            return null;
+        offset++;
+
+        SubParsing<Expression> expression = parseExpression(offset);
         if (expression == null)
             return null;
+        offset = expression.end;
 
-        return new SubParsing<Declaration>(new Declaration(type.element, id, expression.element), expression.end);
+        return new SubParsing<FunctionDefinition>(new FunctionDefinition(typeId, id, argumentDeclarations.element, expression.element), offset);
     }
 
-    private SubParsing<TypeId> parseType(int offset)
+    private SubParsing<ArgumentDeclarations> parseArgumentDeclarations(int offset)
+    {
+        LinkedList<VariableDeclaration> variableDeclarations = new LinkedList<VariableDeclaration>();
+        while (true)
+        {
+            SubParsing<VariableDeclaration> variableDeclaration = parseVariableDeclaration(offset);
+            if (variableDeclaration == null)
+                return null;
+            variableDeclarations.add(variableDeclaration.element);
+            offset = variableDeclaration.end;
+
+            if (getToken(offset).text != Lang.SYMBOL_COMMA)
+                break;
+            offset++;
+        }
+        return new SubParsing<ArgumentDeclarations>(new ArgumentDeclarations(variableDeclarations), offset);
+    }
+
+    private SubParsing<VariableDeclaration> parseVariableDeclaration(int offset)
+    {
+        TypeId typeId = parseTypeId(offset);
+        if (typeId == null)
+            return null;
+        offset++;
+
+        Id id = parseId(offset);
+        if (id == null)
+            return null;
+        offset++;
+
+        return new SubParsing<VariableDeclaration>(new VariableDeclaration(typeId, id), offset);
+    }
+
+    private TypeId parseTypeId(int offset)
     {
         Token token = getToken(offset);
         if (token.text == Lang.KEYWORD_INT)
-            return new SubParsing<TypeId>(TypeId.KEYWORD_INT, offset + 1);
+            return TypeId.KEYWORD_INT;
         if (token.text == Lang.KEYWORD_VOID)
-            return new SubParsing<TypeId>(TypeId.KEYWORD_VOID, offset + 1);
+            return TypeId.KEYWORD_VOID;
         return null;
     }
 
-    private Id parseId(Token token)
+    private Id parseId(int offset)
     {
+        Token token = getToken(offset);
         if (token.getType() != IdentifierToken.TYPE)
             return null;
         return new Id(token.text);
@@ -99,48 +156,45 @@ public final class Parser
 
     private SubParsing<BlockContents> parseBlockContents(int offset)
     {
-        int i = offset;
         LinkedList<Expression> declarations = new LinkedList<Expression>();
         while (true)
         {
-            SubParsing<Expression> expression = parseExpression(i);
+            SubParsing<Expression> expression = parseExpression(offset);
             if (expression != null) {
                 declarations.add(expression.element);
-                i = expression.end;
+                offset = expression.end;
             } else
                 declarations.add(null);
-            Token semicolon = getToken(i);
+            Token semicolon = getToken(offset);
             if (semicolon.text != Lang.SYMBOL_SEMICOLON)
                 break;
-            i++;
+            offset++;
         }
-        return new SubParsing<BlockContents>(new BlockContents(declarations), i);
+        return new SubParsing<BlockContents>(new BlockContents(declarations), offset);
     }
     private final class ExpressionParser
     {
         private final Stack<StackElement> stack = new Stack<StackElement>();
         public SubParsing<Expression> parseExpression(int offset)
         {
-            int i = offset;
-            while (i < tokens.length)
+            while (offset < tokens.length)
             {
-                Token token = getToken(i);
                 HashMap<String, List<ExpressionOperator>> operators = null;
                 if (hasOpenTop())
                 {
-                    LiteralElement literal = parseLiteral(i);
+                    LiteralElement literal = parseLiteral(offset);
                     if (literal != null)
                     {
                         pushUnit(literal);
-                        i++;
+                        offset++;
                         continue;
                     }
                     // function invocation goes here
-                    Id id = parseId(token);
+                    Id id = parseId(offset);
                     if (id != null)
                     {
                         pushUnit(id);
-                        i++;
+                        offset++;
                         continue;
                     }
                     operators = ExpressionOperator.CLOSED_LEFT;
@@ -150,13 +204,13 @@ public final class Parser
 
                 if (operators != null)
                 {
-                    List<ExpressionOperator> ops = operators.get(token.text);
+                    List<ExpressionOperator> ops = operators.get(getToken(offset).text);
                     if (ops != null)
                     {
-                        int newI = consumeOperators(i + 1, ops);
-                        if (newI == -1)
+                        int newOffset = consumeOperators(offset + 1, ops);
+                        if (newOffset == -1)
                             return null;
-                        i = newI;
+                        offset = newOffset;
                         continue;
                     }
                     break;
@@ -165,7 +219,7 @@ public final class Parser
             if (hasOpenTop())
                 return null;
             groupStack(0);
-            return new SubParsing<Expression>(((ExpressionStackElement)stack.pop()).expression, i);
+            return new SubParsing<Expression>(((ExpressionStackElement)stack.pop()).expression, offset);
         }
         private int consumeOperators(int offset, List<ExpressionOperator> ops)
         {

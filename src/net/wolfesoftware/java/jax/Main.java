@@ -2,6 +2,7 @@ package net.wolfesoftware.java.jax;
 
 import java.io.FileNotFoundException;
 import net.wolfesoftware.java.common.Util;
+import net.wolfesoftware.java.jax.lexiconizer.*;
 import net.wolfesoftware.java.jax.parser.*;
 import net.wolfesoftware.java.jax.tokenizer.*;
 
@@ -23,6 +24,7 @@ public class Main
     {
         Tokenization tokenization = Tokenizer.tokenize(Util.fileToString(fileName));
         Parsing parsing = Parser.parse(tokenization);
-        System.out.println(parsing);
+        Lexiconization lexiconization = Lexiconizer.lexiconize(parsing);
+        System.out.println(lexiconization);
     }
 }

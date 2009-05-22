@@ -1,6 +1,6 @@
 package net.wolfesoftware.java.jax.tokenizer;
 
-import net.wolfesoftware.java.jax.parser.elements.*;
+import net.wolfesoftware.java.jax.ast.*;
 
 public class IntToken extends LiteralToken
 {
