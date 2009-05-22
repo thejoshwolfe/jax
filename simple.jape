@@ -1,0 +1,25 @@
+
+
+|TypeId = "void" | "int"
+
+/Expression
+    
+    $Addition = Expression(121) "+" Expression(120)
+    $Subtraction = Expression(121) "-" Expression(120)
+    $Multiplication = Expression(131) "*" Expression(130)
+    |Operation = Addition | Subtraction
+    
+    $Quantity = "(" Expression ")"
+    
+    $IfThen = "if" "(" Expression ")" Expression
+    $IfThenElse = "if" "(" Expression ")" Expression "else" Expression
+    |ControlStructure = IfThen | IfThenElse
+    
+    ~BlockContents = (Expression) : ";"
+    $Block = "{" BlockContents "}"
+    
+|Expression = LITERAL | ID | -Operation | Quantity | -ControlStructure
+
+$Declaration = TypeId ID "=" Expression
+~Program = (Declaration) : ";"
+

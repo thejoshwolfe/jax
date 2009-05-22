@@ -1,0 +1,103 @@
+
+###
+### Josh's Jax japerator grammar definition file
+###
+
+## how the grammar works:
+## four types of grammar elements:
+## 	scalar:
+## 	 declaration prefixed with "$"
+##   elements listed delimited by whitespace
+##   indicates that all elements should appear in the order specified
+##  list:
+##   declaration prefixed with "~"
+##   element type and delimiter token specified with a ":" between them
+##   indicates that zero or more occurrences of the element appear separated by the delimiter
+##  switch:
+##   declaration prefixed with "|"
+##   choices listed delimited by "|"
+##   indicates that exactly one of the choices should appear
+##  recursive prototype:
+##   prototype definition prefixed with "/"
+##   actual definition appears later and is one of scalar, list, or switch
+##
+## declared element names must be all letters in TitleCase. /[A-Z][A-Za-z]*/ I recommend TitleCase because they will be the names of Java classes.
+##
+## all elements must be declared or prototyped before they are referenced in a definition.
+## scalars with head- or tail-recursion must specify a precedence in parentheses following the reference to the prototyped element.
+##
+## primitive elements: 
+##  LITERAL - indicates a literal value (currently just integers)
+##  ID - indicates an identifier.
+##  NULL - indicates that nothing should appear
+##
+## literal elements:
+##  elements specified in quotes (") signify keywords or symbol tokens
+##
+
+
+### only two types currently
+|TypeId = "void" | "int"
+
+### variable declaration
+$VariableDeclaration = TypeId ID
+
+### recursive expressions
+/Expression
+
+    ### binary operators
+    $Addition = Expression(121) "+" Expression(120)
+    $Subtraction = Expression(121) "-" Expression(120)
+    $Multiplication = Expression(131) "*" Expression(130)
+    $Division = Expression(131) "/" Expression(130)
+    |InfixOperation = Addition | Subtraction | Multiplication | Division
+
+    ### unary prefix operators
+    $Negation = "-" Expression(140)
+    |PrefixOperation = Negation
+
+    |Operation = -InfixOperation | -PrefixOperation
+
+    ### function invocation
+    ~Arguments = Expression : ","
+    $FunctionInvocation = ID "(" Arguments ")"
+
+    ### variable initialization
+    $VariableCreation = VariableDeclaration "=" Expression
+
+    ### Control Structures
+    $IfThen = "if" Expression "then" Expression
+    $IfThenElse = "if" Expression "then" Expression "else" Expression
+    |ControlStructure = IfThen | IfThenElse
+
+    ### controlStatement (none currently)
+    #|ControlStatement = 
+
+    ### block
+    #|MaybeExpression = Expression | "void"
+    ~BlockContents = Expression : ";"
+    $Block = "{" BlockContents "}"
+
+    ### try-catch-finally
+    $TryPart = "try" Expression
+    $CatchBody = "(" VariableDeclaration ")" Expression
+    ~CatchList = CatchBody : "catch"
+    $CatchPart = "catch" CatchList
+    $FinallyPart = "finally" Expression
+    $TryCatch = TryPart CatchPart
+    $TryFinally = TryPart FinallyPart
+    $TryCatchFinally = TryPart CatchPart FinallyPart
+    |TryGroup = TryCatch | TryFinally | TryCatchFinally
+
+|Expression = LITERAL | FunctionInvocation | ID | Operation | VariableCreation | Block | ControlStucture | -TryGroup  # | ControlStatement
+
+### function definition
+~ArgumentDeclarations = VariableDeclaration : ","
+$FunctionDefinition = TypeId ID "(" ArgumentDeclarations ")" Expression
+
+### program
+|TopLevelItem = FunctionDefinition | VariableCreation
+~Program = TopLevelItem : ";"
+
+
+
