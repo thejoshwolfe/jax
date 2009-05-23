@@ -1,6 +1,6 @@
 package net.wolfesoftware.java.jax.lexiconizer;
 
-import java.util.HashMap;
+import java.util.*;
 import net.wolfesoftware.java.jax.ast.*;
 import net.wolfesoftware.java.jax.parser.Parsing;
 
@@ -18,10 +18,11 @@ public class Lexiconizer
     }
     private final HashMap<String, FunctionDefinition> localMethods = new HashMap<String, FunctionDefinition>();
     
-    private final Parsing parsing;
+    private final Program root;
+    private final ArrayList<LexicalException> errors = new ArrayList<LexicalException>();
     private Lexiconizer(Parsing parsing)
     {
-        this.parsing = parsing;
+        root = parsing.root;
     }
     
     private Lexiconization lexiconize()
@@ -29,17 +30,17 @@ public class Lexiconizer
         // TODO: ensure types match up.
         // There is no type coercion or even implicit type casting yet, 
         // so exact matches is all that must be verified.
-        lexiconizeProgram(parsing.root);
-        
-        return null;
+        lexiconizeProgram(root);
+
+        return new Lexiconization(root, errors);
     }
     
     private void lexiconizeProgram(Program program)
     {
-        for (TopLevelItem topLevelItem : parsing.root.elements)
+        for (TopLevelItem topLevelItem : program.elements)
             registerName(topLevelItem);
         
-        for (TopLevelItem topLevelItem : parsing.root.elements)
+        for (TopLevelItem topLevelItem : program.elements)
             lexiconizeTopLevelItem(topLevelItem);
     }
 
@@ -88,13 +89,16 @@ public class Lexiconizer
         ReturnBehavior returnBehavior;
         switch (content.getElementType())
         {
-            case Addition.TYPE:
-                returnBehavior = lexiconizeAddition((Addition)content);
+//            case Addition.TYPE:
+//                returnBehavior = lexiconizeAddition((Addition)content);
+//                break;
+//            case Id.TYPE:
+//                // TODO
+//            case Block.TYPE:
+//                // TODO
+            case IntLiteral.TYPE:
+                returnBehavior = lexiconizeIntLiteral((IntLiteral)content);
                 break;
-            case Id.TYPE:
-                // TODO
-            case Block.TYPE:
-                // TODO
             default:
                 throw new RuntimeException();
         }
@@ -102,35 +106,23 @@ public class Lexiconizer
         return returnBehavior;
     }
 
-    private ReturnBehavior lexiconizeAddition(Addition content)
+    private ReturnBehavior lexiconizeIntLiteral(IntLiteral content)
     {
-        ReturnBehavior returnBehavior1 = lexiconizeExpression(content.expression1);
-        ReturnBehavior returnBehavior2 = lexiconizeExpression(content.expression2);
-        if (returnBehavior1.type != returnBehavior2.type)
-            return null;
-        return new ReturnBehavior(returnBehavior1.type);
+        return new ReturnBehavior(Type.KEYWORD_INT);
     }
+
+//    private ReturnBehavior lexiconizeAddition(Addition content)
+//    {
+//        ReturnBehavior returnBehavior1 = lexiconizeExpression(content.expression1);
+//        ReturnBehavior returnBehavior2 = lexiconizeExpression(content.expression2);
+//        if (returnBehavior1.type != returnBehavior2.type)
+//            return null;
+//        return new ReturnBehavior(returnBehavior1.type);
+//    }
 
     private Type resolveType(TypeId typeId)
     {
         return importedTypes.get(typeId.toString());
     }
-    
-    private class Context
-    {
-        public void pushScope()
-        {
-        }
-        public void popScope()
-        {
-        }
-        public boolean declareSomething(String name)
-        {
-            return false;
-        }
-        public String resolveSomething(String name)
-        {
-            return null;
-        }
-    }
+
 }
