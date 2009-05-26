@@ -105,7 +105,12 @@ public final class Parser
         {
             SubParsing<VariableDeclaration> variableDeclaration = parseVariableDeclaration(offset);
             if (variableDeclaration == null)
-                return null;
+            {
+                if (variableDeclarations.size() == 0)
+                    break;
+                else
+                    return null;
+            }
             variableDeclarations.add(variableDeclaration.element);
             offset = variableDeclaration.end;
 

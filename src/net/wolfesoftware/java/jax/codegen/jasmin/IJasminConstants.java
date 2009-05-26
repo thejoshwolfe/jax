@@ -8,4 +8,8 @@ public interface IJasminConstants
         "    invokenonvirtual java/lang/Object/<init>()V\n" +
         "    return\n" +
         ".end method\n";
+
+    String indentation = "    ";
+    
+    
 }

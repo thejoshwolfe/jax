@@ -21,4 +21,9 @@ public class Type
         types.put(KEYWORD_INT.id, KEYWORD_INT);
         types.put(KEYWORD_VOID.id, KEYWORD_VOID);
     }
+
+    public String toString()
+    {
+        return (packageId == null) ? id : packageId + "." + id;
+    }
 }

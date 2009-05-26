@@ -1,7 +1,10 @@
 package net.wolfesoftware.java.jax.ast;
 
+import net.wolfesoftware.java.jax.lexiconizer.Type;
+
 public class FunctionDefinition extends ParseElement
 {
+    public Type returnType;
     public TypeId typeId;
     public Id id;
     public ArgumentDeclarations argumentDeclarations;

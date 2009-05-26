@@ -77,9 +77,9 @@ public class Lexiconizer
 
     private void lexiconizeFunctionDefinition(FunctionDefinition functionDefinition)
     {
-        Type returnType = resolveType(functionDefinition.typeId);
+        functionDefinition.returnType = resolveType(functionDefinition.typeId);
         ReturnBehavior returnBehavior = lexiconizeExpression(functionDefinition.expression);
-        if (returnType != returnBehavior.type)
+        if (functionDefinition.returnType != returnBehavior.type)
             ; // TODO: error
     }
 
