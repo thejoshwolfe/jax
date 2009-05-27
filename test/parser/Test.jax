@@ -1,0 +1,10 @@
+void doNothing() {
+};
+
+int blockMethod(int arg1, int arg2) {
+	arg1 + 3;
+	arg2 + arg1 * 3
+};
+
+void controlStructures() if (1) {2;} else if (3) {4;};
+

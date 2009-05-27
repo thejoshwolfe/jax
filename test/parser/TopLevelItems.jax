@@ -1,0 +1,10 @@
+
+/*
+ * not supported currently:
+ *    int field = 0;
+ */
+
+void voidFunc() 1;
+
+int intFunc() 2;
+
