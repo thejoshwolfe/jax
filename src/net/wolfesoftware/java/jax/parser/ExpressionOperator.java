@@ -2,7 +2,6 @@ package net.wolfesoftware.java.jax.parser;
 
 import java.lang.reflect.*;
 import java.util.*;
-import net.wolfesoftware.java.jax.Lang;
 import net.wolfesoftware.java.jax.ast.*;
 
 public abstract class ExpressionOperator

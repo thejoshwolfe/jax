@@ -2,6 +2,7 @@ package net.wolfesoftware.java.jax.codegen.jasmin;
 
 import java.io.*;
 import java.util.regex.*;
+import net.wolfesoftware.java.common.TestUtils;
 import net.wolfesoftware.java.jax.ast.*;
 import net.wolfesoftware.java.jax.codegen.*;
 import net.wolfesoftware.java.jax.lexiconizer.Type;
@@ -11,6 +12,7 @@ public class JasminGenerator extends CodeGenerator
     private final Program root;
     private final PrintWriter out;
     private final String className;
+    private final String outputFilename;
     public JasminGenerator(Program root, String outputFilename) throws FileNotFoundException
     {
         this.root = root;
@@ -19,6 +21,7 @@ public class JasminGenerator extends CodeGenerator
         Matcher classNameFinder = Pattern.compile("([^\\\\\\/]*)\\..+$").matcher(outputFilename);
         classNameFinder.find();
         className = classNameFinder.group(1);
+        this.outputFilename = outputFilename;
     }
 
     public static final CodeGenStrategy STRATEGY = new CodeGenStrategy() {
@@ -32,6 +35,7 @@ public class JasminGenerator extends CodeGenerator
     {
         genProgram(root);
         out.close();
+        TestUtils.compileJasmin(outputFilename);
     }
 
     protected void genProgram(Program program)

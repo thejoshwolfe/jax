@@ -2,7 +2,7 @@ package net.wolfesoftware.java.jax.tokenizer;
 
 import java.util.ArrayList;
 import java.util.regex.*;
-import net.wolfesoftware.java.jax.Lang;
+import net.wolfesoftware.java.jax.ast.Lang;
 
 public final class Tokenizer
 {

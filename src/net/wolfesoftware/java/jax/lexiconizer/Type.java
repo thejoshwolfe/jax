@@ -1,7 +1,7 @@
 package net.wolfesoftware.java.jax.lexiconizer;
 
 import java.util.HashMap;
-import net.wolfesoftware.java.jax.Lang;
+import net.wolfesoftware.java.jax.ast.Lang;
 
 public class Type
 {

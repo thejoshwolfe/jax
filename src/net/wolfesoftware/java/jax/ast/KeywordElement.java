@@ -1,6 +1,5 @@
 package net.wolfesoftware.java.jax.ast;
 
-import net.wolfesoftware.java.jax.Lang;
 
 public class KeywordElement extends ParseElement
 {
