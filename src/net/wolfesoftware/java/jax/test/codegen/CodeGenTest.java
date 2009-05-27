@@ -17,7 +17,10 @@ public class CodeGenTest
     private static final boolean clean = true;
     private static final boolean verbose = true;
     private static final String dir = "test/codegen";
-    private static final String[] tests = { "ConstReturn" };
+    private static final String[] tests = { 
+        "ConstReturn", 
+        "Arithmetic",
+        };
 
     public static void main(String[] args)
     {
@@ -36,7 +39,7 @@ public class CodeGenTest
 
         if (clean)
             for (String file : tmpFiles)
-                new File(file).delete();
+                new File(Util.platformizeFilepath(file)).delete();
     }
 
     /**

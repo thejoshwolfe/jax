@@ -342,8 +342,8 @@ public final class Parser
                 Expression rightExpression = ((ExpressionStackElement)stack.pop()).expression;
                 OperatorStackElement operatorElement = (OperatorStackElement)stack.pop();
                 Expression leftExpression = operatorElement.op.leftPrecedence == -1 ? null : ((ExpressionStackElement)stack.pop()).expression;
-                Expression expression = operatorElement.op.makeExpressionContent(leftExpression, operatorElement.innerExpressions, rightExpression);
-                stack.push(new ExpressionStackElement(expression, getTopPrecedence()));
+                ParseElement expressionContent = operatorElement.op.makeExpressionContent(leftExpression, operatorElement.innerExpressions, rightExpression);
+                stack.push(new ExpressionStackElement(new Expression(expressionContent), getTopPrecedence()));
             }
         }
 

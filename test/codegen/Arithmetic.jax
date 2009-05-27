@@ -1,0 +1,6 @@
+int addition3() 1 + 2;
+
+int addition15() 1 + 2 + 3 + 4 + 5;
+
+int addition21() 1 + (2 + (3 + (4 + (5 + 6))));
+

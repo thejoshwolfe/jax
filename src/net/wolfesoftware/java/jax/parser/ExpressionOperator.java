@@ -15,7 +15,7 @@ public abstract class ExpressionOperator
         this.text = text;
         this.rightPrecedence = rightPrecedence;
     }
-    public abstract Expression makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression);
+    public abstract ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression);
     public String toString()
     {
         return text;
@@ -23,53 +23,53 @@ public abstract class ExpressionOperator
 
     /* Operation */
     public static final ExpressionOperator ADDITION = new ExpressionOperator(120, Lang.SYMBOL_PLUS, 121) {
-        public Expression makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
-            return new Expression(new Addition(leftExpression, rightExpression));
+            return new Addition(leftExpression, rightExpression);
         }
     };
     public static final ExpressionOperator SUBTRACTION = new ExpressionOperator(120, Lang.SYMBOL_MINUS, 121) {
-        public Expression makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
-            return new Expression(new Subtraction(leftExpression, rightExpression));
+            return new Subtraction(leftExpression, rightExpression);
         }
     };
     public static final ExpressionOperator MULTIPLICATION = new ExpressionOperator(130, Lang.SYMBOL_ASTERISK, 131) {
-        public Expression makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
-            return new Expression(new Multiplication(leftExpression, rightExpression));
+            return new Multiplication(leftExpression, rightExpression);
         }
     };
 
     public static final ExpressionOperator QUANTITY = new ExpressionEnclosingOperator(-1, Lang.SYMBOL_OPEN_PARENS, -1, 
             Expression.TYPE, Lang.SYMBOL_CLOSE_PARENS) {
-        public Expression makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
-            return new Expression(new Quantity((Expression)innerElements.get(0)));
+            return new Quantity((Expression)innerElements.get(0));
         }
     };
 
     /* ControlStructure */
     public static final ExpressionOperator IfThen = new ExpressionEnclosingOperator(-1, Lang.KEYWORD_IF, -1, 
             Lang.SYMBOL_OPEN_PARENS, Expression.TYPE, Lang.SYMBOL_CLOSE_PARENS, Expression.TYPE) {
-        public Expression makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
-            return new Expression(new IfThen((Expression)innerElements.get(0), (Expression)innerElements.get(1)));
+            return new IfThen((Expression)innerElements.get(0), (Expression)innerElements.get(1));
         }
     };
     public static final ExpressionOperator IfThenElse = new ExpressionEnclosingOperator(-1, Lang.KEYWORD_IF, -1, 
             Lang.SYMBOL_OPEN_PARENS, Expression.TYPE, Lang.SYMBOL_CLOSE_PARENS, Expression.TYPE, Lang.KEYWORD_ELSE, Expression.TYPE) {
-        public Expression makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
-            return new Expression(new IfThenElse((Expression)innerElements.get(0), (Expression)innerElements.get(1), (Expression)innerElements.get(2)));
+            return new IfThenElse((Expression)innerElements.get(0), (Expression)innerElements.get(1), (Expression)innerElements.get(2));
         }
     };
 
     public static final ExpressionOperator Block = new ExpressionEnclosingOperator(-1, Lang.SYMBOL_OPEN_BRACE, -1,
             BlockContents.TYPE, Lang.SYMBOL_CLOSE_BRACE) {
-        public Expression makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
-            return new Expression(new Block((BlockContents)innerElements.get(0)));
+            return new Block((BlockContents)innerElements.get(0));
         }
     };
 

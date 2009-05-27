@@ -17,24 +17,24 @@ public class Lexiconizer
         // we don't have any "import " statements in the lang yet. primitives is all we got so far.
     }
     private final HashMap<String, FunctionDefinition> localMethods = new HashMap<String, FunctionDefinition>();
-    
+
     private final Program root;
     private final ArrayList<LexicalException> errors = new ArrayList<LexicalException>();
     private Lexiconizer(Parsing parsing)
     {
         root = parsing.root;
     }
-    
+
     private Lexiconization lexiconize()
     {
-        // TODO: ensure types match up.
+        // ensure types match up.
         // There is no type coercion or even implicit type casting yet, 
         // so exact matches is all that must be verified.
         lexiconizeProgram(root);
 
         return new Lexiconization(root, errors);
     }
-    
+
     private void lexiconizeProgram(Program program)
     {
         for (TopLevelItem topLevelItem : program.elements)
@@ -46,6 +46,8 @@ public class Lexiconizer
 
     private void registerName(TopLevelItem topLevelItem)
     {
+        if (topLevelItem == null)
+            return;
         ParseElement content = topLevelItem.content;
         switch (content.getElementType())
         {
@@ -64,6 +66,8 @@ public class Lexiconizer
 
     private void lexiconizeTopLevelItem(TopLevelItem topLevelItem)
     {
+        if (topLevelItem == null)
+            return;
         ParseElement content = topLevelItem.content;
         switch (content.getElementType())
         {
@@ -77,10 +81,10 @@ public class Lexiconizer
 
     private void lexiconizeFunctionDefinition(FunctionDefinition functionDefinition)
     {
-        functionDefinition.returnType = resolveType(functionDefinition.typeId);
-        ReturnBehavior returnBehavior = lexiconizeExpression(functionDefinition.expression);
-        if (functionDefinition.returnType != returnBehavior.type)
-            ; // TODO: error
+        Type returnType = resolveType(functionDefinition.typeId);
+        functionDefinition.returnBehavior = lexiconizeExpression(functionDefinition.expression);
+        if (returnType != functionDefinition.returnBehavior.type)
+            errors.add(new LexicalException()); // TODO
     }
 
     private ReturnBehavior lexiconizeExpression(Expression expression)
@@ -89,15 +93,18 @@ public class Lexiconizer
         ReturnBehavior returnBehavior;
         switch (content.getElementType())
         {
-//            case Addition.TYPE:
-//                returnBehavior = lexiconizeAddition((Addition)content);
-//                break;
+            case Addition.TYPE:
+                returnBehavior = lexiconizeAddition((Addition)content);
+                break;
 //            case Id.TYPE:
 //                // TODO
 //            case Block.TYPE:
 //                // TODO
             case IntLiteral.TYPE:
                 returnBehavior = lexiconizeIntLiteral((IntLiteral)content);
+                break;
+            case Quantity.TYPE:
+                returnBehavior = lexiconizeQuantity((Quantity)content);
                 break;
             default:
                 throw new RuntimeException();
@@ -106,19 +113,25 @@ public class Lexiconizer
         return returnBehavior;
     }
 
-    private ReturnBehavior lexiconizeIntLiteral(IntLiteral content)
+    private ReturnBehavior lexiconizeQuantity(Quantity quantity)
     {
-        return new ReturnBehavior(Type.KEYWORD_INT);
+        return lexiconizeExpression(quantity.expression);
     }
 
-//    private ReturnBehavior lexiconizeAddition(Addition content)
-//    {
-//        ReturnBehavior returnBehavior1 = lexiconizeExpression(content.expression1);
-//        ReturnBehavior returnBehavior2 = lexiconizeExpression(content.expression2);
-//        if (returnBehavior1.type != returnBehavior2.type)
-//            return null;
-//        return new ReturnBehavior(returnBehavior1.type);
-//    }
+    private ReturnBehavior lexiconizeIntLiteral(IntLiteral content)
+    {
+        return new ReturnBehavior(Type.KEYWORD_INT, 1);
+    }
+
+    private ReturnBehavior lexiconizeAddition(Addition addition)
+    {
+        ReturnBehavior returnBehavior1 = lexiconizeExpression(addition.expression1);
+        ReturnBehavior returnBehavior2 = lexiconizeExpression(addition.expression2);
+        if (returnBehavior1.type != returnBehavior2.type)
+            return null;
+        int stackRequirement = Math.max(returnBehavior1.stackRequirement, returnBehavior2.stackRequirement + 1);
+        return new ReturnBehavior(returnBehavior1.type, stackRequirement);
+    }
 
     private Type resolveType(TypeId typeId)
     {

@@ -55,6 +55,8 @@ public class JasminGenerator extends CodeGenerator
 
     private void genTopLevelItem(TopLevelItem element)
     {
+        if (element == null)
+            return;
         switch (element.content.getElementType())
         {
             case FunctionDefinition.TYPE:
@@ -72,10 +74,10 @@ public class JasminGenerator extends CodeGenerator
         out.print(functionDefinition.id + "(");
         genArgumentDeclarations(functionDefinition.argumentDeclarations);
         out.print(")");
-        out.print(getTypeCode(functionDefinition.returnType));
+        out.print(getTypeCode(functionDefinition.returnBehavior.type));
         out.println();
         // .limit stack
-        out.print(IJasminConstants.indentation + ".limit stack " + 1); // TODO: calculate it (not hard coding as 1)
+        out.print(IJasminConstants.indentation + ".limit stack " + functionDefinition.returnBehavior.stackRequirement);
         out.println();
 
         // main body
@@ -83,9 +85,9 @@ public class JasminGenerator extends CodeGenerator
 
         // return statement
         String rtnStmt = null;
-        if (functionDefinition.returnType == Type.KEYWORD_VOID)
+        if (functionDefinition.returnBehavior.type == Type.KEYWORD_VOID)
             rtnStmt = "return";
-        else if (functionDefinition.returnType == Type.KEYWORD_INT)
+        else if (functionDefinition.returnBehavior.type == Type.KEYWORD_INT)
             rtnStmt = "ireturn";
         printStatement(rtnStmt);
 
@@ -104,19 +106,38 @@ public class JasminGenerator extends CodeGenerator
 
     private void evalExpression(Expression expression)
     {
-        switch (expression.content.getElementType())
+        ParseElement content = expression.content;
+        switch (content.getElementType())
         {
             case IntLiteral.TYPE:
-                evalIntLiteral((IntLiteral)expression.content);
+                evalIntLiteral((IntLiteral)content);
+                break;
+            case Addition.TYPE:
+                evalAddition((Addition)content);
+                break;
+            case Quantity.TYPE:
+                evalQuantity((Quantity)content);
                 break;
             default:
                 throw new RuntimeException();
         }
     }
 
-    private void evalIntLiteral(IntLiteral content)
+    private void evalQuantity(Quantity quantity)
     {
-        printStatement("ldc " +  content.value);
+        evalExpression(quantity.expression);
+    }
+
+    private void evalAddition(Addition addition)
+    {
+        evalExpression(addition.expression1);
+        evalExpression(addition.expression2);
+        printStatement("iadd");
+    }
+
+    private void evalIntLiteral(IntLiteral intLiteral)
+    {
+        printStatement("ldc " +  intLiteral.value);
     }
 
     private void genArgumentDeclarations(ArgumentDeclarations argumentDeclarations)
