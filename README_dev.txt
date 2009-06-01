@@ -5,9 +5,10 @@ Phases of compiling (see Main.comprehend():
 1. Tokenization - generates an array of tokens
 2. Parsing - generates and Abstract Syntax Tree
 3. Lexiconization (or Lexical Analysis for you traditionalists) - fills in the AST with contextual info
-4. Code Generation - generates Jasmin code
+4. Optimization - reduces the AST when possible. (this entire step is optional)
+5. Code Generation - generates Jasmin code
 
-See test.README_tests.txt for testing info. 
+See test.README_tests.txt for testing/demo info.
 
 
 The contents of net.wolfesoftware.java.jax.ast would ideally be generated from the specification coded out in "jax.jape".

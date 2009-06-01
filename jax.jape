@@ -89,9 +89,9 @@ $VariableDeclaration = TypeId ID
     #$TryCatchFinally = TryPart CatchPart FinallyPart
     #|TryGroup = TryCatch | TryFinally | TryCatchFinally
 
-|Expression = LITERAL | FunctionInvocation | ID | -Operation | Block | -ControlStucture 
+|Expression = LITERAL | FunctionInvocation | ID | -Operation | Block | -ControlStucture | VariableCreation | VariableDeclaration
 
-# | VariableCreation | -TryGroup | ControlStatement
+# | -TryGroup | ControlStatement
 
 ### function definition
 ~ArgumentDeclarations = VariableDeclaration : ","

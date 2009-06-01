@@ -30,12 +30,12 @@ public final class Parser
         }
         if (program.end != tokens.length)
             errors.add(ParsingException.newInstance(program.end, "Expected EOF"));
-        return new Parsing(program.element, errors);
+        return new Parsing(new Root(program.element), errors);
     }
 
     private SubParsing<Program> parseProgram(int offset)
     {
-        LinkedList<TopLevelItem> topLevelItems = new LinkedList<TopLevelItem>();
+        ArrayList<TopLevelItem> topLevelItems = new ArrayList<TopLevelItem>();
         while (true)
         {
             SubParsing<TopLevelItem> topLevelItem = parseTopLevelItem(offset);
@@ -99,7 +99,7 @@ public final class Parser
 
     private SubParsing<ArgumentDeclarations> parseArgumentDeclarations(int offset)
     {
-        LinkedList<VariableDeclaration> variableDeclarations = new LinkedList<VariableDeclaration>();
+        ArrayList<VariableDeclaration> variableDeclarations = new ArrayList<VariableDeclaration>();
         while (true)
         {
             SubParsing<VariableDeclaration> variableDeclaration = parseVariableDeclaration(offset);
@@ -160,7 +160,7 @@ public final class Parser
 
     private SubParsing<BlockContents> parseBlockContents(int offset)
     {
-        LinkedList<Expression> declarations = new LinkedList<Expression>();
+        ArrayList<Expression> declarations = new ArrayList<Expression>();
         while (true)
         {
             SubParsing<Expression> expression = parseExpression(offset);
@@ -176,6 +176,24 @@ public final class Parser
         }
         return new SubParsing<BlockContents>(new BlockContents(declarations), offset);
     }
+    private SubParsing<VariableCreation> parseVariableCreation(int offset)
+    {
+        SubParsing<VariableDeclaration> variableDeclaration = parseVariableDeclaration(offset);
+        if (variableDeclaration == null)
+            return null;
+        offset = variableDeclaration.end;
+
+        if (getToken(offset).text != Lang.SYMBOL_EQUALS)
+            return null;
+        offset++;
+
+        SubParsing<Expression> expression = parseExpression(offset);
+        if (expression == null)
+            return null;
+        offset = expression.end;
+
+        return new SubParsing<VariableCreation>(new VariableCreation(variableDeclaration.element, expression.element), offset);
+    }
     private final class ExpressionParser
     {
         private final Stack<StackElement> stack = new Stack<StackElement>();
@@ -186,6 +204,20 @@ public final class Parser
                 HashMap<String, List<ExpressionOperator>> operators = null;
                 if (hasOpenTop())
                 {
+                    SubParsing<VariableCreation> variableCreation = parseVariableCreation(offset);
+                    if (variableCreation != null)
+                    {
+                        pushUnit(variableCreation.element);
+                        offset = variableCreation.end;
+                        continue;
+                    }
+                    SubParsing<VariableDeclaration> variableDeclaration = parseVariableDeclaration(offset);
+                    if (variableDeclaration != null)
+                    {
+                        pushUnit(variableDeclaration.element);
+                        offset = variableDeclaration.end;
+                        continue;
+                    }
                     LiteralElement literal = parseLiteral(offset);
                     if (literal != null)
                     {
@@ -193,14 +225,16 @@ public final class Parser
                         offset++;
                         continue;
                     }
-                    // function invocation goes here
                     Id id = parseId(offset);
                     if (id != null)
                     {
+                        // function invocation goes here
+                        // local declaration as well someday (not until type includes ID)
                         pushUnit(id);
                         offset++;
                         continue;
                     }
+                    
                     operators = ExpressionOperator.CLOSED_LEFT;
                 }
                 else

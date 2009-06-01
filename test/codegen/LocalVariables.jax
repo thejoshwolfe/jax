@@ -1,0 +1,6 @@
+
+int assignAndReturn() {
+	int value = 5;
+	value
+};
+

@@ -5,6 +5,7 @@ import java.util.*;
 import net.wolfesoftware.java.common.Util;
 import net.wolfesoftware.java.jax.codegen.CodeGenerator;
 import net.wolfesoftware.java.jax.lexiconizer.*;
+import net.wolfesoftware.java.jax.optimizer.Optimizer;
 import net.wolfesoftware.java.jax.parser.*;
 import net.wolfesoftware.java.jax.tokenizer.*;
 
@@ -22,12 +23,17 @@ public class Jax
         Tokenization tokenization = Tokenizer.tokenize(Util.fileToString(fileName));
         if (printErrors(tokenization.errors))
             return;
+
         Parsing parsing = Parser.parse(tokenization);
         if (printErrors(parsing.errors))
             return;
+
         Lexiconization lexiconization = Lexiconizer.lexiconize(parsing);
         if (printErrors(lexiconization.errors))
             return;
+        
+        Optimizer.optimize(lexiconization.root, null);
+
         String outFileName = fileName.substring(0, fileName.lastIndexOf('.')) + ".jasmin";
         CodeGenerator.generateCode(lexiconization, outFileName);
     }

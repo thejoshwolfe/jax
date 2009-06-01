@@ -5,6 +5,8 @@ import net.wolfesoftware.java.jax.lexiconizer.*;
 public class FunctionDefinition extends ParseElement
 {
     public ReturnBehavior returnBehavior;
+    public RootLocalContext context;
+
     public TypeId typeId;
     public Id id;
     public ArgumentDeclarations argumentDeclarations;

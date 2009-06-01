@@ -1,7 +1,11 @@
 package net.wolfesoftware.java.jax.ast;
 
+import net.wolfesoftware.java.jax.lexiconizer.LocalContext;
+
 public class Block extends ParseElement
 {
+    public LocalContext context;
+
     public BlockContents blockContents;
     public Block(BlockContents blockContents)
     {

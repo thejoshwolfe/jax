@@ -11,7 +11,7 @@ public abstract class ListElement<T extends ParseElement> extends ParseElement
     }
 
     @Override
-    protected void decompile(String indentation, StringBuilder out)
+    protected final void decompile(String indentation, StringBuilder out)
     {
         int size = elements.size();
         if (size == 0 || (size == 1 && elements.get(0) == null))
@@ -20,7 +20,7 @@ public abstract class ListElement<T extends ParseElement> extends ParseElement
         out.append(primer);
         if (primer.endsWith("\n"))
             out.append(indentation);
-        T element = elements.get(0);
+        ParseElement element = elements.get(0);
         if (element != null)
             element.decompile(indentation, out);
         String delimiter = getDelimiter();

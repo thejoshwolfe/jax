@@ -2,6 +2,8 @@ package net.wolfesoftware.java.jax.lexiconizer;
 
 public class ReturnBehavior
 {
+    public static final ReturnBehavior VOID = new ReturnBehavior(Type.KEYWORD_VOID, 0);
+
     public Type type;
     public int stackRequirement;
 

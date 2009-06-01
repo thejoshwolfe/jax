@@ -1,8 +1,12 @@
 package net.wolfesoftware.java.jax.ast;
 
+import net.wolfesoftware.java.jax.lexiconizer.Type;
+
 public class VariableDeclaration extends ParseElement
 {
     public TypeId typeId;
+    public Type type;
+
     public Id id;
 
     public VariableDeclaration(TypeId type, Id id)

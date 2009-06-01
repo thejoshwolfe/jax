@@ -1,13 +1,13 @@
 package net.wolfesoftware.java.jax.lexiconizer;
 
 import java.util.ArrayList;
-import net.wolfesoftware.java.jax.ast.Program;
+import net.wolfesoftware.java.jax.ast.Root;
 
 public class Lexiconization
 {
-    public final Program root;
+    public final Root root;
     public final ArrayList<LexicalException> errors;
-    public Lexiconization(Program root, ArrayList<LexicalException> errors)
+    public Lexiconization(Root root, ArrayList<LexicalException> errors)
     {
         this.root = root;
         this.errors = errors;

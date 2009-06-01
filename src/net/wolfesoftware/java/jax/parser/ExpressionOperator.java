@@ -72,7 +72,7 @@ public abstract class ExpressionOperator
             return new Block((BlockContents)innerElements.get(0));
         }
     };
-
+    
     public static final HashMap<String, List<ExpressionOperator>> OPEN_LEFT = new HashMap<String, List<ExpressionOperator>>();
     public static final HashMap<String, List<ExpressionOperator>> CLOSED_LEFT = new HashMap<String, List<ExpressionOperator>>();
 

@@ -1,7 +1,11 @@
 package net.wolfesoftware.java.jax.ast;
 
+import net.wolfesoftware.java.jax.lexiconizer.LocalVariable;
+
 public class Id extends ParseElement
 {
+    public LocalVariable variable;
+
     public final String name;
 
     public Id(String name)

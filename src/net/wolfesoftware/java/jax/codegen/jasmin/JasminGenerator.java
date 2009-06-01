@@ -9,11 +9,11 @@ import net.wolfesoftware.java.jax.lexiconizer.Type;
 
 public class JasminGenerator extends CodeGenerator
 {
-    private final Program root;
+    private final Root root;
     private final PrintWriter out;
     private final String className;
     private final String outputFilename;
-    public JasminGenerator(Program root, String outputFilename) throws FileNotFoundException
+    public JasminGenerator(Root root, String outputFilename) throws FileNotFoundException
     {
         this.root = root;
         out = new PrintWriter(outputFilename);
@@ -25,7 +25,7 @@ public class JasminGenerator extends CodeGenerator
     }
 
     public static final CodeGenStrategy STRATEGY = new CodeGenStrategy() {
-        public void generateCode(Program root, String outputFilename) throws FileNotFoundException
+        public void generateCode(Root root, String outputFilename) throws FileNotFoundException
         {
             new JasminGenerator(root, outputFilename).generateCode();
         }
@@ -33,7 +33,7 @@ public class JasminGenerator extends CodeGenerator
 
     protected void generateCode()
     {
-        genProgram(root);
+        genProgram(root.content);
         out.close();
         TestUtils.compileJasmin(outputFilename);
     }
@@ -55,8 +55,6 @@ public class JasminGenerator extends CodeGenerator
 
     private void genTopLevelItem(TopLevelItem element)
     {
-        if (element == null)
-            return;
         switch (element.content.getElementType())
         {
             case FunctionDefinition.TYPE:
@@ -77,7 +75,12 @@ public class JasminGenerator extends CodeGenerator
         out.print(getTypeCode(functionDefinition.returnBehavior.type));
         out.println();
         // .limit stack
-        out.print(IJasminConstants.indentation + ".limit stack " + functionDefinition.returnBehavior.stackRequirement);
+        out.print(IJasminConstants.indentation + ".limit stack ");
+        out.print(functionDefinition.returnBehavior.stackRequirement);
+        out.println();
+        // .limit locals
+        out.print(IJasminConstants.indentation + ".limit locals ");
+        out.print(functionDefinition.context.capacity);
         out.println();
 
         // main body
@@ -112,14 +115,61 @@ public class JasminGenerator extends CodeGenerator
             case IntLiteral.TYPE:
                 evalIntLiteral((IntLiteral)content);
                 break;
+            case Id.TYPE:
+                evalId((Id)content);
+                break;
             case Addition.TYPE:
                 evalAddition((Addition)content);
                 break;
             case Quantity.TYPE:
                 evalQuantity((Quantity)content);
                 break;
+            case Block.TYPE:
+                evalBlock((Block)content);
+                break;
+            case VariableCreation.TYPE:
+                evalVariableCreation((VariableCreation)content);
+                break;
+            case VariableDeclaration.TYPE:
+                evalVariableDeclaration((VariableDeclaration)content);
+                break;
             default:
                 throw new RuntimeException();
+        }
+    }
+
+    private void evalVariableDeclaration(VariableDeclaration variableDeclaration)
+    {
+        // do nothing
+    }
+
+    private void evalVariableCreation(VariableCreation variableCreation)
+    {
+        evalVariableDeclaration(variableCreation.variableDeclaration);
+        
+        evalExpression(variableCreation.expression);
+        printStatement("istore " + variableCreation.variableDeclaration.id.variable.number);
+    }
+
+    private void evalId(Id id)
+    {
+        printStatement("iload " + id.variable.number);
+    }
+
+    private void evalBlock(Block block)
+    {
+        evalBlockContents(block.blockContents);
+    }
+
+    private void evalBlockContents(BlockContents blockContents)
+    {
+        for (int i = 0; i < blockContents.elements.size(); i++)
+        {
+            Expression element = blockContents.elements.get(i);
+            evalExpression(element);
+            if (element.returnBehavior.type != Type.KEYWORD_VOID)
+                if (i < blockContents.elements.size() - 1)
+                    printStatement("pop");
         }
     }
 
