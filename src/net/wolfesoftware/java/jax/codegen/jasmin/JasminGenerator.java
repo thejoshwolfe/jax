@@ -121,6 +121,9 @@ public class JasminGenerator extends CodeGenerator
             case Addition.TYPE:
                 evalAddition((Addition)content);
                 break;
+            case Subtraction.TYPE:
+                evalSubtraction((Subtraction)content);
+                break;
             case Quantity.TYPE:
                 evalQuantity((Quantity)content);
                 break;
@@ -133,9 +136,19 @@ public class JasminGenerator extends CodeGenerator
             case VariableDeclaration.TYPE:
                 evalVariableDeclaration((VariableDeclaration)content);
                 break;
+            case Assignment.TYPE:
+                evalAssignment((Assignment)content);
+                break;
             default:
-                throw new RuntimeException();
+                throw new RuntimeException(content.getClass().toString());
         }
+    }
+
+    private void evalAssignment(Assignment assignment)
+    {
+        evalExpression(assignment.expression);
+        printStatement("dup");
+        printStatement("istore " + assignment.id.variable.number);
     }
 
     private void evalVariableDeclaration(VariableDeclaration variableDeclaration)
@@ -183,6 +196,12 @@ public class JasminGenerator extends CodeGenerator
         evalExpression(addition.expression1);
         evalExpression(addition.expression2);
         printStatement("iadd");
+    }
+    private void evalSubtraction(Subtraction subtraction)
+    {
+        evalExpression(subtraction.expression1);
+        evalExpression(subtraction.expression2);
+        printStatement("isub");
     }
 
     private void evalIntLiteral(IntLiteral intLiteral)

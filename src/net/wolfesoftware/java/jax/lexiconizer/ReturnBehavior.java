@@ -12,4 +12,8 @@ public class ReturnBehavior
         this.type = type;
         this.stackRequirement = stackRequirement;
     }
+    
+    public ReturnBehavior clone(int ensureStackRequirement) {
+        return new ReturnBehavior(type, Math.max(stackRequirement, ensureStackRequirement));
+    }
 }

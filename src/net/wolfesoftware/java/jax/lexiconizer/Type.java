@@ -7,14 +7,16 @@ public class Type
 {
     public final String packageId;
     public final String id;
-    public Type(String packageId, String id)
+    public final int size;
+    public Type(String packageId, String id, int size)
     {
         this.packageId = packageId;
         this.id = id;
+        this.size = size;
     }
 
-    public static final Type KEYWORD_INT = new Type(null, Lang.KEYWORD_INT);
-    public static final Type KEYWORD_VOID = new Type(null, Lang.KEYWORD_VOID);
+    public static final Type KEYWORD_INT = new Type(null, Lang.KEYWORD_INT, 1);
+    public static final Type KEYWORD_VOID = new Type(null, Lang.KEYWORD_VOID, 0);
 
     public static void initPrimitives(HashMap<String, Type> types)
     {

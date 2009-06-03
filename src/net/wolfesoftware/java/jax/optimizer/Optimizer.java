@@ -45,6 +45,9 @@ public class Optimizer
             case Addition.TYPE:
                 optimizeAddition((Addition)content);
                 break;
+            case Subtraction.TYPE:
+                optimizeSubtraction((Subtraction)content);
+                break;
             case Id.TYPE:
                 optimizeId((Id)content);
                 break;
@@ -63,9 +66,24 @@ public class Optimizer
             case VariableDeclaration.TYPE:
                 optimizeVariableDeclaration((VariableDeclaration)content);
                 break;
+            case Assignment.TYPE:
+                optimizeAssignment((Assignment)content);
+                break;
             default:
-                throw new RuntimeException();
+                throw new RuntimeException(content.getClass().toString());
         }
+    }
+
+    private static void optimizeAssignment(Assignment assignment)
+    {
+        optimizeId(assignment.id);
+        optimizeExpression(assignment.expression);
+    }
+
+    private static void optimizeSubtraction(Subtraction subtraction)
+    {
+        optimizeExpression(subtraction.expression1);
+        optimizeExpression(subtraction.expression2);
     }
 
     private static void optimizeVariableDeclaration(VariableDeclaration variableDeclaration)

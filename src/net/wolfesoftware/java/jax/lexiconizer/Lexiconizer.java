@@ -107,6 +107,9 @@ public class Lexiconizer
             case Addition.TYPE:
                 returnBehavior = lexiconizeAddition(context, (Addition)content);
                 break;
+            case Subtraction.TYPE:
+                returnBehavior = lexiconizeSubtraction(context, (Subtraction)content);
+                break;
             case Id.TYPE:
                 returnBehavior = lexiconizeId(context, (Id)content);
                 break;
@@ -125,11 +128,26 @@ public class Lexiconizer
             case VariableDeclaration.TYPE:
                 returnBehavior = lexiconizeVariableDeclaration(context, (VariableDeclaration)content);
                 break;
+            case Assignment.TYPE:
+                returnBehavior = lexiconizeAssignment(context, (Assignment)content);
+                break;
             default:
-                throw new RuntimeException();
+                throw new RuntimeException(content.getClass().toString());
         }
         expression.returnBehavior = returnBehavior;
         return returnBehavior;
+    }
+
+
+    private ReturnBehavior lexiconizeAssignment(LocalContext context, Assignment assignment)
+    {
+        assignment.id.variable = context.getLocalVariable(assignment.id.name);
+        if (assignment.id.variable == null)
+            errors.add(new LexicalException());
+        ReturnBehavior returnBehavior = lexiconizeExpression(context, assignment.expression);
+        if (assignment.id.variable != null && assignment.id.variable.type != returnBehavior.type)
+            errors.add(new LexicalException());
+        return returnBehavior.clone(2);
     }
 
     private ReturnBehavior lexiconizeVariableDeclaration(LocalContext context, VariableDeclaration variableDeclaration)
@@ -151,11 +169,10 @@ public class Lexiconizer
     private ReturnBehavior lexiconizeVariableCreation(LocalContext context, VariableCreation variableCreation)
     {
         lexiconizeVariableDeclaration(context, variableCreation.variableDeclaration);
-        variableCreation.variableDeclaration.type = resolveType(variableCreation.variableDeclaration.typeId);
         ReturnBehavior returnBehavior = lexiconizeExpression(context, variableCreation.expression);
         if (variableCreation.variableDeclaration.type != returnBehavior.type)
             errors.add(new LexicalException());
-        return ReturnBehavior.VOID;
+        return new ReturnBehavior(Type.KEYWORD_VOID, returnBehavior.stackRequirement);
     }
 
     private ReturnBehavior lexiconizeBlock(LocalContext context, Block block)
@@ -168,10 +185,13 @@ public class Lexiconizer
     {
         deleteNulls(blockContents);
 
-        ReturnBehavior returnBehavior = ReturnBehavior.VOID;
+        Type returnType = Type.KEYWORD_VOID;
+        int stackRequirement = 0;
         for (Expression element : blockContents.elements)
         {
-            returnBehavior = lexiconizeExpression(context, element);
+            ReturnBehavior returnBehavior = lexiconizeExpression(context, element);
+            returnType = returnBehavior.type;
+            stackRequirement = Math.max(stackRequirement, returnBehavior.stackRequirement);
             VariableDeclaration variableDeclaration;
             switch (element.content.getElementType())
             {
@@ -189,7 +209,7 @@ public class Lexiconizer
                 context.addLocalVariable(variableDeclaration.id, variableDeclaration.type);
             }
         }
-        return returnBehavior;
+        return new ReturnBehavior(returnType, stackRequirement);
     }
 
     private ReturnBehavior lexiconizeQuantity(LocalContext context, Quantity quantity)
@@ -206,6 +226,15 @@ public class Lexiconizer
     {
         ReturnBehavior returnBehavior1 = lexiconizeExpression(context, addition.expression1);
         ReturnBehavior returnBehavior2 = lexiconizeExpression(context, addition.expression2);
+        if (returnBehavior1.type != returnBehavior2.type)
+            return null;
+        int stackRequirement = Math.max(returnBehavior1.stackRequirement, returnBehavior2.stackRequirement + 1);
+        return new ReturnBehavior(returnBehavior1.type, stackRequirement);
+    }
+    private ReturnBehavior lexiconizeSubtraction(LocalContext context, Subtraction subtraction)
+    {
+        ReturnBehavior returnBehavior1 = lexiconizeExpression(context, subtraction.expression1);
+        ReturnBehavior returnBehavior2 = lexiconizeExpression(context, subtraction.expression2);
         if (returnBehavior1.type != returnBehavior2.type)
             return null;
         int stackRequirement = Math.max(returnBehavior1.stackRequirement, returnBehavior2.stackRequirement + 1);

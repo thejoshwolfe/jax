@@ -194,6 +194,24 @@ public final class Parser
 
         return new SubParsing<VariableCreation>(new VariableCreation(variableDeclaration.element, expression.element), offset);
     }
+    private SubParsing<Assignment> parseAssignment(int offset)
+    {
+        Id id = parseId(offset);
+        if (id == null)
+            return null;
+        offset++;
+        
+        if (getToken(offset).text != Lang.SYMBOL_EQUALS)
+            return null;
+        offset++;
+        
+        SubParsing<Expression> expression = parseExpression(offset);
+        if (expression == null)
+            return null;
+        offset = expression.end;
+
+        return new SubParsing<Assignment>(new Assignment(id, expression.element), offset);
+    }
     private final class ExpressionParser
     {
         private final Stack<StackElement> stack = new Stack<StackElement>();
@@ -225,11 +243,16 @@ public final class Parser
                         offset++;
                         continue;
                     }
+                    SubParsing<Assignment> assigment = parseAssignment(offset);
+                    if (assigment != null)
+                    {
+                        pushUnit(assigment.element);
+                        offset = assigment.end;
+                        continue;
+                    }
                     Id id = parseId(offset);
                     if (id != null)
                     {
-                        // function invocation goes here
-                        // local declaration as well someday (not until type includes ID)
                         pushUnit(id);
                         offset++;
                         continue;

@@ -4,3 +4,16 @@ int assignAndReturn() {
 	value
 };
 
+int assignLater() {
+	int var;
+	var = 6;
+	var
+};
+
+int doubleAssignment() {
+	int x;
+	int y;
+	x = y = 3;
+	x = x - 2;
+	y - x
+};
