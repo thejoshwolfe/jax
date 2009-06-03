@@ -48,6 +48,18 @@ public class Optimizer
             case Subtraction.TYPE:
                 optimizeSubtraction((Subtraction)content);
                 break;
+            case Multiplication.TYPE:
+                optimizeMultiplication((Multiplication)content);
+                break;
+            case Division.TYPE:
+                optimizeDivision((Division)content);
+                break;
+            case Equality.TYPE:
+                optimizeEquality((Equality)content);
+                break;
+            case Inequality.TYPE:
+                optimizeInequality((Inequality)content);
+                break;
             case Id.TYPE:
                 optimizeId((Id)content);
                 break;
@@ -56,6 +68,9 @@ public class Optimizer
                 break;
             case IntLiteral.TYPE:
                 optimizeIntLiteral((IntLiteral)content);
+                break;
+            case BooleanLiteral.TYPE:
+                optimizeBooleanLiteral((BooleanLiteral)content);
                 break;
             case Quantity.TYPE:
                 optimizeQuantity((Quantity)content);
@@ -80,11 +95,6 @@ public class Optimizer
         optimizeExpression(assignment.expression);
     }
 
-    private static void optimizeSubtraction(Subtraction subtraction)
-    {
-        optimizeExpression(subtraction.expression1);
-        optimizeExpression(subtraction.expression2);
-    }
 
     private static void optimizeVariableDeclaration(VariableDeclaration variableDeclaration)
     {
@@ -108,6 +118,10 @@ public class Optimizer
     {
         // do nothing
     }
+    private static void optimizeBooleanLiteral(BooleanLiteral intLiteral)
+    {
+        // do nothing
+    }
 
     private static void optimizeBlock(Block block)
     {
@@ -122,7 +136,31 @@ public class Optimizer
 
     private static void optimizeAddition(Addition addition)
     {
-        optimizeExpression(addition.expression1);
-        optimizeExpression(addition.expression2);
+        optimizeBinaryOperator(addition);
+    }
+    private static void optimizeSubtraction(Subtraction subtraction)
+    {
+        optimizeBinaryOperator(subtraction);
+    }
+    private static void optimizeMultiplication(Multiplication multiplication)
+    {
+        optimizeBinaryOperator(multiplication);
+    }
+    private static void optimizeDivision(Division division)
+    {
+        optimizeBinaryOperator(division);
+    }
+    private static void optimizeEquality(Equality equality)
+    {
+        optimizeBinaryOperator(equality);
+    }
+    private static void optimizeInequality(Inequality inequality)
+    {
+        optimizeBinaryOperator(inequality);
+    }
+    private static void optimizeBinaryOperator(BinaryOperatorElement operator)
+    {
+        optimizeExpression(operator.expression1);
+        optimizeExpression(operator.expression2);
     }
 }

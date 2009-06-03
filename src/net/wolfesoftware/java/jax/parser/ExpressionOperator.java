@@ -3,6 +3,7 @@ package net.wolfesoftware.java.jax.parser;
 import java.lang.reflect.*;
 import java.util.*;
 import net.wolfesoftware.java.jax.ast.*;
+import net.wolfesoftware.java.jax.tokenizer.Lang;
 
 public abstract class ExpressionOperator
 {
@@ -38,6 +39,24 @@ public abstract class ExpressionOperator
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
             return new Multiplication(leftExpression, rightExpression);
+        }
+    };
+    public static final ExpressionOperator DIVISION = new ExpressionOperator(130, Lang.SYMBOL_SLASH, 131) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return new Division(leftExpression, rightExpression);
+        }
+    };
+    public static final ExpressionOperator EQUALITY = new ExpressionOperator(70, Lang.SYMBOL_EQUALS_EQUALS, 71) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return new Equality(leftExpression, rightExpression);
+        }
+    };
+    public static final ExpressionOperator INEQUALITY = new ExpressionOperator(70, Lang.SYMBOL_BANG_EQUALS, 71) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return new Inequality(leftExpression, rightExpression);
         }
     };
 

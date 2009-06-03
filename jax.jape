@@ -37,7 +37,7 @@
 
 
 ### only two types currently
-|TypeId = "void" | "int"
+|TypeId = "void" | "int" | "boolean"
 
 ### variable declaration
 $VariableDeclaration = TypeId ID
@@ -45,11 +45,13 @@ $VariableDeclaration = TypeId ID
 ### recursive expressions
 /Expression
 
-    ### binary operators
-    $Addition = Expression(121) "+" Expression(120)
-    $Subtraction = Expression(121) "-" Expression(120)
-    $Multiplication = Expression(131) "*" Expression(130)
-    #$Division = Expression(131) "/" Expression(130)
+    ### binary operators (http://www.ibiblio.org/g2swap/byteofpython/read/operator-precedence.html)
+    $Addition = Expression(120) "+" Expression(121)
+    $Subtraction = Expression(120) "-" Expression(121)
+    $Multiplication = Expression(130) "*" Expression(131)
+    $Division = Expression(130) "/" Expression(131)
+    $Equality = Expression(70) "==" Expression(71)
+    $Inequality = Expression(70) "!=" Expression(71)
     |InfixOperation = Addition | Subtraction | Multiplication #| Division
 
     ### unary prefix operators

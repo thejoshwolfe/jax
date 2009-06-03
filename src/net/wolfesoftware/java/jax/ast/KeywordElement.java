@@ -1,5 +1,7 @@
 package net.wolfesoftware.java.jax.ast;
 
+import net.wolfesoftware.java.jax.tokenizer.Lang;
+
 
 public class KeywordElement extends ParseElement
 {
@@ -24,4 +26,5 @@ public class KeywordElement extends ParseElement
 
     public static final KeywordElement KEYWORD_INT = new KeywordElement(Lang.KEYWORD_INT);
     public static final KeywordElement KEYWORD_VOID = new KeywordElement(Lang.KEYWORD_VOID);
+    public static final KeywordElement KEYWORD_BOOLEAN = new KeywordElement(Lang.KEYWORD_BOOLEAN);
 }

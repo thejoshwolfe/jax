@@ -14,7 +14,7 @@ public class Jax
     public static void main(String[] args) throws FileNotFoundException
     {
         if (args.length == 0)
-            return;
+            throw new IllegalArgumentException();
         comprehend(args[args.length - 1]);
     }
 
@@ -31,7 +31,7 @@ public class Jax
         Lexiconization lexiconization = Lexiconizer.lexiconize(parsing);
         if (printErrors(lexiconization.errors))
             return;
-        
+
         Optimizer.optimize(lexiconization.root, null);
 
         String outFileName = fileName.substring(0, fileName.lastIndexOf('.')) + ".jasmin";

@@ -1,4 +1,4 @@
-package net.wolfesoftware.java.jax.ast;
+package net.wolfesoftware.java.jax.tokenizer;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -12,19 +12,25 @@ public final class Lang
 
     public static final String KEYWORD_VOID = "void";
     public static final String KEYWORD_INT = "int";
+    public static final String KEYWORD_BOOLEAN = "boolean";
     public static final String KEYWORD_IF = "if";
     public static final String KEYWORD_ELSE = "else";
+    public static final String KEYWORD_TRUE = "true";
+    public static final String KEYWORD_FALSE = "false";
 
-    public static final String SYMBOL_EQUALS = "=";
-    public static final String SYMBOL_SEMICOLON = ";";
-    public static final String SYMBOL_PLUS = "+";
-    public static final String SYMBOL_MINUS = "-";
+    public static final String SYMBOL_BANG_EQUALS = "!=";
     public static final String SYMBOL_OPEN_PARENS = "(";
     public static final String SYMBOL_CLOSE_PARENS = ")";
     public static final String SYMBOL_ASTERISK = "*";
+    public static final String SYMBOL_PLUS = "+";
+    public static final String SYMBOL_COMMA = ",";
+    public static final String SYMBOL_MINUS = "-";
+    public static final String SYMBOL_SLASH = "/";
+    public static final String SYMBOL_SEMICOLON = ";";
+    public static final String SYMBOL_EQUALS = "=";
+    public static final String SYMBOL_EQUALS_EQUALS = "==";
     public static final String SYMBOL_OPEN_BRACE = "{";
     public static final String SYMBOL_CLOSE_BRACE = "}";
-    public static final String SYMBOL_COMMA = ",";
 
     public static final ArrayList<String> ALL = new ArrayList<String>();
     static {

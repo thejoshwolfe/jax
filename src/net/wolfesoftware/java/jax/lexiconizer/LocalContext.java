@@ -42,6 +42,12 @@ public class LocalContext
 
     public LocalVariable getLocalVariable(String name)
     {
-        return localVariables.get(name);
+        LocalVariable rtnValue = localVariables.get(name);
+        return rtnValue != null ? rtnValue : parentContext.getLocalVariable(name);
+    }
+
+    public String nextLabel()
+    {
+        return rootContext.nextLabel();
     }
 }

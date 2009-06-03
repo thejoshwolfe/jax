@@ -25,6 +25,7 @@ public class CodeGenTest
         "Arithmetic",
         "VoidFunction",
         "LocalVariables",
+        "BooleanType",
         };
 
     public static void main(String[] args)
@@ -61,6 +62,8 @@ public class CodeGenTest
     {
         dirAndTest = Util.unixizeFilepath(dirAndTest);
         Jax.compile(dirAndTest + ".jax");
+//        if (true)
+//            throw new RuntimeException("compiled");
         TestUtils.compileJava(dirAndTest + "Call.java");
         InputStream stdout = TestUtils.runJavaMain(dirAndTest + "Call");
         String output = Util.readAll(stdout);

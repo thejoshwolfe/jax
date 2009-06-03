@@ -15,4 +15,5 @@ public class TypeId extends SwitchElement
 
     public static final TypeId KEYWORD_INT = new TypeId(KeywordElement.KEYWORD_INT);
     public static final TypeId KEYWORD_VOID = new TypeId(KeywordElement.KEYWORD_VOID);
+    public static final TypeId KEYWORD_BOOLEAN = new TypeId(KeywordElement.KEYWORD_BOOLEAN);
 }

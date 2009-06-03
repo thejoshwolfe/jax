@@ -2,7 +2,6 @@ package net.wolfesoftware.java.jax.tokenizer;
 
 import java.util.ArrayList;
 import java.util.regex.*;
-import net.wolfesoftware.java.jax.ast.Lang;
 
 public final class Tokenizer
 {
@@ -62,11 +61,15 @@ public final class Tokenizer
 
     private Token createToken(String text)
     {
-        char c = text.charAt(0);
-
-        if (Lang.ALL.contains(text))
+        if (Lang.ALL.contains(text)) {
+            if (text.equals(Lang.KEYWORD_TRUE))
+                return new BooleanToken(start, text, true);
+            if (text.equals(Lang.KEYWORD_FALSE))
+                return new BooleanToken(start, text, false);
             return new KeywordToken(start, text);
+        }
 
+        char c = text.charAt(0);
         if (Character.isLetter(c))
             return new IdentifierToken(start, text);
         if (Character.isDigit(c))

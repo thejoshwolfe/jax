@@ -110,6 +110,18 @@ public class Lexiconizer
             case Subtraction.TYPE:
                 returnBehavior = lexiconizeSubtraction(context, (Subtraction)content);
                 break;
+            case Multiplication.TYPE:
+                returnBehavior = lexiconizeMultiplication(context, (Multiplication)content);
+                break;
+            case Division.TYPE:
+                returnBehavior = lexiconizeDivision(context, (Division)content);
+                break;
+            case Equality.TYPE:
+                returnBehavior = lexiconizeEquality(context, (Equality)content);
+                break;
+            case Inequality.TYPE:
+                returnBehavior = lexiconizeInequality(context, (Inequality)content);
+                break;
             case Id.TYPE:
                 returnBehavior = lexiconizeId(context, (Id)content);
                 break;
@@ -118,6 +130,9 @@ public class Lexiconizer
                 break;
             case IntLiteral.TYPE:
                 returnBehavior = lexiconizeIntLiteral(context, (IntLiteral)content);
+                break;
+            case BooleanLiteral.TYPE:
+                returnBehavior = lexiconizeBooleanLiteral(context, (BooleanLiteral)content);
                 break;
             case Quantity.TYPE:
                 returnBehavior = lexiconizeQuantity(context, (Quantity)content);
@@ -137,6 +152,7 @@ public class Lexiconizer
         expression.returnBehavior = returnBehavior;
         return returnBehavior;
     }
+
 
 
     private ReturnBehavior lexiconizeAssignment(LocalContext context, Assignment assignment)
@@ -217,28 +233,60 @@ public class Lexiconizer
         return lexiconizeExpression(context, quantity.expression);
     }
 
-    private ReturnBehavior lexiconizeIntLiteral(LocalContext context, IntLiteral content)
+    private ReturnBehavior lexiconizeIntLiteral(LocalContext context, IntLiteral intLiteral)
     {
         return new ReturnBehavior(Type.KEYWORD_INT, 1);
+    }
+    private ReturnBehavior lexiconizeBooleanLiteral(LocalContext context, BooleanLiteral booleanLiteral)
+    {
+        return new ReturnBehavior(Type.KEYWORD_BOOLEAN, 1);
     }
 
     private ReturnBehavior lexiconizeAddition(LocalContext context, Addition addition)
     {
-        ReturnBehavior returnBehavior1 = lexiconizeExpression(context, addition.expression1);
-        ReturnBehavior returnBehavior2 = lexiconizeExpression(context, addition.expression2);
-        if (returnBehavior1.type != returnBehavior2.type)
-            return null;
-        int stackRequirement = Math.max(returnBehavior1.stackRequirement, returnBehavior2.stackRequirement + 1);
-        return new ReturnBehavior(returnBehavior1.type, stackRequirement);
+        return lexiconizeIntOperator(context, addition);
     }
     private ReturnBehavior lexiconizeSubtraction(LocalContext context, Subtraction subtraction)
     {
-        ReturnBehavior returnBehavior1 = lexiconizeExpression(context, subtraction.expression1);
-        ReturnBehavior returnBehavior2 = lexiconizeExpression(context, subtraction.expression2);
+        return lexiconizeIntOperator(context, subtraction);
+    }
+    private ReturnBehavior lexiconizeMultiplication(LocalContext context, Multiplication multiplication)
+    {
+        return lexiconizeIntOperator(context, multiplication);
+    }
+    private ReturnBehavior lexiconizeDivision(LocalContext context, Division division)
+    {
+        return lexiconizeIntOperator(context, division);
+    }
+    private ReturnBehavior lexiconizeIntOperator(LocalContext context, BinaryOperatorElement operator)
+    {
+        ReturnBehavior returnBehavior = lexiconizeOperator(context, operator, null);
+        if (returnBehavior.type != Type.KEYWORD_INT)
+            errors.add(new LexicalException());
+        return returnBehavior;
+    }
+    private ReturnBehavior lexiconizeInequality(LocalContext context, Inequality inequality)
+    {
+        return lexiconizeComparisonOperator(context, inequality);
+    }
+    private ReturnBehavior lexiconizeEquality(LocalContext context, Equality equality)
+    {
+        return lexiconizeComparisonOperator(context, equality);
+    }
+    private ReturnBehavior lexiconizeComparisonOperator(LocalContext context, ComparisonOperator operator)
+    {
+        operator.label1 = context.nextLabel();
+        operator.label2 = context.nextLabel();
+        return lexiconizeOperator(context, operator, Type.KEYWORD_BOOLEAN);
+    }
+    private ReturnBehavior lexiconizeOperator(LocalContext context, BinaryOperatorElement operator, Type returnType)
+    {
+        ReturnBehavior returnBehavior1 = lexiconizeExpression(context, operator.expression1);
+        ReturnBehavior returnBehavior2 = lexiconizeExpression(context, operator.expression2);
         if (returnBehavior1.type != returnBehavior2.type)
-            return null;
+            errors.add(new LexicalException());
         int stackRequirement = Math.max(returnBehavior1.stackRequirement, returnBehavior2.stackRequirement + 1);
-        return new ReturnBehavior(returnBehavior1.type, stackRequirement);
+        return new ReturnBehavior(returnType != null ? returnType : returnBehavior1.type, stackRequirement);
     }
 
     private Type resolveType(TypeId typeId)

@@ -90,8 +90,11 @@ public class JasminGenerator extends CodeGenerator
         String rtnStmt = null;
         if (functionDefinition.returnBehavior.type == Type.KEYWORD_VOID)
             rtnStmt = "return";
-        else if (functionDefinition.returnBehavior.type == Type.KEYWORD_INT)
+        else if (functionDefinition.returnBehavior.type == Type.KEYWORD_INT ||
+                 functionDefinition.returnBehavior.type == Type.KEYWORD_BOOLEAN)
             rtnStmt = "ireturn";
+        if (rtnStmt == null)
+            throw new RuntimeException(functionDefinition.returnBehavior.type.toString());
         printStatement(rtnStmt);
 
         // footer
@@ -100,11 +103,14 @@ public class JasminGenerator extends CodeGenerator
 
     private String getTypeCode(Type type)
     {
+        // http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html#84645
         if (type == Type.KEYWORD_INT)
             return "I";
         if (type == Type.KEYWORD_VOID)
             return "V";
-        throw new RuntimeException();
+        if (type == Type.KEYWORD_BOOLEAN)
+            return "Z";
+        throw new RuntimeException(type.toString());
     }
 
     private void evalExpression(Expression expression)
@@ -115,6 +121,9 @@ public class JasminGenerator extends CodeGenerator
             case IntLiteral.TYPE:
                 evalIntLiteral((IntLiteral)content);
                 break;
+            case BooleanLiteral.TYPE:
+                evalBooleanLiteral((BooleanLiteral)content);
+                break;
             case Id.TYPE:
                 evalId((Id)content);
                 break;
@@ -123,6 +132,18 @@ public class JasminGenerator extends CodeGenerator
                 break;
             case Subtraction.TYPE:
                 evalSubtraction((Subtraction)content);
+                break;
+            case Multiplication.TYPE:
+                evalMultiplication((Multiplication)content);
+                break;
+            case Division.TYPE:
+                evalDivision((Division)content);
+                break;
+            case Equality.TYPE:
+                evalEquality((Equality)content);
+                break;
+            case Inequality.TYPE:
+                evalInequality((Inequality)content);
                 break;
             case Quantity.TYPE:
                 evalQuantity((Quantity)content);
@@ -193,20 +214,53 @@ public class JasminGenerator extends CodeGenerator
 
     private void evalAddition(Addition addition)
     {
-        evalExpression(addition.expression1);
-        evalExpression(addition.expression2);
-        printStatement("iadd");
+        evalOperator(addition, "add");
     }
     private void evalSubtraction(Subtraction subtraction)
     {
-        evalExpression(subtraction.expression1);
-        evalExpression(subtraction.expression2);
-        printStatement("isub");
+        evalOperator(subtraction, "sub");
+    }
+    private void evalMultiplication(Multiplication multiplication)
+    {
+        evalOperator(multiplication, "mul");
+    }
+    private void evalDivision(Division division)
+    {
+        evalOperator(division, "div");
+    }
+    private void evalOperator(BinaryOperatorElement operator, String operation)
+    {
+        evalExpression(operator.expression1);
+        evalExpression(operator.expression2);
+        printStatement("i" + operation);
+    }
+    private void evalEquality(Equality equality)
+    {
+        evalComparison(equality, "eq");
+    }
+    private void evalInequality(Inequality inequality)
+    {
+        evalComparison(inequality, "ne");
+    }
+    private void evalComparison(ComparisonOperator operator, String condition)
+    {
+        evalExpression(operator.expression1);
+        evalExpression(operator.expression2);
+        printStatement("if_icmp" + condition + " " + operator.label1);
+        printStatement("iconst_0");
+        printStatement("goto " + operator.label2);
+        out.println(operator.label1 + ":");
+        printStatement("iconst_1");
+        out.println(operator.label2 + ":");
     }
 
     private void evalIntLiteral(IntLiteral intLiteral)
     {
-        printStatement("ldc " +  intLiteral.value);
+        printStatement("ldc " + intLiteral.value);
+    }
+    private void evalBooleanLiteral(BooleanLiteral booleanLiteral)
+    {
+        printStatement("ldc " + (booleanLiteral.value ? 1 : 0));
     }
 
     private void genArgumentDeclarations(ArgumentDeclarations argumentDeclarations)

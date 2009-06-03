@@ -142,6 +142,8 @@ public final class Parser
             return TypeId.KEYWORD_INT;
         if (token.text == Lang.KEYWORD_VOID)
             return TypeId.KEYWORD_VOID;
+        if (token.text == Lang.KEYWORD_BOOLEAN)
+            return TypeId.KEYWORD_BOOLEAN;
         return null;
     }
 
@@ -219,7 +221,7 @@ public final class Parser
         {
             while (offset < tokens.length)
             {
-                HashMap<String, List<ExpressionOperator>> operators = null;
+                HashMap<String, List<ExpressionOperator>> operators;
                 if (hasOpenTop())
                 {
                     SubParsing<VariableCreation> variableCreation = parseVariableCreation(offset);
@@ -257,25 +259,19 @@ public final class Parser
                         offset++;
                         continue;
                     }
-                    
                     operators = ExpressionOperator.CLOSED_LEFT;
                 }
                 else
                     operators = ExpressionOperator.OPEN_LEFT;
 
-                if (operators != null)
-                {
-                    List<ExpressionOperator> ops = operators.get(getToken(offset).text);
-                    if (ops != null)
-                    {
-                        int newOffset = consumeOperators(offset + 1, ops);
-                        if (newOffset == -1)
-                            return null;
-                        offset = newOffset;
-                        continue;
-                    }
+                List<ExpressionOperator> ops = operators.get(getToken(offset).text);
+                if (ops == null)
                     break;
-                }
+                int newOffset = consumeOperators(offset + 1, ops);
+                if (newOffset == -1)
+                    return null;
+                offset = newOffset;
+                continue;
             }
             if (hasOpenTop())
                 return null;
