@@ -5,7 +5,7 @@ public class ParsingException extends Exception
 
     public static ParsingException newInstance(int i, String string)
     {
-        return null;
+        return new ParsingException();
     }
 
 }

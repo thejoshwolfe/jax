@@ -4,6 +4,7 @@ import java.util.List;
 
 public class BlockContents extends ListElement<Expression>
 {
+    public boolean forceVoid;
     public BlockContents(List<Expression> elements)
     {
         super(elements);

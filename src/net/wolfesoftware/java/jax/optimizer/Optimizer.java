@@ -72,6 +72,9 @@ public class Optimizer
             case BooleanLiteral.TYPE:
                 optimizeBooleanLiteral((BooleanLiteral)content);
                 break;
+            case StringLiteral.TYPE:
+                optimizeStringLiteral((StringLiteral)content);
+                break;
             case Quantity.TYPE:
                 optimizeQuantity((Quantity)content);
                 break;
@@ -84,9 +87,27 @@ public class Optimizer
             case Assignment.TYPE:
                 optimizeAssignment((Assignment)content);
                 break;
+            case IfThenElse.TYPE:
+                optimizeIfThenElse((IfThenElse)content);
+                break;
+            case IfThen.TYPE:
+                optimizeIfThen((IfThen)content);
+                break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
+    }
+
+    private static void optimizeIfThenElse(IfThenElse ifThenElse)
+    {
+        optimizeExpression(ifThenElse.expression1);
+        optimizeExpression(ifThenElse.expression2);
+        optimizeExpression(ifThenElse.expression3);
+    }
+    private static void optimizeIfThen(IfThen ifThen)
+    {
+        optimizeExpression(ifThen.expression1);
+        optimizeExpression(ifThen.expression2);
     }
 
     private static void optimizeAssignment(Assignment assignment)
@@ -119,6 +140,10 @@ public class Optimizer
         // do nothing
     }
     private static void optimizeBooleanLiteral(BooleanLiteral intLiteral)
+    {
+        // do nothing
+    }
+    private static void optimizeStringLiteral(StringLiteral intLiteral)
     {
         // do nothing
     }

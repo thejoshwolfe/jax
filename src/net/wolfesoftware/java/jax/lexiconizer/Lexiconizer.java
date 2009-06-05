@@ -14,7 +14,7 @@ public class Lexiconizer
     private final HashMap<String, Type> importedTypes = new HashMap<String, Type>();
     {
         Type.initPrimitives(importedTypes);
-        // we don't have any "import " statements in the lang yet. primitives is all we got so far.
+        Type.initJavaLang(importedTypes);
     }
     private final HashMap<String, FunctionDefinition> localMethods = new HashMap<String, FunctionDefinition>();
 
@@ -134,6 +134,9 @@ public class Lexiconizer
             case BooleanLiteral.TYPE:
                 returnBehavior = lexiconizeBooleanLiteral(context, (BooleanLiteral)content);
                 break;
+            case StringLiteral.TYPE:
+                returnBehavior = lexiconizeStringLiteral(context, (StringLiteral)content);
+                break;
             case Quantity.TYPE:
                 returnBehavior = lexiconizeQuantity(context, (Quantity)content);
                 break;
@@ -146,6 +149,12 @@ public class Lexiconizer
             case Assignment.TYPE:
                 returnBehavior = lexiconizeAssignment(context, (Assignment)content);
                 break;
+            case IfThenElse.TYPE:
+                returnBehavior = lexiconizeIfThenElse(context, (IfThenElse)content);
+                break;
+            case IfThen.TYPE:
+                returnBehavior = lexiconizeIfThen(context, (IfThen)content);
+                break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
@@ -154,6 +163,30 @@ public class Lexiconizer
     }
 
 
+    private ReturnBehavior lexiconizeIfThenElse(LocalContext context, IfThenElse ifThenElse)
+    {
+        lexiconizeExpression(context, ifThenElse.expression1);
+        if (ifThenElse.expression1.returnBehavior.type != Type.KEYWORD_BOOLEAN)
+            errors.add(new LexicalException());
+        ifThenElse.label1 = context.nextLabel();
+        lexiconizeExpression(context, ifThenElse.expression2);
+        ifThenElse.label2 = context.nextLabel();
+        lexiconizeExpression(context, ifThenElse.expression3);
+        if (ifThenElse.expression2.returnBehavior.type != ifThenElse.expression3.returnBehavior.type)
+            errors.add(new LexicalException());
+        return ifThenElse.expression2.returnBehavior.clone(Math.max(ifThenElse.expression1.returnBehavior.stackRequirement, ifThenElse.expression3.returnBehavior.stackRequirement));
+    }
+    private ReturnBehavior lexiconizeIfThen(LocalContext context, IfThen ifThen)
+    {
+        lexiconizeExpression(context, ifThen.expression1);
+        if (ifThen.expression1.returnBehavior.type != Type.KEYWORD_BOOLEAN)
+            errors.add(new LexicalException());
+        ifThen.label = context.nextLabel();
+        lexiconizeExpression(context, ifThen.expression2);
+        if (ifThen.expression2.returnBehavior.type != Type.KEYWORD_VOID)
+            errors.add(new LexicalException());
+        return new ReturnBehavior(Type.KEYWORD_VOID, Math.max(ifThen.expression2.returnBehavior.stackRequirement, ifThen.expression1.returnBehavior.stackRequirement));
+    }
 
     private ReturnBehavior lexiconizeAssignment(LocalContext context, Assignment assignment)
     {
@@ -199,6 +232,8 @@ public class Lexiconizer
 
     private ReturnBehavior lexiconizeBlockContents(LocalContext context, BlockContents blockContents)
     {
+        blockContents.forceVoid = blockContents.elements.size() == 0 || blockContents.elements.get(blockContents.elements.size() -1) == null;
+
         deleteNulls(blockContents);
 
         Type returnType = Type.KEYWORD_VOID;
@@ -225,6 +260,8 @@ public class Lexiconizer
                 context.addLocalVariable(variableDeclaration.id, variableDeclaration.type);
             }
         }
+        if (blockContents.forceVoid)
+            returnType = Type.KEYWORD_VOID;
         return new ReturnBehavior(returnType, stackRequirement);
     }
 
@@ -240,6 +277,10 @@ public class Lexiconizer
     private ReturnBehavior lexiconizeBooleanLiteral(LocalContext context, BooleanLiteral booleanLiteral)
     {
         return new ReturnBehavior(Type.KEYWORD_BOOLEAN, 1);
+    }
+    private ReturnBehavior lexiconizeStringLiteral(LocalContext context, StringLiteral stringLiteral)
+    {
+        return new ReturnBehavior(importedTypes.get("String"), 1);
     }
 
     private ReturnBehavior lexiconizeAddition(LocalContext context, Addition addition)

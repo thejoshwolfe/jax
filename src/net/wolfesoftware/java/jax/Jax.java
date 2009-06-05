@@ -22,15 +22,15 @@ public class Jax
     {
         Tokenization tokenization = Tokenizer.tokenize(Util.fileToString(fileName));
         if (printErrors(tokenization.errors))
-            return;
+            throw new RuntimeException();
 
         Parsing parsing = Parser.parse(tokenization);
         if (printErrors(parsing.errors))
-            return;
+            throw new RuntimeException();
 
         Lexiconization lexiconization = Lexiconizer.lexiconize(parsing);
         if (printErrors(lexiconization.errors))
-            return;
+            throw new RuntimeException();
 
         Optimizer.optimize(lexiconization.root, null);
 
@@ -44,13 +44,15 @@ public class Jax
         return errors.size() != 0;
     }
 
-    public static void compile(String jaxFilename)
+    public static boolean compile(String jaxFilename)
     {
         String[] args = { Util.platformizeFilepath(jaxFilename) };
         try {
             main(args);
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
     }
 }

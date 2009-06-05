@@ -37,7 +37,7 @@
 
 
 ### only two types currently
-|TypeId = "void" | "int" | "boolean"
+|TypeId = "void" | "int" | "boolean" | ID
 
 ### variable declaration
 $VariableDeclaration = TypeId ID
@@ -76,8 +76,7 @@ $VariableDeclaration = TypeId ID
     #|ControlStatement = 
 
     ### block
-    #|MaybeExpression = Expression | "void"
-    ~BlockContents = Expression : ";"
+    ~BlockContents = (Expression) : ";"
     $Block = "{" BlockContents "}"
 
     $Assignment = ID "=" Expression
@@ -103,7 +102,7 @@ $FunctionDefinition = TypeId ID "(" ArgumentDeclarations ")" Expression
 
 ### program
 |TopLevelItem = FunctionDefinition    # | VariableCreation
-~Program = TopLevelItem : ";"
+~Program = (TopLevelItem) : ";"
 
 
 

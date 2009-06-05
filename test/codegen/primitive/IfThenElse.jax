@@ -1,0 +1,15 @@
+
+boolean test1() if (true) true else false;
+
+boolean test2() if (false) false else true;
+
+boolean test3()	if (900 == 900) true else false;
+
+boolean test4() {
+	boolean value = true;
+	if (123!=123) {
+		value = false; {}
+	};
+	value
+}
+

@@ -14,6 +14,7 @@ public final class Tokenizer
     private final String source;
     private int start;
     private ArrayList<TokenizingException> errors = new ArrayList<TokenizingException>();
+    private final ArrayList<Token> tokens = new ArrayList<Token>();
 
     private Tokenizer(String source)
     {
@@ -39,8 +40,8 @@ public final class Tokenizer
 
     private Tokenization tokenize()
     {
-        ArrayList<Token> tokens = new ArrayList<Token>();
         Matcher tokenMatcher = tokenPattern.matcher(source);
+        int end = 0;
         while (tokenMatcher.lookingAt())
         {
             start = tokenMatcher.start();
@@ -48,13 +49,13 @@ public final class Tokenizer
             Token token = createToken(tokenText);
             if (token != null)
                 tokens.add(token);
-            tokenMatcher.region(tokenMatcher.end(), source.length());
+            end = tokenizeSpecial(tokenMatcher.end());
+            
+            tokenMatcher.region(end, source.length());
         }
+
         if (!tokenMatcher.hitEnd())
-            errors.add(TokenizingException.newInstance(tokenMatcher.end(), source.substring(tokenMatcher.end()), "Invalid Token"));
-//        String lastBit = source.substring(prevEnd);
-//        if (!skipPattern.matcher(lastBit).matches())
-//            errors.add(TokenizingException.newInstance(prevEnd, lastBit, "Invalid Token"));
+            errors.add(TokenizingException.newInstance(end, source.substring(end), "Invalid Token"));
 
         return new Tokenization(source, tokens, errors);
     }
@@ -85,5 +86,72 @@ public final class Tokenizer
             return null;
         errors.add(TokenizingException.newInstance(start, text, "Unknown Token"));
         return null;
+    }
+
+    private int tokenizeSpecial(int index)
+    {
+        if (index < source.length() && source.charAt(index) == '"')
+            return tokenizeStringLiteral(index);
+        return index;
+    }
+    
+    private int tokenizeStringLiteral(int start)
+    {
+        StringBuilder stringBuilder = new StringBuilder();
+        boolean escape = false;
+        for (int i = start + 1; i < source.length(); i++)
+        {
+            char c = source.charAt(i);
+            if (escape)
+            {
+                escape = false;
+                switch (c)
+                {
+                    case 'b':
+                        stringBuilder.append('\b');
+                        break;
+                    case 't':
+                        stringBuilder.append('\t');
+                        break;
+                    case 'n':
+                        stringBuilder.append('\n');
+                        break;
+                    case 'f':
+                        stringBuilder.append('\f');
+                        break;
+                    case 'r':
+                        stringBuilder.append('\r');
+                        break;
+                    case '"':
+                        stringBuilder.append('"');
+                        break;
+                    case '\'':
+                        stringBuilder.append('\'');
+                        break;
+                    case '\\':
+                        stringBuilder.append('\\');
+                        break;
+                    default:
+                        errors.add(new TokenizingException(i - 1, source.substring(i - 1, i + 1), "Invalid escape"));
+                        break;
+                }
+            }
+            else
+            {
+                if (c == '"')
+                {
+                    tokens.add(new StringToken(i, source.substring(start, i + 1), stringBuilder.toString()));
+                    return i + 1;
+                }
+                if (c == '\\')
+                {
+                    escape = true;
+                    continue;
+                }
+                stringBuilder.append(c);
+            }
+        }
+        errors.add(new TokenizingException(start, "\"", "Stray quote mark"));
+        return start + 1;
     }
 }

@@ -138,6 +138,8 @@ public final class Parser
     private TypeId parseTypeId(int offset)
     {
         Token token = getToken(offset);
+        if (token.getType() == IdentifierToken.TYPE)
+            return new TypeId(new Id(token.text));
         if (token.text == Lang.KEYWORD_INT)
             return TypeId.KEYWORD_INT;
         if (token.text == Lang.KEYWORD_VOID)

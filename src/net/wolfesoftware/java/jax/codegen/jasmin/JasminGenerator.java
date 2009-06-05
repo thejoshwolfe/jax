@@ -88,10 +88,11 @@ public class JasminGenerator extends CodeGenerator
 
         // return statement
         String rtnStmt = null;
-        if (functionDefinition.returnBehavior.type == Type.KEYWORD_VOID)
+        if (functionDefinition.returnBehavior.type.packageId != null)
+            rtnStmt = "areturn";
+        else if (functionDefinition.returnBehavior.type == Type.KEYWORD_VOID)
             rtnStmt = "return";
-        else if (functionDefinition.returnBehavior.type == Type.KEYWORD_INT ||
-                 functionDefinition.returnBehavior.type == Type.KEYWORD_BOOLEAN)
+        else if (functionDefinition.returnBehavior.type == Type.KEYWORD_INT || functionDefinition.returnBehavior.type == Type.KEYWORD_BOOLEAN)
             rtnStmt = "ireturn";
         if (rtnStmt == null)
             throw new RuntimeException(functionDefinition.returnBehavior.type.toString());
@@ -104,13 +105,17 @@ public class JasminGenerator extends CodeGenerator
     private String getTypeCode(Type type)
     {
         // http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html#84645
-        if (type == Type.KEYWORD_INT)
-            return "I";
-        if (type == Type.KEYWORD_VOID)
-            return "V";
-        if (type == Type.KEYWORD_BOOLEAN)
-            return "Z";
-        throw new RuntimeException(type.toString());
+        if (type.packageId == null)
+        {
+            if (type == Type.KEYWORD_INT)
+                return "I";
+            if (type == Type.KEYWORD_VOID)
+                return "V";
+            if (type == Type.KEYWORD_BOOLEAN)
+                return "Z";
+            throw new RuntimeException(type.toString());
+        }
+        return "L" + type.packageId.replace('.', '/') + "/" + type.id + ";";
     }
 
     private void evalExpression(Expression expression)
@@ -123,6 +128,9 @@ public class JasminGenerator extends CodeGenerator
                 break;
             case BooleanLiteral.TYPE:
                 evalBooleanLiteral((BooleanLiteral)content);
+                break;
+            case StringLiteral.TYPE:
+                evalStringLiteral((StringLiteral)content);
                 break;
             case Id.TYPE:
                 evalId((Id)content);
@@ -160,16 +168,50 @@ public class JasminGenerator extends CodeGenerator
             case Assignment.TYPE:
                 evalAssignment((Assignment)content);
                 break;
+            case IfThenElse.TYPE:
+                evalIfThenElse((IfThenElse)content);
+                break;
+            case IfThen.TYPE:
+                evalIfThen((IfThen)content);
+                break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
+    }
+
+    private void evalIfThenElse(IfThenElse ifThenElse)
+    {
+        evalExpression(ifThenElse.expression1);
+        printStatement("ifeq " + ifThenElse.label1);
+        evalExpression(ifThenElse.expression2);
+        printStatement("goto " + ifThenElse.label2);
+        out.println(ifThenElse.label1 + ":");
+        evalExpression(ifThenElse.expression3);
+        out.println(ifThenElse.label2 + ":");
+    }
+    private void evalIfThen(IfThen ifThen)
+    {
+        evalExpression(ifThen.expression1);
+        printStatement("ifeq " + ifThen.label);
+        evalExpression(ifThen.expression2);
+        out.println(ifThen.label + ":");
     }
 
     private void evalAssignment(Assignment assignment)
     {
         evalExpression(assignment.expression);
         printStatement("dup");
-        printStatement("istore " + assignment.id.variable.number);
+        String typeLetter = getTypeLetter(assignment.id.variable.type);
+        printStatement(typeLetter + "store " + assignment.id.variable.number);
+    }
+
+    private String getTypeLetter(Type type)
+    {
+        if (type.packageId != null)
+            return "a";
+        if (type == Type.KEYWORD_INT || type == Type.KEYWORD_BOOLEAN)
+            return "i";
+        throw new RuntimeException(type.toString());
     }
 
     private void evalVariableDeclaration(VariableDeclaration variableDeclaration)
@@ -180,14 +222,16 @@ public class JasminGenerator extends CodeGenerator
     private void evalVariableCreation(VariableCreation variableCreation)
     {
         evalVariableDeclaration(variableCreation.variableDeclaration);
-        
+
         evalExpression(variableCreation.expression);
-        printStatement("istore " + variableCreation.variableDeclaration.id.variable.number);
+        String typeLetter = getTypeLetter(variableCreation.variableDeclaration.id.variable.type);
+        printStatement(typeLetter + "store " + variableCreation.variableDeclaration.id.variable.number);
     }
 
     private void evalId(Id id)
     {
-        printStatement("iload " + id.variable.number);
+        String typeLetter = getTypeLetter(id.variable.type);
+        printStatement(typeLetter + "load " + id.variable.number);
     }
 
     private void evalBlock(Block block)
@@ -261,6 +305,10 @@ public class JasminGenerator extends CodeGenerator
     private void evalBooleanLiteral(BooleanLiteral booleanLiteral)
     {
         printStatement("ldc " + (booleanLiteral.value ? 1 : 0));
+    }
+    private void evalStringLiteral(StringLiteral stringLiteral)
+    {
+        printStatement("ldc " + stringLiteral.source);
     }
 
     private void genArgumentDeclarations(ArgumentDeclarations argumentDeclarations)

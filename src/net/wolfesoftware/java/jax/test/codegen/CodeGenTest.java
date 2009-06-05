@@ -21,23 +21,25 @@ public class CodeGenTest
     private static final int mode = 1*RUN | 1*CLEAN | 1*VERBOSE;
     private static final String dir = "test/codegen";
     private static final String[] tests = {
-        "ConstReturn",
-        "Arithmetic",
-        "VoidFunction",
-        "LocalVariables",
-        "BooleanType",
+        "primitive/ConstReturn",
+        "primitive/Arithmetic",
+        "primitive/VoidFunction",
+        "primitive/LocalVariables",
+        "primitive/BooleanType",
+        "primitive/IfThenElse",
+        "reference/StringLiteral",
         };
 
     public static void main(String[] args)
     {
         ArrayList<String> tmpFiles = new ArrayList<String>();
-        boolean failures = false;
+        boolean allPass = true;
         try
         {
             for (String test : tests)
             {
                 if ((mode & RUN) != 0)
-                    failures |= codeGenTest(dir + "/" + test);
+                    allPass &= codeGenTest(dir + "/" + test);
                 tmpFiles.add(dir + "/" + test + ".jasmin");
                 tmpFiles.add(dir + "/" + test + ".class");
                 tmpFiles.add(dir + "/" + test + "Call.class");
@@ -45,38 +47,39 @@ public class CodeGenTest
         }
         finally
         {
-            if ((mode & RUN) != 0 && !failures)
-                System.out.println("+++ ALL PASS");
-
             if ((mode & CLEAN) != 0)
                 for (String file : tmpFiles)
                     new File(Util.platformizeFilepath(file)).delete();
-        }
 
+            if ((mode & RUN) == 0)
+                System.out.println("done");
+            else if (allPass)
+                System.out.println("+++ ALL PASS");
+        }
     }
 
     /**
-     * @return true iff it fails.
+     * @return true iff it passes.
      */
     private static boolean codeGenTest(String dirAndTest)
     {
         dirAndTest = Util.unixizeFilepath(dirAndTest);
-        Jax.compile(dirAndTest + ".jax");
-//        if (true)
-//            throw new RuntimeException("compiled");
-        TestUtils.compileJava(dirAndTest + "Call.java");
-        InputStream stdout = TestUtils.runJavaMain(dirAndTest + "Call");
-        String output = Util.readAll(stdout);
-        if (output.trim().equals("+++ PASS"))
+        if (Jax.compile(dirAndTest + ".jax"))
         {
-            if ((mode & VERBOSE) != 0)
-                System.out.println("+++ PASS " + dirAndTest);
-            return false;
+            TestUtils.compileJava(dirAndTest + "Call.java");
+            InputStream stdout = TestUtils.runJavaMain(dirAndTest + "Call");
+            if (stdout != null)
+            {
+                String output = Util.readAll(stdout);
+                if (output.trim().equals("+++ PASS"))
+                {
+                    if ((mode & VERBOSE) != 0)
+                        System.out.println("+++ PASS " + dirAndTest);
+                    return true;
+                }
+            }
         }
-        else
-        {
-            System.out.println("*** FAIL " + dirAndTest);
-            return true;
-        }
+        System.out.println("*** FAIL " + dirAndTest);
+        return false;
     }
 }
