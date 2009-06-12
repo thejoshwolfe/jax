@@ -8,7 +8,7 @@ public class Lexiconizer
 {
     public static Lexiconization lexiconize(Parsing parsing)
     {
-        return new Lexiconizer(parsing).lexiconize();
+        return new Lexiconizer(parsing).lexiconizeRoot();
     }
     
     private final HashMap<String, Type> importedTypes = new HashMap<String, Type>();
@@ -25,28 +25,45 @@ public class Lexiconizer
         root = parsing.root;
     }
 
-    private Lexiconization lexiconize()
+    private Lexiconization lexiconizeRoot()
     {
         // ensure types match up.
         // There is no type coercion or even implicit type casting yet, 
         // so exact matches is all that must be verified.
-        lexiconizeProgram(root.content);
+        lexiconizeCompilationUnit(root.content);
 
         return new Lexiconization(root, errors);
     }
 
-    private void lexiconizeProgram(Program program)
+    private void lexiconizeCompilationUnit(CompilationUnit compilationUnit)
     {
-        deleteNulls(program);
-
-        for (TopLevelItem topLevelItem : program.elements)
-            registerName(topLevelItem);
-        
-        for (TopLevelItem topLevelItem : program.elements)
-            lexiconizeTopLevelItem(topLevelItem);
+        lexiconizeImports(compilationUnit.imports);
+        lexiconizeClassDeclaration(compilationUnit.classDeclaration);
     }
 
-    private void registerName(TopLevelItem topLevelItem)
+    private void lexiconizeImports(Imports imports)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    private void lexiconizeClassDeclaration(ClassDeclaration classDeclaration)
+    {
+        lexiconizeClassBody(classDeclaration.classBody);
+    }
+
+    private void lexiconizeClassBody(ClassBody classBody)
+    {
+        deleteNulls(classBody);
+
+        for (ClassMember classMember : classBody.elements)
+            registerName(classMember);
+        
+        for (ClassMember classMember : classBody.elements)
+            lexiconizeClassMemeber(classMember);
+    }
+
+    private void registerName(ClassMember topLevelItem)
     {
         if (topLevelItem == null)
             return;
@@ -66,11 +83,9 @@ public class Lexiconizer
         localMethods.put(functionDefinition.id.name, functionDefinition);
     }
 
-    private void lexiconizeTopLevelItem(TopLevelItem topLevelItem)
+    private void lexiconizeClassMemeber(ClassMember classMember)
     {
-        if (topLevelItem == null)
-            return;
-        ParseElement content = topLevelItem.content;
+        ParseElement content = classMember.content;
         switch (content.getElementType())
         {
             case FunctionDefinition.TYPE:

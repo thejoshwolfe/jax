@@ -33,12 +33,17 @@ public class JasminGenerator extends CodeGenerator
 
     protected void generateCode()
     {
-        genProgram(root.content);
+        genCompilationUnit(root.content);
         out.close();
         TestUtils.compileJasmin(outputFilename);
     }
 
-    protected void genProgram(Program program)
+    private void genCompilationUnit(CompilationUnit compilationUnit)
+    {
+        genClassDeclaration(compilationUnit.classDeclaration);
+    }
+
+    private void genClassDeclaration(ClassDeclaration classDeclaration)
     {
         out.println(".class public " + className);
         out.println(".super java/lang/Object"); // hard code super class for now
@@ -46,19 +51,25 @@ public class JasminGenerator extends CodeGenerator
 
         out.println(IJasminConstants.defualtConstructor);
 
-        for (TopLevelItem element : program.elements)
+        genClassBody(classDeclaration.classBody);
+    }
+
+    private void genClassBody(ClassBody classBody)
+    {
+        for (ClassMember element : classBody.elements)
         {
-            genTopLevelItem(element);
+            genClassMember(element);
             out.println();
         }
     }
 
-    private void genTopLevelItem(TopLevelItem element)
+    private void genClassMember(ClassMember classMember)
     {
-        switch (element.content.getElementType())
+        ParseElement content = classMember.content;
+        switch (content.getElementType())
         {
             case FunctionDefinition.TYPE:
-                genFunctionDefinition((FunctionDefinition)element.content);
+                genFunctionDefinition((FunctionDefinition)content);
                 break;
             default:
                 throw new RuntimeException();

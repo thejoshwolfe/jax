@@ -2,22 +2,23 @@ package net.wolfesoftware.java.jax.ast;
 
 import java.util.List;
 
-public class Program extends ListElement<TopLevelItem>
+public class FullClassName extends ListElement<Id>
 {
-    public Program(List<TopLevelItem> declarations)
+    public FullClassName(List<Id> elements)
     {
-        super(declarations);
+        super(elements);
     }
 
     @Override
     protected String getDelimiter()
     {
-        return ";\n";
+        return ".";
     }
-    
-    public static final int TYPE = 0x0B2F02D9;
+
+    public static final int TYPE = 0x22e0050b;
     public int getElementType()
     {
         return TYPE;
     }
+
 }

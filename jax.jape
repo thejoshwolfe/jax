@@ -27,17 +27,17 @@
 ## scalars with head- or tail-recursion must specify a precedence in parentheses following the reference to the prototyped element.
 ##
 ## primitive elements: 
-##  LITERAL - indicates a literal value (currently just integers)
+##  LITERAL - indicates a literal value (integers and Strings)
 ##  ID - indicates an identifier.
-##  NULL - indicates that nothing should appear
 ##
 ## literal elements:
 ##  elements specified in quotes (") signify keywords or symbol tokens
 ##
 
 
-### only two types currently
-|TypeId = "void" | "int" | "boolean" | ID
+### Types
+~FullClassName = ID : "."
+|TypeId = "void" | "int" | "boolean" | ID    # don't include FullClassName
 
 ### variable declaration
 $VariableDeclaration = TypeId ID
@@ -100,9 +100,15 @@ $VariableDeclaration = TypeId ID
 ~ArgumentDeclarations = VariableDeclaration : ","
 $FunctionDefinition = TypeId ID "(" ArgumentDeclarations ")" Expression
 
-### program
-|TopLevelItem = FunctionDefinition    # | VariableCreation
-~Program = (TopLevelItem) : ";"
+### Class
+|ClassMember = FunctionDefinition    # | FieldDeclaration | FieldCreation
+~ClassBody = (ClassMember) : ";"
+$ClassDeclaration = ClassBody   # will have more someday
 
+### CompilationUnit
+$ImportStatement = "import" FullClassName ";"
+~Imports = ImportStatement : ""
+$CompilationUnit = Imports ClassDeclaration
 
+!Root = CompilationUnit
 

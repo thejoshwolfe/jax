@@ -1,13 +1,13 @@
 package net.wolfesoftware.java.jax.ast;
 
-public class TopLevelItem extends SwitchElement
+public class ClassMember extends SwitchElement
 {
-    public TopLevelItem(ParseElement content)
+    public ClassMember(ParseElement content)
     {
         super(content);
     }
 
-    public static final int TYPE = 0x1e6004bb;
+    public static final int TYPE = 0x1927044f;
     public int getElementType()
     {
         return TYPE;

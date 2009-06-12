@@ -9,7 +9,7 @@ public final class Parser
 {
     public static Parsing parse(Tokenization tokenization)
     {
-        return new Parser(tokenization).parse();
+        return new Parser(tokenization).parseRoot();
     }
 
     private final Token[] tokens;
@@ -20,9 +20,9 @@ public final class Parser
         tokens = tokenization.tokens.toArray(new Token[tokenization.tokens.size()]);
     }
 
-    private Parsing parse()
+    private Parsing parseRoot()
     {
-        SubParsing<Program> program = parseProgram(0);
+        SubParsing<CompilationUnit> program = parseCompilationUnit(0);
         if (program == null)
         {
             errors.add(ParsingException.newInstance(0, "Can't find Program"));
@@ -33,26 +33,104 @@ public final class Parser
         return new Parsing(new Root(program.element), errors);
     }
 
-    private SubParsing<Program> parseProgram(int offset)
+    private SubParsing<CompilationUnit> parseCompilationUnit(int offset)
     {
-        ArrayList<TopLevelItem> topLevelItems = new ArrayList<TopLevelItem>();
+        SubParsing<Imports> imports = parseImports(offset);
+        if (imports == null)
+            return null;
+        offset = imports.end;
+
+        SubParsing<ClassDeclaration> classDeclaration = parseClassDeclaration(offset);
+        if (classDeclaration == null)
+            return null;
+        offset = classDeclaration.end;
+
+        return new SubParsing<CompilationUnit>(new CompilationUnit(imports.element, classDeclaration.element), offset);
+    }
+
+    private SubParsing<Imports> parseImports(int offset)
+    {
+        ArrayList<ImportStatement> elements = new ArrayList<ImportStatement>();
         while (true)
         {
-            SubParsing<TopLevelItem> topLevelItem = parseTopLevelItem(offset);
-            if (topLevelItem != null) {
-                topLevelItems.add(topLevelItem.element);
-                offset = topLevelItem.end;
+            SubParsing<ImportStatement> importStatement = parseImportStatement(offset);
+            if (importStatement != null) {
+                elements.add(importStatement.element);
+                offset = importStatement.end;
             } else
-                topLevelItems.add(null);
+                break;
+            offset++;
+        }
+        return new SubParsing<Imports>(new Imports(elements), offset);
+    }
+
+    private SubParsing<ImportStatement> parseImportStatement(int offset)
+    {
+        if (getToken(offset).text != Lang.KEYWORD_IMPORT)
+            return null;
+        offset++;
+
+        SubParsing<FullClassName> fullClassName = parseFullClassName(offset);
+        if (fullClassName == null)
+            return null;
+        offset = fullClassName.end;
+        
+        if (getToken(offset).text != Lang.SYMBOL_SEMICOLON)
+            return null;
+        offset++;
+        
+        return new SubParsing<ImportStatement>(new ImportStatement(fullClassName.element), offset);
+    }
+
+    private SubParsing<FullClassName> parseFullClassName(int offset)
+    {
+        ArrayList<Id> elements = new ArrayList<Id>();
+        while (true)
+        {
+            Id classMember = parseId(offset);
+            if (classMember != null) {
+                elements.add(classMember);
+                offset++;
+            } else
+                elements.add(null);
+            Token semicolon = getToken(offset);
+            if (semicolon.text != Lang.SYMBOL_PERIOD)
+                break;
+            offset++;
+        }
+        return new SubParsing<FullClassName>(new FullClassName(elements), offset);
+    }
+
+    private SubParsing<ClassDeclaration> parseClassDeclaration(int offset)
+    {
+        SubParsing<ClassBody> classBody = parseClassBody(offset);
+        if (classBody == null)
+            return null;
+        offset = classBody.end;
+        
+        return new SubParsing<ClassDeclaration>(new ClassDeclaration(classBody.element), offset);
+    }
+
+    private SubParsing<ClassBody> parseClassBody(int offset)
+    {
+        ArrayList<ClassMember> elements = new ArrayList<ClassMember>();
+        while (true)
+        {
+            SubParsing<ClassMember> classMember = parseClassMember(offset);
+            if (classMember != null) {
+                elements.add(classMember.element);
+                offset = classMember.end;
+            } else
+                elements.add(null);
             Token semicolon = getToken(offset);
             if (semicolon.text != Lang.SYMBOL_SEMICOLON)
                 break;
             offset++;
         }
-        return new SubParsing<Program>(new Program(topLevelItems), offset);
+        return new SubParsing<ClassBody>(new ClassBody(elements), offset);
     }
 
-    private SubParsing<TopLevelItem> parseTopLevelItem(int offset)
+    private SubParsing<ClassMember> parseClassMember(int offset)
     {
         SubParsing<?> content;
         
@@ -61,7 +139,7 @@ public final class Parser
             return null;
         offset = content.end;
         
-        return new SubParsing<TopLevelItem>(new TopLevelItem(content.element), offset);
+        return new SubParsing<ClassMember>(new ClassMember(content.element), offset);
     }
 
     private SubParsing<FunctionDefinition> parseFunctionDefinition(int offset)

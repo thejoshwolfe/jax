@@ -10,18 +10,33 @@ public class Optimizer
 
     public static void optimize(Root root, OprimizationOptions options)
     {
-        optimizeProgram(root.content);
+        optimizeCompilationUnit(root.content);
     }
 
-    private static void optimizeProgram(Program program)
+    private static void optimizeCompilationUnit(CompilationUnit program)
     {
-        for (TopLevelItem topLevelItem : program.elements)
-            optimizeTopLevelItem(topLevelItem);
+        optimizeImports(program.imports);
+        optimizeClassDeclaration(program.classDeclaration);
     }
 
-    private static void optimizeTopLevelItem(TopLevelItem topLevelItem)
+    private static void optimizeImports(Imports imports)
     {
-        ParseElement content = topLevelItem.content;
+    }
+
+    private static void optimizeClassDeclaration(ClassDeclaration classDeclaration)
+    {
+        optimizeClassBody(classDeclaration.classBody);
+    }
+
+    private static void optimizeClassBody(ClassBody program)
+    {
+        for (ClassMember classMember : program.elements)
+            optimizeClassMember(classMember);
+    }
+
+    private static void optimizeClassMember(ClassMember classMember)
+    {
+        ParseElement content = classMember.content;
         switch (content.getElementType())
         {
             case FunctionDefinition.TYPE:

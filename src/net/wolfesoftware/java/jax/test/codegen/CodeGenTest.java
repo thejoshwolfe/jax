@@ -28,7 +28,7 @@ public class CodeGenTest
         "primitive/BooleanType",
         "primitive/IfThenElse",
         "reference/StringLiteral",
-        };
+    };
 
     public static void main(String[] args)
     {

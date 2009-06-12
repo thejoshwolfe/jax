@@ -2,8 +2,8 @@ package net.wolfesoftware.java.jax.ast;
 
 public class Root extends ParseElement
 {
-    public Program content;
-    public Root(Program content)
+    public CompilationUnit content;
+    public Root(CompilationUnit content)
     {
         this.content = content;
     }
