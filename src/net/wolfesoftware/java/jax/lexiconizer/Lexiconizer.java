@@ -16,7 +16,6 @@ public class Lexiconizer
         Type.initPrimitives(importedTypes);
         Type.initJavaLang(importedTypes);
     }
-    private final HashMap<String, FunctionDefinition> localMethods = new HashMap<String, FunctionDefinition>();
 
     private final Root root;
     private final ArrayList<LexicalException> errors = new ArrayList<LexicalException>();
@@ -49,21 +48,22 @@ public class Lexiconizer
 
     private void lexiconizeClassDeclaration(ClassDeclaration classDeclaration)
     {
-        lexiconizeClassBody(classDeclaration.classBody);
+        ClassContext context = new ClassContext();
+        lexiconizeClassBody(context, classDeclaration.classBody);
     }
 
-    private void lexiconizeClassBody(ClassBody classBody)
+    private void lexiconizeClassBody(ClassContext context, ClassBody classBody)
     {
         deleteNulls(classBody);
 
         for (ClassMember classMember : classBody.elements)
-            registerName(classMember);
-        
+            preLexiconizeClassMemeber(context, classMember);
+
         for (ClassMember classMember : classBody.elements)
-            lexiconizeClassMemeber(classMember);
+            lexiconizeClassMemeber(context, classMember);
     }
 
-    private void registerName(ClassMember topLevelItem)
+    private void preLexiconizeClassMemeber(ClassContext context, ClassMember topLevelItem)
     {
         if (topLevelItem == null)
             return;
@@ -71,44 +71,48 @@ public class Lexiconizer
         switch (content.getElementType())
         {
             case FunctionDefinition.TYPE:
-                registerName((FunctionDefinition)content);
+                preLexiconizeFunctionDefinition(context, (FunctionDefinition)content);
                 break;
             default:
                 throw new RuntimeException();
         }
     }
-
-    private void registerName(FunctionDefinition functionDefinition)
+    private void preLexiconizeFunctionDefinition(ClassContext context, FunctionDefinition functionDefinition)
     {
-        localMethods.put(functionDefinition.id.name, functionDefinition);
+        Type returnType = resolveType(functionDefinition.typeId);
+        functionDefinition.context = new RootLocalContext(context);
+        Type[] arguemntSignature = lexiconizeArgumentDeclarations(functionDefinition.context, functionDefinition.argumentDeclarations);
+        functionDefinition.method = new Method(returnType, arguemntSignature);
+        context.addMethod(functionDefinition.method);
     }
 
-    private void lexiconizeClassMemeber(ClassMember classMember)
+    private void lexiconizeClassMemeber(ClassContext context, ClassMember classMember)
     {
         ParseElement content = classMember.content;
         switch (content.getElementType())
         {
             case FunctionDefinition.TYPE:
-                lexiconizeFunctionDefinition((FunctionDefinition)content);
+                lexiconizeFunctionDefinition(context, (FunctionDefinition)content);
                 break;
             default:
                 throw new RuntimeException();
         }
     }
 
-    private void lexiconizeFunctionDefinition(FunctionDefinition functionDefinition)
+    private void lexiconizeFunctionDefinition(ClassContext context, FunctionDefinition functionDefinition)
     {
-        Type returnType = resolveType(functionDefinition.typeId);
-        functionDefinition.context = new RootLocalContext(errors);
-        lexiconizeArgumentDeclarations(functionDefinition.context, functionDefinition.argumentDeclarations);
         functionDefinition.returnBehavior = lexiconizeExpression(functionDefinition.context, functionDefinition.expression);
-        if (returnType != functionDefinition.returnBehavior.type)
+        if (functionDefinition.method.returnType != functionDefinition.returnBehavior.type)
             errors.add(new LexicalException());
     }
 
-    private void lexiconizeArgumentDeclarations(LocalContext context, ArgumentDeclarations argumentDeclarations)
+    private Type[] lexiconizeArgumentDeclarations(LocalContext context, ArgumentDeclarations argumentDeclarations)
     {
-        // TODO
+        Type[] argumentSignature = new Type[argumentDeclarations.elements.size()];
+        int i = 0;
+        for(VariableDeclaration variableDeclaration : argumentDeclarations.elements)
+            argumentSignature[i++] = lexiconizeVariableDeclaration(context, variableDeclaration).type;
+        return argumentSignature;
     }
 
     private ReturnBehavior lexiconizeExpression(LocalContext context, Expression expression)
@@ -170,6 +174,9 @@ public class Lexiconizer
             case IfThen.TYPE:
                 returnBehavior = lexiconizeIfThen(context, (IfThen)content);
                 break;
+            case FunctionInvocation.TYPE:
+                returnBehavior = lexiconizeFunctionInvocation(context, (FunctionInvocation)content);
+                break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
@@ -177,6 +184,24 @@ public class Lexiconizer
         return returnBehavior;
     }
 
+
+    private ReturnBehavior lexiconizeFunctionInvocation(LocalContext context, FunctionInvocation functionInvocation)
+    {
+        ReturnBehavior[] argumentSignature = lexiconizeArguments(context, functionInvocation.arguments);
+        functionInvocation.method = resolveFunction(context.getClassContext(), functionInvocation.id, argumentSignature);
+
+        return null;
+    }
+
+
+    private ReturnBehavior[] lexiconizeArguments(LocalContext context, Arguments arguments)
+    {
+        ReturnBehavior[] rtnArr = new ReturnBehavior[arguments.elements.size()];
+        int i = 0;
+        for (Expression element : arguments.elements)
+            rtnArr[i++] = lexiconizeExpression(context, element);
+        return rtnArr;
+    }
 
     private ReturnBehavior lexiconizeIfThenElse(LocalContext context, IfThenElse ifThenElse)
     {
@@ -241,7 +266,7 @@ public class Lexiconizer
 
     private ReturnBehavior lexiconizeBlock(LocalContext context, Block block)
     {
-        block.context = new LocalContext(errors, context);
+        block.context = new LocalContext(context);
         return lexiconizeBlockContents(block.context, block.blockContents);
     }
 
@@ -272,7 +297,7 @@ public class Lexiconizer
             }
             if (variableDeclaration != null)
             {
-                context.addLocalVariable(variableDeclaration.id, variableDeclaration.type);
+                context.addLocalVariable(variableDeclaration.id, variableDeclaration.type, errors);
             }
         }
         if (blockContents.forceVoid)
@@ -348,6 +373,12 @@ public class Lexiconizer
     private Type resolveType(TypeId typeId)
     {
         return importedTypes.get(typeId.toString());
+    }
+
+    private Method resolveFunction(ClassContext context, Id id, ReturnBehavior[] argumentSignature)
+    {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     private static void deleteNulls(ListElement<?> listElement)

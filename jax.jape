@@ -61,8 +61,8 @@ $VariableDeclaration = TypeId ID
     |Operation = -InfixOperation # | -PrefixOperation
 
     #### function invocation
-    #~Arguments = Expression : ","
-    #$FunctionInvocation = ID "(" Arguments ")"
+    ~Arguments = Expression : ","
+    $FunctionInvocation = ID "(" Arguments ")"
 
     ### variable initialization
     $VariableCreation = VariableDeclaration "=" Expression

@@ -8,7 +8,7 @@ public class Type
     public final String packageId;
     public final String id;
     public final int size;
-    
+
     public Type(String packageId, String id)
     {
         this(packageId, id, 1);
@@ -18,6 +18,11 @@ public class Type
         this.packageId = packageId;
         this.id = id;
         this.size = size;
+    }
+
+    public String toString()
+    {
+        return (packageId == null) ? id : packageId + "." + id;
     }
 
     public static final Type KEYWORD_INT = new Type(null, Lang.KEYWORD_INT);
@@ -44,10 +49,5 @@ public class Type
     {
         for (String typeName : javaLangTypeNames)
             types.put(typeName, new Type("java.lang", typeName));
-    }
-
-    public String toString()
-    {
-        return (packageId == null) ? id : packageId + "." + id;
     }
 }

@@ -294,6 +294,45 @@ public final class Parser
 
         return new SubParsing<Assignment>(new Assignment(id, expression.element), offset);
     }
+    private SubParsing<FunctionInvocation> parseFunctionInvocation(int offset)
+    {
+        Id id = parseId(offset);
+        if (id == null)
+            return null;
+        offset++;
+        
+        if (getToken(offset).text != Lang.SYMBOL_OPEN_PARENS)
+            return null;
+        offset++;
+
+        SubParsing<Arguments> arguments = parseArguments(offset);
+        if (arguments == null)
+            return null;
+        offset = arguments.end;
+        
+        if (getToken(offset).text != Lang.SYMBOL_CLOSE_PARENS)
+            return null;
+        offset++;
+
+        return new SubParsing<FunctionInvocation>(new FunctionInvocation(id, arguments.element), offset);
+    }
+    private SubParsing<Arguments> parseArguments(int offset)
+    {
+        ArrayList<Expression> elements = new ArrayList<Expression>();
+        while (true)
+        {
+            SubParsing<Expression> expression = parseExpression(offset);
+            if (expression != null) {
+                elements.add(expression.element);
+                offset = expression.end;
+            } else
+                elements.add(null);
+            if (getToken(offset).text != Lang.SYMBOL_COMMA)
+                break;
+            offset++;
+        }
+        return new SubParsing<Arguments>(new Arguments(elements), offset);
+    }
     private final class ExpressionParser
     {
         private final Stack<StackElement> stack = new Stack<StackElement>();
@@ -323,6 +362,13 @@ public final class Parser
                     {
                         pushUnit(literal);
                         offset++;
+                        continue;
+                    }
+                    SubParsing<FunctionInvocation> functionInvocation = parseFunctionInvocation(offset);
+                    if (functionInvocation != null)
+                    {
+                        pushUnit(functionInvocation.element);
+                        offset = functionInvocation.end;
                         continue;
                     }
                     SubParsing<Assignment> assigment = parseAssignment(offset);

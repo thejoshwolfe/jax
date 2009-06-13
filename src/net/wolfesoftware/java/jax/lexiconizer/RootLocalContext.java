@@ -1,15 +1,16 @@
 package net.wolfesoftware.java.jax.lexiconizer;
 
-import java.util.ArrayList;
 
 public class RootLocalContext extends LocalContext
 {
     public int capacity = 0;
     private int nextLabelNumber = 0;
+    private ClassContext classContext;
 
-    public RootLocalContext(ArrayList<LexicalException> errors)
+    public RootLocalContext(ClassContext classContext)
     {
-        super(errors, null);
+        super(null);
+        this.classContext = classContext;
     }
 
     public void ensureVariableCapacity(int capacity)
@@ -25,5 +26,11 @@ public class RootLocalContext extends LocalContext
     public String nextLabel()
     {
         return "label" + nextLabelNumber++;
+    }
+    
+    @Override
+    public ClassContext getClassContext()
+    {
+        return classContext;
     }
 }

@@ -11,6 +11,7 @@ public class FunctionDefinition extends ParseElement
     public Id id;
     public ArgumentDeclarations argumentDeclarations;
     public Expression expression;
+    public Method method;
 
     public FunctionDefinition(TypeId typeId, Id id, ArgumentDeclarations argumentDeclarations, Expression expression)
     {

@@ -8,13 +8,11 @@ public class LocalContext
     public final LocalContext parentContext;
     private final RootLocalContext rootContext;
     public final HashMap<String, LocalVariable> localVariables = new HashMap<String, LocalVariable>();
-    public final ArrayList<LexicalException> errors;
 
     private final int parentVariableCount;
 
-    public LocalContext(ArrayList<LexicalException> errors, LocalContext parentContext)
+    public LocalContext(LocalContext parentContext)
     {
-        this.errors = errors;
         this.parentContext = parentContext;
         if (parentContext == null) {
             parentVariableCount = 0;
@@ -25,7 +23,7 @@ public class LocalContext
         }
     }
 
-    public void addLocalVariable(Id id, Type type)
+    public void addLocalVariable(Id id, Type type, ArrayList<LexicalException> errors)
     {
         if (localVariables.containsKey(id))
             errors.add(new LexicalException());
@@ -49,5 +47,10 @@ public class LocalContext
     public String nextLabel()
     {
         return rootContext.nextLabel();
+    }
+
+    public ClassContext getClassContext()
+    {
+        return rootContext.getClassContext();
     }
 }
