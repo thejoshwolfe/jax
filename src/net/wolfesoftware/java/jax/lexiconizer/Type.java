@@ -3,42 +3,43 @@ package net.wolfesoftware.java.jax.lexiconizer;
 import java.util.HashMap;
 import net.wolfesoftware.java.jax.tokenizer.Lang;
 
-public class Type
+public abstract class Type
 {
     public final String packageId;
     public final String id;
-    public final int size;
 
     public Type(String packageId, String id)
     {
-        this(packageId, id, 1);
-    }
-    public Type(String packageId, String id, int size)
-    {
         this.packageId = packageId;
         this.id = id;
-        this.size = size;
     }
+
+    public abstract Method resolveMethod(String name, Type[] argumentSignature);
 
     public String toString()
     {
         return (packageId == null) ? id : packageId + "." + id;
     }
 
-    public static final Type KEYWORD_INT = new Type(null, Lang.KEYWORD_INT);
-    public static final Type KEYWORD_VOID = new Type(null, Lang.KEYWORD_VOID, 0);
-    public static final Type KEYWORD_BOOLEAN = new Type(null, Lang.KEYWORD_BOOLEAN);
 
-    private static final String[] javaLangTypeNames = { "AbstractMethodError", "ArithmeticException", "ArrayIndexOutOfBoundsException", "ArrayStoreException", "AssertionError", "Boolean", "Byte",
-            "Character", "CharSequence", "Class", "ClassCastException", "ClassCircularityError", "ClassFormatError", "ClassLoader", "ClassNotFoundException", "Cloneable",
-            "CloneNotSupportedException", "Comparable", "Compiler", "Double", "Error", "Exception", "ExceptionInInitializerError", "Float", "IllegalAccessError", "IllegalAccessException",
-            "IllegalArgumentException", "IllegalMonitorStateException", "IllegalStateException", "IllegalThreadStateException", "IncompatibleClassChangeError", "IndexOutOfBoundsException",
-            "InheritableThreadLocal", "InstantiationError", "InstantiationException", "Integer", "InternalError", "InterruptedException", "LinkageError", "Long", "Math", "NegativeArraySizeException",
-            "NoClassDefFoundError", "NoSuchFieldError", "NoSuchFieldException", "NoSuchMethodError", "NoSuchMethodException", "NullPointerException", "Number", "NumberFormatException", "Object",
-            "OutOfMemoryError", "Package", "Process", "Runnable", "Runtime", "RuntimeException", "RuntimePermission", "SecurityException", "SecurityManager", "Short", "StackOverflowError",
-            "StackTraceElement", "StrictMath", "String", "StringBuffer", "StringIndexOutOfBoundsException", "System", "Thread", "ThreadDeath", "ThreadGroup", "ThreadLocal", "Throwable",
-            "UnknownError", "UnsatisfiedLinkError", "UnsupportedClassVersionError", "UnsupportedOperationException", "VerifyError", "VirtualMachineError", "Void", };
 
+
+
+    public static final Type KEYWORD_INT = new PrimitiveType(Lang.KEYWORD_INT);
+    public static final Type KEYWORD_VOID = new PrimitiveType(Lang.KEYWORD_VOID);
+    public static final Type KEYWORD_BOOLEAN = new PrimitiveType(Lang.KEYWORD_BOOLEAN);
+
+    private static final Class<?>[] javaLangClasses = { AbstractMethodError.class, ArithmeticException.class, ArrayIndexOutOfBoundsException.class, ArrayStoreException.class, AssertionError.class,
+            Boolean.class, Byte.class, Character.class, CharSequence.class, Class.class, ClassCastException.class, ClassCircularityError.class, ClassFormatError.class, ClassLoader.class,
+            ClassNotFoundException.class, Cloneable.class, CloneNotSupportedException.class, Comparable.class, Compiler.class, Double.class, Error.class, Exception.class,
+            ExceptionInInitializerError.class, Float.class, IllegalAccessError.class, IllegalAccessException.class, IllegalArgumentException.class, IllegalMonitorStateException.class,
+            IllegalStateException.class, IllegalThreadStateException.class, IncompatibleClassChangeError.class, IndexOutOfBoundsException.class, InheritableThreadLocal.class,
+            InstantiationError.class, InstantiationException.class, Integer.class, InternalError.class, InterruptedException.class, LinkageError.class, Long.class, Math.class,
+            NegativeArraySizeException.class, NoClassDefFoundError.class, NoSuchFieldError.class, NoSuchFieldException.class, NoSuchMethodError.class, NoSuchMethodException.class,
+            NullPointerException.class, Number.class, NumberFormatException.class, Object.class, OutOfMemoryError.class, Package.class, Process.class, Runnable.class, Runtime.class,
+            RuntimeException.class, RuntimePermission.class, SecurityException.class, SecurityManager.class, Short.class, StackOverflowError.class, StackTraceElement.class, StrictMath.class,
+            String.class, StringBuffer.class, StringIndexOutOfBoundsException.class, System.class, Thread.class, ThreadDeath.class, ThreadGroup.class, ThreadLocal.class, Throwable.class,
+            UnknownError.class, UnsatisfiedLinkError.class, UnsupportedClassVersionError.class, UnsupportedOperationException.class, VerifyError.class, VirtualMachineError.class, Void.class, };
     public static void initPrimitives(HashMap<String, Type> types)
     {
         types.put(KEYWORD_INT.id, KEYWORD_INT);
@@ -47,7 +48,7 @@ public class Type
     }
     public static void initJavaLang(HashMap<String, Type> types)
     {
-        for (String typeName : javaLangTypeNames)
-            types.put(typeName, new Type("java.lang", typeName));
+        for (Class<?> type : javaLangClasses)
+            types.put(type.getSimpleName(), new RuntimeType("java.lang", type.getSimpleName(), type));
     }
 }

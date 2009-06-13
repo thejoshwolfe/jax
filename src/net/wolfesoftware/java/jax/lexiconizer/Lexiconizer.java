@@ -26,9 +26,6 @@ public class Lexiconizer
 
     private Lexiconization lexiconizeRoot()
     {
-        // ensure types match up.
-        // There is no type coercion or even implicit type casting yet, 
-        // so exact matches is all that must be verified.
         lexiconizeCompilationUnit(root.content);
 
         return new Lexiconization(root, errors);
@@ -43,12 +40,12 @@ public class Lexiconizer
     private void lexiconizeImports(Imports imports)
     {
         // TODO Auto-generated method stub
-        
+
     }
 
     private void lexiconizeClassDeclaration(ClassDeclaration classDeclaration)
     {
-        ClassContext context = new ClassContext();
+        ClassContext context = new ClassContext("", "???");
         lexiconizeClassBody(context, classDeclaration.classBody);
     }
 
@@ -82,7 +79,7 @@ public class Lexiconizer
         Type returnType = resolveType(functionDefinition.typeId);
         functionDefinition.context = new RootLocalContext(context);
         Type[] arguemntSignature = lexiconizeArgumentDeclarations(functionDefinition.context, functionDefinition.argumentDeclarations);
-        functionDefinition.method = new Method(returnType, arguemntSignature);
+        functionDefinition.method = new Method(returnType, functionDefinition.id.name, arguemntSignature);
         context.addMethod(functionDefinition.method);
     }
 
@@ -184,18 +181,20 @@ public class Lexiconizer
         return returnBehavior;
     }
 
-
     private ReturnBehavior lexiconizeFunctionInvocation(LocalContext context, FunctionInvocation functionInvocation)
     {
         ReturnBehavior[] argumentSignature = lexiconizeArguments(context, functionInvocation.arguments);
         functionInvocation.method = resolveFunction(context.getClassContext(), functionInvocation.id, argumentSignature);
-
-        return null;
+        int stackRequirement = 0;
+        for (int i = 0; i < argumentSignature.length; i++)
+            stackRequirement = Math.max(stackRequirement, i + argumentSignature[i].stackRequirement);
+        return new ReturnBehavior(functionInvocation.method.returnType, Math.max(stackRequirement, 1));
     }
 
 
     private ReturnBehavior[] lexiconizeArguments(LocalContext context, Arguments arguments)
     {
+        deleteNulls(arguments);
         ReturnBehavior[] rtnArr = new ReturnBehavior[arguments.elements.size()];
         int i = 0;
         for (Expression element : arguments.elements)
@@ -377,8 +376,10 @@ public class Lexiconizer
 
     private Method resolveFunction(ClassContext context, Id id, ReturnBehavior[] argumentSignature)
     {
-        // TODO Auto-generated method stub
-        return null;
+        Type[] argumentTypes = new Type[argumentSignature.length];
+        for (int i = 0; i < argumentSignature.length; i++)
+            argumentTypes[i] = argumentSignature[i].type;
+        return context.resolveMethod(id.name, argumentTypes);
     }
 
     private static void deleteNulls(ListElement<?> listElement)

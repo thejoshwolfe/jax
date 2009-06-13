@@ -5,7 +5,7 @@ import java.util.regex.*;
 import net.wolfesoftware.java.common.TestUtils;
 import net.wolfesoftware.java.jax.ast.*;
 import net.wolfesoftware.java.jax.codegen.*;
-import net.wolfesoftware.java.jax.lexiconizer.Type;
+import net.wolfesoftware.java.jax.lexiconizer.*;
 
 public class JasminGenerator extends CodeGenerator
 {
@@ -113,21 +113,6 @@ public class JasminGenerator extends CodeGenerator
         out.println(".end method");
     }
 
-    private String getTypeCode(Type type)
-    {
-        // http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html#84645
-        if (type.packageId == null)
-        {
-            if (type == Type.KEYWORD_INT)
-                return "I";
-            if (type == Type.KEYWORD_VOID)
-                return "V";
-            if (type == Type.KEYWORD_BOOLEAN)
-                return "Z";
-            throw new RuntimeException(type.toString());
-        }
-        return "L" + type.packageId.replace('.', '/') + "/" + type.id + ";";
-    }
 
     private void evalExpression(Expression expression)
     {
@@ -185,9 +170,25 @@ public class JasminGenerator extends CodeGenerator
             case IfThen.TYPE:
                 evalIfThen((IfThen)content);
                 break;
+            case FunctionInvocation.TYPE:
+                evalFunctionInvocation((FunctionInvocation)content);
+                break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
+    }
+
+    private void evalFunctionInvocation(FunctionInvocation functionInvocation)
+    {
+        evalArguments(functionInvocation.arguments);
+        
+        printStatement("invokestatic " + getMethodCode(functionInvocation.method));
+    }
+
+    private void evalArguments(Arguments arguments)
+    {
+        for (Expression element : arguments.elements)
+            evalExpression(element);
     }
 
     private void evalIfThenElse(IfThenElse ifThenElse)
@@ -330,5 +331,31 @@ public class JasminGenerator extends CodeGenerator
     private void printStatement(String s)
     {
         out.println(IJasminConstants.indentation + s);
+    }
+
+    private String getTypeCode(Type type)
+    {
+        // http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html#84645
+        if (type.packageId == null)
+        {
+            if (type == Type.KEYWORD_INT)
+                return "I";
+            if (type == Type.KEYWORD_VOID)
+                return "V";
+            if (type == Type.KEYWORD_BOOLEAN)
+                return "Z";
+            throw new RuntimeException(type.toString());
+        }
+        return "L" + type.packageId.replace('.', '/') + "/" + type.id + ";";
+    }
+    private String getMethodCode(Method method)
+    {
+        StringBuilder builder = new StringBuilder(className);
+        builder.append('/').append(method.id).append('(');
+        for (Type type : method.argumentSignature)
+            builder.append(getTypeCode(type));
+        builder.append(')');
+        builder.append(getTypeCode(method.returnType));
+        return builder.toString();
     }
 }

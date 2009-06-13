@@ -108,9 +108,24 @@ public class Optimizer
             case IfThen.TYPE:
                 optimizeIfThen((IfThen)content);
                 break;
+            case FunctionInvocation.TYPE:
+                optimizeFunctionInvocation((FunctionInvocation)content);
+                break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
+    }
+
+    private static void optimizeFunctionInvocation(FunctionInvocation functionInvocation)
+    {
+        optimizeId(functionInvocation.id);
+        optimizeArguments(functionInvocation.arguments);
+    }
+
+    private static void optimizeArguments(Arguments arguments)
+    {
+        for (Expression element : arguments.elements)
+            optimizeExpression(element);
     }
 
     private static void optimizeIfThenElse(IfThenElse ifThenElse)
