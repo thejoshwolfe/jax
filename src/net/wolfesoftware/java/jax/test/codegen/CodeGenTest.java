@@ -29,6 +29,7 @@ public class CodeGenTest
         "primitive/IfThenElse",
         "reference/StringLiteral",
         "reference/FunctionInvocation",
+        "reference/RuntimeType",
     };
 
     public static void main(String[] args)

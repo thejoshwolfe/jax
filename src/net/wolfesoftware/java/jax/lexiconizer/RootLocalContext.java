@@ -5,9 +5,9 @@ public class RootLocalContext extends LocalContext
 {
     public int capacity = 0;
     private int nextLabelNumber = 0;
-    private ClassContext classContext;
+    private LocalType classContext;
 
-    public RootLocalContext(ClassContext classContext)
+    public RootLocalContext(LocalType classContext)
     {
         super(null);
         this.classContext = classContext;
@@ -29,7 +29,7 @@ public class RootLocalContext extends LocalContext
     }
     
     @Override
-    public ClassContext getClassContext()
+    public LocalType getClassContext()
     {
         return classContext;
     }

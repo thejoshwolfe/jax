@@ -86,24 +86,20 @@ public class JasminGenerator extends CodeGenerator
         out.print(getTypeCode(functionDefinition.returnBehavior.type));
         out.println();
         // .limit stack
-        out.print(IJasminConstants.indentation + ".limit stack ");
-        out.print(functionDefinition.returnBehavior.stackRequirement);
-        out.println();
+        printStatement(".limit stack " + functionDefinition.returnBehavior.stackRequirement);
         // .limit locals
-        out.print(IJasminConstants.indentation + ".limit locals ");
-        out.print(functionDefinition.context.capacity);
-        out.println();
+        printStatement(".limit locals " + functionDefinition.context.capacity);
 
         // main body
         evalExpression(functionDefinition.expression);
 
         // return statement
         String rtnStmt = null;
-        if (functionDefinition.returnBehavior.type.packageId != null)
+        if (!functionDefinition.returnBehavior.type.isPrimitive())
             rtnStmt = "areturn";
-        else if (functionDefinition.returnBehavior.type == Type.KEYWORD_VOID)
+        else if (functionDefinition.returnBehavior.type == RuntimeType.VOID)
             rtnStmt = "return";
-        else if (functionDefinition.returnBehavior.type == Type.KEYWORD_INT || functionDefinition.returnBehavior.type == Type.KEYWORD_BOOLEAN)
+        else if (functionDefinition.returnBehavior.type == RuntimeType.INT || functionDefinition.returnBehavior.type == RuntimeType.BOOLEAN)
             rtnStmt = "ireturn";
         if (rtnStmt == null)
             throw new RuntimeException(functionDefinition.returnBehavior.type.toString());
@@ -173,16 +169,36 @@ public class JasminGenerator extends CodeGenerator
             case FunctionInvocation.TYPE:
                 evalFunctionInvocation((FunctionInvocation)content);
                 break;
+            case DereferenceMethod.TYPE:
+                evalDereferenceMethod((DereferenceMethod)content);
+                break;
+            case StaticDereferenceField.TYPE:
+                evalStaticDereferenceField((StaticDereferenceField)content);
+                break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
     }
 
+    private void evalStaticDereferenceField(StaticDereferenceField staticDereferenceField)
+    {
+        String statement = "getstatic " + getTypeName(staticDereferenceField.field.declaringType) + '/' + staticDereferenceField.id.name + ' ' + getTypeCode(staticDereferenceField.field.returnType);
+        printStatement(statement);
+    }
+
+    private void evalDereferenceMethod(DereferenceMethod dereferenceMethod)
+    {
+        evalExpression(dereferenceMethod.expression);
+        evalFunctionInvocation(dereferenceMethod.functionInvocation);
+    }
+
     private void evalFunctionInvocation(FunctionInvocation functionInvocation)
     {
         evalArguments(functionInvocation.arguments);
-        
-        printStatement("invokestatic " + getMethodCode(functionInvocation.method));
+
+        String invokeinstruction = functionInvocation.method.isStatic ? "invokestatic " : "invokevirtual ";
+
+        printStatement(invokeinstruction + getMethodCode(functionInvocation.method));
     }
 
     private void evalArguments(Arguments arguments)
@@ -219,9 +235,9 @@ public class JasminGenerator extends CodeGenerator
 
     private String getTypeLetter(Type type)
     {
-        if (type.packageId != null)
+        if (!type.isPrimitive())
             return "a";
-        if (type == Type.KEYWORD_INT || type == Type.KEYWORD_BOOLEAN)
+        if (type == RuntimeType.INT || type == RuntimeType.BOOLEAN)
             return "i";
         throw new RuntimeException(type.toString());
     }
@@ -257,7 +273,7 @@ public class JasminGenerator extends CodeGenerator
         {
             Expression element = blockContents.elements.get(i);
             evalExpression(element);
-            if (element.returnBehavior.type != Type.KEYWORD_VOID)
+            if (element.returnBehavior.type != RuntimeType.VOID)
                 if (i < blockContents.elements.size() - 1)
                     printStatement("pop");
         }
@@ -336,21 +352,27 @@ public class JasminGenerator extends CodeGenerator
     private String getTypeCode(Type type)
     {
         // http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html#84645
-        if (type.packageId == null)
+        if (type.isPrimitive())
         {
-            if (type == Type.KEYWORD_INT)
+            if (type == RuntimeType.INT)
                 return "I";
-            if (type == Type.KEYWORD_VOID)
+            if (type == RuntimeType.VOID)
                 return "V";
-            if (type == Type.KEYWORD_BOOLEAN)
+            if (type == RuntimeType.BOOLEAN)
                 return "Z";
             throw new RuntimeException(type.toString());
         }
-        return "L" + type.packageId.replace('.', '/') + "/" + type.id + ";";
+        return "L" + getTypeName(type) + ";";
+    }
+    private String getTypeName(Type type)
+    {
+        if (type == null) // TODO tmp workaround for not having class declarations in the syntax
+            return className;
+        return type.fullName.replace('.', '/');
     }
     private String getMethodCode(Method method)
     {
-        StringBuilder builder = new StringBuilder(className);
+        StringBuilder builder = new StringBuilder(getTypeName(method.declaringType));
         builder.append('/').append(method.id).append('(');
         for (Type type : method.argumentSignature)
             builder.append(getTypeCode(type));

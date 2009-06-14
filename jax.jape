@@ -27,7 +27,7 @@
 ## scalars with head- or tail-recursion must specify a precedence in parentheses following the reference to the prototyped element.
 ##
 ## primitive elements: 
-##  LITERAL - indicates a literal value (integers and Strings)
+##  LITERAL - indicates a literal value (integers, Strings, etc)
 ##  ID - indicates an identifier.
 ##
 ## literal elements:
@@ -37,7 +37,7 @@
 
 ### Types
 ~FullClassName = ID : "."
-|TypeId = "void" | "int" | "boolean" | ID    # don't include FullClassName
+|TypeId = "void" | "int" | "boolean" | ID    # don't include FullClassName; it's too much like field dreferencing
 
 ### variable declaration
 $VariableDeclaration = TypeId ID
@@ -45,13 +45,13 @@ $VariableDeclaration = TypeId ID
 ### recursive expressions
 /Expression
 
-    ### binary operators (http://www.ibiblio.org/g2swap/byteofpython/read/operator-precedence.html)
-    $Addition = Expression(120) "+" Expression(121)
-    $Subtraction = Expression(120) "-" Expression(121)
-    $Multiplication = Expression(130) "*" Expression(131)
-    $Division = Expression(130) "/" Expression(131)
-    $Equality = Expression(70) "==" Expression(71)
-    $Inequality = Expression(70) "!=" Expression(71)
+    ### binary operators (precedence choices from http://java.sun.com/docs/books/tutorial/java/nutsandbolts/operators.html)
+    $Addition = Expression(110) "+" Expression(111)
+    $Subtraction = Expression(110) "-" Expression(111)
+    $Multiplication = Expression(120) "*" Expression(121)
+    $Division = Expression(120) "/" Expression(121)
+    $Equality = Expression(80) "==" Expression(81)
+    $Inequality = Expression(80) "!=" Expression(81)
     |InfixOperation = Addition | Subtraction | Multiplication #| Division
 
     ### unary prefix operators
@@ -72,7 +72,7 @@ $VariableDeclaration = TypeId ID
     $IfThenElse = "if" Expression "then" Expression "else" Expression
     |ControlStructure = IfThen | IfThenElse
 
-    ### controlStatement (none currently)
+    ### controlStatement (continue, return, etc.)
     #|ControlStatement = 
 
     ### block
@@ -80,6 +80,13 @@ $VariableDeclaration = TypeId ID
     $Block = "{" BlockContents "}"
 
     $Assignment = ID "=" Expression
+
+    # dereferencing
+    $DereferenceField = Expression(150) "." ID
+    $DereferenceMethod = Expression(150) "." FunctionInvocation
+    $StaticDereferenceField = TypeId "." ID                       # These two are impossible to distinguish from the above two at the
+    $StaticFunctionInvocation = TypeId "." FunctionInvocation     # Parsing stage. The Lexiconizer has to swap in these when appropriate.
+    |Dereferencing = DereferenceField | DereferenceMethod | StaticDereferenceField | StaticFunctionInvocation
 
     #### try-catch-finally
     #$TryPart = "try" Expression
@@ -92,7 +99,7 @@ $VariableDeclaration = TypeId ID
     #$TryCatchFinally = TryPart CatchPart FinallyPart
     #|TryGroup = TryCatch | TryFinally | TryCatchFinally
 
-|Expression = LITERAL | FunctionInvocation | ID | -Operation | Block | -ControlStucture | VariableCreation | VariableDeclaration
+|Expression = LITERAL | FunctionInvocation | ID | -Operation | Block | -ControlStucture | VariableCreation | VariableDeclaration | -Dereferencing
 
 # | -TryGroup | ControlStatement
 

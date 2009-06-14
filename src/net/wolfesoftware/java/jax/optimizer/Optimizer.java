@@ -111,9 +111,26 @@ public class Optimizer
             case FunctionInvocation.TYPE:
                 optimizeFunctionInvocation((FunctionInvocation)content);
                 break;
+            case DereferenceMethod.TYPE:
+                optimizeDereferenceMethod((DereferenceMethod)content);
+                break;
+            case StaticDereferenceField.TYPE:
+                optimizeStaticDereferenceField((StaticDereferenceField)content);
+                break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
+    }
+
+    private static void optimizeStaticDereferenceField(StaticDereferenceField staticDereferenceField)
+    {
+        // do nothing
+    }
+
+    private static void optimizeDereferenceMethod(DereferenceMethod dereferenceMethod)
+    {
+        optimizeExpression(dereferenceMethod.expression);
+        optimizeFunctionInvocation(dereferenceMethod.functionInvocation);
     }
 
     private static void optimizeFunctionInvocation(FunctionInvocation functionInvocation)

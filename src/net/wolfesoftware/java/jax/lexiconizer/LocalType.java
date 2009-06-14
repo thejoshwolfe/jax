@@ -2,14 +2,15 @@ package net.wolfesoftware.java.jax.lexiconizer;
 
 import java.util.*;
 
-public class ClassContext extends Type
+public class LocalType extends Type
 {
-    public ClassContext(String packageId, String id)
+    public LocalType(String fullName, String id)
     {
-        super(packageId, id);
+        super(fullName, id);
     }
 
-    private HashMap<String, LinkedList<Method>> methods = new HashMap<String, LinkedList<Method>>();
+    private final HashMap<String, LinkedList<Method>> methods = new HashMap<String, LinkedList<Method>>();
+    private final HashMap<String, Field> fields = new HashMap<String, Field>();
     public void addMethod(Method method)
     {
         LinkedList<Method> list = methods.get(method.id);
@@ -36,5 +37,16 @@ public class ClassContext extends Type
             return m;
         }
         return null;
+    }
+    @Override
+    public Field resolveField(String name)
+    {
+        return fields.get(name);
+    }
+
+    public static final int TYPE = 0x1144038e;
+    public int getType()
+    {
+        return TYPE;
     }
 }

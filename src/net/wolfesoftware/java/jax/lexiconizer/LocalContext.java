@@ -49,7 +49,7 @@ public class LocalContext
         return rootContext.nextLabel();
     }
 
-    public ClassContext getClassContext()
+    public LocalType getClassContext()
     {
         return rootContext.getClassContext();
     }

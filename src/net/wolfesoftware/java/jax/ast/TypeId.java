@@ -1,7 +1,11 @@
 package net.wolfesoftware.java.jax.ast;
 
+import net.wolfesoftware.java.jax.lexiconizer.Type;
+
 public class TypeId extends SwitchElement
 {
+    public Type type;
+
     public TypeId(ParseElement content)
     {
         super(content);

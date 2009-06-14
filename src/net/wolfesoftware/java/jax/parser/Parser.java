@@ -478,8 +478,37 @@ public final class Parser
                             offset = innerParsing.end;
                             innerElements.add(innerParsing.element);
                             break;
+                        case FunctionInvocation.TYPE:
+                            if (innerParsing == null || innerParsing.element.getElementType() != FunctionInvocation.TYPE)
+                            {
+                                // history was missing/wrong
+                                Util.removeAfter(partialSubParsings, i);
+                                innerParsing = parseFunctionInvocation(offset);
+                                if (innerParsing == null)
+                                    return null;
+                                partialSubParsings.add(innerParsing);
+                            }
+                            offset = innerParsing.end;
+                            innerElements.add(innerParsing.element);
+                            break;
+                        case Id.TYPE:
+                            if (innerParsing == null || innerParsing.element.getElementType() != Id.TYPE)
+                            {
+                                // history was missing/wrong
+                                Util.removeAfter(partialSubParsings, i);
+                                // TODO streamline this a little
+                                innerParsing = new SubParsing<Id>(parseId(offset), offset + 1);
+                                if (innerParsing.element == null)
+                                    return null;
+                                partialSubParsings.add(innerParsing);
+                            }
+                            offset = innerParsing.end;
+                            innerElements.add(innerParsing.element);
+                            break;
+                        case -1:
+                            break;
                         default:
-                            throw new RuntimeException();
+                            throw new RuntimeException(Integer.toHexString((Integer)expectcedElement));
                     }
                 }
             }
@@ -499,13 +528,17 @@ public final class Parser
         {
             stack.push(new ExpressionStackElement(new Expression(element), getTopPrecedence()));
         }
-        private void pushOpenLeftOperator(ExpressionOperator op, ArrayList<ParseElement> innerExpressions)
+        private void pushOpenLeftOperator(ExpressionOperator op, ArrayList<ParseElement> innerElements)
         {
             groupStack(op.leftPrecedence);
             if (op.rightPrecedence == -1)
-                throw new RuntimeException(); // immediate group postfix operator
+            {
+                // immediately group postfix operators
+                Expression leftExpression = ((ExpressionStackElement)stack.pop()).expression;
+                stack.push(new ExpressionStackElement(new Expression(op.makeExpressionContent(leftExpression, innerElements, null)), getTopPrecedence()));
+            }
             else
-                stack.push(new InfixOperatorStackElement(op, innerExpressions));
+                stack.push(new InfixOperatorStackElement(op, innerElements));
         }
         private void pushClosedLeftOperator(ExpressionOperator op, ArrayList<ParseElement> innerElements)
         {

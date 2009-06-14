@@ -13,7 +13,7 @@ public class Id extends ParseElement
         this.name = name;
     }
 
-    public static final int TYPE = 3;
+    public static final int TYPE = 0x00f800ae;
     public int getElementType()
     {
         return TYPE;

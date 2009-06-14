@@ -1,14 +1,16 @@
 package net.wolfesoftware.java.jax.ast;
 
-public class VariableDeclaration extends ParseElement
+import net.wolfesoftware.java.jax.lexiconizer.Field;
+
+public class StaticDereferenceField extends ParseElement
 {
+    public Field field;
+
     public TypeId typeId;
-
     public Id id;
-
-    public VariableDeclaration(TypeId type, Id id)
+    public StaticDereferenceField(TypeId typeId, Id id)
     {
-        this.typeId = type;
+        this.typeId = typeId;
         this.id = id;
     }
 
@@ -16,11 +18,11 @@ public class VariableDeclaration extends ParseElement
     protected void decompile(String indentation, StringBuilder out)
     {
         typeId.decompile(indentation, out);
-        out.append(" ");
+        out.append('.');
         id.decompile(indentation, out);
     }
 
-    public static final int TYPE = 0x49f4078d;
+    public static final int TYPE = 0x637908a5;
     public int getElementType()
     {
         return TYPE;

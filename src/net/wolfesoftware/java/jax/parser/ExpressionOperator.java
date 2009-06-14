@@ -91,6 +91,21 @@ public abstract class ExpressionOperator
             return new Block((BlockContents)innerElements.get(0));
         }
     };
+
+    public static final ExpressionOperator DereferenceField = new ExpressionEnclosingOperator(150, Lang.SYMBOL_PERIOD, -1,
+            Id.TYPE) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return new DereferenceField(leftExpression, (Id)innerElements.get(0));
+        }
+    };
+    public static final ExpressionOperator DereferenceMethod = new ExpressionEnclosingOperator(150, Lang.SYMBOL_PERIOD, -1,
+            FunctionInvocation.TYPE, -1) { // insert this extra term so that the Parser looks for methods before fields 
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return new DereferenceMethod(leftExpression, (FunctionInvocation)innerElements.get(0));
+        }
+    };
     
     public static final HashMap<String, List<ExpressionOperator>> OPEN_LEFT = new HashMap<String, List<ExpressionOperator>>();
     public static final HashMap<String, List<ExpressionOperator>> CLOSED_LEFT = new HashMap<String, List<ExpressionOperator>>();
