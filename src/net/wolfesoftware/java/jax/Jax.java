@@ -28,13 +28,16 @@ public class Jax
         if (printErrors(parsing.errors))
             throw new RuntimeException();
 
-        Lexiconization lexiconization = Lexiconizer.lexiconize(parsing);
+        String classPath = fileName.substring(0, fileName.lastIndexOf('\\') + 1);
+        String relativePath = fileName.substring(classPath.length());
+        Lexiconization lexiconization = Lexiconizer.lexiconize(parsing, relativePath);
         if (printErrors(lexiconization.errors))
             throw new RuntimeException();
 
         Optimizer.optimize(lexiconization.root, null);
 
-        String outFileName = fileName.substring(0, fileName.lastIndexOf('.')) + ".jasmin";
+        String className = lexiconization.root.content.classDeclaration.id.name;
+        String outFileName = classPath + className + ".jasmin";
         CodeGenerator.generateCode(lexiconization, outFileName);
     }
     private static boolean printErrors(List<? extends Exception> errors)

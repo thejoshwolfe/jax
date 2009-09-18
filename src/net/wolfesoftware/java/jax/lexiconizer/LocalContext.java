@@ -26,7 +26,7 @@ public class LocalContext
     public void addLocalVariable(Id id, Type type, ArrayList<LexicalException> errors)
     {
         if (localVariables.containsKey(id))
-            errors.add(new LexicalException());
+            errors.add(new LexicalException("Redefinition of local variable"));
         int number = getVariableCount();
         id.variable = new LocalVariable(id.name, type, number);
         localVariables.put(id.name, id.variable);

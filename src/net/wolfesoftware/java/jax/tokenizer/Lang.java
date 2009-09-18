@@ -18,6 +18,7 @@ public final class Lang
     public static final String KEYWORD_TRUE = "true";
     public static final String KEYWORD_FALSE = "false";
     public static final String KEYWORD_IMPORT = "import";
+    public static final String KEYWORD_CLASS = "class";
 
     public static final String SYMBOL_BANG_EQUALS = "!=";
     public static final String SYMBOL_OPEN_PARENS = "(";

@@ -25,6 +25,7 @@ public class Optimizer
 
     private static void optimizeClassDeclaration(ClassDeclaration classDeclaration)
     {
+        optimizeId(classDeclaration.id);
         optimizeClassBody(classDeclaration.classBody);
     }
 

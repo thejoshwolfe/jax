@@ -1,7 +1,8 @@
-boolean thisIsTrue() true;
-boolean thisIsFalse() false;
+class BooleanType {
+	boolean thisIsTrue() true;
+	boolean thisIsFalse() false;
 
-boolean equality() 15 == 15;
+	boolean equality() 15 == 15;
 
-boolean inequality() 7 != 8;
-
+	boolean inequality() 7 != 8;
+}

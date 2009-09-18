@@ -1,7 +1,6 @@
 package net.wolfesoftware.java.jax.codegen.jasmin;
 
 import java.io.*;
-import java.util.regex.*;
 import net.wolfesoftware.java.common.TestUtils;
 import net.wolfesoftware.java.jax.ast.*;
 import net.wolfesoftware.java.jax.codegen.*;
@@ -17,10 +16,7 @@ public class JasminGenerator extends CodeGenerator
     {
         this.root = root;
         out = new PrintWriter(outputFilename);
-        // for now, use the file name as the class name
-        Matcher classNameFinder = Pattern.compile("([^\\\\\\/]*)\\..+$").matcher(outputFilename);
-        classNameFinder.find();
-        className = classNameFinder.group(1);
+        className = root.content.classDeclaration.id.name;
         this.outputFilename = outputFilename;
     }
 

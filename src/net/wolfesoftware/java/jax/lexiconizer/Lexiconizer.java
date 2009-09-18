@@ -6,9 +6,9 @@ import net.wolfesoftware.java.jax.parser.Parsing;
 
 public class Lexiconizer
 {
-    public static Lexiconization lexiconize(Parsing parsing)
+    public static Lexiconization lexiconize(Parsing parsing, String filePath)
     {
-        return new Lexiconizer(parsing).lexiconizeRoot();
+        return new Lexiconizer(parsing, filePath).lexiconizeRoot();
     }
     
     private final HashMap<String, Type> importedTypes = new HashMap<String, Type>();
@@ -18,10 +18,12 @@ public class Lexiconizer
     }
 
     private final Root root;
+    private final String filePath;
     private final ArrayList<LexicalException> errors = new ArrayList<LexicalException>();
-    private Lexiconizer(Parsing parsing)
+    private Lexiconizer(Parsing parsing, String filePath)
     {
         root = parsing.root;
+        this.filePath = filePath;
     }
 
     private Lexiconization lexiconizeRoot()
@@ -45,7 +47,13 @@ public class Lexiconizer
 
     private void lexiconizeClassDeclaration(ClassDeclaration classDeclaration)
     {
-        LocalType context = new LocalType("", "???");
+        // verify package here
+        // verify className and fileName match
+        String classNameFromFile = filePath.substring(filePath.lastIndexOf('\\') + 1, filePath.lastIndexOf('.'));
+        if (!classDeclaration.id.name.equals(classNameFromFile))
+            errors.add(new LexicalException("Class name does not match file name"));
+
+        LocalType context = new LocalType("", classDeclaration.id.name);
         lexiconizeClassBody(context, classDeclaration.classBody);
     }
 

@@ -36,8 +36,7 @@
 
 
 ### Types
-~FullClassName = ID : "."
-|TypeId = "void" | "int" | "boolean" | ID    # don't include FullClassName; it's too much like field dreferencing
+|TypeId = "void" | "int" | "boolean" | ID
 
 ### variable declaration
 $VariableDeclaration = TypeId ID
@@ -110,7 +109,7 @@ $FunctionDefinition = TypeId ID "(" ArgumentDeclarations ")" Expression
 ### Class
 |ClassMember = FunctionDefinition    # | FieldDeclaration | FieldCreation
 ~ClassBody = (ClassMember) : ";"
-$ClassDeclaration = ClassBody   # will have more someday
+$ClassDeclaration = "class" ID "{" ClassBody "}"
 
 ### CompilationUnit
 $ImportStatement = "import" FullClassName ";"

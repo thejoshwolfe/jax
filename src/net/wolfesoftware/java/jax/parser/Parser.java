@@ -22,15 +22,15 @@ public final class Parser
 
     private Parsing parseRoot()
     {
-        SubParsing<CompilationUnit> program = parseCompilationUnit(0);
-        if (program == null)
+        SubParsing<CompilationUnit> compilationUnit = parseCompilationUnit(0);
+        if (compilationUnit == null)
         {
-            errors.add(ParsingException.newInstance(0, "Can't find Program"));
+            errors.add(ParsingException.newInstance(0, "Parse Error"));
             return new Parsing(null, errors);
         }
-        if (program.end != tokens.length)
-            errors.add(ParsingException.newInstance(program.end, "Expected EOF"));
-        return new Parsing(new Root(program.element), errors);
+        if (compilationUnit.end != tokens.length)
+            errors.add(ParsingException.newInstance(compilationUnit.end, "Expected EOF"));
+        return new Parsing(new Root(compilationUnit.element), errors);
     }
 
     private SubParsing<CompilationUnit> parseCompilationUnit(int offset)
@@ -103,12 +103,29 @@ public final class Parser
 
     private SubParsing<ClassDeclaration> parseClassDeclaration(int offset)
     {
+        if (getToken(offset).text != Lang.KEYWORD_CLASS)
+            return null;
+        offset++;
+
+        Id id = parseId(offset);
+        if (id == null)
+            return null;
+        offset++;
+
+        if (getToken(offset).text != Lang.SYMBOL_OPEN_BRACE)
+            return null;
+        offset++;
+
         SubParsing<ClassBody> classBody = parseClassBody(offset);
         if (classBody == null)
             return null;
         offset = classBody.end;
-        
-        return new SubParsing<ClassDeclaration>(new ClassDeclaration(classBody.element), offset);
+
+        if (getToken(offset).text != Lang.SYMBOL_CLOSE_BRACE)
+            return null;
+        offset++;
+
+        return new SubParsing<ClassDeclaration>(new ClassDeclaration(id, classBody.element), offset);
     }
 
     private SubParsing<ClassBody> parseClassBody(int offset)
