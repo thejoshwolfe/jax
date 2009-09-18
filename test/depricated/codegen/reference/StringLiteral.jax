@@ -1,0 +1,11 @@
+String helloWorld1() {
+	"Hello World!"
+};
+
+String helloWorld2() {
+	String value = "Hello World!";
+	value
+};
+
+String pass() "+++ PASS";
+

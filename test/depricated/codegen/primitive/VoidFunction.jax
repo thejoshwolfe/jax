@@ -1,0 +1,12 @@
+
+void doNothing() {
+};
+
+void doNothing2() {
+	;
+	;
+	{
+		{
+		}
+	}
+}

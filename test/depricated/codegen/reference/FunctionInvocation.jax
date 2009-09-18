@@ -1,0 +1,12 @@
+int gimme5() {
+	5
+};
+
+boolean isFunctionWorks() {
+	gimme5() == 5
+};
+
+String pass() internalPass();
+
+String internalPass() "+++ PASS";
+
