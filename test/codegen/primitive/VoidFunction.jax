@@ -1,12 +1,14 @@
 
-void doNothing() {
-};
+class VoidFunction {
+	void doNothing() {
+	};
 
-void doNothing2() {
-	;
-	;
-	{
+	void doNothing2() {
+		;
+		;
 		{
+			{
+			}
 		}
 	}
 }

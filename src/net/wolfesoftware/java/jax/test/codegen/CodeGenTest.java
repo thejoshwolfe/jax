@@ -18,18 +18,18 @@ import net.wolfesoftware.java.jax.Jax;
 public class CodeGenTest
 {
     private static final int RUN = 1, CLEAN = 2, VERBOSE = 4;
-    private static final int mode = 0*RUN | 1*CLEAN | 1*VERBOSE;
+    private static final int mode = 1*RUN | 1*CLEAN | 1*VERBOSE;
     private static final String dir = "test/codegen";
     private static final String[] tests = {
         "primitive/Arithmetic",
         "primitive/BooleanType",
-//        "primitive/ConstReturn",
-//        "primitive/VoidFunction",
-//        "primitive/LocalVariables",
-//        "primitive/IfThenElse",
-//        "reference/StringLiteral",
-//        "reference/FunctionInvocation",
-//        "reference/RuntimeType",
+        "primitive/ConstReturn",
+        "primitive/VoidFunction",
+        "primitive/LocalVariables",
+        "primitive/IfThenElse",
+        "reference/StringLiteral",
+        "reference/FunctionInvocation",
+        "reference/RuntimeType",
     };
 
     public static void main(String[] args)

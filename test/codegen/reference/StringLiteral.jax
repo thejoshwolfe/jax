@@ -1,11 +1,12 @@
-String helloWorld1() {
-	"Hello World!"
-};
+class StringLiteral {
+	String helloWorld1() {
+		"Hello World!"
+	};
 
-String helloWorld2() {
-	String value = "Hello World!";
-	value
-};
+	String helloWorld2() {
+		String value = "Hello World!";
+		value
+	};
 
-String pass() "+++ PASS";
-
+	String pass() "+++ PASS";
+}

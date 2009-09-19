@@ -1,12 +1,14 @@
-int gimme5() {
-	5
-};
 
-boolean isFunctionWorks() {
-	gimme5() == 5
-};
+class FunctionInvocation {
+	int gimme5() {
+		5
+	};
 
-String pass() internalPass();
+	boolean isFunctionWorks() {
+		gimme5() == 5
+	};
 
-String internalPass() "+++ PASS";
+	String pass() internalPass();
 
+	String internalPass() "+++ PASS";
+}

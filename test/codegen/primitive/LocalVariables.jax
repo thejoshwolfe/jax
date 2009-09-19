@@ -1,19 +1,21 @@
 
-int assignAndReturn() {
-	int value = 5;
-	value
-};
+class LocalVariables {
+	int assignAndReturn() {
+		int value = 5;
+		value
+	};
 
-int assignLater() {
-	int var;
-	var = 6;
-	var
-};
+	int assignLater() {
+		int var;
+		var = 6;
+		var
+	};
 
-int doubleAssignment() {
-	int x;
-	int y;
-	x = y = 3;
-	x = x - 2;
-	y - x
-};
+	int doubleAssignment() {
+		int x;
+		int y;
+		x = y = 3;
+		x = x - 2;
+		y - x
+	};
+}
