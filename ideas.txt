@@ -1,0 +1,21 @@
+loops that return values:
+
+Something thing = 
+    for (int i = 0; i < array.length; i++)
+        if (array[i].isWhatINeed())
+            break(array[i].getTheThing())
+        default:
+            new Something();
+
+Iterator<Item> iter = friend.getItemList().iterator();
+Something thing = while (iter.hasNext()) {
+    Item item = iter.next();
+    if (item.isWhatINeed())
+        break(item.getTheThing());
+    iter.remove();
+} default: {
+    friend.yourListIsEmptyNow();
+    friend.getLastResort()
+}
+
+
