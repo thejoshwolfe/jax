@@ -88,15 +88,15 @@ $VariableDeclaration = TypeId ID
     |Dereferencing = DereferenceField | DereferenceMethod | StaticDereferenceField | StaticFunctionInvocation
 
     #### try-catch-finally
-    #$TryPart = "try" Expression
-    #$CatchBody = "(" VariableDeclaration ")" Expression
-    #~CatchList = CatchBody : "catch"
-    #$CatchPart = "catch" CatchList
-    #$FinallyPart = "finally" Expression
-    #$TryCatch = TryPart CatchPart
-    #$TryFinally = TryPart FinallyPart
-    #$TryCatchFinally = TryPart CatchPart FinallyPart
-    #|TryGroup = TryCatch | TryFinally | TryCatchFinally
+    $TryPart = "try" Expression
+    $CatchBody = "(" VariableDeclaration ")" Expression
+    ~CatchList = CatchBody : "catch"
+    $CatchPart = "catch" CatchList
+    $FinallyPart = "finally" Expression
+    $TryCatch = TryPart CatchPart
+    $TryFinally = TryPart FinallyPart
+    $TryCatchFinally = TryPart CatchPart FinallyPart
+    |TryGroup = TryCatch | TryFinally | TryCatchFinally
 
 |Expression = LITERAL | FunctionInvocation | ID | -Operation | Block | -ControlStucture | VariableCreation | VariableDeclaration | -Dereferencing
 
