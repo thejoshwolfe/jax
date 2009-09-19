@@ -1,3 +1,0 @@
-void printPass() {
-	System.out.println("+++ PASS");
-}

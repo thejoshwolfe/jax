@@ -1,7 +1,0 @@
-boolean thisIsTrue() true;
-boolean thisIsFalse() false;
-
-boolean equality() 15 == 15;
-
-boolean inequality() 7 != 8;
-
