@@ -4,7 +4,7 @@
 ###
 
 ## how the grammar works:
-## four types of grammar elements:
+## types of grammar elements:
 ## 	scalar:
 ## 	 declaration prefixed with "$"
 ##   elements listed delimited by whitespace
@@ -13,6 +13,8 @@
 ##   declaration prefixed with "~"
 ##   element type and delimiter token specified with a ":" between them
 ##   indicates that zero or more occurrences of the element appear separated by the delimiter
+##   when the element type is surrounded in parens, it means elements between and around delimiters are optional (ex: {1,2,,3,}, {,,})
+##   when the element type is surrounded in brackets, it means there must be at least 1 element
 ##  switch:
 ##   declaration prefixed with "|"
 ##   choices listed delimited by "|"
@@ -20,6 +22,9 @@
 ##  recursive prototype:
 ##   prototype definition prefixed with "/"
 ##   actual definition appears later and is one of scalar, list, or switch
+##  special predefined elements:
+##   begin with a "!"
+##   there are only a few such as !Root. I hope what they do is self explanitory.
 ##
 ## declared element names must be all letters in TitleCase. /[A-Z][A-Za-z]*/ I recommend TitleCase because they will be the names of Java classes.
 ##
@@ -33,7 +38,7 @@
 ## literal elements:
 ##  elements specified in quotes (") signify keywords or symbol tokens
 ##
-
+## special elements
 
 ### Types
 |TypeId = "void" | "int" | "boolean" | ID
@@ -90,7 +95,7 @@ $VariableDeclaration = TypeId ID
     #### try-catch-finally
     $TryPart = "try" Expression
     $CatchBody = "(" VariableDeclaration ")" Expression
-    ~CatchList = CatchBody : "catch"
+    ~CatchList = [CatchBody] : "catch"
     $CatchPart = "catch" CatchList
     $FinallyPart = "finally" Expression
     $TryCatch = TryPart CatchPart
@@ -98,9 +103,9 @@ $VariableDeclaration = TypeId ID
     $TryCatchFinally = TryPart CatchPart FinallyPart
     |TryGroup = TryCatch | TryFinally | TryCatchFinally
 
-|Expression = LITERAL | FunctionInvocation | ID | -Operation | Block | -ControlStucture | VariableCreation | VariableDeclaration | -Dereferencing
+|Expression = LITERAL | FunctionInvocation | ID | -Operation | Block | -ControlStucture | VariableCreation | VariableDeclaration | -Dereferencing | -TryGroup
 
-# | -TryGroup | ControlStatement
+# | ControlStatement
 
 ### function definition
 ~ArgumentDeclarations = VariableDeclaration : ","
