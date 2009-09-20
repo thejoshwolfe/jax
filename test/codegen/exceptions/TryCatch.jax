@@ -1,0 +1,5 @@
+class TryCatch {
+    int gimme5()
+        try Integer.parseInt("a");
+        catch (NumberFormatException e) 5;
+}
