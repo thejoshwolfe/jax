@@ -8,6 +8,8 @@ import net.wolfesoftware.java.jax.lexiconizer.*;
 
 public class JasminGenerator extends CodeGenerator
 {
+    //TODO:     .catch java/io/IOException from label1 to label2 using label3
+
     private final Root root;
     private final PrintWriter out;
     private final String className;

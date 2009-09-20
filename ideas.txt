@@ -4,8 +4,8 @@ Something thing =
     for (int i = 0; i < array.length; i++)
         if (array[i].isWhatINeed())
             break(array[i].getTheThing())
-        default:
-            new Something();
+    default:
+        new Something();
 
 Iterator<Item> iter = friend.getItemList().iterator();
 Something thing = while (iter.hasNext()) {
