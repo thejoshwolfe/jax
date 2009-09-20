@@ -317,7 +317,7 @@ public final class Parser
         if (id == null)
             return null;
         offset++;
-        
+
         if (getToken(offset).text != Lang.SYMBOL_OPEN_PARENS)
             return null;
         offset++;
@@ -326,12 +326,34 @@ public final class Parser
         if (arguments == null)
             return null;
         offset = arguments.end;
-        
+
         if (getToken(offset).text != Lang.SYMBOL_CLOSE_PARENS)
             return null;
         offset++;
 
         return new SubParsing<FunctionInvocation>(new FunctionInvocation(id, arguments.element), offset);
+    }
+    private SubParsing<TryPart> parseTryPart(int offset)
+    {
+        SubParsing<Expression> expression = parseExpression(offset);
+        if (expression == null)
+            return null;
+        offset = expression.end;
+
+        return new SubParsing<TryPart>(new TryPart(expression.element), offset);
+    }
+    private SubParsing<CatchPart> parseCatchPart(int offset)
+    {
+        if (getToken(offset).text != Lang.KEYWORD_CATCH)
+            return null;
+        offset++;
+
+        SubParsing<CatchList> catchList = parseCatchList(offset);
+        if (catchList == null)
+            return null;
+        offset = catchList.end;
+
+        return new SubParsing<CatchPart>(new CatchPart(catchList.element), offset);
     }
     private SubParsing<Arguments> parseArguments(int offset)
     {
@@ -516,6 +538,32 @@ public final class Parser
                                 // TODO streamline this a little
                                 innerParsing = new SubParsing<Id>(parseId(offset), offset + 1);
                                 if (innerParsing.element == null)
+                                    return null;
+                                partialSubParsings.add(innerParsing);
+                            }
+                            offset = innerParsing.end;
+                            innerElements.add(innerParsing.element);
+                            break;
+                        case TryPart.TYPE:
+                            if (innerParsing == null || innerParsing.element.getElementType() != TryPart.TYPE)
+                            {
+                                // history was missing/wrong
+                                Util.removeAfter(partialSubParsings, i);
+                                innerParsing = parseTryPart(offset);
+                                if (innerParsing == null)
+                                    return null;
+                                partialSubParsings.add(innerParsing);
+                            }
+                            offset = innerParsing.end;
+                            innerElements.add(innerParsing.element);
+                            break;
+                        case CatchPart.TYPE:
+                            if (innerParsing == null || innerParsing.element.getElementType() != CatchPart.TYPE)
+                            {
+                                // history was missing/wrong
+                                Util.removeAfter(partialSubParsings, i);
+                                innerParsing = parseCatchPart(offset);
+                                if (innerParsing == null)
                                     return null;
                                 partialSubParsings.add(innerParsing);
                             }

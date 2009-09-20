@@ -106,6 +106,15 @@ public abstract class ExpressionOperator
             return new DereferenceMethod(leftExpression, (FunctionInvocation)innerElements.get(0));
         }
     };
+
+    /* TryGroup */
+    public static final ExpressionOperator TryCatch = new ExpressionEnclosingOperator(-1, Lang.KEYWORD_TRY, -1,
+            TryPart.TYPE, CatchPart.TYPE) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return new TryCatch((TryPart)innerElements.get(0), (CatchPart)innerElements.get(1));
+        }
+    };
     
     public static final HashMap<String, List<ExpressionOperator>> OPEN_LEFT = new HashMap<String, List<ExpressionOperator>>();
     public static final HashMap<String, List<ExpressionOperator>> CLOSED_LEFT = new HashMap<String, List<ExpressionOperator>>();
