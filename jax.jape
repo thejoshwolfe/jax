@@ -92,7 +92,7 @@ $VariableDeclaration = TypeId ID
     $StaticFunctionInvocation = TypeId "." FunctionInvocation     # Parsing stage. The Lexiconizer has to swap in these when appropriate.
     |Dereferencing = DereferenceField | DereferenceMethod | StaticDereferenceField | StaticFunctionInvocation
 
-    #### try-catch-finally
+    ### try-catch-finally
     $TryPart = "try" Expression
     $CatchBody = "(" VariableDeclaration ")" Expression
     ~CatchList = [CatchBody] : "catch"
