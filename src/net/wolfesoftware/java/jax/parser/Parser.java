@@ -355,6 +355,52 @@ public final class Parser
 
         return new SubParsing<CatchPart>(new CatchPart(catchList.element), offset);
     }
+    private SubParsing<CatchList> parseCatchList(int offset)
+    {
+        ArrayList<CatchBody> catchBodies = new ArrayList<CatchBody>();
+        while (true)
+        {
+            SubParsing<CatchBody> catchBody = parseCatchBody(offset);
+            if (catchBody == null)
+            {
+                if (catchBodies.size() == 0)
+                    break;
+                else
+                    return null;
+            }
+            catchBodies.add(catchBody.element);
+            offset = catchBody.end;
+
+            if (getToken(offset).text != Lang.SYMBOL_COMMA)
+                break;
+            offset++;
+        }
+        return new SubParsing<CatchList>(new CatchList(catchBodies), offset);
+    }
+
+    private SubParsing<CatchBody> parseCatchBody(int offset)
+    {
+        if (getToken(offset).text != Lang.SYMBOL_OPEN_PARENS)
+            return null;
+        offset++;
+
+        SubParsing<VariableDeclaration> variableDeclaration = parseVariableDeclaration(offset);
+        if (variableDeclaration == null)
+            return null;
+        offset = variableDeclaration.end;
+
+        if (getToken(offset).text != Lang.SYMBOL_CLOSE_PARENS)
+            return null;
+        offset++;
+
+        SubParsing<Expression> expression = parseExpression(offset);
+        if (expression == null)
+            return null;
+        offset = expression.end;
+
+        return new SubParsing<CatchBody>(new CatchBody(variableDeclaration.element, expression.element), offset);
+    }
+
     private SubParsing<Arguments> parseArguments(int offset)
     {
         ArrayList<Expression> elements = new ArrayList<Expression>();
