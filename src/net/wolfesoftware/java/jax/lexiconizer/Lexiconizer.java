@@ -209,11 +209,56 @@ public class Lexiconizer
                         throw new RuntimeException();
                 }
                 break;
+            case TryCatch.TYPE:
+                returnBehavior = lexiconizeTryCatch(context, (TryCatch)content);
+                break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
         expression.returnBehavior = returnBehavior;
         return returnBehavior;
+    }
+
+    private ReturnBehavior lexiconizeTryCatch(LocalContext context, TryCatch tryCatch)
+    {
+        ReturnBehavior tryPartReturnBehavior = lexiconizeTryPart(context, tryCatch.tryPart);
+        ReturnBehavior catchPartReturnBehavior = lexiconizeCatchPart(context, tryCatch.catchPart);
+        if (tryPartReturnBehavior.type != catchPartReturnBehavior.type)
+            errors.add(new LexicalException("return types must match"));
+        return tryPartReturnBehavior.clone(catchPartReturnBehavior.stackRequirement);
+    }
+
+    private ReturnBehavior lexiconizeTryPart(LocalContext context, TryPart tryPart)
+    {
+        return lexiconizeExpression(context, tryPart.expression);
+    }
+
+    private ReturnBehavior lexiconizeCatchPart(LocalContext context, CatchPart catchPart)
+    {
+        return lexiconizeCatchList(context, catchPart.catchList);
+    }
+
+    private ReturnBehavior lexiconizeCatchList(LocalContext context, CatchList catchList)
+    {
+        int stackRequirement = 0;
+        Type returnType = null;
+        for (CatchBody catchBody : catchList.elements) {
+            ReturnBehavior returnBehavior = lexiconizeCatchBody(context, catchBody);
+            stackRequirement = Math.max(stackRequirement, returnBehavior.stackRequirement);
+            if (returnType == null)
+                returnType = returnBehavior.type;
+            else if (returnType != returnBehavior.type)
+                errors.add(new LexicalException("return types must match"));
+        }
+        if (returnType == null)
+            errors.add(new LexicalException("must catch something"));
+        return new ReturnBehavior(returnType, stackRequirement);
+    }
+
+    private ReturnBehavior lexiconizeCatchBody(LocalContext context, CatchBody catchBody)
+    {
+        lexiconizeVariableDeclaration(context, catchBody.variableDeclaration);
+        return lexiconizeExpression(context, catchBody.expression);
     }
 
     private int disambuateDereferenceField(LocalContext context, Expression expression)
@@ -307,7 +352,7 @@ public class Lexiconizer
         ifThenElse.label2 = context.nextLabel();
         lexiconizeExpression(context, ifThenElse.expression3);
         if (ifThenElse.expression2.returnBehavior.type != ifThenElse.expression3.returnBehavior.type)
-            errors.add(new LexicalException());
+            errors.add(new LexicalException("return types must match"));
         return ifThenElse.expression2.returnBehavior.clone(Math.max(ifThenElse.expression1.returnBehavior.stackRequirement, ifThenElse.expression3.returnBehavior.stackRequirement));
     }
     private ReturnBehavior lexiconizeIfThen(LocalContext context, IfThen ifThen)
@@ -318,7 +363,7 @@ public class Lexiconizer
         ifThen.label = context.nextLabel();
         lexiconizeExpression(context, ifThen.expression2);
         if (ifThen.expression2.returnBehavior.type != RuntimeType.VOID)
-            errors.add(new LexicalException());
+            errors.add(new LexicalException("return type must be void"));
         return new ReturnBehavior(RuntimeType.VOID, Math.max(ifThen.expression2.returnBehavior.stackRequirement, ifThen.expression1.returnBehavior.stackRequirement));
     }
 
