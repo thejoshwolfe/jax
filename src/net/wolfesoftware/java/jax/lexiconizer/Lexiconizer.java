@@ -10,16 +10,16 @@ public class Lexiconizer
     {
         return new Lexiconizer(parsing, filePath).lexiconizeRoot();
     }
-    
+
     private final HashMap<String, Type> importedTypes = new HashMap<String, Type>();
     {
         RuntimeType.initPrimitives(importedTypes);
         RuntimeType.initJavaLang(importedTypes);
     }
-
     private final Root root;
     private final String filePath;
     private final ArrayList<LexicalException> errors = new ArrayList<LexicalException>();
+
     private Lexiconizer(Parsing parsing, String filePath)
     {
         root = parsing.root;
@@ -52,7 +52,7 @@ public class Lexiconizer
         String classNameFromFile = filePath.substring(filePath.lastIndexOf('\\') + 1, filePath.lastIndexOf('.'));
         if (!classDeclaration.id.name.equals(classNameFromFile))
             errors.add(new LexicalException("Class name does not match file name"));
-
+    
         LocalType context = new LocalType("", classDeclaration.id.name);
         lexiconizeClassBody(context, classDeclaration.classBody);
     }
@@ -60,10 +60,10 @@ public class Lexiconizer
     private void lexiconizeClassBody(LocalType context, ClassBody classBody)
     {
         deleteNulls(classBody);
-
+    
         for (ClassMember classMember : classBody.elements)
             preLexiconizeClassMemeber(context, classMember);
-
+    
         for (ClassMember classMember : classBody.elements)
             lexiconizeClassMemeber(context, classMember);
     }
@@ -73,15 +73,15 @@ public class Lexiconizer
         if (topLevelItem == null)
             return;
         ParseElement content = topLevelItem.content;
-        switch (content.getElementType())
-        {
+        switch (content.getElementType()) {
             case FunctionDefinition.TYPE:
                 preLexiconizeFunctionDefinition(context, (FunctionDefinition)content);
                 break;
             default:
-                throw new RuntimeException();
+                throw new RuntimeException("TODO: implement " + Integer.toString(content.getElementType(), 16));
         }
     }
+
     private void preLexiconizeFunctionDefinition(LocalType context, FunctionDefinition functionDefinition)
     {
         lexiconizeType(functionDefinition.typeId);
@@ -91,16 +91,24 @@ public class Lexiconizer
         context.addMethod(functionDefinition.method);
     }
 
+    private Type[] lexiconizeArgumentDeclarations(LocalContext context, ArgumentDeclarations argumentDeclarations)
+    {
+        Type[] argumentSignature = new Type[argumentDeclarations.elements.size()];
+        int i = 0;
+        for (VariableDeclaration variableDeclaration : argumentDeclarations.elements)
+            argumentSignature[i++] = lexiconizeVariableDeclaration(context, variableDeclaration).type;
+        return argumentSignature;
+    }
+
     private void lexiconizeClassMemeber(LocalType context, ClassMember classMember)
     {
         ParseElement content = classMember.content;
-        switch (content.getElementType())
-        {
+        switch (content.getElementType()) {
             case FunctionDefinition.TYPE:
                 lexiconizeFunctionDefinition(context, (FunctionDefinition)content);
                 break;
             default:
-                throw new RuntimeException();
+                throw new RuntimeException("TODO: implement " + Integer.toString(content.getElementType(), 16));
         }
     }
 
@@ -111,23 +119,13 @@ public class Lexiconizer
             errors.add(new LexicalException());
     }
 
-    private Type[] lexiconizeArgumentDeclarations(LocalContext context, ArgumentDeclarations argumentDeclarations)
-    {
-        Type[] argumentSignature = new Type[argumentDeclarations.elements.size()];
-        int i = 0;
-        for(VariableDeclaration variableDeclaration : argumentDeclarations.elements)
-            argumentSignature[i++] = lexiconizeVariableDeclaration(context, variableDeclaration).type;
-        return argumentSignature;
-    }
-
     private ReturnBehavior lexiconizeExpression(LocalContext context, Expression expression)
     {
         if (expression == null)
             return ReturnBehavior.VOID;
         ParseElement content = expression.content;
         ReturnBehavior returnBehavior;
-        switch (content.getElementType())
-        {
+        switch (content.getElementType()) {
             case Addition.TYPE:
                 returnBehavior = lexiconizeAddition(context, (Addition)content);
                 break;
@@ -183,27 +181,25 @@ public class Lexiconizer
                 returnBehavior = lexiconizeFunctionInvocation(context, (FunctionInvocation)content);
                 break;
             case DereferenceMethod.TYPE:
-                switch (disambuateDereferenceMethod(context, expression))
-                {
+                switch (disambuateDereferenceMethod(context, expression)) {
                     case DereferenceMethod.TYPE:
                         returnBehavior = lexiconizeDereferenceMethod(context, (DereferenceMethod)content);
                         break;
                     case StaticFunctionInvocation.TYPE:
-                        returnBehavior = lexiconizeStaticFunctionInvocation(context, (StaticFunctionInvocation)content);
+                        // lexiconization is partially done
+                        returnBehavior = lexiconizeStaticFunctionInvocation(context, (StaticFunctionInvocation)expression.content);
                         break;
                     default:
                         throw new RuntimeException();
                 }
                 break;
             case DereferenceField.TYPE:
-                switch (disambuateDereferenceField(context, expression))
-                {
+                switch (disambuateDereferenceField(context, expression)) {
                     case DereferenceField.TYPE:
                         returnBehavior = lexiconizeDereferenceField(context, (DereferenceField)content);
                         break;
                     case StaticDereferenceField.TYPE:
-                        // lexiconization is already done
-                        returnBehavior = expression.returnBehavior;
+                        returnBehavior = lexiconizeStaticDereferenceField(context, (StaticDereferenceField)expression.content);
                         break;
                     default:
                         throw new RuntimeException();
@@ -217,6 +213,24 @@ public class Lexiconizer
         }
         expression.returnBehavior = returnBehavior;
         return returnBehavior;
+    }
+
+    private ReturnBehavior lexiconizeStaticDereferenceField(LocalContext context, StaticDereferenceField staticDereferenceField)
+    {
+        // lexiconization already done for typeId
+        staticDereferenceField.field = resolveField(staticDereferenceField.typeId.type, staticDereferenceField.id);
+        return new ReturnBehavior(staticDereferenceField.field.returnType, 1);
+    }
+
+    private ReturnBehavior lexiconizeStaticFunctionInvocation(LocalContext context, StaticFunctionInvocation staticFunctionInvocation)
+    {
+        // lexiconization already done for typeId
+        ReturnBehavior[] argumentSignature = lexiconizeArguments(context, staticFunctionInvocation.functionInvocation.arguments);
+        staticFunctionInvocation.functionInvocation.method = resolveMethod(staticFunctionInvocation.typeId.type, staticFunctionInvocation.functionInvocation.id, argumentSignature);
+        Type returnType = staticFunctionInvocation.functionInvocation.method.returnType;
+        int stackRequirement = returnType != RuntimeType.VOID ? 1 : 0;
+        stackRequirement = Math.max(stackRequirement, getStackRequirement(argumentSignature));
+        return new ReturnBehavior(returnType, stackRequirement);
     }
 
     private ReturnBehavior lexiconizeTryCatch(LocalContext context, TryCatch tryCatch)
@@ -257,8 +271,13 @@ public class Lexiconizer
 
     private ReturnBehavior lexiconizeCatchBody(LocalContext context, CatchBody catchBody)
     {
-        lexiconizeVariableDeclaration(context, catchBody.variableDeclaration);
-        return lexiconizeExpression(context, catchBody.expression);
+        LocalContext nestedContext = new LocalContext(context);
+        lexiconizeVariableDeclaration(nestedContext, catchBody.variableDeclaration);
+        if (!catchBody.variableDeclaration.typeId.type.isInstanceOf(importedTypes.get("Throwable")))
+            errors.add(new LexicalException("Type must descend from Throwable. Can't catch a " + catchBody.variableDeclaration.typeId));
+        nestedContext.addLocalVariable(catchBody.variableDeclaration.id, catchBody.variableDeclaration.typeId.type, errors);
+        ReturnBehavior returnBehavior = lexiconizeExpression(nestedContext, catchBody.expression);
+        return returnBehavior.clone(1); // one for the exception object
     }
 
     private int disambuateDereferenceField(LocalContext context, Expression expression)
@@ -272,14 +291,9 @@ public class Lexiconizer
             return DereferenceField.TYPE;
         TypeId typeId = new TypeId(dereferenceField.expression.content);
         lexiconizeType(typeId);
-        if (typeId.type != null)
-        {
+        if (typeId.type != null) {
             // convert to StaticDereferenceField
-            StaticDereferenceField staticDereferenceField = new StaticDereferenceField(typeId, dereferenceField.id);
-            // lexiconize it now since we have all the information already.
-            staticDereferenceField.field = resolveField(typeId.type, dereferenceField.id);
-            expression.content = staticDereferenceField;
-            expression.returnBehavior = new ReturnBehavior(staticDereferenceField.field.returnType, 1);
+            expression.content = new StaticDereferenceField(typeId, dereferenceField.id);
             return StaticDereferenceField.TYPE;
         }
         throw new RuntimeException(); // TODO what do we do here?
@@ -301,9 +315,12 @@ public class Lexiconizer
             return DereferenceMethod.TYPE;
         TypeId typeId = new TypeId(dereferenceMethod.expression.content);
         lexiconizeType(typeId);
-        if (typeId.type != null)
-            throw new RuntimeException(); // TODO: convert to StaticFunctionInvocation
-        throw new RuntimeException(); // TODO what do we do here?
+        if (typeId.type != null) {
+            // convert to StaticFunctionInvocation
+            expression.content = new StaticFunctionInvocation(typeId, dereferenceMethod.functionInvocation);
+            return StaticFunctionInvocation.TYPE;
+        }
+        return -1; // TODO return something
     }
 
     private ReturnBehavior lexiconizeDereferenceMethod(LocalContext context, DereferenceMethod dereferenceMethod)
@@ -312,14 +329,8 @@ public class Lexiconizer
         ReturnBehavior[] argumentSignature = lexiconizeArguments(context, dereferenceMethod.functionInvocation.arguments);
         dereferenceMethod.functionInvocation.method = resolveMethod(expressionReturnBehavior.type, dereferenceMethod.functionInvocation.id, argumentSignature);
         int stackRequirement = expressionReturnBehavior.stackRequirement;
-        for (int i = 0; i < argumentSignature.length; i++)
-            stackRequirement = Math.max(stackRequirement, (i + 1) + argumentSignature[i].stackRequirement);
+        stackRequirement = Math.max(stackRequirement, 1 + getStackRequirement(argumentSignature));
         return new ReturnBehavior(dereferenceMethod.functionInvocation.method.returnType, stackRequirement);
-    }
-
-    private ReturnBehavior lexiconizeStaticFunctionInvocation(LocalContext context, StaticFunctionInvocation staticFunctionInvocation)
-    {
-        throw new RuntimeException();
     }
 
     private ReturnBehavior lexiconizeFunctionInvocation(LocalContext context, FunctionInvocation functionInvocation)
@@ -330,7 +341,6 @@ public class Lexiconizer
         stackRequirement = Math.max(stackRequirement, getStackRequirement(argumentSignature));
         return new ReturnBehavior(functionInvocation.method.returnType, stackRequirement);
     }
-
 
     private ReturnBehavior[] lexiconizeArguments(LocalContext context, Arguments arguments)
     {
@@ -381,6 +391,8 @@ public class Lexiconizer
     private ReturnBehavior lexiconizeVariableDeclaration(LocalContext context, VariableDeclaration variableDeclaration)
     {
         lexiconizeType(variableDeclaration.typeId);
+        if (variableDeclaration.typeId.type == null)
+            errors.add(new LexicalException("Dunno what this type is: " + variableDeclaration.typeId));
         return ReturnBehavior.VOID;
     }
 
@@ -417,14 +429,12 @@ public class Lexiconizer
 
         Type returnType = RuntimeType.VOID;
         int stackRequirement = 0;
-        for (Expression element : blockContents.elements)
-        {
+        for (Expression element : blockContents.elements) {
             ReturnBehavior returnBehavior = lexiconizeExpression(context, element);
             returnType = returnBehavior.type;
             stackRequirement = Math.max(stackRequirement, returnBehavior.stackRequirement);
             VariableDeclaration variableDeclaration;
-            switch (element.content.getElementType())
-            {
+            switch (element.content.getElementType()) {
                 case VariableDeclaration.TYPE:
                     variableDeclaration = (VariableDeclaration)element.content;
                     break;
@@ -434,8 +444,7 @@ public class Lexiconizer
                 default:
                     variableDeclaration = null;
             }
-            if (variableDeclaration != null)
-            {
+            if (variableDeclaration != null) {
                 context.addLocalVariable(variableDeclaration.id, variableDeclaration.typeId.type, errors);
             }
         }
@@ -532,7 +541,7 @@ public class Lexiconizer
     {
         return type.resolveField(id.name);
     }
-    
+
     private static int getStackRequirement(ReturnBehavior[] argumentSignature)
     {
         int stackRequirement = 0;

@@ -44,6 +44,13 @@ public class LocalType extends Type
         return fields.get(name);
     }
 
+    @Override
+    public boolean isInstanceOf(Type type)
+    {
+        // TODO implement this
+        return false;
+    }
+
     public static final int TYPE = 0x1144038e;
     public int getType()
     {

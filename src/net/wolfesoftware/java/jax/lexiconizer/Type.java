@@ -13,8 +13,8 @@ public abstract class Type
 
     public abstract Method resolveMethod(String name, Type[] argumentSignature);
     public abstract Field resolveField(String name);
+    public abstract boolean isInstanceOf(Type type);
 
-    
     public abstract int getType();
     
     public String toString()

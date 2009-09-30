@@ -2,6 +2,9 @@ package net.wolfesoftware.java.jax.lexiconizer;
 
 import java.util.*;
 
+/**
+ * TODO: this is the wrong approach. We should be looking in classpaths, not in the compiler's own runtime.
+ */
 public class RuntimeType extends Type
 {
     private final Class<?> underlyingType;
@@ -76,6 +79,15 @@ public class RuntimeType extends Type
             return null;
         }
     }
+
+    @Override
+    public boolean isInstanceOf(Type type)
+    {
+        if (!(type instanceof RuntimeType))
+            return false; // RuntimeTypes only descend from other RuntimeTypes
+        return ((RuntimeType)type).underlyingType.isAssignableFrom(underlyingType);
+    }
+
     @Override
     public boolean isPrimitive()
     {
