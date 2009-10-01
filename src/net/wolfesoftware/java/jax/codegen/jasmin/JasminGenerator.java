@@ -173,9 +173,31 @@ public class JasminGenerator extends CodeGenerator
             case StaticDereferenceField.TYPE:
                 evalStaticDereferenceField((StaticDereferenceField)content);
                 break;
+            case TryCatch.TYPE:
+                evalTryCatch((TryCatch)content);
+                break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
+    }
+
+    private void evalTryCatch(TryCatch tryCatch)
+    {
+        evalTryPart(tryCatch.tryPart);
+        evalCatchPart(tryCatch.catchPart);
+    }
+
+    private void evalTryPart(TryPart tryPart)
+    {
+        out.println(tryPart.startLabel + ":");
+        // TODO: store stack in locals
+        evalExpression(tryPart.expression);
+        out.println(tryPart.endLabel + ":");
+        // TODO: restore locals onto stack
+    }
+    private void evalCatchPart(CatchPart catchPart)
+    {
+        asdf = asfd;
     }
 
     private void evalStaticDereferenceField(StaticDereferenceField staticDereferenceField)

@@ -244,7 +244,10 @@ public class Lexiconizer
 
     private ReturnBehavior lexiconizeTryPart(LocalContext context, TryPart tryPart)
     {
-        return lexiconizeExpression(context, tryPart.expression);
+        tryPart.startLabel = context.nextLabel();
+        lexiconizeExpression(context, tryPart.expression);
+        tryPart.endLabel = context.nextLabel();
+        return tryPart.expression.returnBehavior;
     }
 
     private ReturnBehavior lexiconizeCatchPart(LocalContext context, CatchPart catchPart)
@@ -272,6 +275,7 @@ public class Lexiconizer
     private ReturnBehavior lexiconizeCatchBody(LocalContext context, CatchBody catchBody)
     {
         LocalContext nestedContext = new LocalContext(context);
+        catchBody.startLabel = context.nextLabel();
         lexiconizeVariableDeclaration(nestedContext, catchBody.variableDeclaration);
         if (!catchBody.variableDeclaration.typeId.type.isInstanceOf(importedTypes.get("Throwable")))
             errors.add(new LexicalException("Type must descend from Throwable. Can't catch a " + catchBody.variableDeclaration.typeId));

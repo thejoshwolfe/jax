@@ -4,6 +4,7 @@ public class CatchBody extends ParseElement
 {
     public VariableDeclaration variableDeclaration;
     public Expression expression;
+    public String startLabel;
 
     public CatchBody(VariableDeclaration variableDeclaration, Expression expression)
     {
