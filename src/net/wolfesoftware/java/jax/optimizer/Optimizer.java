@@ -118,9 +118,48 @@ public class Optimizer
             case StaticDereferenceField.TYPE:
                 optimizeStaticDereferenceField((StaticDereferenceField)content);
                 break;
+            case TryCatch.TYPE:
+                optimizeTryCatch((TryCatch)content);
+                break;
+            case StaticFunctionInvocation.TYPE:
+                optimizeStaticFunctionInvocation((StaticFunctionInvocation)content);
+                break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
+    }
+
+    private static void optimizeStaticFunctionInvocation(StaticFunctionInvocation staticFunctionInvocation)
+    {
+        optimizeFunctionInvocation(staticFunctionInvocation.functionInvocation);
+    }
+
+    private static void optimizeTryCatch(TryCatch tryCatch)
+    {
+        optimizeTryPart(tryCatch.tryPart);
+        optimizeCatchPart(tryCatch.catchPart);
+    }
+
+    private static void optimizeCatchPart(CatchPart catchPart)
+    {
+        optimizeCatchList(catchPart.catchList);
+    }
+
+    private static void optimizeCatchList(CatchList catchList)
+    {
+        for (CatchBody catchBody : catchList.elements)
+            optimizeCatchBody(catchBody);
+    }
+
+    private static void optimizeCatchBody(CatchBody catchBody)
+    {
+        optimizeVariableDeclaration(catchBody.variableDeclaration);
+        optimizeExpression(catchBody.expression);
+    }
+
+    private static void optimizeTryPart(TryPart tryPart)
+    {
+        optimizeExpression(tryPart.expression);
     }
 
     private static void optimizeStaticDereferenceField(StaticDereferenceField staticDereferenceField)
