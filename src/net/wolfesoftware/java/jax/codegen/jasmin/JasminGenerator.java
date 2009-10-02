@@ -1,6 +1,7 @@
 package net.wolfesoftware.java.jax.codegen.jasmin;
 
 import java.io.*;
+import java.util.ArrayList;
 import net.wolfesoftware.java.common.TestUtils;
 import net.wolfesoftware.java.jax.ast.*;
 import net.wolfesoftware.java.jax.codegen.*;
@@ -8,12 +9,11 @@ import net.wolfesoftware.java.jax.lexiconizer.*;
 
 public class JasminGenerator extends CodeGenerator
 {
-    //TODO:     .catch java/io/IOException from label1 to label2 using label3
-
     private final Root root;
     private final PrintWriter out;
     private final String className;
     private final String outputFilename;
+    private final ArrayList<String> exceptionTable = new ArrayList<String>();
     public JasminGenerator(Root root, String outputFilename) throws FileNotFoundException
     {
         this.root = root;
@@ -103,6 +103,10 @@ public class JasminGenerator extends CodeGenerator
             throw new RuntimeException(functionDefinition.returnBehavior.type.toString());
         printStatement(rtnStmt);
 
+        // exception table
+        for (String exceptionLine : exceptionTable)
+            printStatement(exceptionLine);
+
         // footer
         out.println(".end method");
     }
@@ -173,6 +177,9 @@ public class JasminGenerator extends CodeGenerator
             case StaticDereferenceField.TYPE:
                 evalStaticDereferenceField((StaticDereferenceField)content);
                 break;
+            case StaticFunctionInvocation.TYPE:
+                evalStaticFunctionInvocation((StaticFunctionInvocation)content);
+                break;
             case TryCatch.TYPE:
                 evalTryCatch((TryCatch)content);
                 break;
@@ -181,23 +188,49 @@ public class JasminGenerator extends CodeGenerator
         }
     }
 
+    private void evalStaticFunctionInvocation(StaticFunctionInvocation staticFunctionInvocation)
+    {
+        evalFunctionInvocation(staticFunctionInvocation.functionInvocation);
+    }
+
     private void evalTryCatch(TryCatch tryCatch)
     {
         evalTryPart(tryCatch.tryPart);
+        printStatement("goto " + tryCatch.endLabel);
         evalCatchPart(tryCatch.catchPart);
+        printLabel(tryCatch.endLabel);
+        for (CatchBody catchBody : tryCatch.catchPart.catchList.elements) {
+            String typeName = getTypeName(catchBody.variableDeclaration.typeId.type);
+            exceptionTable.add(".catch " + typeName + " from " + tryCatch.tryPart.startLabel + " to " + tryCatch.tryPart.endLabel + " using " + catchBody.startLabel);
+        }
     }
 
     private void evalTryPart(TryPart tryPart)
     {
-        out.println(tryPart.startLabel + ":");
+        printLabel(tryPart.startLabel);
         // TODO: store stack in locals
         evalExpression(tryPart.expression);
-        out.println(tryPart.endLabel + ":");
+        printLabel(tryPart.endLabel);
         // TODO: restore locals onto stack
     }
+
     private void evalCatchPart(CatchPart catchPart)
     {
-        asdf = asfd;
+        evalCatchList(catchPart.catchList);
+    }
+
+    private void evalCatchList(CatchList catchList)
+    {
+        for (CatchBody catchBody : catchList.elements)
+            evalCatchBody(catchBody);
+    }
+
+    private void evalCatchBody(CatchBody catchBody)
+    {
+        printLabel(catchBody.startLabel);
+        printStatement("astore " + catchBody.variableDeclaration.id.variable.number);
+        evalExpression(catchBody.expression);
+        // TODO: restore locals onto stack
     }
 
     private void evalStaticDereferenceField(StaticDereferenceField staticDereferenceField)
@@ -216,9 +249,9 @@ public class JasminGenerator extends CodeGenerator
     {
         evalArguments(functionInvocation.arguments);
 
-        String invokeinstruction = functionInvocation.method.isStatic ? "invokestatic " : "invokevirtual ";
+        String invokeInstruction = functionInvocation.method.isStatic ? "invokestatic " : "invokevirtual ";
 
-        printStatement(invokeinstruction + getMethodCode(functionInvocation.method));
+        printStatement(invokeInstruction + getMethodCode(functionInvocation.method));
     }
 
     private void evalArguments(Arguments arguments)
@@ -233,16 +266,16 @@ public class JasminGenerator extends CodeGenerator
         printStatement("ifeq " + ifThenElse.label1);
         evalExpression(ifThenElse.expression2);
         printStatement("goto " + ifThenElse.label2);
-        out.println(ifThenElse.label1 + ":");
+        printLabel(ifThenElse.label1);
         evalExpression(ifThenElse.expression3);
-        out.println(ifThenElse.label2 + ":");
+        printLabel(ifThenElse.label2);
     }
     private void evalIfThen(IfThen ifThen)
     {
         evalExpression(ifThen.expression1);
         printStatement("ifeq " + ifThen.label);
         evalExpression(ifThen.expression2);
-        out.println(ifThen.label + ":");
+        printLabel(ifThen.label);
     }
 
     private void evalAssignment(Assignment assignment)
@@ -341,9 +374,9 @@ public class JasminGenerator extends CodeGenerator
         printStatement("if_icmp" + condition + " " + operator.label1);
         printStatement("iconst_0");
         printStatement("goto " + operator.label2);
-        out.println(operator.label1 + ":");
+        printLabel(operator.label1);
         printStatement("iconst_1");
-        out.println(operator.label2 + ":");
+        printLabel(operator.label2);
     }
 
     private void evalIntLiteral(IntLiteral intLiteral)
@@ -368,7 +401,10 @@ public class JasminGenerator extends CodeGenerator
     {
         out.println(IJasminConstants.indentation + s);
     }
-
+    private void printLabel(String labelName)
+    {
+        out.println(labelName + ":");
+    }
     private String getTypeCode(Type type)
     {
         // http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html#84645

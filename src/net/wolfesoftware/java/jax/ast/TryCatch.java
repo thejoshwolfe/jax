@@ -4,6 +4,7 @@ public class TryCatch extends ParseElement
 {
     public TryPart tryPart;
     public CatchPart catchPart;
+    public String endLabel;
 
     public TryCatch(TryPart tryPart, CatchPart catchPart)
     {
