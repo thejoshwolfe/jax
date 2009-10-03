@@ -9,6 +9,15 @@ import net.wolfesoftware.java.jax.lexiconizer.*;
 
 public class JasminGenerator extends CodeGenerator
 {
+    private static String defualtConstructor =
+        ".method public <init>()V\n" +
+        "    aload_0\n" +
+        "    invokenonvirtual java/lang/Object/<init>()V\n" +
+        "    return\n" +
+        ".end method\n";
+
+    private static String indentation = "    ";
+
     private final Root root;
     private final PrintWriter out;
     private final String className;
@@ -47,7 +56,7 @@ public class JasminGenerator extends CodeGenerator
         out.println(".super java/lang/Object"); // hard code super class for now
         out.println();
 
-        out.println(IJasminConstants.defualtConstructor);
+        out.println(defualtConstructor);
 
         genClassBody(classDeclaration.classBody);
     }
@@ -399,7 +408,7 @@ public class JasminGenerator extends CodeGenerator
 
     private void printStatement(String s)
     {
-        out.println(IJasminConstants.indentation + s);
+        out.println(indentation + s);
     }
     private void printLabel(String labelName)
     {
