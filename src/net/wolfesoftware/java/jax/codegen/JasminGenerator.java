@@ -1,10 +1,9 @@
-package net.wolfesoftware.java.jax.codegen.jasmin;
+package net.wolfesoftware.java.jax.codegen;
 
 import java.io.*;
 import java.util.ArrayList;
 import net.wolfesoftware.java.common.TestUtils;
 import net.wolfesoftware.java.jax.ast.*;
-import net.wolfesoftware.java.jax.codegen.*;
 import net.wolfesoftware.java.jax.lexiconizer.*;
 
 public class JasminGenerator extends CodeGenerator

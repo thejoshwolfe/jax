@@ -2,7 +2,6 @@ package net.wolfesoftware.java.jax.codegen;
 
 import java.io.FileNotFoundException;
 import net.wolfesoftware.java.jax.ast.Root;
-import net.wolfesoftware.java.jax.codegen.jasmin.JasminGenerator;
 import net.wolfesoftware.java.jax.lexiconizer.Lexiconization;
 
 public abstract class CodeGenerator
