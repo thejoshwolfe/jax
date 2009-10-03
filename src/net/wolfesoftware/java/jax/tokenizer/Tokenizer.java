@@ -73,7 +73,7 @@ public final class Tokenizer
         char c = text.charAt(0);
         if (Character.isLetter(c))
             return new IdentifierToken(start, text);
-        if (Character.isDigit(c))
+        if (Character.isDigit(c) || c == '-')
         {
             try {
                 return new IntToken(start, text, Integer.parseInt(text));

@@ -13,6 +13,7 @@ public final class Parser
     }
 
     private final Token[] tokens;
+    private int maxIndex = 0;
     private final ArrayList<ParsingException> errors = new ArrayList<ParsingException>();
 
     private Parser(Tokenization tokenization)
@@ -25,11 +26,11 @@ public final class Parser
         SubParsing<CompilationUnit> compilationUnit = parseCompilationUnit(0);
         if (compilationUnit == null)
         {
-            errors.add(ParsingException.newInstance(0, "Parse Error"));
+            errors.add(new ParsingException(tokens[maxIndex]));
             return new Parsing(null, errors);
         }
         if (compilationUnit.end != tokens.length)
-            errors.add(ParsingException.newInstance(compilationUnit.end, "Expected EOF"));
+            errors.add(new ParsingException(tokens[compilationUnit.end]));
         return new Parsing(new Root(compilationUnit.element), errors);
     }
 
@@ -778,6 +779,7 @@ public final class Parser
 
     private Token getToken(int offset)
     {
+        maxIndex = Math.max(maxIndex, offset);
         if (!(0 <= offset && offset < tokens.length))
             return NULL_TOKEN;
         return tokens[offset];

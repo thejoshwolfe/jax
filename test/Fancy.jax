@@ -1,11 +1,36 @@
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * This test case is meant to show off all the fancy things that Jax can do to date.
+ * Update this test when you add a new feature (also make a dedicated regression test case
+ * for it).
+ */
 class Fancy {
-    int gimme42(String thing) {
+    void printThis(String thing) {
+        System.out.println(thing);
+    };
+
+/*
+    String readFirstDigits(String fromHere) {
         Pattern p = Pattern.compile("\\d+");
-        Matcher m = p.matcher(thing);
-        m.find();
-        Integer.parseInt(m.group())
-    }
+        Matcher m = p.matcher(fromHere);
+        if (m.find())
+            Integer.parseInt(m.group())
+        else
+            -1
+    };
+
+    String dareYouToParseIntThis(String itsANumberIPromise) {
+        String message = 
+            try String.valueOf(Integer.parseInt(itsANumberIPromise))
+            catch (NumberFormatException e) "Nice Try!\n";
+        message
+    };
+
+    int meaningOfLife() fibonacci(6) + fibonacci(9);
+
+    int fibonacci(int n) if (n < 2) n else fibonacci(n - 1) + fibonacci(n - 2);
+*/
 }
+
