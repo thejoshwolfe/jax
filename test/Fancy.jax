@@ -11,7 +11,6 @@ class Fancy {
         System.out.println(thing);
     };
 
-/*
     String readFirstDigits(String fromHere) {
         Pattern p = Pattern.compile("\\d+");
         Matcher m = p.matcher(fromHere);
@@ -21,7 +20,8 @@ class Fancy {
             -1
     };
 
-    String dareYouToParseIntThis(String itsANumberIPromise) {
+/*
+    String dareYouToParseThisInt(String itsANumberIPromise) {
         String message = 
             try String.valueOf(Integer.parseInt(itsANumberIPromise))
             catch (NumberFormatException e) "Nice Try!\n";
