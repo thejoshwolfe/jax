@@ -8,7 +8,7 @@ import java.util.*;
 public class RuntimeType extends Type
 {
     private final Class<?> underlyingType;
-    public RuntimeType(Class<?> underlyingType)
+    private RuntimeType(Class<?> underlyingType)
     {
         super(underlyingType.getName(), underlyingType.getSimpleName());
         this.underlyingType = underlyingType;

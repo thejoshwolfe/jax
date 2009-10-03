@@ -59,7 +59,6 @@ public final class Parser
                 offset = importStatement.end;
             } else
                 break;
-            offset++;
         }
         return new SubParsing<Imports>(new Imports(elements), offset);
     }
@@ -74,7 +73,7 @@ public final class Parser
         if (fullClassName == null)
             return null;
         offset = fullClassName.end;
-        
+
         if (getToken(offset).text != Lang.SYMBOL_SEMICOLON)
             return null;
         offset++;
@@ -93,8 +92,8 @@ public final class Parser
                 offset++;
             } else
                 elements.add(null);
-            Token semicolon = getToken(offset);
-            if (semicolon.text != Lang.SYMBOL_PERIOD)
+            Token period = getToken(offset);
+            if (period.text != Lang.SYMBOL_PERIOD)
                 break;
             offset++;
         }

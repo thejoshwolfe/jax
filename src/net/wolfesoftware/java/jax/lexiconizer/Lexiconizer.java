@@ -41,8 +41,13 @@ public class Lexiconizer
 
     private void lexiconizeImports(Imports imports)
     {
-        // TODO Auto-generated method stub
+        for (ImportStatement importStatement : imports.elements)
+            lexiconizeImportStatement(importStatement);
+    }
 
+    private void lexiconizeImportStatement(ImportStatement importStatement)
+    {
+        resolvefullClassName(importStatement.fullClassName);
     }
 
     private void lexiconizeClassDeclaration(ClassDeclaration classDeclaration)
@@ -53,7 +58,8 @@ public class Lexiconizer
         if (!classDeclaration.id.name.equals(classNameFromFile))
             errors.add(new LexicalException("Class name does not match file name"));
     
-        LocalType context = new LocalType("", classDeclaration.id.name);
+        LocalType context = new LocalType(classNameFromFile, classDeclaration.id.name);
+        importedTypes.put(classNameFromFile, context);
         lexiconizeClassBody(context, classDeclaration.classBody);
     }
 
@@ -84,7 +90,7 @@ public class Lexiconizer
 
     private void preLexiconizeFunctionDefinition(LocalType context, FunctionDefinition functionDefinition)
     {
-        lexiconizeType(functionDefinition.typeId);
+        resolveType(functionDefinition.typeId);
         functionDefinition.context = new RootLocalContext(context);
         Type[] arguemntSignature = lexiconizeArgumentDeclarations(functionDefinition.context, functionDefinition.argumentDeclarations);
         functionDefinition.method = new LocalMethod(functionDefinition.typeId.type, functionDefinition.id.name, arguemntSignature, true);
@@ -296,7 +302,7 @@ public class Lexiconizer
         if (localVariable != null)
             return DereferenceField.TYPE;
         TypeId typeId = new TypeId(dereferenceField.expression.content);
-        lexiconizeType(typeId);
+        resolveType(typeId);
         if (typeId.type != null) {
             // convert to StaticDereferenceField
             expression.content = new StaticDereferenceField(typeId, dereferenceField.id);
@@ -320,7 +326,7 @@ public class Lexiconizer
         if (localVariable != null)
             return DereferenceMethod.TYPE;
         TypeId typeId = new TypeId(dereferenceMethod.expression.content);
-        lexiconizeType(typeId);
+        resolveType(typeId);
         if (typeId.type != null) {
             // convert to StaticFunctionInvocation
             expression.content = new StaticFunctionInvocation(typeId, dereferenceMethod.functionInvocation);
@@ -396,7 +402,7 @@ public class Lexiconizer
 
     private ReturnBehavior lexiconizeVariableDeclaration(LocalContext context, VariableDeclaration variableDeclaration)
     {
-        lexiconizeType(variableDeclaration.typeId);
+        resolveType(variableDeclaration.typeId);
         if (variableDeclaration.typeId.type == null)
             errors.add(new LexicalException("Dunno what this type is: " + variableDeclaration.typeId));
         return ReturnBehavior.VOID;
@@ -524,7 +530,24 @@ public class Lexiconizer
         return new ReturnBehavior(returnType != null ? returnType : returnBehavior1.type, stackRequirement);
     }
 
-    private void lexiconizeType(TypeId typeId)
+    private void resolvefullClassName(FullClassName fullClassName)
+    {
+        StringBuilder stringBuilder = new StringBuilder();
+        int i;
+        for (i = 0; i < fullClassName.elements.size() - 1; i++)
+            stringBuilder.append(fullClassName.elements.get(i).name).append('.');
+        String typeName = fullClassName.elements.get(i).name;
+        stringBuilder.append(typeName);
+        String fullTypeName = stringBuilder.toString();
+        try {
+            Class<?> runtimeType = Class.forName(fullTypeName);
+            importedTypes.put(typeName, RuntimeType.getType(runtimeType));
+        } catch (ClassNotFoundException e) {
+            errors.add(new LexicalException("Can't resolve import " + fullTypeName));
+        }
+    }
+
+    private void resolveType(TypeId typeId)
     {
         typeId.type = importedTypes.get(typeId.toString());
     }
