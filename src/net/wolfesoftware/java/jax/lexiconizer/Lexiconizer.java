@@ -93,7 +93,7 @@ public class Lexiconizer
         resolveType(functionDefinition.typeId);
         functionDefinition.context = new RootLocalContext(context);
         Type[] arguemntSignature = lexiconizeArgumentDeclarations(functionDefinition.context, functionDefinition.argumentDeclarations);
-        functionDefinition.method = new LocalMethod(functionDefinition.typeId.type, functionDefinition.id.name, arguemntSignature, true);
+        functionDefinition.method = new LocalMethod(context, functionDefinition.typeId.type, functionDefinition.id.name, arguemntSignature, true);
         context.addMethod(functionDefinition.method);
     }
 
@@ -101,8 +101,10 @@ public class Lexiconizer
     {
         Type[] argumentSignature = new Type[argumentDeclarations.elements.size()];
         int i = 0;
-        for (VariableDeclaration variableDeclaration : argumentDeclarations.elements)
+        for (VariableDeclaration variableDeclaration : argumentDeclarations.elements) {
             argumentSignature[i++] = lexiconizeVariableDeclaration(context, variableDeclaration).type;
+            context.addLocalVariable(variableDeclaration.id, variableDeclaration.typeId.type, errors);
+        }
         return argumentSignature;
     }
 
@@ -456,9 +458,8 @@ public class Lexiconizer
                 default:
                     variableDeclaration = null;
             }
-            if (variableDeclaration != null) {
+            if (variableDeclaration != null)
                 context.addLocalVariable(variableDeclaration.id, variableDeclaration.typeId.type, errors);
-            }
         }
         if (blockContents.forceVoid)
             returnType = RuntimeType.VOID;

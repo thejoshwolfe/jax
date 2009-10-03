@@ -2,8 +2,8 @@ package net.wolfesoftware.java.jax.lexiconizer;
 
 public class LocalMethod extends Method
 {
-    public LocalMethod(Type returnType, String id, Type[] argumentSignature, boolean isStatic)
+    public LocalMethod(LocalType declaringType, Type returnType, String id, Type[] argumentSignature, boolean isStatic)
     {
-        super(null, returnType, id, argumentSignature, isStatic);
+        super(declaringType, returnType, id, argumentSignature, isStatic);
     }
 }

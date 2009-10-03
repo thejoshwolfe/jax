@@ -32,6 +32,7 @@ public class CodeGenTest
         "reference/RuntimeType",
         "exceptions/TryCatch",
         "Import",
+        "Fancy",
     };
 
     public static void main(String[] args)

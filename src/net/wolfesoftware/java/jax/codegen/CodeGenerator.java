@@ -402,7 +402,8 @@ public class CodeGenerator
 
     private void genArgumentDeclarations(ArgumentDeclarations argumentDeclarations)
     {
-        // TODO
+        for (VariableDeclaration variableDeclaration : argumentDeclarations.elements)
+            out.print(getTypeCode(variableDeclaration.typeId.type));
     }
 
     private void printStatement(String s)
@@ -430,8 +431,6 @@ public class CodeGenerator
     }
     private String getTypeName(Type type)
     {
-        if (type == null) // TODO tmp workaround for not having class declarations in the syntax
-            return className;
         return type.fullName.replace('.', '/');
     }
     private String getMethodCode(Method method)

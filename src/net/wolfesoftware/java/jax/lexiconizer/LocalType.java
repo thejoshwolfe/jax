@@ -24,10 +24,10 @@ public class LocalType extends Type
     @Override
     public Method resolveMethod(String name, Type[] argumentSignature)
     {
-        LinkedList<Method> list = methods.get(name);
-        if (list == null)
+        LinkedList<Method> overloads = methods.get(name);
+        if (overloads == null)
             return null;
-        for (Method m : list)
+        for (Method m : overloads)
         {
             if (m.argumentSignature.length != argumentSignature.length)
                 continue;
