@@ -1,4 +1,4 @@
-package net.wolfesoftware.java.jax.test.codegen;
+package net.wolfesoftware.java.jax.test;
 
 import java.io.*;
 import java.util.ArrayList;
