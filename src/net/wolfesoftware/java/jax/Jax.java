@@ -1,7 +1,7 @@
 package net.wolfesoftware.java.jax;
 
-import java.io.*;
-import java.util.*;
+import java.io.FileNotFoundException;
+import java.util.List;
 import net.wolfesoftware.java.common.Util;
 import net.wolfesoftware.java.jax.codegen.CodeGenerator;
 import net.wolfesoftware.java.jax.lexiconizer.*;
@@ -38,7 +38,7 @@ public class Jax
 
         String className = lexiconization.root.content.classDeclaration.id.name;
         String outFileName = classPath + className + ".jasmin";
-        CodeGenerator.generateCode(lexiconization, outFileName);
+        CodeGenerator.generate(lexiconization, outFileName);
     }
     private static boolean printErrors(List<? extends Exception> errors)
     {
