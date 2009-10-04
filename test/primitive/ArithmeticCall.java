@@ -8,7 +8,8 @@ public class ArithmeticCall
             Arithmetic.subtraction9() == 9 &&
             Arithmetic.multiplication24() == 24 &&
             Arithmetic.division5() == 5 &&
-            Arithmetic.mixed42() == 42)
+            Arithmetic.mixed42() == 42 &&
+            Arithmetic.negative3() == -3)
             System.out.println("+++ PASS");
         else
             System.out.println("*** FAIL");

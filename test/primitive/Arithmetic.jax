@@ -12,4 +12,6 @@ class Arithmetic {
 	int division5() 100 / 2 / 10;
 
 	int mixed42() (2 + 3) * 8 + (7 - 1) / 3;
+
+	int negative3() -3;
 }
