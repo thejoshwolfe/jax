@@ -124,7 +124,7 @@ public class Lexiconizer
     {
         functionDefinition.returnBehavior = lexiconizeExpression(functionDefinition.context, functionDefinition.expression);
         if (functionDefinition.method.returnType != functionDefinition.returnBehavior.type)
-            errors.add(new LexicalException());
+            errors.add(LexicalException.cantCast(functionDefinition.returnBehavior.type, functionDefinition.method.returnType));
     }
 
     private ReturnBehavior lexiconizeExpression(LocalContext context, Expression expression)
@@ -370,7 +370,7 @@ public class Lexiconizer
     {
         lexiconizeExpression(context, ifThenElse.expression1);
         if (ifThenElse.expression1.returnBehavior.type != RuntimeType.BOOLEAN)
-            errors.add(new LexicalException());
+            errors.add(new LexicalException("Expression must evaluate to a boolean"));
         ifThenElse.label1 = context.nextLabel();
         lexiconizeExpression(context, ifThenElse.expression2);
         ifThenElse.label2 = context.nextLabel();
@@ -383,7 +383,7 @@ public class Lexiconizer
     {
         lexiconizeExpression(context, ifThen.expression1);
         if (ifThen.expression1.returnBehavior.type != RuntimeType.BOOLEAN)
-            errors.add(new LexicalException());
+            errors.add(new LexicalException("Expression must evaluate to a boolean"));
         ifThen.label = context.nextLabel();
         lexiconizeExpression(context, ifThen.expression2);
         if (ifThen.expression2.returnBehavior.type != RuntimeType.VOID)
@@ -393,12 +393,12 @@ public class Lexiconizer
 
     private ReturnBehavior lexiconizeAssignment(LocalContext context, Assignment assignment)
     {
-        assignment.id.variable = context.getLocalVariable(assignment.id.name);
+        assignment.id.variable = resolveId(context, assignment.id);
         if (assignment.id.variable == null)
-            errors.add(new LexicalException());
+            errors.add(LexicalException.cantResolveLocalVariable(assignment.id));
         ReturnBehavior returnBehavior = lexiconizeExpression(context, assignment.expression);
         if (assignment.id.variable != null && assignment.id.variable.type != returnBehavior.type)
-            errors.add(new LexicalException());
+            errors.add(LexicalException.cantCast(returnBehavior.type, assignment.id.variable.type));
         return returnBehavior.clone(2);
     }
 
@@ -414,7 +414,7 @@ public class Lexiconizer
     {
         id.variable = resolveId(context, id);
         if (id.variable == null) {
-            errors.add(new LexicalException());
+            errors.add(LexicalException.cantResolveLocalVariable(id));
             // TODO: return something
         }
         return new ReturnBehavior(id.variable.type, 1);
@@ -425,7 +425,7 @@ public class Lexiconizer
         lexiconizeVariableDeclaration(context, variableCreation.variableDeclaration);
         ReturnBehavior returnBehavior = lexiconizeExpression(context, variableCreation.expression);
         if (variableCreation.variableDeclaration.typeId.type != returnBehavior.type)
-            errors.add(new LexicalException());
+            errors.add(LexicalException.cantCast(returnBehavior.type, variableCreation.variableDeclaration.typeId.type));
         return new ReturnBehavior(RuntimeType.VOID, returnBehavior.stackRequirement);
     }
 
@@ -504,7 +504,7 @@ public class Lexiconizer
     {
         ReturnBehavior returnBehavior = lexiconizeOperator(context, operator, null);
         if (returnBehavior.type != RuntimeType.INT)
-            errors.add(new LexicalException());
+            errors.add(new LexicalException("Expression must be of type int"));
         return returnBehavior;
     }
     private ReturnBehavior lexiconizeInequality(LocalContext context, Inequality inequality)
@@ -526,7 +526,7 @@ public class Lexiconizer
         ReturnBehavior returnBehavior1 = lexiconizeExpression(context, operator.expression1);
         ReturnBehavior returnBehavior2 = lexiconizeExpression(context, operator.expression2);
         if (returnBehavior1.type != returnBehavior2.type)
-            errors.add(new LexicalException());
+            errors.add(LexicalException.cantCast(returnBehavior2.type, returnBehavior1.type)); // TODO: could be more specific
         int stackRequirement = Math.max(returnBehavior1.stackRequirement, returnBehavior2.stackRequirement + 1);
         return new ReturnBehavior(returnType != null ? returnType : returnBehavior1.type, stackRequirement);
     }
