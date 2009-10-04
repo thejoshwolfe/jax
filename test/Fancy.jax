@@ -11,7 +11,7 @@ class Fancy {
         System.out.println(thing);
     };
 
-    String readFirstDigits(String fromHere) {
+    int readFirstDigits(String fromHere) {
         Pattern p = Pattern.compile("\\d+");
         Matcher m = p.matcher(fromHere);
         if (m.find())
