@@ -55,7 +55,7 @@ public final class Tokenizer
         }
 
         if (!tokenMatcher.hitEnd())
-            errors.add(TokenizingException.newInstance(end, source.substring(end), "Invalid Token"));
+            errors.add(new TokenizingException(end, source.substring(end), "Invalid Token."));
 
         return new Tokenization(source, tokens, errors);
     }
@@ -78,13 +78,13 @@ public final class Tokenizer
             try {
                 return new IntToken(start, text, Integer.parseInt(text));
             } catch (NumberFormatException e) {
-                errors.add(TokenizingException.newInstance(start, text, "Format Error"));
+                errors.add(new TokenizingException(start, text, "Format Error."));
                 return null;
             }
         }
         if (Character.isWhitespace(c) || text.startsWith("//") || text.startsWith("/*"))
             return null;
-        errors.add(TokenizingException.newInstance(start, text, "Unknown Token"));
+        errors.add(new TokenizingException(start, text, "Unknown Token."));
         return null;
     }
 

@@ -1,8 +1,9 @@
 package net.wolfesoftware.java.jax.lexiconizer;
 
+import net.wolfesoftware.java.jax.CompileError;
 import net.wolfesoftware.java.jax.ast.*;
 
-public class LexicalException extends Exception
+public class LexicalException extends CompileError
 {
     public LexicalException(ParseElement element, String message)
     {

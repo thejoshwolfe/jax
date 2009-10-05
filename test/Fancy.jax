@@ -3,8 +3,8 @@ import java.util.regex.Pattern;
 
 /**
  * This test case is meant to show off all the fancy things that Jax can do to date.
- * Update this test when you add a new feature (also make a dedicated regression test case
- * for it).
+ * Update this test when you add a new feature (also make a dedicated regression test 
+ * case for it).
  */
 class Fancy {
     void printThis(String thing) {
@@ -20,7 +20,6 @@ class Fancy {
             -1
     };
 
-/*
     String dareYouToParseThisInt(String itsANumberIPromise) {
         String message = 
             try String.valueOf(Integer.parseInt(itsANumberIPromise))
@@ -28,6 +27,7 @@ class Fancy {
         message
     };
 
+/*
     int meaningOfLife() fibonacci(6) + fibonacci(9);
 
     int fibonacci(int n) if (n < 2) n else fibonacci(n - 1) + fibonacci(n - 2);
