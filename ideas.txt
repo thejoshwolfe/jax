@@ -1,10 +1,10 @@
 loops that return values:
 
 Something thing = 
-    for (int i = 0; i < array.length; i++)
+    for (int i = 0; i < array.length; i++) {
         if (array[i].isWhatINeed())
-            break(array[i].getTheThing())
-    default:
+            break(array[i].getTheThing());
+    } else
         new Something();
 
 Iterator<Item> iter = friend.getItemList().iterator();
@@ -13,7 +13,7 @@ Something thing = while (iter.hasNext()) {
     if (item.isWhatINeed())
         break(item.getTheThing());
     iter.remove();
-} default: {
+} else {
     friend.yourListIsEmptyNow();
     friend.getLastResort()
 }
