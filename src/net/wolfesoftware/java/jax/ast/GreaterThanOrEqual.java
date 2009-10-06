@@ -1,6 +1,6 @@
 package net.wolfesoftware.java.jax.ast;
 
-public class GreaterThanOrEqual extends BinaryOperatorElement
+public class GreaterThanOrEqual extends ComparisonOperator
 {
     public GreaterThanOrEqual(Expression expression1, Expression expression2)
     {

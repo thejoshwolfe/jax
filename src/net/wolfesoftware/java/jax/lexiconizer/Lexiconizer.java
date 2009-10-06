@@ -146,6 +146,18 @@ public class Lexiconizer
             case Division.TYPE:
                 returnBehavior = lexiconizeDivision(context, (Division)content);
                 break;
+            case LessThan.TYPE:
+                returnBehavior = lexiconizeLessThan(context, (LessThan)content);
+                break;
+            case GreaterThan.TYPE:
+                returnBehavior = lexiconizeGreaterThan(context, (GreaterThan)content);
+                break;
+            case LessThanOrEqual.TYPE:
+                returnBehavior = lexiconizeLessThanOrEqual(context, (LessThanOrEqual)content);
+                break;
+            case GreaterThanOrEqual.TYPE:
+                returnBehavior = lexiconizeGreaterThanOrEqual(context, (GreaterThanOrEqual)content);
+                break;
             case Equality.TYPE:
                 returnBehavior = lexiconizeEquality(context, (Equality)content);
                 break;
@@ -509,13 +521,29 @@ public class Lexiconizer
             errors.add(new LexicalException(operator, "Expression must be of type int"));
         return returnBehavior;
     }
-    private ReturnBehavior lexiconizeInequality(LocalContext context, Inequality inequality)
+    private ReturnBehavior lexiconizeLessThan(LocalContext context, LessThan lessThan)
     {
-        return lexiconizeComparisonOperator(context, inequality);
+        return lexiconizeComparisonOperator(context, lessThan);
+    }
+    private ReturnBehavior lexiconizeGreaterThan(LocalContext context, GreaterThan greaterThan)
+    {
+        return lexiconizeComparisonOperator(context, greaterThan);
+    }
+    private ReturnBehavior lexiconizeLessThanOrEqual(LocalContext context, LessThanOrEqual lessThanOrEqual)
+    {
+        return lexiconizeComparisonOperator(context, lessThanOrEqual);
+    }
+    private ReturnBehavior lexiconizeGreaterThanOrEqual(LocalContext context, GreaterThanOrEqual greaterThanOrEqual)
+    {
+        return lexiconizeComparisonOperator(context, greaterThanOrEqual);
     }
     private ReturnBehavior lexiconizeEquality(LocalContext context, Equality equality)
     {
         return lexiconizeComparisonOperator(context, equality);
+    }
+    private ReturnBehavior lexiconizeInequality(LocalContext context, Inequality inequality)
+    {
+        return lexiconizeComparisonOperator(context, inequality);
     }
     private ReturnBehavior lexiconizeComparisonOperator(LocalContext context, ComparisonOperator operator)
     {
@@ -528,7 +556,7 @@ public class Lexiconizer
         ReturnBehavior returnBehavior1 = lexiconizeExpression(context, operator.expression1);
         ReturnBehavior returnBehavior2 = lexiconizeExpression(context, operator.expression2);
         if (returnBehavior1.type != returnBehavior2.type)
-            errors.add(LexicalException.cantCast(operator, returnBehavior2.type, returnBehavior1.type)); // TODO: could be more specific
+            errors.add(new LexicalException(operator, "comparison types must match."));
         int stackRequirement = Math.max(returnBehavior1.stackRequirement, returnBehavior2.stackRequirement + 1);
         return new ReturnBehavior(returnType != null ? returnType : returnBehavior1.type, stackRequirement);
     }

@@ -1,6 +1,6 @@
 package net.wolfesoftware.java.jax.ast;
 
-public class LessThan extends BinaryOperatorElement
+public class LessThan extends ComparisonOperator
 {
     public LessThan(Expression expression1, Expression expression2)
     {
