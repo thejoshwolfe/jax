@@ -406,7 +406,9 @@ public class Lexiconizer
     {
         resolveType(variableDeclaration.typeId);
         if (variableDeclaration.typeId.type == null)
-            errors.add(new LexicalException(variableDeclaration.typeId, "Dunno what this type is. "));
+            errors.add(new LexicalException(variableDeclaration.typeId, "Dunno what this type is."));
+        else if (variableDeclaration.typeId.type == RuntimeType.VOID)
+            errors.add(new LexicalException(variableDeclaration, "You can't have a void variable."));
         return ReturnBehavior.VOID;
     }
 
