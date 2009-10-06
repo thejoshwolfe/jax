@@ -102,7 +102,8 @@ public class Lexiconizer
         Type[] argumentSignature = new Type[argumentDeclarations.elements.size()];
         int i = 0;
         for (VariableDeclaration variableDeclaration : argumentDeclarations.elements) {
-            argumentSignature[i++] = lexiconizeVariableDeclaration(context, variableDeclaration).type;
+            lexiconizeVariableDeclaration(context, variableDeclaration);
+            argumentSignature[i++] = variableDeclaration.typeId.type;
             context.addLocalVariable(variableDeclaration.id, variableDeclaration.typeId.type, errors);
         }
         return argumentSignature;

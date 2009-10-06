@@ -6,6 +6,11 @@ import net.wolfesoftware.java.common.TestUtils;
 import net.wolfesoftware.java.jax.ast.*;
 import net.wolfesoftware.java.jax.lexiconizer.*;
 
+/**
+ * JVM instructions: http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc.html
+ * Jasmin User Guide: http://jasmin.sourceforge.net/guide.html
+ * Jasmin Instructions: http://jasmin.sourceforge.net/instructions.html
+ */
 public class CodeGenerator
 {
     private static String defualtConstructor =
@@ -114,6 +119,7 @@ public class CodeGenerator
         // exception table
         for (String exceptionLine : exceptionTable)
             printStatement(exceptionLine);
+        exceptionTable.clear();
 
         // footer
         out.println(".end method");
@@ -148,6 +154,18 @@ public class CodeGenerator
                 break;
             case Division.TYPE:
                 evalDivision((Division)content);
+                break;
+            case LessThan.TYPE:
+                evalLessThan((LessThan)content);
+                break;
+            case GreaterThan.TYPE:
+                evalGreaterThan((GreaterThan)content);
+                break;
+            case LessThanOrEqual.TYPE:
+                evalLessThanOrEqual((LessThanOrEqual)content);
+                break;
+            case GreaterThanOrEqual.TYPE:
+                evalGreaterThanOrEqual((GreaterThanOrEqual)content);
                 break;
             case Equality.TYPE:
                 evalEquality((Equality)content);
@@ -366,6 +384,22 @@ public class CodeGenerator
         evalExpression(operator.expression1);
         evalExpression(operator.expression2);
         printStatement("i" + operation);
+    }
+    private void evalLessThan(LessThan lessThan)
+    {
+        evalComparison(lessThan, "lt");
+    }
+    private void evalGreaterThan(GreaterThan greaterThan)
+    {
+        evalComparison(greaterThan, "gt");
+    }
+    private void evalLessThanOrEqual(LessThanOrEqual lessThanOrEqual)
+    {
+        evalComparison(lessThanOrEqual, "le");
+    }
+    private void evalGreaterThanOrEqual(GreaterThanOrEqual greaterThanOrEqual)
+    {
+        evalComparison(greaterThanOrEqual, "ge");
     }
     private void evalEquality(Equality equality)
     {
