@@ -70,6 +70,18 @@ public class Optimizer
             case Division.TYPE:
                 optimizeDivision((Division)content);
                 break;
+            case LessThan.TYPE:
+                optimizeLessThan((LessThan)content);
+                break;
+            case GreaterThan.TYPE:
+                optimizeGreaterThan((GreaterThan)content);
+                break;
+            case LessThanOrEqual.TYPE:
+                optimizeLessThanOrEqual((LessThanOrEqual)content);
+                break;
+            case GreaterThanOrEqual.TYPE:
+                optimizeGreaterThanOrEqual((GreaterThanOrEqual)content);
+                break;
             case Equality.TYPE:
                 optimizeEquality((Equality)content);
                 break;
@@ -261,6 +273,22 @@ public class Optimizer
     private static void optimizeDivision(Division division)
     {
         optimizeBinaryOperator(division);
+    }
+    private static void optimizeLessThan(LessThan lessThan)
+    {
+        optimizeBinaryOperator(lessThan);
+    }
+    private static void optimizeGreaterThan(GreaterThan greaterThan)
+    {
+        optimizeBinaryOperator(greaterThan);
+    }
+    private static void optimizeLessThanOrEqual(LessThanOrEqual lessThanOrEqual)
+    {
+        optimizeBinaryOperator(lessThanOrEqual);
+    }
+    private static void optimizeGreaterThanOrEqual(GreaterThanOrEqual greaterThanOrEqual)
+    {
+        optimizeBinaryOperator(greaterThanOrEqual);
     }
     private static void optimizeEquality(Equality equality)
     {
