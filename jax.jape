@@ -53,9 +53,15 @@ $VariableDeclaration = TypeId ID
     $Subtraction = Expression(110) "-" Expression(111)
     $Multiplication = Expression(120) "*" Expression(121)
     $Division = Expression(120) "/" Expression(121)
+    |Arithmetic = Addition | Subtraction | Multiplication | Division
+    $LessThan = Expression(90) "<" Expression(90)
+    $GreaterThan = Expression(90) ">" Expression(90)
+    $LessThanOrEqual = Expression(90) "<=" Expression(90)
+    $GreaterThanOrEqual = Expression(90) ">=" Expression(90)
     $Equality = Expression(80) "==" Expression(81)
     $Inequality = Expression(80) "!=" Expression(81)
-    |InfixOperation = Addition | Subtraction | Multiplication #| Division
+    |Comparison = LessThan | GreaterThan | LessThanOrEqual | GreaterThanOrEqual | Equality | Inequality 
+    |InfixOperation = -Arithmetic | -Comparison
 
     ### unary prefix operators
     #$Negation = "-" Expression(140)
