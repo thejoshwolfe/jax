@@ -31,6 +31,9 @@ public final class Lang
     public static final String SYMBOL_EQUALS = "=";
     public static final String SYMBOL_EQUALS_EQUALS = "==";
     public static final String SYMBOL_LESS_THAN = "<";
+    public static final String SYMBOL_GREATER_THAN = ">";
+    public static final String SYMBOL_LESS_THAN_OR_EQUAL = "<=";
+    public static final String SYMBOL_GREATER_THAN_OR_EQUAL = ">=";
     public static final String SYMBOL_MINUS = "-";
     public static final String SYMBOL_OPEN_BRACE = "{";
     public static final String SYMBOL_OPEN_PARENS = "(";

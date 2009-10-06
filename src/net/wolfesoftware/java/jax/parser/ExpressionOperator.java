@@ -22,38 +22,70 @@ public abstract class ExpressionOperator
         return text;
     }
 
+    private static final int 
+            PRECEDENCE_DEREFERENCE = 160,
+            PRECEDENCE_MULTIPLICATIVE = 120,
+            PRECEDENCE_ADDITIVE = 110,
+            PRECEDENCE_RELATIONAL = 90,
+            PRECEDENCE_EQUALITY = 80;
+
     /* Operation */
-    public static final ExpressionOperator ADDITION = new ExpressionOperator(120, Lang.SYMBOL_PLUS, 121) {
+    public static final ExpressionOperator ADDITION = new ExpressionOperator(PRECEDENCE_ADDITIVE, Lang.SYMBOL_PLUS, PRECEDENCE_ADDITIVE + 1) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
             return new Addition(leftExpression, rightExpression);
         }
     };
-    public static final ExpressionOperator SUBTRACTION = new ExpressionOperator(120, Lang.SYMBOL_MINUS, 121) {
+    public static final ExpressionOperator SUBTRACTION = new ExpressionOperator(PRECEDENCE_ADDITIVE, Lang.SYMBOL_MINUS, PRECEDENCE_ADDITIVE + 1) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
             return new Subtraction(leftExpression, rightExpression);
         }
     };
-    public static final ExpressionOperator MULTIPLICATION = new ExpressionOperator(130, Lang.SYMBOL_ASTERISK, 131) {
+    public static final ExpressionOperator MULTIPLICATION = new ExpressionOperator(PRECEDENCE_MULTIPLICATIVE, Lang.SYMBOL_ASTERISK, PRECEDENCE_MULTIPLICATIVE + 1) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
             return new Multiplication(leftExpression, rightExpression);
         }
     };
-    public static final ExpressionOperator DIVISION = new ExpressionOperator(130, Lang.SYMBOL_SLASH, 131) {
+    public static final ExpressionOperator DIVISION = new ExpressionOperator(PRECEDENCE_MULTIPLICATIVE, Lang.SYMBOL_SLASH, PRECEDENCE_MULTIPLICATIVE + 1) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
             return new Division(leftExpression, rightExpression);
         }
     };
-    public static final ExpressionOperator EQUALITY = new ExpressionOperator(70, Lang.SYMBOL_EQUALS_EQUALS, 71) {
+    
+    public static final ExpressionOperator LESS_THAN = new ExpressionOperator(PRECEDENCE_RELATIONAL, Lang.SYMBOL_LESS_THAN, PRECEDENCE_RELATIONAL + 1) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return new LessThan(leftExpression, rightExpression);
+        }
+    };
+    public static final ExpressionOperator GREATER_THAN = new ExpressionOperator(PRECEDENCE_RELATIONAL, Lang.SYMBOL_GREATER_THAN, PRECEDENCE_RELATIONAL + 1) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return new GreaterThan(leftExpression, rightExpression);
+        }
+    };
+    public static final ExpressionOperator LESS_THAN_OR_EQUAL = new ExpressionOperator(PRECEDENCE_RELATIONAL, Lang.SYMBOL_LESS_THAN_OR_EQUAL, PRECEDENCE_RELATIONAL + 1) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return new LessThanOrEqual(leftExpression, rightExpression);
+        }
+    };
+    public static final ExpressionOperator GREATER_THAN_OR_EQUAL = new ExpressionOperator(PRECEDENCE_RELATIONAL, Lang.SYMBOL_GREATER_THAN_OR_EQUAL, PRECEDENCE_RELATIONAL + 1) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return new GreaterThanOrEqual(leftExpression, rightExpression);
+        }
+    };
+    public static final ExpressionOperator EQUALITY = new ExpressionOperator(PRECEDENCE_EQUALITY, Lang.SYMBOL_EQUALS_EQUALS, PRECEDENCE_EQUALITY + 1) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
             return new Equality(leftExpression, rightExpression);
         }
     };
-    public static final ExpressionOperator INEQUALITY = new ExpressionOperator(70, Lang.SYMBOL_BANG_EQUALS, 71) {
+    public static final ExpressionOperator INEQUALITY = new ExpressionOperator(PRECEDENCE_EQUALITY, Lang.SYMBOL_BANG_EQUALS, PRECEDENCE_EQUALITY + 1) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
             return new Inequality(leftExpression, rightExpression);
@@ -92,14 +124,14 @@ public abstract class ExpressionOperator
         }
     };
 
-    public static final ExpressionOperator DereferenceField = new ExpressionEnclosingOperator(150, Lang.SYMBOL_PERIOD, -1,
+    public static final ExpressionOperator DereferenceField = new ExpressionEnclosingOperator(PRECEDENCE_DEREFERENCE, Lang.SYMBOL_PERIOD, -1,
             Id.TYPE) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
             return new DereferenceField(leftExpression, (Id)innerElements.get(0));
         }
     };
-    public static final ExpressionOperator DereferenceMethod = new ExpressionEnclosingOperator(150, Lang.SYMBOL_PERIOD, -1,
+    public static final ExpressionOperator DereferenceMethod = new ExpressionEnclosingOperator(PRECEDENCE_DEREFERENCE, Lang.SYMBOL_PERIOD, -1,
             FunctionInvocation.TYPE, -1) { // insert this extra term so that the Parser looks for methods before fields 
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
