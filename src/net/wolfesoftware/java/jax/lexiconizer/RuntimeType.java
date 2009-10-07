@@ -3,7 +3,8 @@ package net.wolfesoftware.java.jax.lexiconizer;
 import java.util.*;
 
 /**
- * TODO: this is the wrong approach. We should be looking in classpaths, not in the compiler's own runtime.
+ * TODO: is this is the right approach? I can't find any classpaths with the complete bcl. If we do use reflection,
+ * how do we avoid our own runtime classes?
  */
 public class RuntimeType extends Type
 {
@@ -25,7 +26,7 @@ public class RuntimeType extends Type
                     continue;
                 return params1[i].isAssignableFrom(params2[i]) ? 1 : -1;
             }
-            return 0;
+            throw new RuntimeException("Duplicate method signatures: " + o1 + " : " + o2);
         }
     };
     @Override
@@ -35,7 +36,7 @@ public class RuntimeType extends Type
         for (int i = 0; i < argumentSignature.length; i++)
         {
             if (!(argumentSignature[i] instanceof RuntimeType))
-                return null; // Runtime Types only reference other Runtime Types
+                throw new RuntimeException("Runtime Types only reference other Runtime Types");
             argumentTypes[i] = ((RuntimeType)argumentSignature[i]).underlyingType;
         }
         java.lang.reflect.Method[] allMethods = underlyingType.getMethods();
@@ -43,27 +44,28 @@ public class RuntimeType extends Type
         methods: for (java.lang.reflect.Method method : allMethods)
         {
             if (!method.getName().equals(name))
-                continue;
+                continue; // wrong name
             Class<?>[] parameterTypes = method.getParameterTypes();
             if (parameterTypes.length != argumentSignature.length)
-                continue;
+                continue; // wrong number of arguments
             for (int i = 0; i < argumentSignature.length; i++)
             {
                 if (parameterTypes[i] == argumentTypes[i])
-                    continue;
+                    continue; // so far so good
                 if (parameterTypes[i].isPrimitive() || argumentTypes[i].isPrimitive())
                 {
                     // TODO: type coercion and/or boxing/unboxing logic.
-                    continue methods;
+                    continue methods; // primitive type mismatch
                 }
                 if (parameterTypes[i].isAssignableFrom(argumentTypes[i]))
-                    continue;
-                continue methods;
+                    continue; // not a match, but it's castable. so far so good.
+                continue methods; // not castable
             }
+            // this method works
             overloads.add(method);
         }
         if (overloads.size() == 0)
-            return null;
+            return null; // no eligible methods found
         Collections.sort(overloads, overloadSorter);
         return RuntimeMethod.getMethod(overloads.get(0));
     }
