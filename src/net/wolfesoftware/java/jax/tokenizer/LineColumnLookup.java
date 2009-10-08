@@ -1,24 +1,44 @@
 package net.wolfesoftware.java.jax.tokenizer;
 
-/**
- * TODO: implement this class
- */
+import java.util.*;
+import java.util.regex.*;
+
 public class LineColumnLookup
 {
     private final String source;
+    private int[] lineIndeces = null;
 
     public LineColumnLookup(String source)
     {
         this.source = source;
     }
 
-    public int getLine(int offset)
+    public void getLineAndColumn(int offset, LineAndColumn out_lineAndColumn)
     {
-        return -1;
+        ensureCached();
+        int line = Math.abs(Arrays.binarySearch(lineIndeces, offset) + 1) - 1;
+        int column = offset - lineIndeces[line];
+        out_lineAndColumn.line = line;
+        out_lineAndColumn.column = column;
     }
 
-    public int getColumn(int offset)
+    private static final Pattern newlinePatter = Pattern.compile("\r\n?|\n");
+    private void ensureCached()
     {
-        return -1;
+        if (lineIndeces != null)
+            return;
+        ArrayList<Integer> lineIndecesList = new ArrayList<Integer>();
+        lineIndecesList.add(0);
+        Matcher newlineMatcher = newlinePatter.matcher(source);
+        while (newlineMatcher.find())
+            lineIndecesList.add(newlineMatcher.end());
+        lineIndeces = new int[lineIndecesList.size()];
+        int i = 0;
+        for (Integer index : lineIndecesList)
+            lineIndeces[i++] = index;
+    }
+    public static class LineAndColumn
+    {
+        public int line, column;
     }
 }

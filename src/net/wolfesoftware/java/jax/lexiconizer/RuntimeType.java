@@ -3,8 +3,8 @@ package net.wolfesoftware.java.jax.lexiconizer;
 import java.util.*;
 
 /**
- * TODO: is this is the right approach? I can't find any classpaths with the complete bcl. If we do use reflection,
- * how do we avoid our own runtime classes?
+ * TODO: is this is the right approach? I can't find any filesystem-based classpaths with the 
+ * complete bcl. If we do use reflection, how do we avoid our own runtime classes?
  */
 public class RuntimeType extends Type
 {
@@ -146,5 +146,4 @@ public class RuntimeType extends Type
         }
         return type;
     }
-
 }
