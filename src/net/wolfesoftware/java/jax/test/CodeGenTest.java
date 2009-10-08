@@ -2,8 +2,8 @@ package net.wolfesoftware.java.jax.test;
 
 import java.io.*;
 import java.util.ArrayList;
-import net.wolfesoftware.java.common.*;
 import net.wolfesoftware.java.jax.Jaxc;
+import net.wolfesoftware.java.jax.util.*;
 
 /**
  * This class performs tests on files in {@link #dir} named in {@link #tests}.

@@ -1,6 +1,6 @@
 package net.wolfesoftware.java.jax.parser;
 
-import net.wolfesoftware.java.common.Util;
+import net.wolfesoftware.java.jax.util.Util;
 
 public abstract class ExpressionEnclosingOperator extends ExpressionOperator
 {

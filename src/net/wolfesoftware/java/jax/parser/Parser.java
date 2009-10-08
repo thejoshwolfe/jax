@@ -1,9 +1,9 @@
 package net.wolfesoftware.java.jax.parser;
 
 import java.util.*;
-import net.wolfesoftware.java.common.Util;
 import net.wolfesoftware.java.jax.ast.*;
 import net.wolfesoftware.java.jax.tokenizer.*;
+import net.wolfesoftware.java.jax.util.Util;
 
 public final class Parser
 {

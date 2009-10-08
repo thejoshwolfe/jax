@@ -2,12 +2,12 @@ package net.wolfesoftware.java.jax;
 
 import java.io.FileNotFoundException;
 import java.util.List;
-import net.wolfesoftware.java.common.Util;
 import net.wolfesoftware.java.jax.codegen.CodeGenerator;
 import net.wolfesoftware.java.jax.lexiconizer.*;
 import net.wolfesoftware.java.jax.optimizer.Optimizer;
 import net.wolfesoftware.java.jax.parser.*;
 import net.wolfesoftware.java.jax.tokenizer.*;
+import net.wolfesoftware.java.jax.util.Util;
 
 public class Jaxc
 {

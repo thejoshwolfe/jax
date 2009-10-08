@@ -2,7 +2,6 @@ Jax (JAva-like eXpression language)
 started 2009 January by Josh Wolfe (thejoshwolfe at gmail)
 
 Currently in development (meaning the example code below might not compile yet).
-This project depends on github.com/thejoshwolfe/common/ and was developed in Eclipse.
 
 Jax is a programming language which compiles into Java Bytecode. It is a modified version of Java 
 that treats everything inside a method body as an expression.

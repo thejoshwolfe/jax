@@ -2,9 +2,9 @@ package net.wolfesoftware.java.jax.codegen;
 
 import java.io.*;
 import java.util.ArrayList;
-import net.wolfesoftware.java.common.TestUtils;
 import net.wolfesoftware.java.jax.ast.*;
 import net.wolfesoftware.java.jax.lexiconizer.*;
+import net.wolfesoftware.java.jax.util.TestUtils;
 
 /**
  * JVM instructions: http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc.html
