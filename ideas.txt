@@ -19,3 +19,12 @@ Something thing = while (iter.hasNext()) {
 }
 
 
+switches returning values:
+
+String letterName =
+    switch (letterId) {
+        case ALPHA: break("Alpha");
+        case BETA:  break("Beta");
+        case GAMMA: break("Gamma");
+        default: throw new RuntimeException();
+    }
