@@ -57,7 +57,7 @@ public class Lexiconizer
         String classNameFromFile = filePath.substring(filePath.lastIndexOf('\\') + 1, filePath.lastIndexOf('.'));
         if (!classDeclaration.id.name.equals(classNameFromFile))
             errors.add(new LexicalException(classDeclaration.id, "Class name does not match file name"));
-    
+
         LocalType context = new LocalType(classNameFromFile, classDeclaration.id.name);
         importedTypes.put(classNameFromFile, context);
         lexiconizeClassBody(context, classDeclaration.classBody);
@@ -66,10 +66,10 @@ public class Lexiconizer
     private void lexiconizeClassBody(LocalType context, ClassBody classBody)
     {
         deleteNulls(classBody);
-    
+
         for (ClassMember classMember : classBody.elements)
             preLexiconizeClassMemeber(context, classMember);
-    
+
         for (ClassMember classMember : classBody.elements)
             lexiconizeClassMemeber(context, classMember);
     }
@@ -126,6 +126,9 @@ public class Lexiconizer
         functionDefinition.returnBehavior = lexiconizeExpression(functionDefinition.context, functionDefinition.expression);
         if (functionDefinition.method.returnType != functionDefinition.returnBehavior.type)
             errors.add(LexicalException.cantCast(functionDefinition.expression, functionDefinition.returnBehavior.type, functionDefinition.method.returnType));
+        if (functionDefinition.returnBehavior.type != RuntimeType.VOID)
+            functionDefinition.context.modifyStack(-1); // return
+        assert(functionDefinition.context.stackSize == 0);
     }
 
     private ReturnBehavior lexiconizeExpression(LocalContext context, Expression expression)
@@ -232,8 +235,6 @@ public class Lexiconizer
                 throw new RuntimeException(content.getClass().toString());
         }
         expression.returnBehavior = returnBehavior;
-        if (returnBehavior.type != RuntimeType.VOID)
-            context.modifyStack(1);
         return returnBehavior;
     }
 
@@ -249,7 +250,10 @@ public class Lexiconizer
         // lexiconization already done for typeId
         ReturnBehavior[] argumentSignature = lexiconizeArguments(context, staticFunctionInvocation.functionInvocation.arguments);
         staticFunctionInvocation.functionInvocation.method = resolveMethod(staticFunctionInvocation.typeId.type, staticFunctionInvocation.functionInvocation.id, argumentSignature);
+        context.modifyStack(-argumentSignature.length);
         Type returnType = staticFunctionInvocation.functionInvocation.method.returnType;
+        if (returnType != RuntimeType.VOID)
+            context.modifyStack(1);
         return new ReturnBehavior(returnType);
     }
 
@@ -297,9 +301,11 @@ public class Lexiconizer
         catchBody.startLabel = context.nextLabel();
         lexiconizeVariableDeclaration(nestedContext, catchBody.variableDeclaration);
         catchBody.endLabel = context.nextLabel();
-        if (!catchBody.variableDeclaration.typeId.type.isInstanceOf(importedTypes.get("Throwable")))
+        if (!catchBody.variableDeclaration.typeId.type.isInstanceOf(RuntimeType.getType(Throwable.class)))
             errors.add(new LexicalException(catchBody.variableDeclaration, "Type must descend from Throwable. Can't catch a " + catchBody.variableDeclaration.typeId));
         nestedContext.addLocalVariable(catchBody.variableDeclaration.id, catchBody.variableDeclaration.typeId.type, errors);
+        nestedContext.modifyStack(1); // exception object
+        nestedContext.modifyStack(-1);
         ReturnBehavior returnBehavior = lexiconizeExpression(nestedContext, catchBody.expression);
         // TODO one for the exception object
         return new ReturnBehavior(returnBehavior.type);
@@ -326,7 +332,7 @@ public class Lexiconizer
 
     private ReturnBehavior lexiconizeDereferenceField(LocalContext context, DereferenceField dereferenceField)
     {
-        throw new RuntimeException();
+        throw new RuntimeException("TODO: implement lexiconizeDereferenceField()");
     }
 
     private int disambuateDereferenceMethod(LocalContext context, Expression expression)
@@ -353,6 +359,9 @@ public class Lexiconizer
         ReturnBehavior expressionReturnBehavior = lexiconizeExpression(context, dereferenceMethod.expression);
         ReturnBehavior[] argumentSignature = lexiconizeArguments(context, dereferenceMethod.functionInvocation.arguments);
         dereferenceMethod.functionInvocation.method = resolveMethod(expressionReturnBehavior.type, dereferenceMethod.functionInvocation.id, argumentSignature);
+        context.modifyStack(-(1 + argumentSignature.length));
+        if (dereferenceMethod.functionInvocation.method.returnType != RuntimeType.VOID)
+            context.modifyStack(1);
         return new ReturnBehavior(dereferenceMethod.functionInvocation.method.returnType);
     }
 
@@ -360,6 +369,7 @@ public class Lexiconizer
     {
         ReturnBehavior[] argumentSignature = lexiconizeArguments(context, functionInvocation.arguments);
         functionInvocation.method = resolveFunction(context.getClassContext(), functionInvocation.id, argumentSignature);
+        context.modifyStack(-argumentSignature.length);
         return new ReturnBehavior(functionInvocation.method.returnType);
     }
 
@@ -378,12 +388,22 @@ public class Lexiconizer
         lexiconizeExpression(context, ifThenElse.expression1);
         if (ifThenElse.expression1.returnBehavior.type != RuntimeType.BOOLEAN)
             errors.add(new LexicalException(ifThenElse.expression1, "Expression must evaluate to a boolean"));
+        context.modifyStack(-1);
+
         ifThenElse.label1 = context.nextLabel();
         lexiconizeExpression(context, ifThenElse.expression2);
+        if (ifThenElse.expression2.returnBehavior.type != RuntimeType.VOID)
+            context.modifyStack(-1); // for now, take this off
+
         ifThenElse.label2 = context.nextLabel();
         lexiconizeExpression(context, ifThenElse.expression3);
+        if (ifThenElse.expression3.returnBehavior.type != RuntimeType.VOID)
+            context.modifyStack(-1); // for now, take this off
+
         if (ifThenElse.expression2.returnBehavior.type != ifThenElse.expression3.returnBehavior.type)
             errors.add(new LexicalException(ifThenElse, "return types must match"));
+        if (ifThenElse.expression2.returnBehavior.type != RuntimeType.VOID)
+            context.modifyStack(1); // and now put it back
         return new ReturnBehavior(ifThenElse.expression2.returnBehavior.type);
     }
     private ReturnBehavior lexiconizeIfThen(LocalContext context, IfThen ifThen)
@@ -391,10 +411,13 @@ public class Lexiconizer
         lexiconizeExpression(context, ifThen.expression1);
         if (ifThen.expression1.returnBehavior.type != RuntimeType.BOOLEAN)
             errors.add(new LexicalException(ifThen.expression1, "Expression must evaluate to a boolean"));
+        context.modifyStack(-1);
         ifThen.label = context.nextLabel();
+
         lexiconizeExpression(context, ifThen.expression2);
         if (ifThen.expression2.returnBehavior.type != RuntimeType.VOID)
             errors.add(new LexicalException(ifThen.expression2, "return type must be void"));
+
         return ReturnBehavior.VOID;
     }
 
@@ -406,6 +429,7 @@ public class Lexiconizer
         ReturnBehavior returnBehavior = lexiconizeExpression(context, assignment.expression);
         if (assignment.id.variable != null && assignment.id.variable.type != returnBehavior.type)
             errors.add(LexicalException.cantCast(assignment.expression, returnBehavior.type, assignment.id.variable.type));
+        context.modifyStack(-1);
         return new ReturnBehavior(returnBehavior.type);
     }
 
@@ -426,6 +450,7 @@ public class Lexiconizer
             errors.add(LexicalException.cantResolveLocalVariable(id));
             // TODO: return something
         }
+        context.modifyStack(1);
         return new ReturnBehavior(id.variable.type);
     }
 
@@ -435,6 +460,7 @@ public class Lexiconizer
         ReturnBehavior returnBehavior = lexiconizeExpression(context, variableCreation.expression);
         if (variableCreation.variableDeclaration.typeId.type != returnBehavior.type)
             errors.add(LexicalException.cantCast(variableCreation.expression, returnBehavior.type, variableCreation.variableDeclaration.typeId.type));
+        context.modifyStack(-1);
         return ReturnBehavior.VOID;
     }
 
@@ -467,9 +493,13 @@ public class Lexiconizer
             }
             if (variableDeclaration != null)
                 context.addLocalVariable(variableDeclaration.id, variableDeclaration.typeId.type, errors);
+            if (returnType != RuntimeType.VOID)
+                context.modifyStack(-1); // assume the block does not return this value
         }
         if (blockContents.forceVoid)
             returnType = RuntimeType.VOID;
+        if (returnType != RuntimeType.VOID)
+            context.modifyStack(1); // turns out the block does return a value
         return new ReturnBehavior(returnType);
     }
 
@@ -480,14 +510,17 @@ public class Lexiconizer
 
     private ReturnBehavior lexiconizeIntLiteral(LocalContext context, IntLiteral intLiteral)
     {
+        context.modifyStack(1);
         return ReturnBehavior.INT;
     }
     private ReturnBehavior lexiconizeBooleanLiteral(LocalContext context, BooleanLiteral booleanLiteral)
     {
+        context.modifyStack(1);
         return ReturnBehavior.BOOLEAN;
     }
     private ReturnBehavior lexiconizeStringLiteral(LocalContext context, StringLiteral stringLiteral)
     {
+        context.modifyStack(1);
         return ReturnBehavior.STRING;
     }
 
@@ -550,6 +583,7 @@ public class Lexiconizer
         ReturnBehavior returnBehavior2 = lexiconizeExpression(context, operator.expression2);
         if (returnBehavior1.type != returnBehavior2.type)
             errors.add(new LexicalException(operator, "comparison types must match."));
+        context.modifyStack(-2 + 1);
         return new ReturnBehavior(returnType != null ? returnType : returnBehavior1.type);
     }
 
