@@ -2,18 +2,16 @@ package net.wolfesoftware.java.jax.lexiconizer;
 
 public class ReturnBehavior
 {
-    public static final ReturnBehavior VOID = new ReturnBehavior(RuntimeType.VOID, 0);
+    public static final ReturnBehavior VOID = new ReturnBehavior(RuntimeType.VOID);
+    public static final ReturnBehavior INT = new ReturnBehavior(RuntimeType.INT);
+    public static final ReturnBehavior BOOLEAN = new ReturnBehavior(RuntimeType.BOOLEAN);
+    public static final ReturnBehavior STRING = new ReturnBehavior(RuntimeType.getType(String.class));
+
 
     public Type type;
-    public int stackRequirement;
 
-    public ReturnBehavior(Type type, int stackRequirement)
+    public ReturnBehavior(Type type)
     {
         this.type = type;
-        this.stackRequirement = stackRequirement;
-    }
-    
-    public ReturnBehavior clone(int ensureStackRequirement) {
-        return new ReturnBehavior(type, Math.max(stackRequirement, ensureStackRequirement));
     }
 }

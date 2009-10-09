@@ -1,9 +1,10 @@
 package net.wolfesoftware.java.jax.lexiconizer;
 
-
 public class RootLocalContext extends LocalContext
 {
-    public int capacity = 0;
+    public int variableCapacity = 0;
+    public int stackSize = 0;
+    public int stackCapacity = 0;
     private int nextLabelNumber = 0;
     private LocalType classContext;
 
@@ -15,7 +16,7 @@ public class RootLocalContext extends LocalContext
 
     public void ensureVariableCapacity(int capacity)
     {
-        this.capacity = Math.max(this.capacity, capacity);
+        this.variableCapacity = Math.max(this.variableCapacity, capacity);
     }
 
     public LocalVariable getLocalVariable(String name)
@@ -27,10 +28,17 @@ public class RootLocalContext extends LocalContext
     {
         return "label" + nextLabelNumber++;
     }
-    
+
     @Override
     public LocalType getClassContext()
     {
         return classContext;
+    }
+
+    @Override
+    public void modifyStack(int delta)
+    {
+        stackSize += delta;
+        stackCapacity = Math.max(stackCapacity, stackSize);
     }
 }

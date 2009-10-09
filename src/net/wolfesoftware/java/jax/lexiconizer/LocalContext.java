@@ -53,4 +53,9 @@ public class LocalContext
     {
         return rootContext.getClassContext();
     }
+
+    public void modifyStack(int delta)
+    {
+        rootContext.modifyStack(delta);
+    }
 }

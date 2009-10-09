@@ -97,9 +97,9 @@ public class CodeGenerator
         out.print(getTypeCode(functionDefinition.returnBehavior.type));
         out.println();
         // .limit stack
-        printStatement(".limit stack " + functionDefinition.returnBehavior.stackRequirement);
+        printStatement(".limit stack " + functionDefinition.context.stackCapacity);
         // .limit locals
-        printStatement(".limit locals " + functionDefinition.context.capacity);
+        printStatement(".limit locals " + functionDefinition.context.variableCapacity);
 
         // main body
         evalExpression(functionDefinition.expression);
