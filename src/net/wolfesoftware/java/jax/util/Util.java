@@ -192,4 +192,10 @@ public final class Util
         stringBuilder.append('"');
         return stringBuilder.toString();
     }
+
+    public static void _assert(boolean pass)
+    {
+        if (!pass)
+            throw new AssertionError();
+    }
 }

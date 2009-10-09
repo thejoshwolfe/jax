@@ -3,6 +3,7 @@ package net.wolfesoftware.java.jax.lexiconizer;
 import java.util.*;
 import net.wolfesoftware.java.jax.ast.*;
 import net.wolfesoftware.java.jax.parser.Parsing;
+import net.wolfesoftware.java.jax.util.Util;
 
 public class Lexiconizer
 {
@@ -128,7 +129,7 @@ public class Lexiconizer
             errors.add(LexicalException.cantCast(functionDefinition.expression, functionDefinition.returnBehavior.type, functionDefinition.method.returnType));
         if (functionDefinition.returnBehavior.type != RuntimeType.VOID)
             functionDefinition.context.modifyStack(-1); // return
-        assert(functionDefinition.context.stackSize == 0);
+        Util._assert(functionDefinition.context.stackSize == 0);
     }
 
     private ReturnBehavior lexiconizeExpression(LocalContext context, Expression expression)
@@ -242,6 +243,7 @@ public class Lexiconizer
     {
         // lexiconization already done for typeId
         staticDereferenceField.field = resolveField(staticDereferenceField.typeId.type, staticDereferenceField.id);
+        context.modifyStack(1);
         return new ReturnBehavior(staticDereferenceField.field.returnType);
     }
 
@@ -260,10 +262,18 @@ public class Lexiconizer
     private ReturnBehavior lexiconizeTryCatch(LocalContext context, TryCatch tryCatch)
     {
         ReturnBehavior tryPartReturnBehavior = lexiconizeTryPart(context, tryCatch.tryPart);
+        if (tryPartReturnBehavior.type != RuntimeType.VOID)
+            context.modifyStack(-1); // take this off for now
+
         ReturnBehavior catchPartReturnBehavior = lexiconizeCatchPart(context, tryCatch.catchPart);
         tryCatch.endLabel = context.nextLabel();
+        if (catchPartReturnBehavior.type != RuntimeType.VOID)
+            context.modifyStack(-1); // take this off for now
+
         if (tryPartReturnBehavior.type != catchPartReturnBehavior.type)
             errors.add(new LexicalException(tryCatch, "return types must match"));
+        if (tryPartReturnBehavior.type != RuntimeType.VOID)
+            context.modifyStack(1); // and now put it back on
         return new ReturnBehavior(tryPartReturnBehavior.type);
     }
 
@@ -370,6 +380,8 @@ public class Lexiconizer
         ReturnBehavior[] argumentSignature = lexiconizeArguments(context, functionInvocation.arguments);
         functionInvocation.method = resolveFunction(context.getClassContext(), functionInvocation.id, argumentSignature);
         context.modifyStack(-argumentSignature.length);
+        if (functionInvocation.method.returnType != RuntimeType.VOID)
+            context.modifyStack(1);
         return new ReturnBehavior(functionInvocation.method.returnType);
     }
 
@@ -429,6 +441,7 @@ public class Lexiconizer
         ReturnBehavior returnBehavior = lexiconizeExpression(context, assignment.expression);
         if (assignment.id.variable != null && assignment.id.variable.type != returnBehavior.type)
             errors.add(LexicalException.cantCast(assignment.expression, returnBehavior.type, assignment.id.variable.type));
+        context.modifyStack(1); // "dup" for multiassignment. This is likely to change in the future.
         context.modifyStack(-1);
         return new ReturnBehavior(returnBehavior.type);
     }
