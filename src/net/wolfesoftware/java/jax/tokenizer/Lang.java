@@ -23,24 +23,24 @@ public final class Lang
     public static final String KEYWORD_CATCH = "catch";
     public static final String KEYWORD_FINALLY = "finally";
 
-    public static final String SYMBOL_ASTERISK = "*";
     public static final String SYMBOL_BANG_EQUALS = "!=";
+    public static final String SYMBOL_OPEN_PARENS = "(";
     public static final String SYMBOL_CLOSE_BRACE = "}";
-    public static final String SYMBOL_CLOSE_PARENS = ")";
+    public static final String SYMBOL_ASTERISK = "*";
+    public static final String SYMBOL_PLUS = "+";
     public static final String SYMBOL_COMMA = ",";
+    public static final String SYMBOL_MINUS = "-";
+    public static final String SYMBOL_PERIOD = ".";
+    public static final String SYMBOL_SLASH = "/";
+    public static final String SYMBOL_SEMICOLON = ";";
+    public static final String SYMBOL_LESS_THAN = "<";
+    public static final String SYMBOL_LESS_THAN_OR_EQUAL = "<=";
     public static final String SYMBOL_EQUALS = "=";
     public static final String SYMBOL_EQUALS_EQUALS = "==";
-    public static final String SYMBOL_LESS_THAN = "<";
     public static final String SYMBOL_GREATER_THAN = ">";
-    public static final String SYMBOL_LESS_THAN_OR_EQUAL = "<=";
     public static final String SYMBOL_GREATER_THAN_OR_EQUAL = ">=";
-    public static final String SYMBOL_MINUS = "-";
     public static final String SYMBOL_OPEN_BRACE = "{";
-    public static final String SYMBOL_OPEN_PARENS = "(";
-    public static final String SYMBOL_PERIOD = ".";
-    public static final String SYMBOL_PLUS = "+";
-    public static final String SYMBOL_SEMICOLON = ";";
-    public static final String SYMBOL_SLASH = "/";
+    public static final String SYMBOL_CLOSE_PARENS = ")";
 
     public static final ArrayList<String> ALL = new ArrayList<String>();
     static {
