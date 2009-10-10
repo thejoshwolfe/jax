@@ -1,0 +1,10 @@
+import java.util.regex.*;
+
+class ImportStar {
+    int gimme42() {
+        Pattern p = Pattern.compile("\\d+");
+        Matcher m = p.matcher("abc42efg");
+        m.find();
+        Integer.parseInt(m.group())
+    }
+}
