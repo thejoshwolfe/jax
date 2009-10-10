@@ -2,9 +2,9 @@ package net.wolfesoftware.java.jax.ast;
 
 import java.util.List;
 
-public class FullClassName extends ListElement<Id>
+public class QualifiedName extends ListElement<Id>
 {
-    public FullClassName(List<Id> elements)
+    public QualifiedName(List<Id> elements)
     {
         super(elements);
     }

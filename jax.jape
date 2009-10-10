@@ -122,7 +122,9 @@ $FunctionDefinition = TypeId ID "(" ArgumentDeclarations ")" Expression
 $ClassDeclaration = "class" ID "{" ClassBody "}"
 
 ### CompilationUnit
-$ImportStatement = "import" FullClassName ";"
+~QualifiedName = ID : "."
+$ImportStatement = "import" QualifiedName ";"
+$ImportStarStatement = "import" QualifiedName "." "*" ";"
 ~Imports = ImportStatement : ""
 $CompilationUnit = Imports ClassDeclaration
 

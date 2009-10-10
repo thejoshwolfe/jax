@@ -72,19 +72,19 @@ public final class Parser
             return null;
         offset++;
 
-        SubParsing<FullClassName> fullClassName = parseFullClassName(offset);
-        if (fullClassName == null)
+        SubParsing<QualifiedName> qualifiedName = parseQualifiedName(offset);
+        if (qualifiedName == null)
             return null;
-        offset = fullClassName.end;
+        offset = qualifiedName.end;
 
         if (getToken(offset).text != Lang.SYMBOL_SEMICOLON)
             return null;
         offset++;
         
-        return new SubParsing<ImportStatement>(new ImportStatement(fullClassName.element), offset);
+        return new SubParsing<ImportStatement>(new ImportStatement(qualifiedName.element), offset);
     }
 
-    private SubParsing<FullClassName> parseFullClassName(int offset)
+    private SubParsing<QualifiedName> parseQualifiedName(int offset)
     {
         ArrayList<Id> elements = new ArrayList<Id>();
         while (true)
@@ -100,7 +100,7 @@ public final class Parser
                 break;
             offset++;
         }
-        return new SubParsing<FullClassName>(new FullClassName(elements), offset);
+        return new SubParsing<QualifiedName>(new QualifiedName(elements), offset);
     }
 
     private SubParsing<ClassDeclaration> parseClassDeclaration(int offset)

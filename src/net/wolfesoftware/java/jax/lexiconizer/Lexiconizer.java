@@ -48,7 +48,7 @@ public class Lexiconizer
 
     private void lexiconizeImportStatement(ImportStatement importStatement)
     {
-        resolvefullClassName(importStatement.fullClassName);
+        resolveQualifiedName(importStatement.qualifiedName);
     }
 
     private void lexiconizeClassDeclaration(ClassDeclaration classDeclaration)
@@ -600,20 +600,20 @@ public class Lexiconizer
         return new ReturnBehavior(returnType != null ? returnType : returnBehavior1.type);
     }
 
-    private void resolvefullClassName(FullClassName fullClassName)
+    private void resolveQualifiedName(QualifiedName qualifiedName)
     {
         StringBuilder stringBuilder = new StringBuilder();
         int i;
-        for (i = 0; i < fullClassName.elements.size() - 1; i++)
-            stringBuilder.append(fullClassName.elements.get(i).name).append('.');
-        String typeName = fullClassName.elements.get(i).name;
+        for (i = 0; i < qualifiedName.elements.size() - 1; i++)
+            stringBuilder.append(qualifiedName.elements.get(i).name).append('.');
+        String typeName = qualifiedName.elements.get(i).name;
         stringBuilder.append(typeName);
         String fullTypeName = stringBuilder.toString();
         try {
             Class<?> runtimeType = Class.forName(fullTypeName);
             importedTypes.put(typeName, RuntimeType.getType(runtimeType));
         } catch (ClassNotFoundException e) {
-            errors.add(new LexicalException(fullClassName, "Can't resolve import."));
+            errors.add(new LexicalException(qualifiedName, "Can't resolve import."));
         }
     }
 

@@ -2,18 +2,18 @@ package net.wolfesoftware.java.jax.ast;
 
 public class ImportStatement extends ParseElement
 {
-    public FullClassName fullClassName;
+    public QualifiedName qualifiedName;
 
-    public ImportStatement(FullClassName fullClassName)
+    public ImportStatement(QualifiedName qualifiedName)
     {
-        this.fullClassName = fullClassName;
+        this.qualifiedName = qualifiedName;
     }
 
     @Override
     protected void decompile(String indentation, StringBuilder out)
     {
         out.append("import ");
-        fullClassName.decompile(indentation, out);
+        qualifiedName.decompile(indentation, out);
         out.append(";");
     }
 
