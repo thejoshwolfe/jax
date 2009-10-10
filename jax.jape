@@ -123,8 +123,9 @@ $ClassDeclaration = "class" ID "{" ClassBody "}"
 
 ### CompilationUnit
 ~QualifiedName = ID : "."
-$ImportStatement = "import" QualifiedName ";"
-$ImportStarStatement = "import" QualifiedName "." "*" ";"
+$ImportClass = "import" QualifiedName "." "*" ";"
+$ImportStar = "import" QualifiedName ";"
+|ImportStatement = ImportStar | ImportClass
 ~Imports = ImportStatement : ""
 $CompilationUnit = Imports ClassDeclaration
 

@@ -68,6 +68,45 @@ public final class Parser
 
     private SubParsing<ImportStatement> parseImportStatement(int offset)
     {
+        SubParsing<? extends ParseElement> content = null;
+
+        // TODO: this is not O(n)
+        if (content == null)
+            content = parseImportStar(offset);
+        if (content == null)
+            content = parseImportClass(offset);
+        if (content == null)
+            return null;
+
+        return new SubParsing<ImportStatement>(new ImportStatement(content.element), content.end);
+    }
+
+    private SubParsing<ImportStar> parseImportStar(int offset)
+    {
+        if (getToken(offset).text != Lang.KEYWORD_IMPORT)
+            return null;
+        offset++;
+
+        SubParsing<QualifiedName> qualifiedName = parseQualifiedName(offset);
+        if (qualifiedName == null)
+            return null;
+        offset = qualifiedName.end;
+
+        List<Id> qualifiedNameList = qualifiedName.element.elements;
+        if (qualifiedNameList.isEmpty() || qualifiedNameList.get(qualifiedNameList.size() - 1) != null)
+            return null;
+        if (getToken(offset).text != Lang.SYMBOL_ASTERISK)
+            return null;
+        offset++;
+        if (getToken(offset).text != Lang.SYMBOL_SEMICOLON)
+            return null;
+        offset++;
+
+        return new SubParsing<ImportStar>(new ImportStar(qualifiedName.element), offset);
+    }
+
+    private SubParsing<ImportClass> parseImportClass(int offset)
+    {
         if (getToken(offset).text != Lang.KEYWORD_IMPORT)
             return null;
         offset++;
@@ -81,7 +120,7 @@ public final class Parser
             return null;
         offset++;
         
-        return new SubParsing<ImportStatement>(new ImportStatement(qualifiedName.element), offset);
+        return new SubParsing<ImportClass>(new ImportClass(qualifiedName.element), offset);
     }
 
     private SubParsing<QualifiedName> parseQualifiedName(int offset)

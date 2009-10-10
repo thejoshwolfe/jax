@@ -48,7 +48,27 @@ public class Lexiconizer
 
     private void lexiconizeImportStatement(ImportStatement importStatement)
     {
-        resolveQualifiedName(importStatement.qualifiedName);
+        ParseElement content = importStatement.content;
+        switch (importStatement.content.getElementType()) {
+            case ImportStar.TYPE:
+                lexiconizeImportStar((ImportStar)content);
+                break;
+            case ImportClass.TYPE:
+                lexiconizeImportClass((ImportClass)content);
+                break;
+            default:
+                throw new RuntimeException(content.getClass().toString());
+        }
+    }
+
+    private void lexiconizeImportStar(ImportStar importStar)
+    {
+        throw null;
+    }
+
+    private void lexiconizeImportClass(ImportClass importClass)
+    {
+        resolveQualifiedName(importClass.qualifiedName);
     }
 
     private void lexiconizeClassDeclaration(ClassDeclaration classDeclaration)

@@ -1,26 +1,15 @@
 package net.wolfesoftware.jax.ast;
 
-public class ImportStatement extends ParseElement
+public class ImportStatement extends SwitchElement
 {
-    public QualifiedName qualifiedName;
-
-    public ImportStatement(QualifiedName qualifiedName)
+    public ImportStatement(ParseElement content)
     {
-        this.qualifiedName = qualifiedName;
+        super(content);
     }
 
-    @Override
-    protected void decompile(String indentation, StringBuilder out)
-    {
-        out.append("import ");
-        qualifiedName.decompile(indentation, out);
-        out.append(";");
-    }
-
-    public static final int TYPE = 0x0842027c;
+    public static final int TYPE = 0x30b40631;
     public int getElementType()
     {
         return TYPE;
     }
-
 }
