@@ -31,10 +31,4 @@ public class TestUtils
         String[] cmd = { "java", "-cp", Util.platformizeFilepath(dirAndFile[0]), className };
         return Util.exec(cmd);
     }
-
-    public static boolean verifyOutput(InputStream stdout, String expectedResults)
-    {
-        String result = Util.readAll(stdout);
-        return result.trim().equals(expectedResults.trim());
-    }
 }
