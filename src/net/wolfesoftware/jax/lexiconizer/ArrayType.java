@@ -7,9 +7,11 @@ import java.util.HashMap;
  */
 public class ArrayType extends Type
 {
-    private ArrayType(Type basicType)
+    private final Type scalarType;
+    private ArrayType(Type scalarType)
     {
-        super(basicType.fullName + "[]", basicType.id + "[]");
+        super(scalarType.fullName + "[]", scalarType.id + "[]");
+        this.scalarType = scalarType;
     }
 
     @Override
@@ -28,6 +30,12 @@ public class ArrayType extends Type
     public Method resolveMethod(String name, Type[] argumentSignature)
     {
         throw new RuntimeException("TODO: Auto-generated method stub");
+    }
+
+    @Override
+    public String getTypeCode()
+    {
+        return "[" + scalarType.getTypeCode();
     }
 
     public static final int TYPE = 0x51691576; // TODO

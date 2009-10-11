@@ -95,15 +95,35 @@ public class RuntimeType extends Type
     {
         return underlyingType.isPrimitive();
     }
+
     public static final int TYPE = 0x1b070487;
     public int getType()
     {
         return TYPE;
     }
 
-    public static final RuntimeType INT = new RuntimeType(int.class);
-    public static final RuntimeType VOID = new RuntimeType(void.class);
-    public static final RuntimeType BOOLEAN = new RuntimeType(boolean.class);
+    private static class PrimitiveType extends RuntimeType
+    {
+        private final String typeCode;
+        public PrimitiveType(Class<?> type, String typeCode)
+        {
+            super(type);
+            this.typeCode = typeCode;
+        }
+        @Override
+        public String getTypeName()
+        {
+            throw new RuntimeException();
+        }
+        @Override
+        public String getTypeCode()
+        {
+            return typeCode;
+        }
+    }
+    public static final RuntimeType INT = new PrimitiveType(int.class, "I");
+    public static final RuntimeType VOID = new PrimitiveType(void.class, "V");
+    public static final RuntimeType BOOLEAN = new PrimitiveType(boolean.class, "Z");
     public static void initPrimitives(HashMap<String, Type> types)
     {
         types.put(INT.id, INT);

@@ -20,12 +20,9 @@ class Fancy {
             -1
     };
 
-    String dareYouToParseThisInt(String itsANumberIPromise) {
-        String message = 
-            try String.valueOf(Integer.parseInt(itsANumberIPromise))
-            catch (NumberFormatException e) "Nice Try!\n";
-        message
-    };
+    String dareYouToParseThisInt(String itsANumberIPromise)
+        try String.valueOf(Integer.parseInt(itsANumberIPromise))
+        catch (NumberFormatException e) "Nice Try!\n";
 
     int meaningOfLife() fibonacci(6) + fibonacci(9);
 

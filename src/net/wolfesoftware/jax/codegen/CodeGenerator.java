@@ -33,7 +33,7 @@ public class CodeGenerator
     private final String className;
     private final String outputFilename;
     private final ArrayList<String> exceptionTable = new ArrayList<String>();
-    public CodeGenerator(Root root, String outputFilename) throws FileNotFoundException
+    private CodeGenerator(Root root, String outputFilename) throws FileNotFoundException
     {
         this.root = root;
         out = new PrintWriter(outputFilename);
@@ -94,7 +94,7 @@ public class CodeGenerator
         out.print(functionDefinition.id + "(");
         genArgumentDeclarations(functionDefinition.argumentDeclarations);
         out.print(")");
-        out.print(getTypeCode(functionDefinition.returnBehavior.type));
+        out.print(functionDefinition.returnBehavior.type.getTypeCode());
         out.println();
         // .limit stack
         printStatement(".limit stack " + functionDefinition.context.stackCapacity);
@@ -226,7 +226,7 @@ public class CodeGenerator
         evalCatchPart(tryCatch.catchPart);
         printLabel(tryCatch.endLabel);
         for (CatchBody catchBody : tryCatch.catchPart.catchList.elements) {
-            String typeName = getTypeName(catchBody.variableDeclaration.typeId.type);
+            String typeName = catchBody.variableDeclaration.typeId.type.getTypeCode();
             exceptionTable.add(".catch " + typeName + " from " + tryCatch.tryPart.startLabel + " to " + tryCatch.tryPart.endLabel + " using " + catchBody.startLabel);
         }
     }
@@ -261,7 +261,7 @@ public class CodeGenerator
 
     private void evalStaticDereferenceField(StaticDereferenceField staticDereferenceField)
     {
-        String statement = "getstatic " + getTypeName(staticDereferenceField.field.declaringType) + '/' + staticDereferenceField.id.name + ' ' + getTypeCode(staticDereferenceField.field.returnType);
+        String statement = "getstatic " + staticDereferenceField.field.declaringType.getTypeName() + '/' + staticDereferenceField.id.name + ' ' + staticDereferenceField.field.returnType.getTypeCode();
         printStatement(statement);
     }
 
@@ -437,7 +437,7 @@ public class CodeGenerator
     private void genArgumentDeclarations(ArgumentDeclarations argumentDeclarations)
     {
         for (VariableDeclaration variableDeclaration : argumentDeclarations.elements)
-            out.print(getTypeCode(variableDeclaration.typeId.type));
+            out.print(variableDeclaration.typeId.type.getTypeCode());
     }
 
     private void printStatement(String s)
@@ -448,33 +448,14 @@ public class CodeGenerator
     {
         out.println(labelName + ":");
     }
-    private String getTypeCode(Type type)
-    {
-        // http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html#84645
-        if (type.isPrimitive())
-        {
-            if (type == RuntimeType.INT)
-                return "I";
-            if (type == RuntimeType.VOID)
-                return "V";
-            if (type == RuntimeType.BOOLEAN)
-                return "Z";
-            throw new RuntimeException(type.toString());
-        }
-        return "L" + getTypeName(type) + ";";
-    }
-    private String getTypeName(Type type)
-    {
-        return type.fullName.replace('.', '/');
-    }
     private String getMethodCode(Method method)
     {
-        StringBuilder builder = new StringBuilder(getTypeName(method.declaringType));
+        StringBuilder builder = new StringBuilder(method.declaringType.getTypeName());
         builder.append('/').append(method.id).append('(');
         for (Type type : method.argumentSignature)
-            builder.append(getTypeCode(type));
+            builder.append(type.getTypeCode());
         builder.append(')');
-        builder.append(getTypeCode(method.returnType));
+        builder.append(method.returnType.getTypeCode());
         return builder.toString();
     }
 }
