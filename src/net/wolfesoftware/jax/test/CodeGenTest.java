@@ -21,19 +21,20 @@ public class CodeGenTest
     private static final int mode = 1*RUN | 1*CLEAN | 1*VERBOSE;
     private static final String dir = "test";
     private static final String[] tests = {
-        "primitive/Arithmetic",
-        "primitive/BooleanType",
-        "primitive/ConstReturn",
-        "primitive/IfThenElse",
-        "primitive/LocalVariables",
-        "primitive/StringLiteral",
-        "primitive/VoidFunction",
-        "thisClass/FunctionInvocation",
-        "baseLibraries/Import",
-        "baseLibraries/ImportStar",
-        "baseLibraries/RuntimeType",
-        "exceptions/TryCatch",
-        "Fancy",
+//        "primitive/Arithmetic",
+//        "primitive/BooleanType",
+//        "primitive/ConstReturn",
+//        "primitive/IfThenElse",
+//        "primitive/LocalVariables",
+//        "primitive/StringLiteral",
+//        "primitive/VoidFunction",
+//        "thisClass/FunctionInvocation",
+//        "baseLibraries/Import",
+//        "baseLibraries/ImportStar",
+//        "baseLibraries/RuntimeType",
+        "arrays/ArrayType",
+//        "exceptions/TryCatch",
+//        "Fancy",
 //        "Goal",
     };
 

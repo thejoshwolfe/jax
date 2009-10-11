@@ -1,0 +1,6 @@
+
+class ArrayType {
+    int[] gimmeThat(int[] that) that;
+
+    String[][][] gimmeThatToo(String[][][] that) that;
+}
