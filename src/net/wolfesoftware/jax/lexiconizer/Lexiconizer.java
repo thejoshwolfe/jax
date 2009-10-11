@@ -63,7 +63,8 @@ public class Lexiconizer
 
     private void lexiconizeImportStar(ImportStar importStar)
     {
-        throw null;
+        deleteNulls(importStar.qualifiedName);
+        BuiltinPackageLister.importPackageStar(importStar.qualifiedName, importedTypes, errors);
     }
 
     private void lexiconizeImportClass(ImportClass importClass)
@@ -633,7 +634,7 @@ public class Lexiconizer
             Class<?> runtimeType = Class.forName(fullTypeName);
             importedTypes.put(typeName, RuntimeType.getType(runtimeType));
         } catch (ClassNotFoundException e) {
-            errors.add(new LexicalException(qualifiedName, "Can't resolve import."));
+            errors.add(LexicalException.cantResolveImport(qualifiedName));
         }
     }
 

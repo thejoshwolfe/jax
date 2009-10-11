@@ -19,4 +19,9 @@ public class LexicalException extends CompileError
     {
         return new LexicalException(id, "Can't resolve local variable.");
     }
+
+    public static LexicalException cantResolveImport(QualifiedName qualifiedName)
+    {
+        return new LexicalException(qualifiedName, "Can't resolve import.");
+    }
 }
