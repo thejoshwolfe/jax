@@ -202,10 +202,10 @@ public final class Parser
 
     private SubParsing<FunctionDefinition> parseFunctionDefinition(int offset)
     {
-        TypeId typeId = parseTypeId(offset);
+        SubParsing<TypeId> typeId = parseTypeId(offset);
         if (typeId == null)
             return null;
-        offset++;
+        offset = typeId.end;
 
         Id id = parseId(offset);
         if (id == null)
@@ -230,7 +230,7 @@ public final class Parser
             return null;
         offset = expression.end;
 
-        return new SubParsing<FunctionDefinition>(new FunctionDefinition(typeId, id, argumentDeclarations.element, expression.element), offset);
+        return new SubParsing<FunctionDefinition>(new FunctionDefinition(typeId.element, id, argumentDeclarations.element, expression.element), offset);
     }
 
     private SubParsing<ArgumentDeclarations> parseArgumentDeclarations(int offset)
@@ -258,30 +258,73 @@ public final class Parser
 
     private SubParsing<VariableDeclaration> parseVariableDeclaration(int offset)
     {
-        TypeId typeId = parseTypeId(offset);
+        SubParsing<TypeId> typeId = parseTypeId(offset);
         if (typeId == null)
             return null;
-        offset++;
+        offset = typeId.end;
 
         Id id = parseId(offset);
         if (id == null)
             return null;
         offset++;
 
-        return new SubParsing<VariableDeclaration>(new VariableDeclaration(typeId, id), offset);
+        return new SubParsing<VariableDeclaration>(new VariableDeclaration(typeId.element, id), offset);
     }
 
-    private TypeId parseTypeId(int offset)
+    private SubParsing<TypeId> parseTypeId(int offset)
+    {
+        ScalarType scalarType = parseScalarType(offset);
+        if (scalarType == null)
+            return null;
+        offset++;
+
+        SubParsing<ArrayDimensions> arrayDimensions = parseArrayDimensions(offset);
+        if (arrayDimensions == null)
+            return null;
+        offset = arrayDimensions.end;
+
+        return new SubParsing<TypeId>(new TypeId(scalarType, arrayDimensions.element), offset);
+    }
+
+    private SubParsing<ArrayDimensions> parseArrayDimensions(int offset)
+    {
+        ArrayList<ArrayDimension> elements = new ArrayList<ArrayDimension>();
+        while (true)
+        {
+            ArrayDimension arrayDimension = parseArrayDimension(offset);
+            if (arrayDimension != null) {
+                elements.add(arrayDimension);
+                offset += 2;
+            } else
+                break;
+        }
+        return new SubParsing<ArrayDimensions>(new ArrayDimensions(elements), offset);
+    }
+
+    private ArrayDimension parseArrayDimension(int offset)
+    {
+        if (getToken(offset).text != Lang.SYMBOL_OPEN_BRACKET)
+            return null;
+        offset++;
+
+        if (getToken(offset).text != Lang.SYMBOL_CLOSE_BRACKET)
+            return null;
+        offset++;
+
+        return ArrayDimension.INSTANCE;
+    }
+
+    private ScalarType parseScalarType(int offset)
     {
         Token token = getToken(offset);
         if (token.getType() == IdentifierToken.TYPE)
-            return new TypeId(new Id(token.text));
+            return new ScalarType(new Id(token.text));
         if (token.text == Lang.KEYWORD_INT)
-            return TypeId.KEYWORD_INT;
+            return ScalarType.KEYWORD_INT;
         if (token.text == Lang.KEYWORD_VOID)
-            return TypeId.KEYWORD_VOID;
+            return ScalarType.KEYWORD_VOID;
         if (token.text == Lang.KEYWORD_BOOLEAN)
-            return TypeId.KEYWORD_BOOLEAN;
+            return ScalarType.KEYWORD_BOOLEAN;
         return null;
     }
 

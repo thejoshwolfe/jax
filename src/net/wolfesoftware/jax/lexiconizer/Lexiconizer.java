@@ -351,7 +351,7 @@ public class Lexiconizer
         LocalVariable localVariable = resolveId(context, (Id)dereferenceField.expression.content);
         if (localVariable != null)
             return DereferenceField.TYPE;
-        TypeId typeId = new TypeId(dereferenceField.expression.content);
+        TypeId typeId = new TypeId(new ScalarType(dereferenceField.expression.content), ArrayDimensions.EMPTY);
         resolveType(typeId);
         if (typeId.type != null) {
             // convert to StaticDereferenceField
@@ -375,7 +375,7 @@ public class Lexiconizer
         LocalVariable localVariable = resolveId(context, (Id)dereferenceMethod.expression.content);
         if (localVariable != null)
             return DereferenceMethod.TYPE;
-        TypeId typeId = new TypeId(dereferenceMethod.expression.content);
+        TypeId typeId = new TypeId(new ScalarType(dereferenceMethod.expression.content), ArrayDimensions.EMPTY);
         resolveType(typeId);
         if (typeId.type != null) {
             // convert to StaticFunctionInvocation

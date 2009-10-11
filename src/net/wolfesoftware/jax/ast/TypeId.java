@@ -2,13 +2,23 @@ package net.wolfesoftware.jax.ast;
 
 import net.wolfesoftware.jax.lexiconizer.Type;
 
-public class TypeId extends SwitchElement
+public class TypeId extends ParseElement
 {
     public Type type;
+    public ScalarType scalarType;
+    public ArrayDimensions arrayDimensions;
 
-    public TypeId(ParseElement content)
+    public TypeId(ScalarType scalarType, ArrayDimensions arrayDimensions)
     {
-        super(content);
+        this.scalarType = scalarType;
+        this.arrayDimensions = arrayDimensions;
+    }
+
+    @Override
+    protected void decompile(String indentation, StringBuilder out)
+    {
+        scalarType.decompile(indentation, out);
+        arrayDimensions.decompile(indentation, out);
     }
 
     public static final int TYPE = 0x040401a3;
@@ -16,8 +26,4 @@ public class TypeId extends SwitchElement
     {
         return TYPE;
     }
-
-    public static final TypeId KEYWORD_INT = new TypeId(KeywordElement.KEYWORD_INT);
-    public static final TypeId KEYWORD_VOID = new TypeId(KeywordElement.KEYWORD_VOID);
-    public static final TypeId KEYWORD_BOOLEAN = new TypeId(KeywordElement.KEYWORD_BOOLEAN);
 }
