@@ -640,7 +640,13 @@ public class Lexiconizer
 
     private void resolveType(TypeId typeId)
     {
-        typeId.type = importedTypes.get(typeId.toString());
+        int arrayOrder = typeId.arrayDimensions.elements.size();
+        Type type = importedTypes.get(typeId.scalarType.toString());
+        if (type == null)
+            return;
+        while (arrayOrder-- > 0)
+            type = ArrayType.getType(type);
+        typeId.type = type;
     }
 
     private Method resolveFunction(LocalType context, Id id, ReturnBehavior[] argumentSignature)
