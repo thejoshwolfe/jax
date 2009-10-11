@@ -18,7 +18,7 @@ import net.wolfesoftware.jax.util.*;
 public class CodeGenTest
 {
     private static final int RUN = 1, CLEAN = 2, VERBOSE = 4;
-    private static final int mode = 0*RUN | 1*CLEAN | 1*VERBOSE;
+    private static final int mode = 1*RUN | 1*CLEAN | 1*VERBOSE;
     private static final String dir = "test";
     private static final String[] tests = {
         "primitive/Arithmetic",
