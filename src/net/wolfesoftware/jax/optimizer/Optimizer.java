@@ -8,7 +8,7 @@ public class Optimizer
     {
     }
 
-    public static void optimize(Root root, OprimizationOptions options)
+    public static void optimize(Root root)
     {
         optimizeCompilationUnit(root.content);
     }

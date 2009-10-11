@@ -34,7 +34,7 @@ public class Jaxc
         if (printErrors(lexiconization.errors))
             return 1;
 
-        Optimizer.optimize(lexiconization.root, null);
+        Optimizer.optimize(lexiconization.root);
 
         String className = lexiconization.root.content.classDeclaration.id.name;
         String outFileName = classPath + className + ".jasmin";

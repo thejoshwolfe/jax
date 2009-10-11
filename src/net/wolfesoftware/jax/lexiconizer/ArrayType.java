@@ -2,6 +2,9 @@ package net.wolfesoftware.jax.lexiconizer;
 
 import java.util.HashMap;
 
+/**
+ * http://java.sun.com/docs/books/jls/second_edition/html/arrays.doc.html
+ */
 public class ArrayType extends Type
 {
     private ArrayType(Type basicType)
@@ -12,22 +15,19 @@ public class ArrayType extends Type
     @Override
     public boolean isInstanceOf(Type type)
     {
-        // TODO Auto-generated method stub
-        return false;
+        throw new RuntimeException("TODO: Auto-generated method stub");
     }
 
     @Override
     public Field resolveField(String name)
     {
-        // TODO Auto-generated method stub
-        return null;
+        throw new RuntimeException("TODO: Auto-generated method stub");
     }
 
     @Override
     public Method resolveMethod(String name, Type[] argumentSignature)
     {
-        // TODO Auto-generated method stub
-        return null;
+        throw new RuntimeException("TODO: Auto-generated method stub");
     }
 
     public static final int TYPE = 0x51691576; // TODO
