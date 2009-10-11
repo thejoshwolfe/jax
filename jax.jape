@@ -1,6 +1,6 @@
 
 ###
-### Josh's Jax japerator grammar definition file
+### Josh's Jax grammar definition file
 ###
 
 ## how the grammar works:
@@ -40,7 +40,11 @@
 ## special elements
 
 ### Types
-|TypeId = "void" | "int" | "boolean" | ID
+|PrimitiveType = "void" | "int" | "boolean"
+|ScalarType = PrimitiveType | ID
+|ArrayDimension = "[" "]"
+~ArrayDimensions = ArrayDimension : ""
+$TypeId = ScalarType ArrayDimensions
 
 ### variable declaration
 $VariableDeclaration = TypeId ID
