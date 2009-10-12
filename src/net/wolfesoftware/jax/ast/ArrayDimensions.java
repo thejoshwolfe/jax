@@ -15,7 +15,7 @@ public class ArrayDimensions extends ListElement<ArrayDimension>
         return "";
     }
 
-    public static final int TYPE = 0x6549135; // TODO
+    public static final int TYPE = 0x2f3a0619;
     public int getElementType()
     {
         return TYPE;

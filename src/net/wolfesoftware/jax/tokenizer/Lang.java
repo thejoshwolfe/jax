@@ -10,18 +10,19 @@ public final class Lang
     {
     }
 
-    public static final String KEYWORD_VOID = "void";
-    public static final String KEYWORD_INT = "int";
     public static final String KEYWORD_BOOLEAN = "boolean";
-    public static final String KEYWORD_IF = "if";
-    public static final String KEYWORD_ELSE = "else";
-    public static final String KEYWORD_TRUE = "true";
-    public static final String KEYWORD_FALSE = "false";
-    public static final String KEYWORD_IMPORT = "import";
-    public static final String KEYWORD_CLASS = "class";
-    public static final String KEYWORD_TRY = "try";
     public static final String KEYWORD_CATCH = "catch";
+    public static final String KEYWORD_CLASS = "class";
+    public static final String KEYWORD_ELSE = "else";
+    public static final String KEYWORD_FALSE = "false";
+    public static final String KEYWORD_FOR = "for";
     public static final String KEYWORD_FINALLY = "finally";
+    public static final String KEYWORD_IF = "if";
+    public static final String KEYWORD_IMPORT = "import";
+    public static final String KEYWORD_INT = "int";
+    public static final String KEYWORD_TRUE = "true";
+    public static final String KEYWORD_TRY = "try";
+    public static final String KEYWORD_VOID = "void";
 
     public static final String SYMBOL_BANG = "!";
     public static final String SYMBOL_BANG_EQUALS = "!=";
@@ -62,8 +63,7 @@ public final class Lang
     public static final ArrayList<String> ALL = new ArrayList<String>();
     static {
         Field[] fields = Lang.class.getFields();
-        for (Field field : fields)
-        {
+        for (Field field : fields) {
             try {
                 if (field.getModifiers() == (Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL) && field.getType() == String.class)
                     ALL.add((String)field.get(null));

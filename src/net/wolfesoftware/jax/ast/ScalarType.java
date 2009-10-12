@@ -7,7 +7,7 @@ public class ScalarType extends SwitchElement
         super(content);
     }
 
-    public static final int TYPE = 0x91919191; // TODO
+    public static final int TYPE = 0x153f03f9;
     public int getElementType()
     {
         return TYPE;

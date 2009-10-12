@@ -223,6 +223,9 @@ public class Lexiconizer
             case IfThen.TYPE:
                 returnBehavior = lexiconizeIfThen(context, (IfThen)content);
                 break;
+            case ForLoop.TYPE:
+                returnBehavior = lexiconizeForLoop(context, (ForLoop)content);
+                break;
             case FunctionInvocation.TYPE:
                 returnBehavior = lexiconizeFunctionInvocation(context, (FunctionInvocation)content);
                 break;
@@ -261,6 +264,16 @@ public class Lexiconizer
         }
         expression.returnBehavior = returnBehavior;
         return returnBehavior;
+    }
+
+    private ReturnBehavior lexiconizeForLoop(LocalContext context, ForLoop forLoop)
+    {
+        ReturnBehavior returnBehavior1 = lexiconizeExpression(context, forLoop.expression1);
+        if (returnBehavior1.type != RuntimeType.VOID)
+            ;
+        
+        lexiconizeExpression(context, forLoop.expression2);
+        throw null;
     }
 
     private ReturnBehavior lexiconizeArrayDereference(LocalContext context, ArrayDereference arrayDereference)

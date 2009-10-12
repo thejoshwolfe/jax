@@ -12,7 +12,7 @@ public class ArrayDimension extends ParseElement
         out.append("[]");
     }
 
-    public static final int TYPE = 0x97239821; // TODO
+    public static final int TYPE = 0x292105a6;
     public int getElementType()
     {
         return TYPE;

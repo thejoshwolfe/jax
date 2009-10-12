@@ -115,6 +115,14 @@ public abstract class ExpressionOperator
             return new IfThenElse((Expression)innerElements.get(0), (Expression)innerElements.get(1), (Expression)innerElements.get(2));
         }
     };
+    public static final ExpressionOperator ForLoop = new ExpressionEnclosingOperator(-1, Lang.KEYWORD_FOR, -1, 
+            Lang.SYMBOL_OPEN_PARENS, Expression.TYPE, Lang.SYMBOL_SEMICOLON, Expression.TYPE, Lang.SYMBOL_SEMICOLON, Expression.TYPE, Lang.SYMBOL_CLOSE_PARENS, 
+            Expression.TYPE) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return new ForLoop((Expression)innerElements.get(0), (Expression)innerElements.get(1), (Expression)innerElements.get(2), (Expression)innerElements.get(3));
+        }
+    };
 
     public static final ExpressionOperator Block = new ExpressionEnclosingOperator(-1, Lang.SYMBOL_OPEN_BRACE, -1,
             BlockContents.TYPE, Lang.SYMBOL_CLOSE_BRACE) {
