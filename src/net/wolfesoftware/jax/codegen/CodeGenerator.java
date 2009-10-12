@@ -206,12 +206,22 @@ public class CodeGenerator
             case StaticFunctionInvocation.TYPE:
                 evalStaticFunctionInvocation((StaticFunctionInvocation)content);
                 break;
+            case ArrayDereference.TYPE:
+                evalArrayDereference((ArrayDereference)content);
+                break;
             case TryCatch.TYPE:
                 evalTryCatch((TryCatch)content);
                 break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
+    }
+
+    private void evalArrayDereference(ArrayDereference arrayDereference)
+    {
+        evalExpression(arrayDereference.expression1);
+        evalExpression(arrayDereference.expression2);
+        printStatement("aaload");
     }
 
     private void evalStaticFunctionInvocation(StaticFunctionInvocation staticFunctionInvocation)
