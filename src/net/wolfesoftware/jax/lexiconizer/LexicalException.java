@@ -24,4 +24,13 @@ public class LexicalException extends CompileError
     {
         return new LexicalException(qualifiedName, "Can't resolve import.");
     }
+
+    public static LexicalException mustBeVoid(Expression expression)
+    {
+        return new LexicalException(expression, "expression type must be void");
+    }
+    public static LexicalException mustBeBoolean(Expression expression)
+    {
+        return new LexicalException(expression, "expression must evaluate to a boolean");
+    }
 }

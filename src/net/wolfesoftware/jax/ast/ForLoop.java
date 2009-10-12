@@ -2,6 +2,10 @@ package net.wolfesoftware.jax.ast;
 
 public class ForLoop extends ParseElement
 {
+    public String initialJumpToLabel;
+    public String continueToLabel;
+    public String breakToLabel;
+
     public Expression expression1;
     public Expression expression2;
     public Expression expression3;

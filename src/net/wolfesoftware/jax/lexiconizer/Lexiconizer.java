@@ -268,12 +268,29 @@ public class Lexiconizer
 
     private ReturnBehavior lexiconizeForLoop(LocalContext context, ForLoop forLoop)
     {
-        ReturnBehavior returnBehavior1 = lexiconizeExpression(context, forLoop.expression1);
+        LocalContext innerContext = new LocalContext(context);
+        ReturnBehavior returnBehavior1 = lexiconizeExpression(innerContext, forLoop.expression1);
         if (returnBehavior1.type != RuntimeType.VOID)
-            ;
-        
-        lexiconizeExpression(context, forLoop.expression2);
-        throw null;
+            errors.add(LexicalException.mustBeVoid(forLoop.expression1));
+
+        forLoop.continueToLabel = innerContext.nextLabel();
+        ReturnBehavior returnBehavior3 = lexiconizeExpression(innerContext, forLoop.expression3);
+        if (returnBehavior3.type != RuntimeType.VOID)
+            innerContext.modifyStack(-1);
+
+        forLoop.initialJumpToLabel = innerContext.nextLabel();
+        ReturnBehavior returnBehavior2 = lexiconizeExpression(innerContext, forLoop.expression2);
+        if (returnBehavior2.type != RuntimeType.BOOLEAN)
+            errors.add(LexicalException.mustBeBoolean(forLoop.expression2));
+        innerContext.modifyStack(-1);
+
+        ReturnBehavior returnBehavior4 = lexiconizeExpression(innerContext, forLoop.expression4);
+        if (returnBehavior4.type != RuntimeType.VOID)
+            errors.add(LexicalException.mustBeVoid(forLoop.expression4));
+
+        forLoop.breakToLabel = innerContext.nextLabel();
+
+        return ReturnBehavior.VOID;
     }
 
     private ReturnBehavior lexiconizeArrayDereference(LocalContext context, ArrayDereference arrayDereference)
@@ -452,7 +469,7 @@ public class Lexiconizer
     {
         lexiconizeExpression(context, ifThenElse.expression1);
         if (ifThenElse.expression1.returnBehavior.type != RuntimeType.BOOLEAN)
-            errors.add(new LexicalException(ifThenElse.expression1, "Expression must evaluate to a boolean"));
+            errors.add(LexicalException.mustBeBoolean(ifThenElse.expression1));
         context.modifyStack(-1);
 
         ifThenElse.label1 = context.nextLabel();
@@ -475,13 +492,13 @@ public class Lexiconizer
     {
         lexiconizeExpression(context, ifThen.expression1);
         if (ifThen.expression1.returnBehavior.type != RuntimeType.BOOLEAN)
-            errors.add(new LexicalException(ifThen.expression1, "Expression must evaluate to a boolean"));
+            errors.add(LexicalException.mustBeBoolean(ifThen.expression1));
         context.modifyStack(-1);
         ifThen.label = context.nextLabel();
 
         lexiconizeExpression(context, ifThen.expression2);
         if (ifThen.expression2.returnBehavior.type != RuntimeType.VOID)
-            errors.add(new LexicalException(ifThen.expression2, "return type must be void"));
+            errors.add(LexicalException.mustBeVoid(ifThen.expression2));
 
         return ReturnBehavior.VOID;
     }
