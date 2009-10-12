@@ -99,7 +99,8 @@ $VariableDeclaration = TypeId ID
     $DereferenceMethod = Expression(150) "." FunctionInvocation
     $StaticDereferenceField = TypeId "." ID                       # These two are impossible to distinguish from the above two at the
     $StaticFunctionInvocation = TypeId "." FunctionInvocation     # Parsing stage. The Lexiconizer has to swap in these when appropriate.
-    |Dereferencing = DereferenceField | DereferenceMethod | StaticDereferenceField | StaticFunctionInvocation
+    $ArrayDereference = Expression(150) "[" Expression "]"
+    |Dereferencing = DereferenceField | DereferenceMethod | StaticDereferenceField | StaticFunctionInvocation | ArrayDereference
 
     ### try-catch-finally
     $TryPart = "try" Expression

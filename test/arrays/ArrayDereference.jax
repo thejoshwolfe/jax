@@ -1,0 +1,4 @@
+
+class ArrayDereference {
+    String secondOne(String[] arr) arr[1];
+}
