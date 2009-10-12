@@ -177,10 +177,8 @@ public abstract class ExpressionOperator
 
     static {
         Field[] fields = ExpressionOperator.class.getFields();
-        for (Field field : fields)
-        {
-            if (field.getModifiers() == (Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL) && field.getType() == ExpressionOperator.class)
-            {
+        for (Field field : fields) {
+            if (field.getModifiers() == (Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL) && field.getType() == ExpressionOperator.class) {
                 ExpressionOperator op;
                 try {
                     op = (ExpressionOperator)field.get(null);
@@ -195,8 +193,7 @@ public abstract class ExpressionOperator
     private static void putOperator(HashMap<String, List<ExpressionOperator>> operators, ExpressionOperator op)
     {
         List<ExpressionOperator> list = operators.get(op.text);
-        if (list == null)
-        {
+        if (list == null) {
             list = new LinkedList<ExpressionOperator>();
             list.clear();
             operators.put(op.text, list);
