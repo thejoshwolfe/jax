@@ -132,10 +132,17 @@ public abstract class ExpressionOperator
         }
     };
     public static final ExpressionOperator DereferenceMethod = new ExpressionEnclosingOperator(PRECEDENCE_DEREFERENCE, Lang.SYMBOL_PERIOD, -1,
-            FunctionInvocation.TYPE, -1) { // insert this extra term so that the Parser looks for methods before fields 
+            FunctionInvocation.TYPE, -1) { // insert this extra term so that the Parser looks for methods before fields
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
             return new DereferenceMethod(leftExpression, (FunctionInvocation)innerElements.get(0));
+        }
+    };
+    public static final ExpressionOperator ArrayDereference = new ExpressionEnclosingOperator(PRECEDENCE_DEREFERENCE, Lang.SYMBOL_OPEN_BRACKET, -1,
+            Expression.TYPE, Lang.SYMBOL_CLOSE_BRACKET) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return new ArrayDereference(leftExpression, (Expression)innerElements.get(0));
         }
     };
 
