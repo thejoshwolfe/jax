@@ -41,11 +41,14 @@ public final class Lang
     public static final String SYMBOL_COLON = ":";
     public static final String SYMBOL_SEMICOLON = ";";
     public static final String SYMBOL_LESS_THAN = "<";
+    public static final String SYMBOL_LESS_THAN_LESS_THAN = "<<";
     public static final String SYMBOL_LESS_THAN_OR_EQUAL = "<=";
     public static final String SYMBOL_EQUALS = "=";
     public static final String SYMBOL_EQUALS_EQUALS = "==";
     public static final String SYMBOL_GREATER_THAN = ">";
     public static final String SYMBOL_GREATER_THAN_OR_EQUAL = ">=";
+    public static final String SYMBOL_GREATER_THAN_GREATER_THAN = ">>";
+    public static final String SYMBOL_GREATER_THAN_GREATER_THAN_GREATER_THAN = ">>>";
     public static final String SYMBOL_QUESTION = "?";
     public static final String SYMBOL_OPEN_BRACKET = "[";
     public static final String SYMBOL_CLOSE_BRACKET = "]";
