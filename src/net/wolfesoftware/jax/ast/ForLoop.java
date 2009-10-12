@@ -2,7 +2,7 @@ package net.wolfesoftware.jax.ast;
 
 public class ForLoop extends ParseElement
 {
-    public String initialJumpToLabel;
+    public String initialGotoLabel;
     public String continueToLabel;
     public String breakToLabel;
 

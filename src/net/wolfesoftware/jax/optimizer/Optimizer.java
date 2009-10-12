@@ -121,6 +121,9 @@ public class Optimizer
             case IfThen.TYPE:
                 optimizeIfThen((IfThen)content);
                 break;
+            case ForLoop.TYPE:
+                optimizeForLoop((ForLoop)content);
+                break;
             case FunctionInvocation.TYPE:
                 optimizeFunctionInvocation((FunctionInvocation)content);
                 break;
@@ -142,6 +145,14 @@ public class Optimizer
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
+    }
+
+    private static void optimizeForLoop(ForLoop forLoop)
+    {
+        optimizeExpression(forLoop.expression1);
+        optimizeExpression(forLoop.expression2);
+        optimizeExpression(forLoop.expression3);
+        optimizeExpression(forLoop.expression4);
     }
 
     private static void optimizeArrayDereference(ArrayDereference arrayDereference)

@@ -194,6 +194,9 @@ public class CodeGenerator
             case IfThen.TYPE:
                 evalIfThen((IfThen)content);
                 break;
+            case ForLoop.TYPE:
+                evalForLoop((ForLoop)content);
+                break;
             case FunctionInvocation.TYPE:
                 evalFunctionInvocation((FunctionInvocation)content);
                 break;
@@ -216,6 +219,23 @@ public class CodeGenerator
                 throw new RuntimeException(content.getClass().toString());
         }
     }
+
+    private void evalForLoop(ForLoop forLoop)
+    {
+        evalExpression(forLoop.expression1);
+        printStatement("goto " + forLoop.initialGotoLabel);
+        printLabel(forLoop.continueToLabel);
+        evalExpression(forLoop.expression3);
+        if (forLoop.expression3.returnBehavior.type != RuntimeType.VOID)
+            printStatement("pop");
+        printLabel(forLoop.initialGotoLabel);
+        evalExpression(forLoop.expression2);
+        printStatement("ifeq " + forLoop.breakToLabel);
+        evalExpression(forLoop.expression4);
+        printStatement("goto " + forLoop.continueToLabel);
+        printLabel(forLoop.breakToLabel);
+    }
+
 
     private void evalArrayDereference(ArrayDereference arrayDereference)
     {
@@ -358,13 +378,13 @@ public class CodeGenerator
 
     private void evalBlockContents(BlockContents blockContents)
     {
-        for (int i = 0; i < blockContents.elements.size(); i++)
-        {
+        for (int i = 0; i < blockContents.elements.size(); i++) {
             Expression element = blockContents.elements.get(i);
             evalExpression(element);
-            if (element.returnBehavior.type != RuntimeType.VOID)
-                if (i < blockContents.elements.size() - 1)
+            if (element.returnBehavior.type != RuntimeType.VOID) {
+                if (i < blockContents.elements.size() - 1 || blockContents.forceVoid)
                     printStatement("pop");
+            }
         }
     }
 

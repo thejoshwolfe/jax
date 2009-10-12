@@ -282,7 +282,7 @@ public class Lexiconizer
         if (returnBehavior3.type != RuntimeType.VOID)
             innerContext.modifyStack(-1);
 
-        forLoop.initialJumpToLabel = innerContext.nextLabel();
+        forLoop.initialGotoLabel = innerContext.nextLabel();
         ReturnBehavior returnBehavior2 = lexiconizeExpression(innerContext, forLoop.expression2);
         if (returnBehavior2.type != RuntimeType.BOOLEAN)
             errors.add(LexicalException.mustBeBoolean(forLoop.expression2));
