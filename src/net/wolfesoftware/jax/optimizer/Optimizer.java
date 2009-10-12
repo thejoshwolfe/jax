@@ -130,6 +130,9 @@ public class Optimizer
             case StaticDereferenceField.TYPE:
                 optimizeStaticDereferenceField((StaticDereferenceField)content);
                 break;
+            case ArrayDereference.TYPE:
+                optimizeArrayDereference((ArrayDereference)content);
+                break;
             case TryCatch.TYPE:
                 optimizeTryCatch((TryCatch)content);
                 break;
@@ -139,6 +142,12 @@ public class Optimizer
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
+    }
+
+    private static void optimizeArrayDereference(ArrayDereference arrayDereference)
+    {
+        optimizeExpression(arrayDereference.expression1);
+        optimizeExpression(arrayDereference.expression2);
     }
 
     private static void optimizeStaticFunctionInvocation(StaticFunctionInvocation staticFunctionInvocation)

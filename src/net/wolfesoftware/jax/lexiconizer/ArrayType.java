@@ -7,7 +7,7 @@ import java.util.HashMap;
  */
 public class ArrayType extends Type
 {
-    private final Type scalarType;
+    public final Type scalarType;
     private ArrayType(Type scalarType)
     {
         super(scalarType.fullName + "[]", scalarType.id + "[]");

@@ -250,6 +250,9 @@ public class Lexiconizer
                         throw new RuntimeException();
                 }
                 break;
+            case ArrayDereference.TYPE:
+                returnBehavior = lexiconizeArrayDereference(context, (ArrayDereference)content);
+                break;
             case TryCatch.TYPE:
                 returnBehavior = lexiconizeTryCatch(context, (TryCatch)content);
                 break;
@@ -258,6 +261,22 @@ public class Lexiconizer
         }
         expression.returnBehavior = returnBehavior;
         return returnBehavior;
+    }
+
+    private ReturnBehavior lexiconizeArrayDereference(LocalContext context, ArrayDereference arrayDereference)
+    {
+        ReturnBehavior returnBehavior1 = lexiconizeExpression(context, arrayDereference.expression1);
+        if (returnBehavior1.type.getType() != ArrayType.TYPE) {
+            errors.add(new LexicalException(arrayDereference, "Can't dereference this thing like an array"));
+            // TODO: handle this more gracefully
+        }
+        ReturnBehavior returnBehavior2 = lexiconizeExpression(context, arrayDereference.expression2);
+        if (returnBehavior2.type != RuntimeType.INT)
+            errors.add(new LexicalException(arrayDereference.expression2, "Must be int"));
+        context.modifyStack(-2 + 1);
+
+        Type scalarType = ((ArrayType)returnBehavior1.type).scalarType;
+        return new ReturnBehavior(scalarType);
     }
 
     private ReturnBehavior lexiconizeStaticDereferenceField(LocalContext context, StaticDereferenceField staticDereferenceField)
