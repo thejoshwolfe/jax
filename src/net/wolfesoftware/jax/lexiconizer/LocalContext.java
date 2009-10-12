@@ -58,4 +58,9 @@ public class LocalContext
     {
         rootContext.modifyStack(delta);
     }
+
+    public String toString()
+    {
+        return rootContext.toString();
+    }
 }

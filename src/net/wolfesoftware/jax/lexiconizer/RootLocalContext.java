@@ -41,4 +41,9 @@ public class RootLocalContext extends LocalContext
         stackSize += delta;
         stackCapacity = Math.max(stackCapacity, stackSize);
     }
+
+    public String toString()
+    {
+        return "stack: [" + stackSize + "," + stackCapacity + "]";
+    }
 }

@@ -29,8 +29,13 @@ public class Lexiconizer
 
     private Lexiconization lexiconizeRoot()
     {
-        lexiconizeCompilationUnit(root.content);
-
+        try {
+            lexiconizeCompilationUnit(root.content);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+        } catch (AssertionError e) {
+            e.printStackTrace();
+        }
         return new Lexiconization(root, errors);
     }
 
@@ -126,7 +131,6 @@ public class Lexiconizer
         for (VariableDeclaration variableDeclaration : argumentDeclarations.elements) {
             lexiconizeVariableDeclaration(context, variableDeclaration);
             argumentSignature[i++] = variableDeclaration.typeId.type;
-            context.addLocalVariable(variableDeclaration.id, variableDeclaration.typeId.type, errors);
         }
         return argumentSignature;
     }
@@ -378,12 +382,11 @@ public class Lexiconizer
     private ReturnBehavior lexiconizeCatchBody(LocalContext context, CatchBody catchBody)
     {
         LocalContext nestedContext = new LocalContext(context);
-        catchBody.startLabel = context.nextLabel();
+        catchBody.startLabel = nestedContext.nextLabel();
         lexiconizeVariableDeclaration(nestedContext, catchBody.variableDeclaration);
-        catchBody.endLabel = context.nextLabel();
+        catchBody.endLabel = nestedContext.nextLabel();
         if (!catchBody.variableDeclaration.typeId.type.isInstanceOf(RuntimeType.getType(Throwable.class)))
             errors.add(new LexicalException(catchBody.variableDeclaration, "Type must descend from Throwable. Can't catch a " + catchBody.variableDeclaration.typeId));
-        nestedContext.addLocalVariable(catchBody.variableDeclaration.id, catchBody.variableDeclaration.typeId.type, errors);
         nestedContext.modifyStack(1); // exception object
         nestedContext.modifyStack(-1);
         ReturnBehavior returnBehavior = lexiconizeExpression(nestedContext, catchBody.expression);
@@ -523,6 +526,7 @@ public class Lexiconizer
             errors.add(new LexicalException(variableDeclaration.typeId, "Dunno what this type is."));
         else if (variableDeclaration.typeId.type == RuntimeType.VOID)
             errors.add(new LexicalException(variableDeclaration, "You can't have a void variable."));
+        context.addLocalVariable(variableDeclaration.id, variableDeclaration.typeId.type, errors);
         return ReturnBehavior.VOID;
     }
 
@@ -563,19 +567,6 @@ public class Lexiconizer
         for (Expression element : blockContents.elements) {
             ReturnBehavior returnBehavior = lexiconizeExpression(context, element);
             returnType = returnBehavior.type;
-            VariableDeclaration variableDeclaration;
-            switch (element.content.getElementType()) {
-                case VariableDeclaration.TYPE:
-                    variableDeclaration = (VariableDeclaration)element.content;
-                    break;
-                case VariableCreation.TYPE:
-                    variableDeclaration = ((VariableCreation)element.content).variableDeclaration;
-                    break;
-                default:
-                    variableDeclaration = null;
-            }
-            if (variableDeclaration != null)
-                context.addLocalVariable(variableDeclaration.id, variableDeclaration.typeId.type, errors);
             if (returnType != RuntimeType.VOID)
                 context.modifyStack(-1); // assume the block does not return this value
         }
