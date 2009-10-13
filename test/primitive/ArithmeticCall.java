@@ -11,7 +11,9 @@ public class ArithmeticCall
             Arithmetic.mixed42() == 42 &&
             Arithmetic.negative3() == -3 &&
             Arithmetic.inc3() == 3 &&
-            Arithmetic.decr2() == 2)
+            Arithmetic.inc4() == 4 &&
+            Arithmetic.decr1() == 1 &&
+            Arithmetic.decr8() == 8)
             System.out.println("+++ PASS");
         else
             System.out.println("*** FAIL");

@@ -16,13 +16,23 @@ class Arithmetic {
     int negative3() -3;
 
     int inc3() {
-        int i = 0;
-        i++;i++;i++;
-        i
+        int a = 1;
+        int b = a++;
+        a + b
     }
-    int decr2() {
-        int i = 5;
-        i--;i--;i--;
-        i
+    int inc4() {
+        int a = 1;
+        int b = ++a;
+        a + b
+    }
+    int decr1() {
+        int a = 5;
+        inb b = a--;
+        b - a
+    }
+    int decr8() {
+        int a = 5;
+        inb b = --a;
+        b + a
     }
 }
