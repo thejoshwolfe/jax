@@ -61,7 +61,7 @@ $VariableDeclaration = TypeId ID
     $PreDecrement = "--" Expression(131)
     $PostIncrement = Expression(140) "++"
     $PostDecrement = Expression(140) "--"
-    |Arithmetic = Addition | Subtraction | Multiplication | Division
+    |Arithmetic = Addition | Subtraction | Multiplication | Division | PreIncrement | PreDecrement | PostIncrement | PostDecrement
     $LessThan = Expression(90) "<" Expression(90)
     $GreaterThan = Expression(90) ">" Expression(90)
     $LessThanOrEqual = Expression(90) "<=" Expression(90)

@@ -19,20 +19,20 @@ class Arithmetic {
         int a = 1;
         int b = a++;
         a + b
-    }
+    };
     int inc4() {
         int a = 1;
         int b = ++a;
         a + b
-    }
+    };
     int decr1() {
         int a = 5;
         inb b = a--;
         b - a
-    }
+    };
     int decr8() {
         int a = 5;
         inb b = --a;
         b + a
-    }
+    };
 }

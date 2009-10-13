@@ -24,6 +24,8 @@ public abstract class ExpressionOperator
 
     private static final int 
             PRECEDENCE_DEREFERENCE = 160,
+            PRECEDENCE_POSTFIX = 140,
+            PRECEDENCE_UNARY = 130,
             PRECEDENCE_MULTIPLICATIVE = 120,
             PRECEDENCE_ADDITIVE = 110,
             PRECEDENCE_RELATIONAL = 90,
@@ -54,7 +56,31 @@ public abstract class ExpressionOperator
             return new Division(leftExpression, rightExpression);
         }
     };
-    
+    public static final ExpressionOperator PRE_INCREMENT = new ExpressionOperator(-1, Lang.SYMBOL_PLUS_PLUS, PRECEDENCE_UNARY + 1) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return new PreIncrement(rightExpression);
+        }
+    };
+    public static final ExpressionOperator PRE_DECREMENT = new ExpressionOperator(-1, Lang.SYMBOL_MINUS_MINUS, PRECEDENCE_UNARY + 1) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return new PreDecrement(rightExpression);
+        }
+    };
+    public static final ExpressionOperator POST_INCREMENT = new ExpressionOperator(PRECEDENCE_POSTFIX, Lang.SYMBOL_PLUS_PLUS, -1) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return new PostIncrement(leftExpression);
+        }
+    };
+    public static final ExpressionOperator POST_DECREMENT = new ExpressionOperator(PRECEDENCE_POSTFIX, Lang.SYMBOL_MINUS_MINUS, -1) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return new PostDecrement(leftExpression);
+        }
+    };
+
     public static final ExpressionOperator LESS_THAN = new ExpressionOperator(PRECEDENCE_RELATIONAL, Lang.SYMBOL_LESS_THAN, PRECEDENCE_RELATIONAL + 1) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
