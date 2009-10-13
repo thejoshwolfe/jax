@@ -27,10 +27,21 @@ public class LexicalException extends CompileError
 
     public static LexicalException mustBeVoid(Expression expression)
     {
-        return new LexicalException(expression, "expression type must be void");
+        return new LexicalException(expression, "expression type must be void.");
     }
+
     public static LexicalException mustBeBoolean(Expression expression)
     {
-        return new LexicalException(expression, "expression must evaluate to a boolean");
+        return new LexicalException(expression, "expression must evaluate to a boolean.");
+    }
+
+    public static LexicalException mustBeVariable(ParseElement parseElement)
+    {
+        return new LexicalException(parseElement, "this has to be a variable.");
+    }
+
+    public static LexicalException variableMustBeInt(Id id)
+    {
+        return new LexicalException(id, "variable needs to be of type int");
     }
 }
