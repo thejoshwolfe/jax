@@ -9,7 +9,9 @@ public class ArithmeticCall
             Arithmetic.multiplication24() == 24 &&
             Arithmetic.division5() == 5 &&
             Arithmetic.mixed42() == 42 &&
-            Arithmetic.negative3() == -3)
+            Arithmetic.negative3() == -3 &&
+            Arithmetic.inc3() == 3 &&
+            Arithmetic.decr2() == 2)
             System.out.println("+++ PASS");
         else
             System.out.println("*** FAIL");
