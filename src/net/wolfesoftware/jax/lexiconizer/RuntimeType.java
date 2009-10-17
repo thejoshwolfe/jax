@@ -1,6 +1,5 @@
 package net.wolfesoftware.jax.lexiconizer;
 
-import java.lang.reflect.Constructor;
 import java.util.*;
 
 /**
@@ -11,7 +10,7 @@ public class RuntimeType extends Type
 {
     private final Class<?> underlyingType;
     /** constructor/method loading must be lazy to avoid caching entire base library */
-    private LinkedList<ConstructorMethod> constructorsCache = null;
+    private LinkedList<Constructor> constructorsCache = null;
     private RuntimeType(Class<?> underlyingType)
     {
         super(underlyingType.getName(), underlyingType.getSimpleName());
@@ -78,12 +77,12 @@ public class RuntimeType extends Type
     }
 
     @Override
-    protected LinkedList<ConstructorMethod> getConstructorMethods()
+    protected LinkedList<Constructor> getConstructors()
     {
         if (constructorsCache == null) {
-            constructorsCache = new LinkedList<ConstructorMethod>();
-            for (Constructor<?> constructor : underlyingType.getConstructors())
-                constructorsCache.add(new ConstructorMethod(getTypes(constructor.getParameterTypes())));
+            constructorsCache = new LinkedList<Constructor>();
+            for (java.lang.reflect.Constructor<?> constructor : underlyingType.getConstructors())
+                constructorsCache.add(new Constructor(getTypes(constructor.getParameterTypes())));
         }
         return constructorsCache;
     }

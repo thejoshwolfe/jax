@@ -3,7 +3,6 @@ package net.wolfesoftware.jax.parser;
 import java.lang.reflect.*;
 import java.util.*;
 import net.wolfesoftware.jax.ast.*;
-import net.wolfesoftware.jax.ast.Constructor;
 import net.wolfesoftware.jax.tokenizer.Lang;
 
 public abstract class ExpressionOperator
@@ -158,11 +157,11 @@ public abstract class ExpressionOperator
             return new Block((BlockContents)innerElements.get(0));
         }
     };
-    public static final ExpressionOperator Constructor = new ExpressionEnclosingOperator(-1, Lang.KEYWORD_NEW, -1,
+    public static final ExpressionOperator ConstructorInvocation = new ExpressionEnclosingOperator(-1, Lang.KEYWORD_NEW, -1,
             FunctionInvocation.TYPE) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
-            return new Constructor((FunctionInvocation)innerElements.get(0));
+            return new ConstructorInvocation((FunctionInvocation)innerElements.get(0));
         }
     };
 

@@ -85,7 +85,7 @@ $VariableDeclaration = TypeId ID
     $VariableCreation = VariableDeclaration "=" Expression
 
     ### constructor
-    $Constructor = "new" FunctionInvocation
+    $ConstructorInvocation = "new" FunctionInvocation
 
     ### Control Structures
     $IfThen = "if" Expression "then" Expression

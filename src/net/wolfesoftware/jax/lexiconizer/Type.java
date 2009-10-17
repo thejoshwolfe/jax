@@ -14,11 +14,11 @@ public abstract class Type
     }
 
     public abstract Method resolveMethod(String name, Type[] argumentSignature);
-    public ConstructorMethod resolveConstructor(Type[] argumentSignature)
+    public Constructor resolveConstructor(Type[] argumentSignature)
     {
-        return resolveOverloads(getConstructorMethods(), argumentSignature);
+        return resolveOverloads(getConstructors(), argumentSignature);
     }
-    protected abstract LinkedList<ConstructorMethod> getConstructorMethods();
+    protected abstract LinkedList<Constructor> getConstructors();
     private static final Comparator<TakesArguments> overloadSorter = new Comparator<TakesArguments>() {
         public int compare(TakesArguments o1, TakesArguments o2)
         {

@@ -33,7 +33,7 @@ public class ArrayType extends Type
     }
 
     @Override
-    protected LinkedList<ConstructorMethod> getConstructorMethods()
+    protected LinkedList<Constructor> getConstructors()
     {
         throw new RuntimeException("TODO: Auto-generated method stub");
     }

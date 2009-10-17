@@ -245,8 +245,8 @@ public class Lexiconizer
             case FunctionInvocation.TYPE:
                 returnBehavior = lexiconizeFunctionInvocation(context, (FunctionInvocation)content);
                 break;
-            case Constructor.TYPE:
-                returnBehavior = lexiconizeConstructor(context, (Constructor)content);
+            case ConstructorInvocation.TYPE:
+                returnBehavior = lexiconizeConstructorInvocation(context, (ConstructorInvocation)content);
                 break;
             case DereferenceMethod.TYPE:
                 switch (disambuateDereferenceMethod(context, expression)) {
@@ -285,14 +285,14 @@ public class Lexiconizer
         return returnBehavior;
     }
 
-    private ReturnBehavior lexiconizeConstructor(LocalContext context, Constructor constructor)
+    private ReturnBehavior lexiconizeConstructorInvocation(LocalContext context, ConstructorInvocation constructorInvocation)
     {
-        TypeId typeId = TypeId.fromId(constructor.functionInvocation.id);
+        TypeId typeId = TypeId.fromId(constructorInvocation.functionInvocation.id);
         resolveType(typeId);
         if (typeId.type == null)
             errors.add(LexicalException.cantResolveType(typeId));
-        ReturnBehavior[] argumentSignature = lexiconizeArguments(context, constructor.functionInvocation.arguments);
-        constructor.constructorMethod = resolveConstructor(typeId.type, argumentSignature);
+        ReturnBehavior[] argumentSignature = lexiconizeArguments(context, constructorInvocation.functionInvocation.arguments);
+        constructorInvocation.constructor = resolveConstructor(typeId.type, argumentSignature);
         context.modifyStack(-argumentSignature.length + 1);
         return new ReturnBehavior(typeId.type);
     }
@@ -757,7 +757,7 @@ public class Lexiconizer
         return type.resolveMethod(id.name, getArgumentTypes(argumentSignature));
     }
 
-    private ConstructorMethod resolveConstructor(Type type, ReturnBehavior[] argumentSignature)
+    private Constructor resolveConstructor(Type type, ReturnBehavior[] argumentSignature)
     {
         return type.resolveConstructor(getArgumentTypes(argumentSignature));
     }

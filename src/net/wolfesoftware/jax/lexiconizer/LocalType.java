@@ -9,7 +9,7 @@ public class LocalType extends Type
         super(fullName, id);
     }
 
-    private final LinkedList<ConstructorMethod> constructorMethods = new LinkedList<ConstructorMethod>();
+    private final LinkedList<Constructor> constructors = new LinkedList<Constructor>();
     private final HashMap<String, LinkedList<Method>> methods = new HashMap<String, LinkedList<Method>>();
     private final HashMap<String, Field> fields = new HashMap<String, Field>();
     public void addMethod(Method method)
@@ -40,9 +40,9 @@ public class LocalType extends Type
         return null;
     }
     @Override
-    protected LinkedList<ConstructorMethod> getConstructorMethods()
+    protected LinkedList<Constructor> getConstructors()
     {
-        return constructorMethods;
+        return constructors;
     }
     @Override
     public Field resolveField(String name)

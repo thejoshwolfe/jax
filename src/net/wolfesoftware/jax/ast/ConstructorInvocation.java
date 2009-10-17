@@ -2,11 +2,11 @@ package net.wolfesoftware.jax.ast;
 
 import net.wolfesoftware.jax.lexiconizer.*;
 
-public class Constructor extends ParseElement
+public class ConstructorInvocation extends ParseElement
 {
     public FunctionInvocation functionInvocation;
-    public ConstructorMethod constructorMethod;
-    public Constructor(FunctionInvocation functionInvocation)
+    public Constructor constructor;
+    public ConstructorInvocation(FunctionInvocation functionInvocation)
     {
         this.functionInvocation = functionInvocation;
     }

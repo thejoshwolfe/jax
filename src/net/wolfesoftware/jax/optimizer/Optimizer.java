@@ -139,8 +139,8 @@ public class Optimizer
             case FunctionInvocation.TYPE:
                 optimizeFunctionInvocation((FunctionInvocation)content);
                 break;
-            case Constructor.TYPE:
-                optimizeConstructor((Constructor)content);
+            case ConstructorInvocation.TYPE:
+                optimizeConstructorInvocation((ConstructorInvocation)content);
                 break;
             case DereferenceMethod.TYPE:
                 optimizeDereferenceMethod((DereferenceMethod)content);
@@ -162,9 +162,9 @@ public class Optimizer
         }
     }
 
-    private static void optimizeConstructor(Constructor constructor)
+    private static void optimizeConstructorInvocation(ConstructorInvocation constructorInvocation)
     {
-        optimizeArguments(constructor.functionInvocation.arguments);
+        optimizeArguments(constructorInvocation.functionInvocation.arguments);
     }
 
     private static void optimizePreDecrement(PreDecrement preDecrement)
