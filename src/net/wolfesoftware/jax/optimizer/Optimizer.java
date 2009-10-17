@@ -177,7 +177,7 @@ public class Optimizer
     }
     private static void optimizeIncrementDecrement(IncrementDecrement incrementDecrement)
     {
-        optimizeExpression(incrementDecrement.expression);
+        optimizeId(incrementDecrement.id);
     }
 
     private static void optimizeForLoop(ForLoop forLoop)

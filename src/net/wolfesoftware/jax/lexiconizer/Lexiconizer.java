@@ -303,10 +303,10 @@ public class Lexiconizer
         if (incrementDecrement.expression.content.getElementType() != Id.TYPE)
             errors.add(LexicalException.mustBeVariable(incrementDecrement.expression.content));
         else {
-            Id id = (Id)incrementDecrement.expression.content;
-            lexiconizeId(context, id);
-            if (id.variable.type != RuntimeType.INT)
-                errors.add(LexicalException.variableMustBeInt(id));
+            incrementDecrement.id = (Id)incrementDecrement.expression.content;
+            lexiconizeId(context, incrementDecrement.id);
+            if (incrementDecrement.id.variable.type != RuntimeType.INT)
+                errors.add(LexicalException.variableMustBeInt(incrementDecrement.id));
         }
         return ReturnBehavior.INT;
     }

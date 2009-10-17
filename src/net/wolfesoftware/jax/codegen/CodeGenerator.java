@@ -155,6 +155,18 @@ public class CodeGenerator
             case Division.TYPE:
                 evalDivision((Division)content);
                 break;
+            case PreIncrement.TYPE:
+                evalPreIncrement((PreIncrement)content);
+                break;
+            case PreDecrement.TYPE:
+                evalPreDecrement((PreDecrement)content);
+                break;
+            case PostIncrement.TYPE:
+                evalPostIncrement((PostIncrement)content);
+                break;
+            case PostDecrement.TYPE:
+                evalPostDecrement((PostDecrement)content);
+                break;
             case LessThan.TYPE:
                 evalLessThan((LessThan)content);
                 break;
@@ -218,6 +230,27 @@ public class CodeGenerator
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
+    }
+
+    private void evalPreIncrement(PreIncrement preIncrement)
+    {
+        printStatement("iinc " + preIncrement.id.variable.number + " 1");
+        evalId(preIncrement.id);
+    }
+    private void evalPreDecrement(PreDecrement preDecrement)
+    {
+        printStatement("iinc " + preDecrement.id.variable.number + " -1");
+        evalId(preDecrement.id);
+    }
+    private void evalPostIncrement(PostIncrement postIncrement)
+    {
+        evalId(postIncrement.id);
+        printStatement("iinc " + postIncrement.id.variable.number + " 1");
+    }
+    private void evalPostDecrement(PostDecrement postDecrement)
+    {
+        evalId(postDecrement.id);
+        printStatement("iinc " + postDecrement.id.variable.number + " -1");
     }
 
     private void evalForLoop(ForLoop forLoop)
