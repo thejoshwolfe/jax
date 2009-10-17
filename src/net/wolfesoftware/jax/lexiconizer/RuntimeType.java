@@ -1,5 +1,6 @@
 package net.wolfesoftware.jax.lexiconizer;
 
+import java.lang.reflect.Constructor;
 import java.util.*;
 
 /**
@@ -9,6 +10,8 @@ import java.util.*;
 public class RuntimeType extends Type
 {
     private final Class<?> underlyingType;
+    /** constructor/method loading must be lazy to avoid caching entire base library */
+    private LinkedList<ConstructorMethod> constructorsCache = null;
     private RuntimeType(Class<?> underlyingType)
     {
         super(underlyingType.getName(), underlyingType.getSimpleName());
@@ -20,8 +23,7 @@ public class RuntimeType extends Type
         {
             Class<?>[] params1 = o1.getParameterTypes();
             Class<?>[] params2 = o2.getParameterTypes();
-            for (int i = 0; i < params1.length; i++)
-            {
+            for (int i = 0; i < params1.length; i++) {
                 if (params1[i] == params2[i])
                     continue;
                 return params1[i].isAssignableFrom(params2[i]) ? 1 : -1;
@@ -33,27 +35,23 @@ public class RuntimeType extends Type
     public Method resolveMethod(String name, Type[] argumentSignature)
     {
         Class<?>[] argumentTypes = new Class<?>[argumentSignature.length];
-        for (int i = 0; i < argumentSignature.length; i++)
-        {
+        for (int i = 0; i < argumentSignature.length; i++) {
             if (!(argumentSignature[i] instanceof RuntimeType))
                 throw new RuntimeException("Runtime Types only reference other Runtime Types");
             argumentTypes[i] = ((RuntimeType)argumentSignature[i]).underlyingType;
         }
         java.lang.reflect.Method[] allMethods = underlyingType.getMethods();
         ArrayList<java.lang.reflect.Method> overloads = new ArrayList<java.lang.reflect.Method>();
-        methods: for (java.lang.reflect.Method method : allMethods)
-        {
+        methods: for (java.lang.reflect.Method method : allMethods) {
             if (!method.getName().equals(name))
                 continue; // wrong name
             Class<?>[] parameterTypes = method.getParameterTypes();
             if (parameterTypes.length != argumentSignature.length)
                 continue; // wrong number of arguments
-            for (int i = 0; i < argumentSignature.length; i++)
-            {
+            for (int i = 0; i < argumentSignature.length; i++) {
                 if (parameterTypes[i] == argumentTypes[i])
                     continue; // so far so good
-                if (parameterTypes[i].isPrimitive() || argumentTypes[i].isPrimitive())
-                {
+                if (parameterTypes[i].isPrimitive() || argumentTypes[i].isPrimitive()) {
                     // TODO: type coercion and/or boxing/unboxing logic.
                     continue methods; // primitive type mismatch
                 }
@@ -72,14 +70,22 @@ public class RuntimeType extends Type
     @Override
     public Field resolveField(String name)
     {
-        try
-        {
+        try {
             return RuntimeField.getField(underlyingType.getField(name));
-        }
-        catch (NoSuchFieldException e)
-        {
+        } catch (NoSuchFieldException e) {
             return null;
         }
+    }
+
+    @Override
+    protected LinkedList<ConstructorMethod> getConstructorMethods()
+    {
+        if (constructorsCache == null) {
+            constructorsCache = new LinkedList<ConstructorMethod>();
+            for (Constructor<?> constructor : underlyingType.getConstructors())
+                constructorsCache.add(new ConstructorMethod(getTypes(constructor.getParameterTypes())));
+        }
+        return constructorsCache;
     }
 
     @Override
@@ -159,11 +165,17 @@ public class RuntimeType extends Type
     public static Type getType(Class<?> underlyingType)
     {
         RuntimeType type = cache.get(underlyingType);
-        if (type == null)
-        {
+        if (type == null) {
             type = new RuntimeType(underlyingType);
             cache.put(underlyingType, type);
         }
         return type;
+    }
+    private static Type[] getTypes(Class<?>[] underlyingTypes)
+    {
+        Type[] returnTypes = new Type[underlyingTypes.length];
+        for (int i = 0; i < underlyingTypes.length; i++) 
+            returnTypes[i] = getType(underlyingTypes[i]);
+        return returnTypes;
     }
 }

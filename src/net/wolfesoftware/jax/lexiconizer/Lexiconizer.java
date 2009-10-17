@@ -245,6 +245,9 @@ public class Lexiconizer
             case FunctionInvocation.TYPE:
                 returnBehavior = lexiconizeFunctionInvocation(context, (FunctionInvocation)content);
                 break;
+            case Constructor.TYPE:
+                returnBehavior = lexiconizeConstructor(context, (Constructor)content);
+                break;
             case DereferenceMethod.TYPE:
                 switch (disambuateDereferenceMethod(context, expression)) {
                     case DereferenceMethod.TYPE:
@@ -280,6 +283,18 @@ public class Lexiconizer
         }
         expression.returnBehavior = returnBehavior;
         return returnBehavior;
+    }
+
+    private ReturnBehavior lexiconizeConstructor(LocalContext context, Constructor constructor)
+    {
+        TypeId typeId = TypeId.fromId(constructor.functionInvocation.id);
+        resolveType(typeId);
+        if (typeId.type == null)
+            errors.add(LexicalException.cantResolveType(typeId));
+        ReturnBehavior[] argumentSignature = lexiconizeArguments(context, constructor.functionInvocation.arguments);
+        constructor.constructorMethod = resolveConstructor(typeId.type, argumentSignature);
+        context.modifyStack(-argumentSignature.length + 1);
+        return new ReturnBehavior(typeId.type);
     }
 
     private ReturnBehavior lexiconizePreIncrement(LocalContext context, PreIncrement preIncrement)
@@ -441,10 +456,11 @@ public class Lexiconizer
         DereferenceField dereferenceField = (DereferenceField)expression.content;
         if (dereferenceField.expression.content.getElementType() != Id.TYPE)
             return DereferenceField.TYPE;
-        LocalVariable localVariable = resolveId(context, (Id)dereferenceField.expression.content);
+        Id id = (Id)dereferenceField.expression.content;
+        LocalVariable localVariable = resolveId(context, id);
         if (localVariable != null)
             return DereferenceField.TYPE;
-        TypeId typeId = new TypeId(new ScalarType(dereferenceField.expression.content), ArrayDimensions.EMPTY);
+        TypeId typeId = TypeId.fromId(id);
         resolveType(typeId);
         if (typeId.type != null) {
             // convert to StaticDereferenceField
@@ -465,10 +481,11 @@ public class Lexiconizer
         DereferenceMethod dereferenceMethod = (DereferenceMethod)expression.content;
         if (dereferenceMethod.expression.content.getElementType() != Id.TYPE)
             return DereferenceMethod.TYPE;
-        LocalVariable localVariable = resolveId(context, (Id)dereferenceMethod.expression.content);
+        Id id = (Id)dereferenceMethod.expression.content;
+        LocalVariable localVariable = resolveId(context, id);
         if (localVariable != null)
             return DereferenceMethod.TYPE;
-        TypeId typeId = new TypeId(new ScalarType(dereferenceMethod.expression.content), ArrayDimensions.EMPTY);
+        TypeId typeId = TypeId.fromId(id);
         resolveType(typeId);
         if (typeId.type != null) {
             // convert to StaticFunctionInvocation
@@ -564,7 +581,7 @@ public class Lexiconizer
     {
         resolveType(variableDeclaration.typeId);
         if (variableDeclaration.typeId.type == null)
-            errors.add(new LexicalException(variableDeclaration.typeId, "Dunno what this type is."));
+            errors.add(LexicalException.cantResolveType(variableDeclaration.typeId));
         else if (variableDeclaration.typeId.type == RuntimeType.VOID)
             errors.add(new LexicalException(variableDeclaration, "You can't have a void variable."));
         context.addLocalVariable(variableDeclaration.id, variableDeclaration.typeId.type, errors);
@@ -738,6 +755,11 @@ public class Lexiconizer
     private Method resolveMethod(Type type, Id id, ReturnBehavior[] argumentSignature)
     {
         return type.resolveMethod(id.name, getArgumentTypes(argumentSignature));
+    }
+
+    private ConstructorMethod resolveConstructor(Type type, ReturnBehavior[] argumentSignature)
+    {
+        return type.resolveConstructor(getArgumentTypes(argumentSignature));
     }
 
     private LocalVariable resolveId(LocalContext context, Id id)

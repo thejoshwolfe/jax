@@ -139,6 +139,9 @@ public class Optimizer
             case FunctionInvocation.TYPE:
                 optimizeFunctionInvocation((FunctionInvocation)content);
                 break;
+            case Constructor.TYPE:
+                optimizeConstructor((Constructor)content);
+                break;
             case DereferenceMethod.TYPE:
                 optimizeDereferenceMethod((DereferenceMethod)content);
                 break;
@@ -157,6 +160,11 @@ public class Optimizer
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
+    }
+
+    private static void optimizeConstructor(Constructor constructor)
+    {
+        optimizeArguments(constructor.functionInvocation.arguments);
     }
 
     private static void optimizePreDecrement(PreDecrement preDecrement)

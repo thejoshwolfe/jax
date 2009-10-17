@@ -1,6 +1,6 @@
 package net.wolfesoftware.jax.lexiconizer;
 
-import java.util.HashMap;
+import java.util.*;
 
 /**
  * http://java.sun.com/docs/books/jls/second_edition/html/arrays.doc.html
@@ -28,6 +28,12 @@ public class ArrayType extends Type
 
     @Override
     public Method resolveMethod(String name, Type[] argumentSignature)
+    {
+        throw new RuntimeException("TODO: Auto-generated method stub");
+    }
+
+    @Override
+    protected LinkedList<ConstructorMethod> getConstructorMethods()
     {
         throw new RuntimeException("TODO: Auto-generated method stub");
     }

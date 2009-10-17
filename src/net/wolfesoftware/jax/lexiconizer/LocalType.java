@@ -9,6 +9,7 @@ public class LocalType extends Type
         super(fullName, id);
     }
 
+    private final LinkedList<ConstructorMethod> constructorMethods = new LinkedList<ConstructorMethod>();
     private final HashMap<String, LinkedList<Method>> methods = new HashMap<String, LinkedList<Method>>();
     private final HashMap<String, Field> fields = new HashMap<String, Field>();
     public void addMethod(Method method)
@@ -37,6 +38,11 @@ public class LocalType extends Type
             return m;
         }
         return null;
+    }
+    @Override
+    protected LinkedList<ConstructorMethod> getConstructorMethods()
+    {
+        return constructorMethods;
     }
     @Override
     public Field resolveField(String name)

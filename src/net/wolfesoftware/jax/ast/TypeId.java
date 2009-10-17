@@ -26,4 +26,8 @@ public class TypeId extends ParseElement
     {
         return TYPE;
     }
+
+    public static TypeId fromId(Id id) {
+        return new TypeId(new ScalarType(id), ArrayDimensions.EMPTY);
+    }
 }

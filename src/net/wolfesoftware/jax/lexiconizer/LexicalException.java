@@ -44,4 +44,9 @@ public class LexicalException extends CompileError
     {
         return new LexicalException(id, "variable needs to be of type int");
     }
+
+    public static LexicalException cantResolveType(TypeId typeId)
+    {
+        return new LexicalException(typeId, "Dunno what this type is.");
+    }
 }
