@@ -1,11 +1,10 @@
 package net.wolfesoftware.jax.ast;
 
-public class PreDecrement extends ParseElement
+public class PreDecrement extends IncrementDecrement
 {
-    public Expression expression;
     public PreDecrement(Expression expression)
     {
-        this.expression = expression;
+        super(expression);
     }
 
     @Override

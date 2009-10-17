@@ -284,33 +284,31 @@ public class Lexiconizer
 
     private ReturnBehavior lexiconizePreIncrement(LocalContext context, PreIncrement preIncrement)
     {
-        if (preIncrement.expression.content.getElementType() != Id.TYPE)
-            errors.add(LexicalException.mustBeVariable(preIncrement.expression.content));
+        return lexiconizeIncrementDecrement(context, preIncrement);
+    }
+    private ReturnBehavior lexiconizePreDecrement(LocalContext context, PreDecrement preDecrement)
+    {
+        return lexiconizeIncrementDecrement(context, preDecrement);
+    }
+    private ReturnBehavior lexiconizePostIncrement(LocalContext context, PostIncrement postIncrement)
+    {
+        return lexiconizeIncrementDecrement(context, postIncrement);
+    }
+    private ReturnBehavior lexiconizePostDecrement(LocalContext context, PostDecrement postDecrement)
+    {
+        return lexiconizeIncrementDecrement(context, postDecrement);
+    }
+    private ReturnBehavior lexiconizeIncrementDecrement(LocalContext context, IncrementDecrement incrementDecrement)
+    {
+        if (incrementDecrement.expression.content.getElementType() != Id.TYPE)
+            errors.add(LexicalException.mustBeVariable(incrementDecrement.expression.content));
         else {
-            Id id = (Id)preIncrement.expression.content;
+            Id id = (Id)incrementDecrement.expression.content;
             lexiconizeId(context, id);
             if (id.variable.type != RuntimeType.INT)
                 errors.add(LexicalException.variableMustBeInt(id));
         }
         return ReturnBehavior.INT;
-    }
-
-    private ReturnBehavior lexiconizePreDecrement(LocalContext context, PreDecrement preDecrement)
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    private ReturnBehavior lexiconizePostIncrement(LocalContext context, PostIncrement postIncrement)
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    private ReturnBehavior lexiconizePostDecrement(LocalContext context, PostDecrement postDecrement)
-    {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     private ReturnBehavior lexiconizeForLoop(LocalContext context, ForLoop forLoop)

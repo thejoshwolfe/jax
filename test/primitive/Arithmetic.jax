@@ -27,12 +27,12 @@ class Arithmetic {
     };
     int decr1() {
         int a = 5;
-        inb b = a--;
+        int b = a--;
         b - a
     };
     int decr8() {
         int a = 5;
-        inb b = --a;
+        int b = --a;
         b + a
     };
 }
