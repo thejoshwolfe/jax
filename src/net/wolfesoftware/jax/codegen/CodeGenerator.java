@@ -212,6 +212,9 @@ public class CodeGenerator
             case FunctionInvocation.TYPE:
                 evalFunctionInvocation((FunctionInvocation)content);
                 break;
+            case ConstructorInvocation.TYPE:
+                evalConstructorInvocation((ConstructorInvocation)content);
+                break;
             case DereferenceMethod.TYPE:
                 evalDereferenceMethod((DereferenceMethod)content);
                 break;
@@ -230,6 +233,14 @@ public class CodeGenerator
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
+    }
+
+    private void evalConstructorInvocation(ConstructorInvocation constructorInvocation)
+    {
+        printStatement("new " + constructorInvocation.constructor.type.getTypeName());
+        printStatement("dup");
+        evalArguments(constructorInvocation.functionInvocation.arguments);
+        printStatement("invokespecial " + constructorInvocation.constructor.getMethodCode());
     }
 
     private void evalPreIncrement(PreIncrement preIncrement)
@@ -340,7 +351,7 @@ public class CodeGenerator
 
         String invokeInstruction = functionInvocation.method.isStatic ? "invokestatic " : "invokevirtual ";
 
-        printStatement(invokeInstruction + getMethodCode(functionInvocation.method));
+        printStatement(invokeInstruction + functionInvocation.method.getMethodCode());
     }
 
     private void evalArguments(Arguments arguments)
@@ -510,15 +521,5 @@ public class CodeGenerator
     private void printLabel(String labelName)
     {
         out.println(labelName + ":");
-    }
-    private String getMethodCode(Method method)
-    {
-        StringBuilder builder = new StringBuilder(method.declaringType.getTypeName());
-        builder.append('/').append(method.id).append('(');
-        for (Type type : method.argumentSignature)
-            builder.append(type.getTypeCode());
-        builder.append(')');
-        builder.append(method.returnType.getTypeCode());
-        return builder.toString();
     }
 }

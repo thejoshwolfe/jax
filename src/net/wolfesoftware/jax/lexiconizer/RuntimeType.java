@@ -82,7 +82,7 @@ public class RuntimeType extends Type
         if (constructorsCache == null) {
             constructorsCache = new LinkedList<Constructor>();
             for (java.lang.reflect.Constructor<?> constructor : underlyingType.getConstructors())
-                constructorsCache.add(new Constructor(getTypes(constructor.getParameterTypes())));
+                constructorsCache.add(new Constructor(this, getTypes(constructor.getParameterTypes())));
         }
         return constructorsCache;
     }

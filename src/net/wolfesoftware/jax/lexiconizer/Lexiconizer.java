@@ -113,6 +113,8 @@ public class Lexiconizer
             default:
                 throw new RuntimeException("TODO: implement " + Integer.toString(content.getElementType(), 16));
         }
+        if (context.constructors.size() == 0)
+            context.constructors.add(new Constructor(context, new Type[0]));
     }
 
     private void preLexiconizeFunctionDefinition(LocalType context, FunctionDefinition functionDefinition)
@@ -291,9 +293,12 @@ public class Lexiconizer
         resolveType(typeId);
         if (typeId.type == null)
             errors.add(LexicalException.cantResolveType(typeId));
+        context.modifyStack(2); // new ; dup
         ReturnBehavior[] argumentSignature = lexiconizeArguments(context, constructorInvocation.functionInvocation.arguments);
         constructorInvocation.constructor = resolveConstructor(typeId.type, argumentSignature);
-        context.modifyStack(-argumentSignature.length + 1);
+        if (constructorInvocation.constructor == null)
+            errors.add(new LexicalException(constructorInvocation, "can't resolve this constructor"));
+        context.modifyStack(-(1 + argumentSignature.length));
         return new ReturnBehavior(typeId.type);
     }
 

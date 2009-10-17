@@ -4,14 +4,14 @@ import java.util.*;
 
 public class LocalType extends Type
 {
+    public final LinkedList<Constructor> constructors = new LinkedList<Constructor>();
+    private final HashMap<String, LinkedList<Method>> methods = new HashMap<String, LinkedList<Method>>();
+    private final HashMap<String, Field> fields = new HashMap<String, Field>();
     public LocalType(String fullName, String id)
     {
         super(fullName, id);
     }
 
-    private final LinkedList<Constructor> constructors = new LinkedList<Constructor>();
-    private final HashMap<String, LinkedList<Method>> methods = new HashMap<String, LinkedList<Method>>();
-    private final HashMap<String, Field> fields = new HashMap<String, Field>();
     public void addMethod(Method method)
     {
         LinkedList<Method> list = methods.get(method.id);
