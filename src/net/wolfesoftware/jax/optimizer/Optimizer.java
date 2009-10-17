@@ -70,6 +70,18 @@ public class Optimizer
             case Division.TYPE:
                 optimizeDivision((Division)content);
                 break;
+            case PostIncrement.TYPE:
+                optimizePostIncrement((PostIncrement)content);
+                break;
+            case PreIncrement.TYPE:
+                optimizePreIncrement((PreIncrement)content);
+                break;
+            case PostDecrement.TYPE:
+                optimizePostDecrement((PostDecrement)content);
+                break;
+            case PreDecrement.TYPE:
+                optimizePreDecrement((PreDecrement)content);
+                break;
             case LessThan.TYPE:
                 optimizeLessThan((LessThan)content);
                 break;
@@ -145,6 +157,27 @@ public class Optimizer
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
+    }
+
+    private static void optimizePreDecrement(PreDecrement preDecrement)
+    {
+        optimizeIncrementDecrement(preDecrement);
+    }
+    private static void optimizePostDecrement(PostDecrement postDecrement)
+    {
+        optimizeIncrementDecrement(postDecrement);
+    }
+    private static void optimizePreIncrement(PreIncrement preDecrement)
+    {
+        optimizeIncrementDecrement(preDecrement);
+    }
+    private static void optimizePostIncrement(PostIncrement postIncrement)
+    {
+        optimizeIncrementDecrement(postIncrement);
+    }
+    private static void optimizeIncrementDecrement(IncrementDecrement incrementDecrement)
+    {
+        optimizeExpression(incrementDecrement.expression);
     }
 
     private static void optimizeForLoop(ForLoop forLoop)
