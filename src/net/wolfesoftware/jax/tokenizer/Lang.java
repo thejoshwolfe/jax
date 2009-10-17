@@ -20,6 +20,7 @@ public final class Lang
     public static final String KEYWORD_IF = "if";
     public static final String KEYWORD_IMPORT = "import";
     public static final String KEYWORD_INT = "int";
+    public static final String KEYWORD_NEW = "new";
     public static final String KEYWORD_TRUE = "true";
     public static final String KEYWORD_TRY = "try";
     public static final String KEYWORD_VOID = "void";
