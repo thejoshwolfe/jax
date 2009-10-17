@@ -20,22 +20,23 @@ public class CodeGenTest
     private static final int mode = 1*RUN | 1*CLEAN | 1*VERBOSE;
     private static final String dir = "test";
     private static final String[] tests = {
-        "primitive/Arithmetic",
-        "primitive/BooleanType",
-        "primitive/ConstReturn",
-        "primitive/LocalVariables",
-        "primitive/StringLiteral",
-        "primitive/VoidFunction",
-        "controlStructures/IfThenElse",
-        "controlStructures/ForLoop",
-        "thisClass/FunctionInvocation",
-        "baseLibraries/Import",
-        "baseLibraries/ImportStar",
-        "baseLibraries/RuntimeType",
-        "arrays/ArrayType",
-        "arrays/ArrayDereference",
-        "exceptions/TryCatch",
-        "Fancy",
+//        "primitive/Arithmetic",
+//        "primitive/BooleanType",
+//        "primitive/ConstReturn",
+//        "primitive/LocalVariables",
+//        "primitive/StringLiteral",
+//        "primitive/VoidFunction",
+//        "controlStructures/IfThenElse",
+//        "controlStructures/ForLoop",
+        "oop/NewConstructor",
+//        "thisClass/FunctionInvocation",
+//        "baseLibraries/Import",
+//        "baseLibraries/ImportStar",
+//        "baseLibraries/RuntimeType",
+//        "arrays/ArrayType",
+//        "arrays/ArrayDereference",
+//        "exceptions/TryCatch",
+//        "Fancy",
 //        "Goal",
     };
 
@@ -81,7 +82,7 @@ public class CodeGenTest
                 }
             }
         }
-        System.out.println("** FAIL " + dirAndTest);
+        System.out.println("**** FAIL " + dirAndTest);
         return false;
     }
 }

@@ -1,0 +1,5 @@
+class NewConstructor {
+    Object gimmeAThing() new Object();
+    NewConstructor gimmeAMe() new NewConstructor();
+    Exception withArguemtns() new Exception("teh message", new Exception());
+}
