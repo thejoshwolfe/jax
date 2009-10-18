@@ -1,0 +1,12 @@
+import java.util.ArrayList;
+
+class WhileLoop {
+    ArrayList splitLines(String multiline) {
+        ArrayList lines = new ArrayList();
+        Scanner scanner = new Scanner(multiline);
+        while (scanner.hasNextLine()) {
+            lines.add(scanner.nextLine());
+        };
+        lines
+    }
+}

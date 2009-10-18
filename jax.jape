@@ -91,6 +91,7 @@ $VariableDeclaration = TypeId ID
     $IfThen = "if" Expression "then" Expression
     $IfThenElse = "if" Expression "then" Expression "else" Expression
     $ForLoop = "for" "(" Expression ";" Expression ";" Expression ")" Expression
+    $WhileLoop = "while" "(" Expression ")" Expression
     |ControlStructure = IfThen | IfThenElse | ForLoop
 
     ### controlStatement (continue, return, etc.)
