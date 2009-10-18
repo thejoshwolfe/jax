@@ -13,7 +13,7 @@ public class Constructor extends TakesArguments
     public String getMethodCode()
     {
         StringBuilder builder = new StringBuilder(type.getTypeName());
-        builder.append("<init>(");
+        builder.append("/<init>(");
         for (Type type : argumentSignature)
             builder.append(type.getTypeCode());
         builder.append(")V");

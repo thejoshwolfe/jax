@@ -17,26 +17,26 @@ import net.wolfesoftware.jax.util.*;
 public class CodeGenTest
 {
     private static final int RUN = 1, CLEAN = 2, VERBOSE = 4;
-    private static final int mode = 1*RUN | 0*CLEAN | 1*VERBOSE;
+    private static final int mode = 1*RUN | 1*CLEAN | 1*VERBOSE;
     private static final String dir = "test";
     private static final String[] tests = {
-//        "primitive/Arithmetic",
-//        "primitive/BooleanType",
-//        "primitive/ConstReturn",
-//        "primitive/LocalVariables",
-//        "primitive/StringLiteral",
-//        "primitive/VoidFunction",
-//        "controlStructures/IfThenElse",
-//        "controlStructures/ForLoop",
+        "primitive/Arithmetic",
+        "primitive/BooleanType",
+        "primitive/ConstReturn",
+        "primitive/LocalVariables",
+        "primitive/StringLiteral",
+        "primitive/VoidFunction",
+        "controlStructures/IfThenElse",
+        "controlStructures/ForLoop",
+        "oop/FunctionInvocation",
         "oop/NewConstructor",
-//        "thisClass/FunctionInvocation",
-//        "baseLibraries/Import",
-//        "baseLibraries/ImportStar",
-//        "baseLibraries/RuntimeType",
-//        "arrays/ArrayType",
-//        "arrays/ArrayDereference",
-//        "exceptions/TryCatch",
-//        "Fancy",
+        "baseLibraries/Import",
+        "baseLibraries/ImportStar",
+        "baseLibraries/RuntimeType",
+        "arrays/ArrayType",
+        "arrays/ArrayDereference",
+        "exceptions/TryCatch",
+        "Fancy",
 //        "Goal",
     };
 
