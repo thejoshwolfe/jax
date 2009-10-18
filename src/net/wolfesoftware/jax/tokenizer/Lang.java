@@ -24,6 +24,7 @@ public final class Lang
     public static final String KEYWORD_TRUE = "true";
     public static final String KEYWORD_TRY = "try";
     public static final String KEYWORD_VOID = "void";
+    public static final String KEYWORD_WHILE = "while";
 
     public static final String SYMBOL_BANG = "!";
     public static final String SYMBOL_BANG_EQUALS = "!=";
