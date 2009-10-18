@@ -136,6 +136,9 @@ public class Optimizer
             case ForLoop.TYPE:
                 optimizeForLoop((ForLoop)content);
                 break;
+            case WhileLoop.TYPE:
+                optimizeWhileLoop((WhileLoop)content);
+                break;
             case FunctionInvocation.TYPE:
                 optimizeFunctionInvocation((FunctionInvocation)content);
                 break;
@@ -160,6 +163,12 @@ public class Optimizer
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
+    }
+
+    private static void optimizeWhileLoop(WhileLoop whileLoop)
+    {
+        optimizeExpression(whileLoop.expression1);
+        optimizeExpression(whileLoop.expression2);
     }
 
     private static void optimizeConstructorInvocation(ConstructorInvocation constructorInvocation)

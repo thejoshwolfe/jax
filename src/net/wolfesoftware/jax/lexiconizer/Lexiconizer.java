@@ -244,6 +244,9 @@ public class Lexiconizer
             case ForLoop.TYPE:
                 returnBehavior = lexiconizeForLoop(context, (ForLoop)content);
                 break;
+            case WhileLoop.TYPE:
+                returnBehavior = lexiconizeWhileLoop(context, (WhileLoop)content);
+                break;
             case FunctionInvocation.TYPE:
                 returnBehavior = lexiconizeFunctionInvocation(context, (FunctionInvocation)content);
                 break;
@@ -285,6 +288,23 @@ public class Lexiconizer
         }
         expression.returnBehavior = returnBehavior;
         return returnBehavior;
+    }
+
+    private ReturnBehavior lexiconizeWhileLoop(LocalContext context, WhileLoop whileLoop)
+    {
+        whileLoop.continueToLabel = context.nextLabel();
+        ReturnBehavior returnBehavior1 = lexiconizeExpression(context, whileLoop.expression1);
+        if (returnBehavior1.type != RuntimeType.BOOLEAN)
+            errors.add(LexicalException.mustBeBoolean(whileLoop.expression1));
+        if (returnBehavior1.type != RuntimeType.VOID)
+            context.modifyStack(-1);
+
+        ReturnBehavior returnBehavior2 = lexiconizeExpression(context, whileLoop.expression2);
+        if (returnBehavior2.type != RuntimeType.VOID) {
+            errors.add(LexicalException.mustBeVoid(whileLoop.expression2));
+            context.modifyStack(-1);
+        }
+        return ReturnBehavior.VOID;
     }
 
     private ReturnBehavior lexiconizeConstructorInvocation(LocalContext context, ConstructorInvocation constructorInvocation)
