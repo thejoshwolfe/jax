@@ -304,6 +304,8 @@ public class Lexiconizer
             errors.add(LexicalException.mustBeVoid(whileLoop.expression2));
             context.modifyStack(-1);
         }
+
+        whileLoop.breakToLabel = context.nextLabel();
         return ReturnBehavior.VOID;
     }
 

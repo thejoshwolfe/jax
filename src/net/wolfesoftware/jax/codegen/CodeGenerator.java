@@ -209,6 +209,9 @@ public class CodeGenerator
             case ForLoop.TYPE:
                 evalForLoop((ForLoop)content);
                 break;
+            case WhileLoop.TYPE:
+                evalWhileLoop((WhileLoop)content);
+                break;
             case FunctionInvocation.TYPE:
                 evalFunctionInvocation((FunctionInvocation)content);
                 break;
@@ -233,6 +236,16 @@ public class CodeGenerator
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
+    }
+
+    private void evalWhileLoop(WhileLoop whileLoop)
+    {
+        printLabel(whileLoop.continueToLabel);
+        evalExpression(whileLoop.expression1);
+        printStatement("ifeq " + whileLoop.breakToLabel);
+        evalExpression(whileLoop.expression2);
+        printStatement("goto " + whileLoop.continueToLabel);
+        printLabel(whileLoop.breakToLabel);
     }
 
     private void evalConstructorInvocation(ConstructorInvocation constructorInvocation)
