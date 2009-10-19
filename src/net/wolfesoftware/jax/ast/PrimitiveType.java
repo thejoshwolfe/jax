@@ -20,7 +20,8 @@ public class PrimitiveType extends ParseElement
         return TYPE;
     }
 
-    public static final PrimitiveType KEYWORD_VOID = new PrimitiveType(KeywordElement.KEYWORD_VOID);
-    public static final PrimitiveType KEYWORD_INT = new PrimitiveType(KeywordElement.KEYWORD_INT);
-    public static final PrimitiveType KEYWORD_BOOLEAN = new PrimitiveType(KeywordElement.KEYWORD_BOOLEAN);
+    public static final PrimitiveType VOID = new PrimitiveType(KeywordElement.VOID);
+    public static final PrimitiveType INT = new PrimitiveType(KeywordElement.INT);
+    public static final PrimitiveType BYTE = new PrimitiveType(KeywordElement.BYTE);
+    public static final PrimitiveType BOOLEAN = new PrimitiveType(KeywordElement.BOOLEAN);
 }

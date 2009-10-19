@@ -24,7 +24,8 @@ public class KeywordElement extends ParseElement
         out.append(text);
     }
 
-    public static final KeywordElement KEYWORD_INT = new KeywordElement(Lang.KEYWORD_INT);
-    public static final KeywordElement KEYWORD_VOID = new KeywordElement(Lang.KEYWORD_VOID);
-    public static final KeywordElement KEYWORD_BOOLEAN = new KeywordElement(Lang.KEYWORD_BOOLEAN);
+    public static final KeywordElement INT = new KeywordElement(Lang.KEYWORD_INT);
+    public static final KeywordElement BYTE = new KeywordElement(Lang.KEYWORD_BYTE);
+    public static final KeywordElement VOID = new KeywordElement(Lang.KEYWORD_VOID);
+    public static final KeywordElement BOOLEAN = new KeywordElement(Lang.KEYWORD_BOOLEAN);
 }

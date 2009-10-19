@@ -11,6 +11,7 @@ public final class Lang
     }
 
     public static final String KEYWORD_BOOLEAN = "boolean";
+    public static final String KEYWORD_BYTE = "byte";
     public static final String KEYWORD_CATCH = "catch";
     public static final String KEYWORD_CLASS = "class";
     public static final String KEYWORD_ELSE = "else";

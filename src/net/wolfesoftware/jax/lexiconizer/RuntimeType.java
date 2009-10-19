@@ -2,10 +2,6 @@ package net.wolfesoftware.jax.lexiconizer;
 
 import java.util.*;
 
-/**
- * TODO: is this is the right approach? I can't find any filesystem-based classpaths with the 
- * complete bcl. If we do use reflection, how do we avoid our own runtime classes?
- */
 public class RuntimeType extends Type
 {
     private final Class<?> underlyingType;
@@ -126,12 +122,15 @@ public class RuntimeType extends Type
             return typeCode;
         }
     }
+    // http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html#84645
     public static final RuntimeType INT = new PrimitiveType(int.class, "I");
+    public static final RuntimeType BYTE = new PrimitiveType(byte.class, "B");
     public static final RuntimeType VOID = new PrimitiveType(void.class, "V");
     public static final RuntimeType BOOLEAN = new PrimitiveType(boolean.class, "Z");
     public static void initPrimitives(HashMap<String, Type> types)
     {
         types.put(INT.id, INT);
+        types.put(BYTE.id, BYTE);
         types.put(VOID.id, VOID);
         types.put(BOOLEAN.id, BOOLEAN);
     }
@@ -158,6 +157,7 @@ public class RuntimeType extends Type
         for (Class<?> type : javaLangClasses)
             cache.put(type, new RuntimeType(type));
         cache.put(INT.underlyingType, INT);
+        cache.put(BYTE.underlyingType, BYTE);
         cache.put(VOID.underlyingType, VOID);
         cache.put(BOOLEAN.underlyingType, BOOLEAN);
     }

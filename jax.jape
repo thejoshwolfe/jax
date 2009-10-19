@@ -40,7 +40,7 @@
 ## special elements
 
 ### Types
-|PrimitiveType = "void" | "int" | "boolean"
+|PrimitiveType = "void" | "int" | "byte" | "boolean"
 |ScalarType = PrimitiveType | ID
 |ArrayDimension = "[" "]"
 ~ArrayDimensions = ArrayDimension : ""

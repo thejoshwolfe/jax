@@ -106,14 +106,11 @@ public class CodeGenerator
 
         // return statement
         String rtnStmt = null;
-        if (!functionDefinition.returnBehavior.type.isPrimitive())
-            rtnStmt = "areturn";
-        else if (functionDefinition.returnBehavior.type == RuntimeType.VOID)
+        Type type = functionDefinition.returnBehavior.type;
+        if (type == RuntimeType.VOID)
             rtnStmt = "return";
-        else if (functionDefinition.returnBehavior.type == RuntimeType.INT || functionDefinition.returnBehavior.type == RuntimeType.BOOLEAN)
-            rtnStmt = "ireturn";
-        if (rtnStmt == null)
-            throw new RuntimeException(functionDefinition.returnBehavior.type.toString());
+        else
+            rtnStmt = getTypeLetter(type) + "return";
         printStatement(rtnStmt);
 
         // exception table
@@ -403,7 +400,7 @@ public class CodeGenerator
     {
         if (!type.isPrimitive())
             return "a";
-        if (type == RuntimeType.INT || type == RuntimeType.BOOLEAN)
+        if (type == RuntimeType.INT || type == RuntimeType.BYTE || type == RuntimeType.BOOLEAN)
             return "i";
         throw new RuntimeException(type.toString());
     }

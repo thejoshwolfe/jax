@@ -320,11 +320,13 @@ public final class Parser
         if (token.getType() == IdentifierToken.TYPE)
             return new ScalarType(new Id(token.text));
         if (token.text == Lang.KEYWORD_INT)
-            return ScalarType.KEYWORD_INT;
+            return ScalarType.INT;
+        if (token.text == Lang.KEYWORD_BYTE)
+            return ScalarType.BYTE;
         if (token.text == Lang.KEYWORD_VOID)
-            return ScalarType.KEYWORD_VOID;
+            return ScalarType.VOID;
         if (token.text == Lang.KEYWORD_BOOLEAN)
-            return ScalarType.KEYWORD_BOOLEAN;
+            return ScalarType.BOOLEAN;
         return null;
     }
 
@@ -554,6 +556,13 @@ public final class Parser
                         offset++;
                         continue;
                     }
+                    EnclosedSubParsing typeIdCast = parseTypeIdCast(offset);
+                    if (typeIdCast != null)
+                    {
+                        pushClosedLeftOperator(ExpressionOperator.typeIdCast, typeIdCast.expressions);
+                        offset = typeIdCast.end;
+                        continue;
+                    }
                     operators = ExpressionOperator.CLOSED_LEFT;
                 }
                 else
@@ -700,6 +709,21 @@ public final class Parser
                             offset = innerParsing.end;
                             innerElements.add(innerParsing.element);
                             break;
+                        case PrimitiveType.TYPE:
+                            if (innerParsing == null || innerParsing.element.getElementType() != PrimitiveType.TYPE)
+                            {
+                                // history was missing/wrong
+                                Util.removeAfter(partialSubParsings, i);
+                                innerParsing = parseTypeId(offset);
+                                if (innerParsing == null)
+                                    return null;
+                                if (((TypeId)innerParsing.element).scalarType.content.getElementType() != PrimitiveType.TYPE)
+                                    return null;
+                                partialSubParsings.add(innerParsing);
+                            }
+                            offset = innerParsing.end;
+                            innerElements.add(innerParsing.element);
+                            break;
                         case -1:
                             break;
                         default:
@@ -752,6 +776,29 @@ public final class Parser
                 ParseElement expressionContent = operatorElement.op.makeExpressionContent(leftExpression, operatorElement.innerExpressions, rightExpression);
                 stack.push(new ExpressionStackElement(new Expression(expressionContent), getTopPrecedence()));
             }
+        }
+        private EnclosedSubParsing parseTypeIdCast(int offset)
+        {
+            if (getToken(offset).text != Lang.SYMBOL_OPEN_PARENS)
+                return null;
+            offset++;
+
+            SubParsing<TypeId> typeId = parseTypeId(offset);
+            if (typeId == null)
+                return null;
+            offset = typeId.end;
+
+            if (getToken(offset).text != Lang.SYMBOL_CLOSE_PARENS)
+                return null;
+            offset++;
+
+            String betterNotBeAPlusOrMinus = getToken(offset).text;
+            if (betterNotBeAPlusOrMinus == Lang.SYMBOL_PLUS || betterNotBeAPlusOrMinus == Lang.SYMBOL_MINUS)
+                return null;
+
+            ArrayList<ParseElement> elements = new ArrayList<ParseElement>();
+            elements.add(typeId.element);
+            return new EnclosedSubParsing(elements, offset);
         }
 
         private abstract class StackElement
