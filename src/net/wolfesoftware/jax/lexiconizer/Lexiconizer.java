@@ -220,6 +220,12 @@ public class Lexiconizer
             case IntLiteral.TYPE:
                 returnBehavior = lexiconizeIntLiteral(context, (IntLiteral)content);
                 break;
+            case FloatLiteral.TYPE:
+                returnBehavior = lexiconizeFloatLiteral(context, (FloatLiteral)content);
+                break;
+            case DoubleLiteral.TYPE:
+                returnBehavior = lexiconizeDoubleLiteral(context, (DoubleLiteral)content);
+                break;
             case BooleanLiteral.TYPE:
                 returnBehavior = lexiconizeBooleanLiteral(context, (BooleanLiteral)content);
                 break;
@@ -295,6 +301,7 @@ public class Lexiconizer
         expression.returnBehavior = returnBehavior;
         return returnBehavior;
     }
+
 
     private ReturnBehavior lexiconizeNegation(LocalContext context, Negation negation)
     {
@@ -763,6 +770,16 @@ public class Lexiconizer
     {
         context.modifyStack(1);
         return ReturnBehavior.INT;
+    }
+    private ReturnBehavior lexiconizeFloatLiteral(LocalContext context, FloatLiteral floatLiteral)
+    {
+        context.modifyStack(1);
+        return ReturnBehavior.FLOAT;
+    }
+    private ReturnBehavior lexiconizeDoubleLiteral(LocalContext context, DoubleLiteral doubleLiteral)
+    {
+        context.modifyStack(1);
+        return ReturnBehavior.DOUBLE;
     }
     private ReturnBehavior lexiconizeBooleanLiteral(LocalContext context, BooleanLiteral booleanLiteral)
     {

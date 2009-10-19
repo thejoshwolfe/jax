@@ -10,60 +10,62 @@ public final class Lang
     {
     }
 
-    public static final String KEYWORD_BOOLEAN = "boolean";
-    public static final String KEYWORD_BYTE = "byte";
-    public static final String KEYWORD_CATCH = "catch";
-    public static final String KEYWORD_CLASS = "class";
-    public static final String KEYWORD_DOUBLE = "double";
-    public static final String KEYWORD_ELSE = "else";
-    public static final String KEYWORD_FALSE = "false";
-    public static final String KEYWORD_FLOAT = "float";
-    public static final String KEYWORD_FINALLY = "finally";
-    public static final String KEYWORD_FOR = "for";
-    public static final String KEYWORD_IF = "if";
-    public static final String KEYWORD_IMPORT = "import";
-    public static final String KEYWORD_INT = "int";
-    public static final String KEYWORD_NEW = "new";
-    public static final String KEYWORD_TRUE = "true";
-    public static final String KEYWORD_TRY = "try";
-    public static final String KEYWORD_VOID = "void";
-    public static final String KEYWORD_WHILE = "while";
+    public static final String 
+    KEYWORD_BOOLEAN = "boolean",
+    KEYWORD_BYTE = "byte",
+    KEYWORD_CATCH = "catch",
+    KEYWORD_CLASS = "class",
+    KEYWORD_DOUBLE = "double",
+    KEYWORD_ELSE = "else",
+    KEYWORD_FALSE = "false",
+    KEYWORD_FLOAT = "float",
+    KEYWORD_FINALLY = "finally",
+    KEYWORD_FOR = "for",
+    KEYWORD_IF = "if",
+    KEYWORD_IMPORT = "import",
+    KEYWORD_INT = "int",
+    KEYWORD_NEW = "new",
+    KEYWORD_TRUE = "true",
+    KEYWORD_TRY = "try",
+    KEYWORD_VOID = "void",
+    KEYWORD_WHILE = "while";
 
-    public static final String SYMBOL_BANG = "!";
-    public static final String SYMBOL_BANG_EQUALS = "!=";
-    public static final String SYMBOL_PERCENT = "%";
-    public static final String SYMBOL_AMPERSAND = "&";
-    public static final String SYMBOL_AMPERSAND_AMPERSAND = "&&";
-    public static final String SYMBOL_OPEN_PARENS = "(";
-    public static final String SYMBOL_CLOSE_BRACE = "}";
-    public static final String SYMBOL_ASTERISK = "*";
-    public static final String SYMBOL_PLUS = "+";
-    public static final String SYMBOL_PLUS_PLUS = "++";
-    public static final String SYMBOL_COMMA = ",";
-    public static final String SYMBOL_MINUS = "-";
-    public static final String SYMBOL_MINUS_MINUS = "--";
-    public static final String SYMBOL_PERIOD = ".";
-    public static final String SYMBOL_SLASH = "/";
-    public static final String SYMBOL_COLON = ":";
-    public static final String SYMBOL_SEMICOLON = ";";
-    public static final String SYMBOL_LESS_THAN = "<";
-    public static final String SYMBOL_LESS_THAN_LESS_THAN = "<<";
-    public static final String SYMBOL_LESS_THAN_OR_EQUAL = "<=";
-    public static final String SYMBOL_EQUALS = "=";
-    public static final String SYMBOL_EQUALS_EQUALS = "==";
-    public static final String SYMBOL_GREATER_THAN = ">";
-    public static final String SYMBOL_GREATER_THAN_OR_EQUAL = ">=";
-    public static final String SYMBOL_GREATER_THAN_GREATER_THAN = ">>";
-    public static final String SYMBOL_GREATER_THAN_GREATER_THAN_GREATER_THAN = ">>>";
-    public static final String SYMBOL_QUESTION = "?";
-    public static final String SYMBOL_OPEN_BRACKET = "[";
-    public static final String SYMBOL_CLOSE_BRACKET = "]";
-    public static final String SYMBOL_CARET = "^";
-    public static final String SYMBOL_OPEN_BRACE = "{";
-    public static final String SYMBOL_PIPE = "|";
-    public static final String SYMBOL_PIPE_PIPE = "||";
-    public static final String SYMBOL_CLOSE_PARENS = ")";
-    public static final String SYMBOL_TILDE = "~";
+    public static final String 
+    SYMBOL_BANG = "!",
+    SYMBOL_BANG_EQUALS = "!=",
+    SYMBOL_PERCENT = "%",
+    SYMBOL_AMPERSAND = "&",
+    SYMBOL_AMPERSAND_AMPERSAND = "&&",
+    SYMBOL_OPEN_PARENS = "(",
+    SYMBOL_CLOSE_BRACE = "}",
+    SYMBOL_ASTERISK = "*",
+    SYMBOL_PLUS = "+",
+    SYMBOL_PLUS_PLUS = "++",
+    SYMBOL_COMMA = ",",
+    SYMBOL_MINUS = "-",
+    SYMBOL_MINUS_MINUS = "--",
+    SYMBOL_PERIOD = ".",
+    SYMBOL_SLASH = "/",
+    SYMBOL_COLON = ":",
+    SYMBOL_SEMICOLON = ";",
+    SYMBOL_LESS_THAN = "<",
+    SYMBOL_LESS_THAN_LESS_THAN = "<<",
+    SYMBOL_LESS_THAN_OR_EQUAL = "<=",
+    SYMBOL_EQUALS = "=",
+    SYMBOL_EQUALS_EQUALS = "==",
+    SYMBOL_GREATER_THAN = ">",
+    SYMBOL_GREATER_THAN_OR_EQUAL = ">=",
+    SYMBOL_GREATER_THAN_GREATER_THAN = ">>",
+    SYMBOL_GREATER_THAN_GREATER_THAN_GREATER_THAN = ">>>",
+    SYMBOL_QUESTION = "?",
+    SYMBOL_OPEN_BRACKET = "[",
+    SYMBOL_CLOSE_BRACKET = "]",
+    SYMBOL_CARET = "^",
+    SYMBOL_OPEN_BRACE = "{",
+    SYMBOL_PIPE = "|",
+    SYMBOL_PIPE_PIPE = "||",
+    SYMBOL_CLOSE_PARENS = ")",
+    SYMBOL_TILDE = "~";
 
     public static final ArrayList<String> ALL = new ArrayList<String>();
     static {

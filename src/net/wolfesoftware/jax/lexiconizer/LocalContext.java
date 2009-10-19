@@ -8,6 +8,7 @@ public class LocalContext
     public final LocalContext parentContext;
     private final RootLocalContext rootContext;
     public final HashMap<String, LocalVariable> localVariables = new HashMap<String, LocalVariable>();
+    private int wideVariableCount = 0;
 
     private final int parentVariableCount;
 
@@ -30,12 +31,16 @@ public class LocalContext
         int number = getVariableCount();
         id.variable = new LocalVariable(id.name, type, number);
         localVariables.put(id.name, id.variable);
+        if (type == RuntimeType.DOUBLE
+//                || type == RuntimeType.LONG
+            )
+            wideVariableCount++;
         rootContext.ensureVariableCapacity(getVariableCount());
     }
 
     private int getVariableCount()
     {
-        return parentVariableCount + localVariables.size();
+        return parentVariableCount + localVariables.size() + wideVariableCount;
     }
 
     public LocalVariable getLocalVariable(String name)

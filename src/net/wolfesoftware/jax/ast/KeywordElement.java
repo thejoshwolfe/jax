@@ -2,7 +2,6 @@ package net.wolfesoftware.jax.ast;
 
 import net.wolfesoftware.jax.tokenizer.Lang;
 
-
 public class KeywordElement extends ParseElement
 {
     public final String text;
