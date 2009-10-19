@@ -301,8 +301,10 @@ public class Lexiconizer
         ReturnBehavior returnBehavior = lexiconizeExpression(context, negation.expression);
         if (returnBehavior.type != RuntimeType.INT)
             errors.add(LexicalException.mustBeInt(negation.expression));
-        if (returnBehavior.type == RuntimeType.VOID)
+        if (returnBehavior.type == RuntimeType.VOID) {
             context.modifyStack(1);
+            return ReturnBehavior.INT;
+        }
         return new ReturnBehavior(returnBehavior.type);
     }
 

@@ -124,7 +124,7 @@ public abstract class ExpressionOperator
             return new Negation(rightExpression);
         }
     };
-    
+
 
     public static final ExpressionOperator quantity = new ExpressionEnclosingOperator(-1, Lang.SYMBOL_OPEN_PARENS, -1, 
             Expression.TYPE, Lang.SYMBOL_CLOSE_PARENS) {
