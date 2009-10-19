@@ -177,4 +177,35 @@ public class RuntimeType extends Type
             returnTypes[i] = getType(underlyingTypes[i]);
         return returnTypes;
     }
+
+    private static final int[][] primitiveConversionTable = {
+    // to: char byte short int long float double    | from:
+        {     0,  -1,   -1,  1,   1,    1,     1}, // char   0
+        {    -1,   0,    1,  1,   1,    1,     1}, // byte   1
+        {    -1,  -1,    0,  1,   1,    1,     1}, // short  2
+        {     1,  -1,   -1,  0,   1,    1,     1}, // int    3
+        {     1,  -1,   -1, -1,   0,    1,     1}, // long   4
+        {     1,  -1,   -1, -1,  -1,    0,     1}, // float  5
+        {     1,  -1,   -1, -1,  -1,   -1,     0}, // double 6
+    };
+    public static int getPrimitiveConversionType(Type fromType, Type toType) {
+        return primitiveConversionTable[getPrimitiveIndex(fromType)][getPrimitiveIndex(toType)];
+    }
+    private static int getPrimitiveIndex(Type type) {
+//        if (type == CHAR)
+//            return 0;
+        if (type == BYTE)
+            return 1;
+//        if (type == SHORT)
+//            return 2;
+        if (type == INT)
+            return 3;
+//        if (type == LONG)
+//            return 4;
+//        if (type == FLOAT)
+//            return 5;
+//        if (type == DOUBLE)
+//            return 6;
+        throw new RuntimeException("hey, this isn't a primitive type: " + type);
+    }
 }

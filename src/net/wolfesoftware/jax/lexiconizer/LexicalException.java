@@ -42,7 +42,7 @@ public class LexicalException extends CompileError
 
     public static LexicalException variableMustBeInt(Id id)
     {
-        return new LexicalException(id, "variable needs to be of type int");
+        return new LexicalException(id, "variable needs to be of type int.");
     }
 
     public static LexicalException cantResolveType(TypeId typeId)

@@ -283,11 +283,88 @@ public class Lexiconizer
             case TryCatch.TYPE:
                 returnBehavior = lexiconizeTryCatch(context, (TryCatch)content);
                 break;
+            case TypeCast.TYPE:
+                returnBehavior = lexiconizeTypeCast(context, expression);
+                break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
         expression.returnBehavior = returnBehavior;
         return returnBehavior;
+    }
+
+    private ReturnBehavior lexiconizeTypeCast(LocalContext context, Expression expression)
+    {
+        TypeCast typeCast = (TypeCast)expression.content;
+        // toType
+        resolveType(typeCast.typeId);
+        Type toType = typeCast.typeId.type;
+        if (toType == null)
+            errors.add(LexicalException.cantResolveType(typeCast.typeId));
+        else if (toType == RuntimeType.VOID) {
+            errors.add(new LexicalException(typeCast.typeId, "can't cast to void."));
+            toType = null;
+        }
+        // fromType
+        ReturnBehavior returnBehavior = lexiconizeExpression(context, typeCast.expression);
+        Type fromType = returnBehavior.type;
+        if (fromType == RuntimeType.VOID) {
+            errors.add(new LexicalException(typeCast, "can't cast from void."));
+            context.modifyStack(1);
+            fromType = null;
+        }
+        // error recovery
+        if (fromType == null) {
+            if (toType == null)
+                return new ReturnBehavior(RuntimeType.getType(Object.class));
+            return new ReturnBehavior(toType);
+        } else if (toType == null)
+            return new ReturnBehavior(fromType);
+
+        // identity
+        if (fromType == toType)
+            return new ReturnBehavior(toType);
+
+        // primitive vs reference
+        if (fromType.isPrimitive() != toType.isPrimitive()) {
+            errors.add(new LexicalException(typeCast.typeId, "can't cast between primitives and non-primitives"));
+            return new ReturnBehavior(toType);
+        }
+        if (toType.isPrimitive()) {
+            // primitive
+            if (fromType == RuntimeType.BOOLEAN || toType == RuntimeType.BOOLEAN) {
+                errors.add(LexicalException.cantCast(typeCast.typeId, fromType, toType));
+                return new ReturnBehavior(toType);
+            }
+            switch (RuntimeType.getPrimitiveConversionType(fromType, toType)) {
+                case -1:
+                    // narrowing
+                    expression.content = PrimitiveConversion.getConversion(fromType, toType, typeCast.expression);
+                    if (expression.content == null) {
+                        errors.add(LexicalException.cantCast(typeCast, fromType, toType));
+                        expression.content = typeCast;
+                    }
+                    break;
+                case 0:
+                    throw null; // identity casts are dealt with earlier
+                case 1:
+                    // inline widening cast
+                    expression.content = typeCast.expression.content;
+                    break;
+                default:
+                    throw null;
+            }
+            return new ReturnBehavior(toType);
+        } else {
+            // reference
+            if (fromType.isInstanceOf(toType)) {
+                // inline widening cast
+                expression.content = typeCast.expression.content;
+                return new ReturnBehavior(toType);
+            }
+            expression.content = new ReferenceConversion(typeCast.expression, toType);
+            return new ReturnBehavior(toType);
+        }
     }
 
     private ReturnBehavior lexiconizeWhileLoop(LocalContext context, WhileLoop whileLoop)

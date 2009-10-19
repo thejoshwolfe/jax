@@ -160,9 +160,25 @@ public class Optimizer
             case StaticFunctionInvocation.TYPE:
                 optimizeStaticFunctionInvocation((StaticFunctionInvocation)content);
                 break;
+            case PrimitiveConversion.TYPE:
+                optimizePrimitiveConversion((PrimitiveConversion)content);
+                break;
+            case ReferenceConversion.TYPE:
+                optimizeReferenceConversion((ReferenceConversion)content);
+                break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
+    }
+
+    private static void optimizeReferenceConversion(ReferenceConversion referenceConversion)
+    {
+        optimizeExpression(referenceConversion.expression);
+    }
+
+    private static void optimizePrimitiveConversion(PrimitiveConversion primitiveConversion)
+    {
+        optimizeExpression(primitiveConversion.expression);
     }
 
     private static void optimizeWhileLoop(WhileLoop whileLoop)
