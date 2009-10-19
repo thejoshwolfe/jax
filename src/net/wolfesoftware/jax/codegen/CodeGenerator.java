@@ -182,6 +182,9 @@ public class CodeGenerator
             case Inequality.TYPE:
                 evalInequality((Inequality)content);
                 break;
+            case Negation.TYPE:
+                evalNegation((Negation)content);
+                break;
             case Quantity.TYPE:
                 evalQuantity((Quantity)content);
                 break;
@@ -239,6 +242,12 @@ public class CodeGenerator
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
+    }
+
+    private void evalNegation(Negation negation)
+    {
+        evalExpression(negation.expression);
+        printStatement("ineg");
     }
 
     private void evalReferenceConversion(ReferenceConversion referenceConversion)
