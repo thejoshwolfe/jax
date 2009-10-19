@@ -154,7 +154,7 @@ public class Lexiconizer
         functionDefinition.returnBehavior = lexiconizeExpression(functionDefinition.context, functionDefinition.expression);
         if (functionDefinition.method.returnType != functionDefinition.returnBehavior.type)
             errors.add(LexicalException.cantCast(functionDefinition.expression, functionDefinition.returnBehavior.type, functionDefinition.method.returnType));
-        functionDefinition.context.modifyStack(functionDefinition.returnBehavior.type.getSize()); // return
+        functionDefinition.context.modifyStack(-functionDefinition.returnBehavior.type.getSize());
         Util._assert(functionDefinition.context.stackSize == 0);
     }
 
@@ -305,13 +305,11 @@ public class Lexiconizer
     private ReturnBehavior lexiconizeNegation(LocalContext context, Negation negation)
     {
         ReturnBehavior returnBehavior = lexiconizeExpression(context, negation.expression);
-        if (returnBehavior.type != RuntimeType.INT)
+        if (returnBehavior.type != RuntimeType.INT) {
             errors.add(LexicalException.mustBeInt(negation.expression));
-        if (returnBehavior.type == RuntimeType.VOID) {
-            context.modifyStack(1);
-            return ReturnBehavior.INT;
+            context.modifyStack(RuntimeType.INT.getSize() - returnBehavior.type.getSize());
         }
-        return new ReturnBehavior(returnBehavior.type);
+        return ReturnBehavior.INT;
     }
 
     private ReturnBehavior lexiconizeTypeCast(LocalContext context, Expression expression)
@@ -331,7 +329,6 @@ public class Lexiconizer
         Type fromType = returnBehavior.type;
         if (fromType == RuntimeType.VOID) {
             errors.add(new LexicalException(typeCast, "can't cast from void."));
-            context.modifyStack(1);
             fromType = null;
         }
         // error recovery
@@ -345,6 +342,7 @@ public class Lexiconizer
         // identity
         if (fromType == toType)
             return new ReturnBehavior(toType);
+        context.modifyStack(toType.getSize() - returnBehavior.type.getSize());
 
         // primitive vs reference
         if (fromType.isPrimitive() != toType.isPrimitive()) {
@@ -394,13 +392,12 @@ public class Lexiconizer
         ReturnBehavior returnBehavior1 = lexiconizeExpression(context, whileLoop.expression1);
         if (returnBehavior1.type != RuntimeType.BOOLEAN)
             errors.add(LexicalException.mustBeBoolean(whileLoop.expression1));
-        if (returnBehavior1.type != RuntimeType.VOID)
-            context.modifyStack(-1);
+        context.modifyStack(-returnBehavior1.type.getSize());
 
         ReturnBehavior returnBehavior2 = lexiconizeExpression(context, whileLoop.expression2);
         if (returnBehavior2.type != RuntimeType.VOID) {
             errors.add(LexicalException.mustBeVoid(whileLoop.expression2));
-            context.modifyStack(-1);
+            context.modifyStack(-returnBehavior2.type.getSize());
         }
 
         whileLoop.breakToLabel = context.nextLabel();
@@ -413,12 +410,12 @@ public class Lexiconizer
         resolveType(typeId);
         if (typeId.type == null)
             errors.add(LexicalException.cantResolveType(typeId));
-        context.modifyStack(2); // new ; dup
+        context.modifyStack(2); // new; dup;
         ReturnBehavior[] argumentSignature = lexiconizeArguments(context, constructorInvocation.functionInvocation.arguments);
         constructorInvocation.constructor = resolveConstructor(typeId.type, argumentSignature);
         if (constructorInvocation.constructor == null)
             errors.add(new LexicalException(constructorInvocation, "can't resolve this constructor"));
-        context.modifyStack(-(1 + argumentSignature.length));
+        context.modifyStack(-(1 + getArgumentSignatureSize(argumentSignature)));
         return new ReturnBehavior(typeId.type);
     }
 
@@ -460,8 +457,7 @@ public class Lexiconizer
 
         forLoop.continueToLabel = innerContext.nextLabel();
         ReturnBehavior returnBehavior3 = lexiconizeExpression(innerContext, forLoop.expression3);
-        if (returnBehavior3.type != RuntimeType.VOID)
-            innerContext.modifyStack(-1);
+        innerContext.modifyStack(-returnBehavior3.type.getSize());
 
         forLoop.initialGotoLabel = innerContext.nextLabel();
         ReturnBehavior returnBehavior2 = lexiconizeExpression(innerContext, forLoop.expression2);
@@ -481,16 +477,15 @@ public class Lexiconizer
     private ReturnBehavior lexiconizeArrayDereference(LocalContext context, ArrayDereference arrayDereference)
     {
         ReturnBehavior returnBehavior1 = lexiconizeExpression(context, arrayDereference.expression1);
-        if (returnBehavior1.type.getType() != ArrayType.TYPE) {
+        if (returnBehavior1.type.getType() != ArrayType.TYPE)
             errors.add(new LexicalException(arrayDereference, "Can't dereference this thing like an array"));
-            // TODO: handle this more gracefully
-        }
         ReturnBehavior returnBehavior2 = lexiconizeExpression(context, arrayDereference.expression2);
         if (returnBehavior2.type != RuntimeType.INT)
-            errors.add(new LexicalException(arrayDereference.expression2, "Must be int"));
-        context.modifyStack(-2 + 1);
+            errors.add(LexicalException.mustBeInt(arrayDereference.expression2));
 
         Type scalarType = ((ArrayType)returnBehavior1.type).scalarType;
+        context.modifyStack(-2 + scalarType.getSize());
+
         return new ReturnBehavior(scalarType);
     }
 
@@ -498,8 +493,9 @@ public class Lexiconizer
     {
         // lexiconization already done for typeId
         staticDereferenceField.field = resolveField(staticDereferenceField.typeId.type, staticDereferenceField.id);
-        context.modifyStack(1);
-        return new ReturnBehavior(staticDereferenceField.field.returnType);
+        Type type = staticDereferenceField.field.returnType;
+        context.modifyStack(type.getSize());
+        return new ReturnBehavior(type);
     }
 
     private ReturnBehavior lexiconizeStaticFunctionInvocation(LocalContext context, StaticFunctionInvocation staticFunctionInvocation)
@@ -507,28 +503,24 @@ public class Lexiconizer
         // lexiconization already done for typeId
         ReturnBehavior[] argumentSignature = lexiconizeArguments(context, staticFunctionInvocation.functionInvocation.arguments);
         staticFunctionInvocation.functionInvocation.method = resolveMethod(staticFunctionInvocation.typeId.type, staticFunctionInvocation.functionInvocation.id, argumentSignature);
-        context.modifyStack(-argumentSignature.length);
+        context.modifyStack(-getArgumentSignatureSize(argumentSignature));
         Type returnType = staticFunctionInvocation.functionInvocation.method.returnType;
-        if (returnType != RuntimeType.VOID)
-            context.modifyStack(1);
+        context.modifyStack(returnType.getSize());
         return new ReturnBehavior(returnType);
     }
 
     private ReturnBehavior lexiconizeTryCatch(LocalContext context, TryCatch tryCatch)
     {
         ReturnBehavior tryPartReturnBehavior = lexiconizeTryPart(context, tryCatch.tryPart);
-        if (tryPartReturnBehavior.type != RuntimeType.VOID)
-            context.modifyStack(-1); // take this off for now
+        context.modifyStack(-tryPartReturnBehavior.type.getSize()); // take this off for now
 
         ReturnBehavior catchPartReturnBehavior = lexiconizeCatchPart(context, tryCatch.catchPart);
         tryCatch.endLabel = context.nextLabel();
-        if (catchPartReturnBehavior.type != RuntimeType.VOID)
-            context.modifyStack(-1); // take this off for now
+        context.modifyStack(-catchPartReturnBehavior.type.getSize()); // take this off for now
 
         if (tryPartReturnBehavior.type != catchPartReturnBehavior.type)
             errors.add(new LexicalException(tryCatch, "return types must match"));
-        if (tryPartReturnBehavior.type != RuntimeType.VOID)
-            context.modifyStack(1); // and now put it back on
+        context.modifyStack(tryPartReturnBehavior.type.getSize()); // and now put it back on
         return new ReturnBehavior(tryPartReturnBehavior.type);
     }
 
@@ -625,9 +617,8 @@ public class Lexiconizer
         ReturnBehavior expressionReturnBehavior = lexiconizeExpression(context, dereferenceMethod.expression);
         ReturnBehavior[] argumentSignature = lexiconizeArguments(context, dereferenceMethod.functionInvocation.arguments);
         dereferenceMethod.functionInvocation.method = resolveMethod(expressionReturnBehavior.type, dereferenceMethod.functionInvocation.id, argumentSignature);
-        context.modifyStack(-(1 + argumentSignature.length));
-        if (dereferenceMethod.functionInvocation.method.returnType != RuntimeType.VOID)
-            context.modifyStack(1);
+        context.modifyStack(-(1 + getArgumentSignatureSize(argumentSignature)));
+        context.modifyStack(dereferenceMethod.functionInvocation.method.returnType.getSize());
         return new ReturnBehavior(dereferenceMethod.functionInvocation.method.returnType);
     }
 
@@ -635,9 +626,8 @@ public class Lexiconizer
     {
         ReturnBehavior[] argumentSignature = lexiconizeArguments(context, functionInvocation.arguments);
         functionInvocation.method = resolveFunction(context.getClassContext(), functionInvocation.id, argumentSignature);
-        context.modifyStack(-argumentSignature.length);
-        if (functionInvocation.method.returnType != RuntimeType.VOID)
-            context.modifyStack(1);
+        context.modifyStack(-getArgumentSignatureSize(argumentSignature));
+        context.modifyStack(functionInvocation.method.returnType.getSize());
         return new ReturnBehavior(functionInvocation.method.returnType);
     }
 
@@ -660,18 +650,15 @@ public class Lexiconizer
 
         ifThenElse.label1 = context.nextLabel();
         lexiconizeExpression(context, ifThenElse.expression2);
-        if (ifThenElse.expression2.returnBehavior.type != RuntimeType.VOID)
-            context.modifyStack(-1); // for now, take this off
+        context.modifyStack(-ifThenElse.expression2.returnBehavior.type.getSize()); // for now, take this off
 
         ifThenElse.label2 = context.nextLabel();
         lexiconizeExpression(context, ifThenElse.expression3);
-        if (ifThenElse.expression3.returnBehavior.type != RuntimeType.VOID)
-            context.modifyStack(-1); // for now, take this off
+        context.modifyStack(-ifThenElse.expression3.returnBehavior.type.getSize()); // for now, take this off
 
         if (ifThenElse.expression2.returnBehavior.type != ifThenElse.expression3.returnBehavior.type)
             errors.add(new LexicalException(ifThenElse, "return types must match"));
-        if (ifThenElse.expression2.returnBehavior.type != RuntimeType.VOID)
-            context.modifyStack(1); // and now put it back
+        context.modifyStack(ifThenElse.expression2.returnBehavior.type.getSize()); // and now put it back
         return new ReturnBehavior(ifThenElse.expression2.returnBehavior.type);
     }
     private ReturnBehavior lexiconizeIfThen(LocalContext context, IfThen ifThen)
@@ -697,8 +684,8 @@ public class Lexiconizer
         ReturnBehavior returnBehavior = lexiconizeExpression(context, assignment.expression);
         if (assignment.id.variable != null && assignment.id.variable.type != returnBehavior.type)
             errors.add(LexicalException.cantCast(assignment.expression, returnBehavior.type, assignment.id.variable.type));
-        context.modifyStack(1); // "dup" for multiassignment. This is likely to change in the future.
-        context.modifyStack(-1);
+        context.modifyStack(returnBehavior.type.getSize()); // "dup" for multiassignment. This is likely to change in the future.
+        context.modifyStack(-returnBehavior.type.getSize());
         return new ReturnBehavior(returnBehavior.type);
     }
 
@@ -720,7 +707,7 @@ public class Lexiconizer
             errors.add(LexicalException.cantResolveLocalVariable(id));
             // TODO: return something
         }
-        context.modifyStack(1);
+        context.modifyStack(id.variable.type.getSize());
         return new ReturnBehavior(id.variable.type);
     }
 
@@ -730,7 +717,7 @@ public class Lexiconizer
         ReturnBehavior returnBehavior = lexiconizeExpression(context, variableCreation.expression);
         if (variableCreation.variableDeclaration.typeId.type != returnBehavior.type)
             errors.add(LexicalException.cantCast(variableCreation.expression, returnBehavior.type, variableCreation.variableDeclaration.typeId.type));
-        context.modifyStack(-1);
+        context.modifyStack(-returnBehavior.type.getSize());
         return ReturnBehavior.VOID;
     }
 
@@ -750,13 +737,11 @@ public class Lexiconizer
         for (Expression element : blockContents.elements) {
             ReturnBehavior returnBehavior = lexiconizeExpression(context, element);
             returnType = returnBehavior.type;
-            if (returnType != RuntimeType.VOID)
-                context.modifyStack(-1); // assume the block does not return this value
+            context.modifyStack(-returnType.getSize()); // assume the block does not return this value
         }
         if (blockContents.forceVoid)
             returnType = RuntimeType.VOID;
-        if (returnType != RuntimeType.VOID)
-            context.modifyStack(1); // turns out the block does return a value
+        context.modifyStack(returnType.getSize()); // turns out the block does return a value
         return new ReturnBehavior(returnType);
     }
 
@@ -777,7 +762,7 @@ public class Lexiconizer
     }
     private ReturnBehavior lexiconizeDoubleLiteral(LocalContext context, DoubleLiteral doubleLiteral)
     {
-        context.modifyStack(1);
+        context.modifyStack(2);
         return ReturnBehavior.DOUBLE;
     }
     private ReturnBehavior lexiconizeBooleanLiteral(LocalContext context, BooleanLiteral booleanLiteral)
@@ -849,9 +834,10 @@ public class Lexiconizer
         ReturnBehavior returnBehavior1 = lexiconizeExpression(context, operator.expression1);
         ReturnBehavior returnBehavior2 = lexiconizeExpression(context, operator.expression2);
         if (returnBehavior1.type != returnBehavior2.type)
-            errors.add(new LexicalException(operator, "comparison types must match."));
-        context.modifyStack(-2 + 1);
-        return new ReturnBehavior(returnType != null ? returnType : returnBehavior1.type);
+            errors.add(new LexicalException(operator, "operand types must match."));
+        returnType = returnType != null ? returnType : returnBehavior1.type;
+        context.modifyStack(-returnBehavior1.type.getSize() - returnBehavior2.type.getSize() + returnType.getSize());
+        return new ReturnBehavior(returnType);
     }
 
     private void resolveQualifiedName(QualifiedName qualifiedName)
@@ -912,6 +898,13 @@ public class Lexiconizer
         for (int i = 0; i < argumentSignature.length; i++)
             argumentTypes[i] = argumentSignature[i].type;
         return argumentTypes;
+    }
+    private int getArgumentSignatureSize(ReturnBehavior[] argumentSignature)
+    {
+        int sum = 0;
+        for (ReturnBehavior returnBehavior : argumentSignature)
+            sum += returnBehavior.type.getSize();
+        return sum;
     }
     private static void deleteNulls(ListElement<?> listElement)
     {

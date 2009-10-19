@@ -552,7 +552,7 @@ public class CodeGenerator
     }
     private void evalDoubleLiteral(DoubleLiteral doubleLiteral)
     {
-        printStatement("ldc_w " + doubleLiteral.value);
+        printStatement("ldc2_w " + doubleLiteral.value);
     }
     private void evalBooleanLiteral(BooleanLiteral booleanLiteral)
     {
