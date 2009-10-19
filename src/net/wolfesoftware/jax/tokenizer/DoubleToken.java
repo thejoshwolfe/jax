@@ -2,11 +2,11 @@ package net.wolfesoftware.jax.tokenizer;
 
 import net.wolfesoftware.jax.ast.*;
 
-public class IntToken extends LiteralToken
+public class DoubleToken extends LiteralToken
 {
-    public final int value;
+    public final double value;
 
-    public IntToken(int start, String text, int value)
+    public DoubleToken(int start, String text, double value)
     {
         super(start, text);
         this.value = value;
@@ -15,10 +15,10 @@ public class IntToken extends LiteralToken
     @Override
     public LiteralElement makeElement()
     {
-        return new IntLiteral(value);
+        return new DoubleLiteral(value);
     }
 
-    public static final int TYPE = 0x0de3032d;
+    public static final int TYPE = 0x19a5045d;
     public int getType()
     {
         return TYPE;

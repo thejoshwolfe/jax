@@ -14,10 +14,12 @@ public final class Lang
     public static final String KEYWORD_BYTE = "byte";
     public static final String KEYWORD_CATCH = "catch";
     public static final String KEYWORD_CLASS = "class";
+    public static final String KEYWORD_DOUBLE = "double";
     public static final String KEYWORD_ELSE = "else";
     public static final String KEYWORD_FALSE = "false";
-    public static final String KEYWORD_FOR = "for";
+    public static final String KEYWORD_FLOAT = "float";
     public static final String KEYWORD_FINALLY = "finally";
+    public static final String KEYWORD_FOR = "for";
     public static final String KEYWORD_IF = "if";
     public static final String KEYWORD_IMPORT = "import";
     public static final String KEYWORD_INT = "int";
