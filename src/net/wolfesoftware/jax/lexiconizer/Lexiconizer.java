@@ -208,6 +208,9 @@ public class Lexiconizer
             case Inequality.TYPE:
                 returnBehavior = lexiconizeInequality(context, (Inequality)content);
                 break;
+            case Negation.TYPE:
+                returnBehavior = lexiconizeNegation(context, (Negation)content);
+                break;
             case Id.TYPE:
                 returnBehavior = lexiconizeId(context, (Id)content);
                 break;
@@ -291,6 +294,16 @@ public class Lexiconizer
         }
         expression.returnBehavior = returnBehavior;
         return returnBehavior;
+    }
+
+    private ReturnBehavior lexiconizeNegation(LocalContext context, Negation negation)
+    {
+        ReturnBehavior returnBehavior = lexiconizeExpression(context, negation.expression);
+        if (returnBehavior.type != RuntimeType.INT)
+            errors.add(LexicalException.mustBeInt(negation.expression));
+        if (returnBehavior.type == RuntimeType.VOID)
+            context.modifyStack(1);
+        return new ReturnBehavior(returnBehavior.type);
     }
 
     private ReturnBehavior lexiconizeTypeCast(LocalContext context, Expression expression)

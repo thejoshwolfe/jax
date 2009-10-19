@@ -34,6 +34,10 @@ public class LexicalException extends CompileError
     {
         return new LexicalException(expression, "expression must evaluate to a boolean.");
     }
+    public static LexicalException mustBeInt(Expression expression)
+    {
+        return new LexicalException(expression, "expression must evaluate to an int.");
+    }
 
     public static LexicalException mustBeVariable(ParseElement parseElement)
     {
@@ -49,4 +53,5 @@ public class LexicalException extends CompileError
     {
         return new LexicalException(typeId, "Dunno what this type is.");
     }
+
 }

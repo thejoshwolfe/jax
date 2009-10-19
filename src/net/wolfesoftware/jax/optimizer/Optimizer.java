@@ -100,6 +100,9 @@ public class Optimizer
             case Inequality.TYPE:
                 optimizeInequality((Inequality)content);
                 break;
+            case Negation.TYPE:
+                optimizeNegation((Negation)content);
+                break;
             case Id.TYPE:
                 optimizeId((Id)content);
                 break;
@@ -169,6 +172,11 @@ public class Optimizer
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
+    }
+
+    private static void optimizeNegation(Negation negation)
+    {
+        optimizeExpression(negation.expression);
     }
 
     private static void optimizeReferenceConversion(ReferenceConversion referenceConversion)
