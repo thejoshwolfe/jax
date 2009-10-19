@@ -106,10 +106,12 @@ public class RuntimeType extends Type
     private static class PrimitiveType extends RuntimeType
     {
         private final String typeCode;
-        public PrimitiveType(Class<?> type, String typeCode)
+        private final int size;
+        public PrimitiveType(Class<?> type, String typeCode, int size)
         {
             super(type);
             this.typeCode = typeCode;
+            this.size = size;
         }
         @Override
         public String getTypeName()
@@ -121,14 +123,19 @@ public class RuntimeType extends Type
         {
             return typeCode;
         }
+        @Override
+        public int getSize()
+        {
+            return size;
+        }
     }
     // http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html#84645
-    public static final RuntimeType INT = new PrimitiveType(int.class, "I");
-    public static final RuntimeType BYTE = new PrimitiveType(byte.class, "B");
-    public static final RuntimeType FLOAT = new PrimitiveType(float.class, "F");
-    public static final RuntimeType DOUBLE = new PrimitiveType(double.class, "D");
-    public static final RuntimeType VOID = new PrimitiveType(void.class, "V");
-    public static final RuntimeType BOOLEAN = new PrimitiveType(boolean.class, "Z");
+    public static final RuntimeType INT = new PrimitiveType(int.class, "I", 1);
+    public static final RuntimeType BYTE = new PrimitiveType(byte.class, "B", 1);
+    public static final RuntimeType FLOAT = new PrimitiveType(float.class, "F", 1);
+    public static final RuntimeType DOUBLE = new PrimitiveType(double.class, "D", 2);
+    public static final RuntimeType VOID = new PrimitiveType(void.class, "V", 0);
+    public static final RuntimeType BOOLEAN = new PrimitiveType(boolean.class, "Z", 1);
     public static void initPrimitives(HashMap<String, Type> types)
     {
         types.put(INT.id, INT);

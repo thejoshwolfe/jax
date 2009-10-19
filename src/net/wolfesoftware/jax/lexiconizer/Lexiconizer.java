@@ -154,8 +154,7 @@ public class Lexiconizer
         functionDefinition.returnBehavior = lexiconizeExpression(functionDefinition.context, functionDefinition.expression);
         if (functionDefinition.method.returnType != functionDefinition.returnBehavior.type)
             errors.add(LexicalException.cantCast(functionDefinition.expression, functionDefinition.returnBehavior.type, functionDefinition.method.returnType));
-        if (functionDefinition.returnBehavior.type != RuntimeType.VOID)
-            functionDefinition.context.modifyStack(-1); // return
+        functionDefinition.context.modifyStack(functionDefinition.returnBehavior.type.getSize()); // return
         Util._assert(functionDefinition.context.stackSize == 0);
     }
 

@@ -131,6 +131,12 @@ public class CodeGenerator
             case IntLiteral.TYPE:
                 evalIntLiteral((IntLiteral)content);
                 break;
+            case FloatLiteral.TYPE:
+                evalFloatLiteral((FloatLiteral)content);
+                break;
+            case DoubleLiteral.TYPE:
+                evalDoubleLiteral((DoubleLiteral)content);
+                break;
             case BooleanLiteral.TYPE:
                 evalBooleanLiteral((BooleanLiteral)content);
                 break;
@@ -429,6 +435,10 @@ public class CodeGenerator
             return "a";
         if (type == RuntimeType.INT || type == RuntimeType.BYTE || type == RuntimeType.BOOLEAN)
             return "i";
+        if (type == RuntimeType.FLOAT)
+            return "f";
+        if (type == RuntimeType.DOUBLE)
+            return "d";
         throw new RuntimeException(type.toString());
     }
 
@@ -535,6 +545,14 @@ public class CodeGenerator
     private void evalIntLiteral(IntLiteral intLiteral)
     {
         printStatement("ldc " + intLiteral.value);
+    }
+    private void evalFloatLiteral(FloatLiteral floatLiteral)
+    {
+        printStatement("ldc " + floatLiteral.value);
+    }
+    private void evalDoubleLiteral(DoubleLiteral doubleLiteral)
+    {
+        printStatement("ldc_w " + doubleLiteral.value);
     }
     private void evalBooleanLiteral(BooleanLiteral booleanLiteral)
     {

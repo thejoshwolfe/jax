@@ -78,4 +78,9 @@ public abstract class Type
     {
         return false;
     }
+
+    public int getSize()
+    {
+        return 1;
+    }
 }
