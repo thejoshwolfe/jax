@@ -72,10 +72,10 @@ $VariableDeclaration = TypeId ID
     |InfixOperation = -Arithmetic | -Comparison
 
     ### unary prefix operators
-    #$Negation = "-" Expression(140)
-    #|PrefixOperation = Negation
+    $Negation = "-" Expression(140)
+    |PrefixOperation = Negation
 
-    |Operation = -InfixOperation # | -PrefixOperation
+    |Operation = -InfixOperation | -PrefixOperation
 
     #### function invocation
     ~Arguments = Expression : ","

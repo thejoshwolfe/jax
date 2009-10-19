@@ -25,7 +25,7 @@ public final class Tokenizer
     private static final String multiLineCommentCode = "\\/\\*.*?\\*\\/";
     private static final String skipCode = "\\s+|" + multiLineCommentCode  + "|" + lineCommentCode;
     private static final String identifierCode = "[A-Za-z_][A-Za-z0-9_]*";
-    private static final String literalCode = "\\-?\\d+";
+    private static final String literalCode = "\\d+"; //(:?\\.\\d+)?";
     private static final Pattern tokenPattern;
     static {
         StringBuilder tokenCode = new StringBuilder(128);
