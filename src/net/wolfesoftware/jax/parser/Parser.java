@@ -323,6 +323,10 @@ public final class Parser
             return ScalarType.INT;
         if (token.text == Lang.KEYWORD_BYTE)
             return ScalarType.BYTE;
+        if (token.text == Lang.KEYWORD_FLOAT)
+            return ScalarType.FLOAT;
+        if (token.text == Lang.KEYWORD_DOUBLE)
+            return ScalarType.DOUBLE;
         if (token.text == Lang.KEYWORD_VOID)
             return ScalarType.VOID;
         if (token.text == Lang.KEYWORD_BOOLEAN)

@@ -16,5 +16,7 @@ public class ScalarType extends SwitchElement
     public static final ScalarType VOID = new ScalarType(PrimitiveType.VOID);
     public static final ScalarType INT = new ScalarType(PrimitiveType.INT);
     public static final ScalarType BYTE = new ScalarType(PrimitiveType.BYTE);
+    public static final ScalarType FLOAT = new ScalarType(PrimitiveType.FLOAT);
+    public static final ScalarType DOUBLE = new ScalarType(PrimitiveType.DOUBLE);
     public static final ScalarType BOOLEAN = new ScalarType(PrimitiveType.BOOLEAN);
 }

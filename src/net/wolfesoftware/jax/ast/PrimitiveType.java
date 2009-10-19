@@ -23,5 +23,7 @@ public class PrimitiveType extends ParseElement
     public static final PrimitiveType VOID = new PrimitiveType(KeywordElement.VOID);
     public static final PrimitiveType INT = new PrimitiveType(KeywordElement.INT);
     public static final PrimitiveType BYTE = new PrimitiveType(KeywordElement.BYTE);
+    public static final PrimitiveType FLOAT = new PrimitiveType(KeywordElement.FLOAT);
+    public static final PrimitiveType DOUBLE = new PrimitiveType(KeywordElement.DOUBLE);
     public static final PrimitiveType BOOLEAN = new PrimitiveType(KeywordElement.BOOLEAN);
 }

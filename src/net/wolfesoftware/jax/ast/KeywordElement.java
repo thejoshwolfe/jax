@@ -26,6 +26,8 @@ public class KeywordElement extends ParseElement
 
     public static final KeywordElement INT = new KeywordElement(Lang.KEYWORD_INT);
     public static final KeywordElement BYTE = new KeywordElement(Lang.KEYWORD_BYTE);
+    public static final KeywordElement FLOAT = new KeywordElement(Lang.KEYWORD_FLOAT);
+    public static final KeywordElement DOUBLE = new KeywordElement(Lang.KEYWORD_DOUBLE);
     public static final KeywordElement VOID = new KeywordElement(Lang.KEYWORD_VOID);
     public static final KeywordElement BOOLEAN = new KeywordElement(Lang.KEYWORD_BOOLEAN);
 }

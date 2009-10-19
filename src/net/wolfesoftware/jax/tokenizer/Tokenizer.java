@@ -5,7 +5,6 @@ import java.util.regex.*;
 
 public final class Tokenizer
 {
-
     public static Tokenization tokenize(String source)
     {
         return new Tokenizer(source).tokenize();
@@ -42,15 +41,14 @@ public final class Tokenizer
     {
         Matcher tokenMatcher = tokenPattern.matcher(source);
         int end = 0;
-        while (tokenMatcher.lookingAt())
-        {
+        while (tokenMatcher.lookingAt()) {
             start = tokenMatcher.start();
             String tokenText = tokenMatcher.group(0);
             Token token = createToken(tokenText);
             if (token != null)
                 tokens.add(token);
             end = tokenizeSpecial(tokenMatcher.end());
-            
+
             tokenMatcher.region(end, source.length());
         }
 
@@ -73,8 +71,7 @@ public final class Tokenizer
         char c = text.charAt(0);
         if (Character.isLetter(c) || c == '$' || c == '_')
             return new IdentifierToken(start, text);
-        if (Character.isDigit(c) || c == '-')
-        {
+        if (Character.isDigit(c) || c == '-') {
             try {
                 if (text.contains(".")) {
                     if (text.endsWith("f"))
@@ -100,19 +97,16 @@ public final class Tokenizer
             return tokenizeStringLiteral(index);
         return index;
     }
-    
+
     private int tokenizeStringLiteral(int start)
     {
         StringBuilder stringBuilder = new StringBuilder();
         boolean escape = false;
-        for (int i = start + 1; i < source.length(); i++)
-        {
+        for (int i = start + 1; i < source.length(); i++) {
             char c = source.charAt(i);
-            if (escape)
-            {
+            if (escape) {
                 escape = false;
-                switch (c)
-                {
+                switch (c) {
                     case 'b':
                         stringBuilder.append('\b');
                         break;
@@ -141,16 +135,12 @@ public final class Tokenizer
                         errors.add(new TokenizingException(i - 1, source.substring(i - 1, i + 1), "Invalid escape"));
                         break;
                 }
-            }
-            else
-            {
-                if (c == '"')
-                {
+            } else {
+                if (c == '"') {
                     tokens.add(new StringToken(i, source.substring(start, i + 1), stringBuilder.toString()));
                     return i + 1;
                 }
-                if (c == '\\')
-                {
+                if (c == '\\') {
                     escape = true;
                     continue;
                 }
