@@ -118,6 +118,14 @@ public abstract class ExpressionOperator
         }
     };
 
+    public static final ExpressionOperator negation = new ExpressionOperator(-1, Lang.SYMBOL_MINUS, PRECEDENCE_UNARY + 1) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return new Negation(rightExpression);
+        }
+    };
+    
+
     public static final ExpressionOperator quantity = new ExpressionEnclosingOperator(-1, Lang.SYMBOL_OPEN_PARENS, -1, 
             Expression.TYPE, Lang.SYMBOL_CLOSE_PARENS) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)

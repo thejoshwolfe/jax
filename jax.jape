@@ -72,7 +72,7 @@ $VariableDeclaration = TypeId ID
     |InfixOperation = -Arithmetic | -Comparison
 
     ### unary prefix operators
-    $Negation = "-" Expression(140)
+    $Negation = "-" Expression(131)
     |PrefixOperation = Negation
 
     |Operation = -InfixOperation | -PrefixOperation
@@ -108,7 +108,7 @@ $VariableDeclaration = TypeId ID
     ###   http://thejoshwolfe.blogspot.com/2009/05/its-all-cs-fault.html 
     ###   http://thejoshwolfe.blogspot.com/2009/10/its-all-cs-fault-part-ii.html
     $PrimitiveCast = "(" PrimitiveType ")" Expression
-    $TypeIdCast = "(" TypeId ")" ExpressionThatDoesNotStartWithPlusOrMinus       # not a real element name
+    $TypeIdCast = "(" TypeId ")" ExpressionThatDoesNotStartWithPlusOrMinus(130)       # not a real element name
     |TypeCast = PrimitiveCast | TypeIdCast     # not actually a switch element. Just is one of the two options
 
     $Assignment = ID "=" Expression
