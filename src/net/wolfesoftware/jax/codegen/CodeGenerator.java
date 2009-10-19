@@ -230,9 +230,27 @@ public class CodeGenerator
             case TryCatch.TYPE:
                 evalTryCatch((TryCatch)content);
                 break;
+            case PrimitiveConversion.TYPE:
+                evalPrimitiveConversion((PrimitiveConversion)content);
+                break;
+            case ReferenceConversion.TYPE:
+                evalReferenceConversion((ReferenceConversion)content);
+                break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
+    }
+
+    private void evalReferenceConversion(ReferenceConversion referenceConversion)
+    {
+        evalExpression(referenceConversion.expression);
+        printStatement("checkcast " + referenceConversion.toType.getTypeName());
+    }
+
+    private void evalPrimitiveConversion(PrimitiveConversion primitiveConversion)
+    {
+        evalExpression(primitiveConversion.expression);
+        printStatement(primitiveConversion.instruction);
     }
 
     private void evalWhileLoop(WhileLoop whileLoop)

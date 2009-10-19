@@ -5,7 +5,7 @@ import net.wolfesoftware.jax.lexiconizer.*;
 public class ReferenceConversion extends ParseElement
 {
     public Expression expression;
-    private Type toType;
+    public Type toType;
     public ReferenceConversion(Expression expression, Type toType)
     {
         this.expression = expression;
