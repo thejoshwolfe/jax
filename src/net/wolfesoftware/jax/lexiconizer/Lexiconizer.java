@@ -207,8 +207,17 @@ public class Lexiconizer
             case Inequality.TYPE:
                 returnBehavior = lexiconizeInequality(context, (Inequality)content);
                 break;
+            case ShortCircuitAnd.TYPE:
+                returnBehavior = lexiconizeShortCircuitAnd(context, (ShortCircuitAnd)content);
+                break;
+            case ShortCircuitOr.TYPE:
+                returnBehavior = lexiconizeShortCircuitOr(context, (ShortCircuitOr)content);
+                break;
             case Negation.TYPE:
                 returnBehavior = lexiconizeNegation(context, (Negation)content);
+                break;
+            case BooleanNot.TYPE:
+                returnBehavior = lexiconizeBooleanNot(context, (BooleanNot)content);
                 break;
             case Id.TYPE:
                 returnBehavior = lexiconizeId(context, (Id)content);
@@ -301,6 +310,41 @@ public class Lexiconizer
         return returnBehavior;
     }
 
+
+    private ReturnBehavior lexiconizeShortCircuitAnd(LocalContext context, ShortCircuitAnd shortCircuitAnd)
+    {
+        return lexiconizeShortCircuitOperator(context, shortCircuitAnd);
+    }
+
+    private ReturnBehavior lexiconizeShortCircuitOr(LocalContext context, ShortCircuitOr shortCircuitOr)
+    {
+        return lexiconizeShortCircuitOperator(context, shortCircuitOr);
+    }
+
+    private ReturnBehavior lexiconizeShortCircuitOperator(LocalContext context, ShortCircuitOperator shortCircuitOperator)
+    {
+        ReturnBehavior returnBehavior1 = lexiconizeExpression(context, shortCircuitOperator.expression1);
+        if (returnBehavior1.type != RuntimeType.BOOLEAN)
+            errors.add(LexicalException.mustBeBoolean(shortCircuitOperator.expression1));
+        context.modifyStack(-returnBehavior1.type.getSize());
+        ReturnBehavior returnBehavior2 = lexiconizeExpression(context, shortCircuitOperator.expression2);
+        if (returnBehavior2.type != RuntimeType.BOOLEAN)
+            errors.add(LexicalException.mustBeBoolean(shortCircuitOperator.expression2));
+        context.modifyStack(-returnBehavior2.type.getSize());
+        shortCircuitOperator.label1 = context.nextLabel();
+        shortCircuitOperator.label2 = context.nextLabel();
+        context.modifyStack(1);
+        return new ReturnBehavior(RuntimeType.BOOLEAN);
+    }
+
+    private ReturnBehavior lexiconizeBooleanNot(LocalContext context, BooleanNot booleanNot)
+    {
+        ReturnBehavior returnBehavior = lexiconizeExpression(context, booleanNot.expression);
+        if (returnBehavior.type != RuntimeType.BOOLEAN)
+            errors.add(LexicalException.mustBeBoolean(booleanNot.expression));
+        context.modifyStack(-returnBehavior.type.getSize() + 1);
+        return new ReturnBehavior(RuntimeType.BOOLEAN);
+    }
 
     private ReturnBehavior lexiconizeNegation(LocalContext context, Negation negation)
     {
