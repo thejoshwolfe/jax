@@ -1,0 +1,6 @@
+
+class ShortCircuit {
+    boolean equalsFive(String thing) thing != null && thing.equals("Five");
+
+    boolean notEqualsFive(String thing) thing == null || !thing.equals("Five");
+}
