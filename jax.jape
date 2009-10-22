@@ -76,6 +76,7 @@ $VariableDeclaration = TypeId ID
 
     ### unary prefix operators
     $Negation = "-" Expression(131)
+    $BooleanNot = "!" Expression(131)
     |PrefixOperation = Negation
 
     |Operation = -InfixOperation | -PrefixOperation

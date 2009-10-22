@@ -126,6 +126,12 @@ public abstract class ExpressionOperator
             return new Negation(rightExpression);
         }
     };
+    public static final ExpressionOperator booleanNot = new ExpressionOperator(-1, Lang.SYMBOL_BANG, PRECEDENCE_UNARY + 1) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return new BooleanNot(rightExpression);
+        }
+    };
 
     public static final ExpressionOperator shortCircuitAnd = new ExpressionOperator(PRECEDENCE_LOGICAL_AND, Lang.SYMBOL_AMPERSAND_AMPERSAND, PRECEDENCE_LOGICAL_AND + 1) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
