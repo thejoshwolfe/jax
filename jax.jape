@@ -136,7 +136,7 @@ $VariableDeclaration = TypeId ID
     $TryCatchFinally = TryPart CatchPart FinallyPart
     |TryGroup = TryCatch | TryFinally | TryCatchFinally
 
-|Expression = LITERAL | FunctionInvocation | ID | -Operation | Block | -ControlStucture | VariableCreation | VariableDeclaration | -Dereferencing | -TryGroup
+|Expression = LITERAL | FunctionInvocation | ID | "null" | -Operation | Block | -ControlStucture | VariableCreation | VariableDeclaration | -Dereferencing | -TryGroup
 
 # | ControlStatement
 

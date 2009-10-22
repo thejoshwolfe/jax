@@ -100,8 +100,17 @@ public class Optimizer
             case Inequality.TYPE:
                 optimizeInequality((Inequality)content);
                 break;
+            case ShortCircuitAnd.TYPE:
+                optimizeShortCircuitAnd((ShortCircuitAnd)content);
+                break;
+            case ShortCircuitOr.TYPE:
+                optimizeShortCircuitOr((ShortCircuitOr)content);
+                break;
             case Negation.TYPE:
                 optimizeNegation((Negation)content);
+                break;
+            case BooleanNot.TYPE:
+                optimizeBooleanNot((BooleanNot)content);
                 break;
             case Id.TYPE:
                 optimizeId((Id)content);
@@ -175,9 +184,34 @@ public class Optimizer
             case ReferenceConversion.TYPE:
                 optimizeReferenceConversion((ReferenceConversion)content);
                 break;
+            case NullExpression.TYPE:
+                optimizeNullExpression((NullExpression)content);
+                break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
+    }
+
+    private static void optimizeNullExpression(NullExpression nullExpression)
+    {
+        // do nothing
+    }
+
+    private static void optimizeShortCircuitAnd(ShortCircuitAnd shortCircuitAnd)
+    {
+        optimizeExpression(shortCircuitAnd.expression1);
+        optimizeExpression(shortCircuitAnd.expression2);
+    }
+
+    private static void optimizeShortCircuitOr(ShortCircuitOr shortCircuitOr)
+    {
+        optimizeExpression(shortCircuitOr.expression1);
+        optimizeExpression(shortCircuitOr.expression2);
+    }
+
+    private static void optimizeBooleanNot(BooleanNot booleanNot)
+    {
+        optimizeExpression(booleanNot.expression);
     }
 
     private static void optimizeNegation(Negation negation)

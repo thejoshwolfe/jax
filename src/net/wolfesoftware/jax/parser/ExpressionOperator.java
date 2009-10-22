@@ -245,6 +245,13 @@ public abstract class ExpressionOperator
             return new TryCatch((TryPart)innerElements.get(0), (CatchPart)innerElements.get(1));
         }
     };
+
+    public static final ExpressionOperator _null = new ExpressionOperator(-1, Lang.KEYWORD_NULL, -1) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return NullExpression.INSTANCE;
+        }
+    };
     
     public static final HashMap<String, List<ExpressionOperator>> OPEN_LEFT = new HashMap<String, List<ExpressionOperator>>();
     public static final HashMap<String, List<ExpressionOperator>> CLOSED_LEFT = new HashMap<String, List<ExpressionOperator>>();

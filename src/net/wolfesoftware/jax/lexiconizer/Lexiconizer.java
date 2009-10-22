@@ -303,6 +303,9 @@ public class Lexiconizer
             case TypeCast.TYPE:
                 returnBehavior = lexiconizeTypeCast(context, expression);
                 break;
+            case NullExpression.TYPE:
+                returnBehavior = lexiconizeNullExpression(context, (NullExpression)content);
+                break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
@@ -310,6 +313,11 @@ public class Lexiconizer
         return returnBehavior;
     }
 
+    private ReturnBehavior lexiconizeNullExpression(LocalContext context, NullExpression nullExpression)
+    {
+        context.modifyStack(1);
+        return ReturnBehavior.NULL;
+    }
 
     private ReturnBehavior lexiconizeShortCircuitAnd(LocalContext context, ShortCircuitAnd shortCircuitAnd)
     {
@@ -875,12 +883,12 @@ public class Lexiconizer
     }
     private ReturnBehavior lexiconizeOperator(LocalContext context, BinaryOperatorElement operator, Type returnType)
     {
-        ReturnBehavior returnBehavior1 = lexiconizeExpression(context, operator.expression1);
-        ReturnBehavior returnBehavior2 = lexiconizeExpression(context, operator.expression2);
-        if (returnBehavior1.type != returnBehavior2.type)
-            errors.add(new LexicalException(operator, "operand types must match."));
-        returnType = returnType != null ? returnType : returnBehavior1.type;
-        context.modifyStack(-returnBehavior1.type.getSize() - returnBehavior2.type.getSize() + returnType.getSize());
+        Type returnType1 = lexiconizeExpression(context, operator.expression1).type;
+        Type returnType2 = lexiconizeExpression(context, operator.expression2).type;
+        if (!(returnType1.isInstanceOf(returnType2) || returnType2.isInstanceOf(returnType1)))
+            errors.add(new LexicalException(operator, "operand types are incompatible."));
+        returnType = returnType != null ? returnType : returnType1;
+        context.modifyStack(-returnType1.getSize() - returnType2.getSize() + returnType.getSize());
         return new ReturnBehavior(returnType);
     }
 

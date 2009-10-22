@@ -25,6 +25,7 @@ public final class Lang
     KEYWORD_IMPORT = "import",
     KEYWORD_INT = "int",
     KEYWORD_NEW = "new",
+    KEYWORD_NULL = "null",
     KEYWORD_TRUE = "true",
     KEYWORD_TRY = "try",
     KEYWORD_VOID = "void",

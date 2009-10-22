@@ -8,7 +8,7 @@ public class ReturnBehavior
     public static final ReturnBehavior DOUBLE = new ReturnBehavior(RuntimeType.DOUBLE);
     public static final ReturnBehavior BOOLEAN = new ReturnBehavior(RuntimeType.BOOLEAN);
     public static final ReturnBehavior STRING = new ReturnBehavior(RuntimeType.getType(String.class));
-
+    public static final ReturnBehavior NULL = new ReturnBehavior(NullType.INSTANCE);
 
     public Type type;
 
