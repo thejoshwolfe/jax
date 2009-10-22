@@ -3,6 +3,8 @@ package net.wolfesoftware.jax.ast;
 public class BooleanNot extends ParseElement
 {
     public Expression expression;
+    public String label1;
+    public String label2;
     public BooleanNot(Expression expression)
     {
         this.expression = expression;

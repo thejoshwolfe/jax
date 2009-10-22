@@ -351,6 +351,8 @@ public class Lexiconizer
         if (returnBehavior.type != RuntimeType.BOOLEAN)
             errors.add(LexicalException.mustBeBoolean(booleanNot.expression));
         context.modifyStack(-returnBehavior.type.getSize() + 1);
+        booleanNot.label1 = context.nextLabel();
+        booleanNot.label2 = context.nextLabel();
         return new ReturnBehavior(RuntimeType.BOOLEAN);
     }
 
@@ -846,47 +848,54 @@ public class Lexiconizer
     }
     private ReturnBehavior lexiconizeIntOperator(LocalContext context, BinaryOperatorElement operator)
     {
-        ReturnBehavior returnBehavior = lexiconizeOperator(context, operator, null);
+        ReturnBehavior returnBehavior = lexiconizeOperator(context, operator, null, false);
         if (returnBehavior.type != RuntimeType.INT)
             errors.add(new LexicalException(operator, "Expression must be of type int"));
         return returnBehavior;
     }
     private ReturnBehavior lexiconizeLessThan(LocalContext context, LessThan lessThan)
     {
-        return lexiconizeComparisonOperator(context, lessThan);
+        return lexiconizeComparisonOperator(context, lessThan, false);
     }
     private ReturnBehavior lexiconizeGreaterThan(LocalContext context, GreaterThan greaterThan)
     {
-        return lexiconizeComparisonOperator(context, greaterThan);
+        return lexiconizeComparisonOperator(context, greaterThan, false);
     }
     private ReturnBehavior lexiconizeLessThanOrEqual(LocalContext context, LessThanOrEqual lessThanOrEqual)
     {
-        return lexiconizeComparisonOperator(context, lessThanOrEqual);
+        return lexiconizeComparisonOperator(context, lessThanOrEqual, false);
     }
     private ReturnBehavior lexiconizeGreaterThanOrEqual(LocalContext context, GreaterThanOrEqual greaterThanOrEqual)
     {
-        return lexiconizeComparisonOperator(context, greaterThanOrEqual);
+        return lexiconizeComparisonOperator(context, greaterThanOrEqual, false);
     }
     private ReturnBehavior lexiconizeEquality(LocalContext context, Equality equality)
     {
-        return lexiconizeComparisonOperator(context, equality);
+        return lexiconizeComparisonOperator(context, equality, true);
     }
     private ReturnBehavior lexiconizeInequality(LocalContext context, Inequality inequality)
     {
-        return lexiconizeComparisonOperator(context, inequality);
+        return lexiconizeComparisonOperator(context, inequality, true);
     }
-    private ReturnBehavior lexiconizeComparisonOperator(LocalContext context, ComparisonOperator operator)
+    private ReturnBehavior lexiconizeComparisonOperator(LocalContext context, ComparisonOperator operator, boolean allowReferenceOperands)
     {
         operator.label1 = context.nextLabel();
         operator.label2 = context.nextLabel();
-        return lexiconizeOperator(context, operator, RuntimeType.BOOLEAN);
+        return lexiconizeOperator(context, operator, RuntimeType.BOOLEAN, allowReferenceOperands);
     }
-    private ReturnBehavior lexiconizeOperator(LocalContext context, BinaryOperatorElement operator, Type returnType)
+    private ReturnBehavior lexiconizeOperator(LocalContext context, BinaryOperatorElement operator, Type returnType, boolean allowReferenceOperands)
     {
         Type returnType1 = lexiconizeExpression(context, operator.expression1).type;
         Type returnType2 = lexiconizeExpression(context, operator.expression2).type;
-        if (!(returnType1.isInstanceOf(returnType2) || returnType2.isInstanceOf(returnType1)))
-            errors.add(new LexicalException(operator, "operand types are incompatible."));
+        if (allowReferenceOperands) {
+            if (!(returnType1.isInstanceOf(returnType2) || returnType2.isInstanceOf(returnType1)))
+                errors.add(new LexicalException(operator, "operand types are incompatible."));
+        } else {
+            if (!returnType1.isPrimitive())
+                errors.add(new LexicalException(operator.expression1, "operand can't be a reference type."));
+            if (!returnType2.isPrimitive())
+                errors.add(new LexicalException(operator.expression2, "operand can't be a reference type."));
+        }
         returnType = returnType != null ? returnType : returnType1;
         context.modifyStack(-returnType1.getSize() - returnType2.getSize() + returnType.getSize());
         return new ReturnBehavior(returnType);

@@ -188,8 +188,17 @@ public class CodeGenerator
             case Inequality.TYPE:
                 evalInequality((Inequality)content);
                 break;
+            case ShortCircuitAnd.TYPE:
+                evalShortCircuitAnd((ShortCircuitAnd)content);
+                break;
+            case ShortCircuitOr.TYPE:
+                evalShortCircuitOr((ShortCircuitOr)content);
+                break;
             case Negation.TYPE:
                 evalNegation((Negation)content);
+                break;
+            case BooleanNot.TYPE:
+                evalBooleanNot((BooleanNot)content);
                 break;
             case Quantity.TYPE:
                 evalQuantity((Quantity)content);
@@ -245,10 +254,51 @@ public class CodeGenerator
             case ReferenceConversion.TYPE:
                 evalReferenceConversion((ReferenceConversion)content);
                 break;
+            case NullExpression.TYPE:
+                evalNullExpression((NullExpression)content);
+                break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
     }
+
+    private void evalShortCircuitAnd(ShortCircuitAnd shortCircuitAnd)
+    {
+        evalExpression(shortCircuitAnd.expression1);
+        printStatement("ifne " + shortCircuitAnd.label1);
+        printStatement("iconst_0");
+        printStatement("goto " + shortCircuitAnd.label2);
+        printLabel(shortCircuitAnd.label1);
+        evalExpression(shortCircuitAnd.expression2);
+        printLabel(shortCircuitAnd.label2);
+    }
+    private void evalShortCircuitOr(ShortCircuitOr shortCircuitOr)
+    {
+        evalExpression(shortCircuitOr.expression1);
+        printStatement("ifeq " + shortCircuitOr.label1);
+        printStatement("iconst_1");
+        printStatement("goto " + shortCircuitOr.label2);
+        printLabel(shortCircuitOr.label1);
+        evalExpression(shortCircuitOr.expression2);
+        printLabel(shortCircuitOr.label2);
+    }
+
+    private void evalBooleanNot(BooleanNot booleanNot)
+    {
+        evalExpression(booleanNot.expression);
+        printStatement("ifne " + booleanNot.label1);
+        printStatement("iconst_1");
+        printStatement("goto " + booleanNot.label2);
+        printLabel(booleanNot.label1);
+        printStatement("iconst_0");
+        printLabel(booleanNot.label2);
+    }
+
+    private void evalNullExpression(NullExpression nullExpression)
+    {
+        printStatement("aconst_null");
+    }
+
 
     private void evalNegation(Negation negation)
     {
@@ -534,7 +584,8 @@ public class CodeGenerator
     {
         evalExpression(operator.expression1);
         evalExpression(operator.expression2);
-        printStatement("if_icmp" + condition + " " + operator.label1);
+        boolean referenceCompare = !operator.expression1.returnBehavior.type.isPrimitive();
+        printStatement("if_" + (referenceCompare ? "a" : "i") + "cmp" + condition + " " + operator.label1);
         printStatement("iconst_0");
         printStatement("goto " + operator.label2);
         printLabel(operator.label1);
