@@ -23,13 +23,15 @@ public abstract class ExpressionOperator
     }
 
     private static final int 
-            PRECEDENCE_DEREFERENCE = 160,
-            PRECEDENCE_POSTFIX = 140,
-            PRECEDENCE_UNARY = 130,
-            PRECEDENCE_MULTIPLICATIVE = 120,
-            PRECEDENCE_ADDITIVE = 110,
-            PRECEDENCE_RELATIONAL = 90,
-            PRECEDENCE_EQUALITY = 80;
+    PRECEDENCE_DEREFERENCE = 160,
+    PRECEDENCE_POSTFIX = 140,
+    PRECEDENCE_UNARY = 130,
+    PRECEDENCE_MULTIPLICATIVE = 120,
+    PRECEDENCE_ADDITIVE = 110,
+    PRECEDENCE_RELATIONAL = 90,
+    PRECEDENCE_EQUALITY = 80,
+    PRECEDENCE_LOGICAL_AND = 40,
+    PRECEDENCE_LOGICAL_OR = 30;
 
     /* Operation */
     public static final ExpressionOperator addition = new ExpressionOperator(PRECEDENCE_ADDITIVE, Lang.SYMBOL_PLUS, PRECEDENCE_ADDITIVE + 1) {
@@ -122,6 +124,19 @@ public abstract class ExpressionOperator
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
             return new Negation(rightExpression);
+        }
+    };
+
+    public static final ExpressionOperator shortCircuitAnd = new ExpressionOperator(PRECEDENCE_LOGICAL_AND, Lang.SYMBOL_AMPERSAND_AMPERSAND, PRECEDENCE_LOGICAL_AND + 1) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return new ShortCircuitAnd(leftExpression, rightExpression);
+        }
+    };
+    public static final ExpressionOperator shortCircuitOr = new ExpressionOperator(PRECEDENCE_LOGICAL_OR, Lang.SYMBOL_PIPE_PIPE, PRECEDENCE_LOGICAL_OR + 1) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return new ShortCircuitOr(leftExpression, rightExpression);
         }
     };
 

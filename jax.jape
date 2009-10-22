@@ -69,7 +69,10 @@ $VariableDeclaration = TypeId ID
     $Equality = Expression(80) "==" Expression(81)
     $Inequality = Expression(80) "!=" Expression(81)
     |Comparison = LessThan | GreaterThan | LessThanOrEqual | GreaterThanOrEqual | Equality | Inequality 
-    |InfixOperation = -Arithmetic | -Comparison
+    $ShortCircuitAnd = Expression(40) "&&" Expression(41)
+    $ShortCircuitOr = Expression(30) "&&" Expression(31)
+    |ShortCircuit = ShortCircuitAnd | ShortCircuitOr
+    |InfixOperation = -Arithmetic | -Comparison | -ShortCircuit
 
     ### unary prefix operators
     $Negation = "-" Expression(131)
