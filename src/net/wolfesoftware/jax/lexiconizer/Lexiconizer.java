@@ -858,8 +858,8 @@ public class Lexiconizer
             // String.valueOf(a).concat(String.valueOf(b))
             Expression string1 = stringValueOf(addition.expression1);
             Expression string2 = stringValueOf(addition.expression2);
-            Expression concatenation = new Expression(new DereferenceMethod(string1, new FunctionInvocation(new Id("concat"), new Arguments(Collections.nCopies(1, string2)))));
-            return lexiconizeExpression(context, concatenation);
+            expression.content = new DereferenceMethod(string1, new FunctionInvocation(new Id("concat"), new Arguments(Collections.nCopies(1, string2))));
+            return lexiconizeExpression(context, expression);
         }
         // TODO: don't assume types are int
         context.modifyStack(1);

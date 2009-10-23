@@ -31,9 +31,7 @@ public class LocalContext
         int number = getVariableCount();
         id.variable = new LocalVariable(id.name, type, number);
         localVariables.put(id.name, id.variable);
-        if (type == RuntimeType.DOUBLE
-//                || type == RuntimeType.LONG
-            )
+        if (type.getSize() == 2)
             wideVariableCount++;
         rootContext.ensureVariableCapacity(getVariableCount());
     }

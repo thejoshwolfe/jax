@@ -483,8 +483,10 @@ public class CodeGenerator
     {
         if (!type.isPrimitive())
             return "a";
-        if (type == RuntimeType.INT || type == RuntimeType.BYTE || type == RuntimeType.BOOLEAN)
+        if (type == RuntimeType.BOOLEAN || type == RuntimeType.BYTE || type == RuntimeType.SHORT || type == RuntimeType.INT || type == RuntimeType.CHAR)
             return "i";
+        if (type == RuntimeType.LONG)
+            return "l";
         if (type == RuntimeType.FLOAT)
             return "f";
         if (type == RuntimeType.DOUBLE)

@@ -179,15 +179,16 @@ public class RuntimeType extends Type
         return returnTypes;
     }
 
+    // http://java.sun.com/docs/books/jvms/second_edition/html/Concepts.doc.html#23435
     private static final int[][] primitiveConversionTable = {
     // to: char byte short int long float double    | from:
         {     0,  -1,   -1,  1,   1,    1,     1}, // char   0
         {    -1,   0,    1,  1,   1,    1,     1}, // byte   1
         {    -1,  -1,    0,  1,   1,    1,     1}, // short  2
-        {     1,  -1,   -1,  0,   1,    1,     1}, // int    3
-        {     1,  -1,   -1, -1,   0,    1,     1}, // long   4
-        {     1,  -1,   -1, -1,  -1,    0,     1}, // float  5
-        {     1,  -1,   -1, -1,  -1,   -1,     0}, // double 6
+        {    -1,  -1,   -1,  0,   1,    1,     1}, // int    3
+        {    -1,  -1,   -1, -1,   0,    1,     1}, // long   4
+        {    -1,  -1,   -1, -1,  -1,    0,     1}, // float  5
+        {    -1,  -1,   -1, -1,  -1,   -1,     0}, // double 6
     };
     public static int getPrimitiveConversionType(Type fromType, Type toType) {
         return primitiveConversionTable[getPrimitiveIndex(fromType)][getPrimitiveIndex(toType)];
