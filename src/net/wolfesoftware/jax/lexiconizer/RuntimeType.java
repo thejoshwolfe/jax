@@ -131,6 +131,7 @@ public class RuntimeType extends Type
     }
     // http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html#84645
     public static final RuntimeType INT = new PrimitiveType(int.class, "I", 1);
+    public static final RuntimeType LONG = new PrimitiveType(long.class, "J", 2); // J makes sense... :|
     public static final RuntimeType BYTE = new PrimitiveType(byte.class, "B", 1);
     public static final RuntimeType FLOAT = new PrimitiveType(float.class, "F", 1);
     public static final RuntimeType DOUBLE = new PrimitiveType(double.class, "D", 2);
@@ -139,6 +140,7 @@ public class RuntimeType extends Type
     public static void initPrimitives(HashMap<String, Type> types)
     {
         types.put(INT.id, INT);
+        types.put(LONG.id, LONG);
         types.put(BYTE.id, BYTE);
         types.put(FLOAT.id, FLOAT);
         types.put(DOUBLE.id, DOUBLE);
@@ -168,6 +170,7 @@ public class RuntimeType extends Type
         for (Class<?> type : javaLangClasses)
             cache.put(type, new RuntimeType(type));
         cache.put(INT.underlyingType, INT);
+        cache.put(LONG.underlyingType, LONG);
         cache.put(BYTE.underlyingType, BYTE);
         cache.put(FLOAT.underlyingType, FLOAT);
         cache.put(DOUBLE.underlyingType, DOUBLE);
@@ -213,8 +216,8 @@ public class RuntimeType extends Type
 //            return 2;
         if (type == INT)
             return 3;
-//        if (type == LONG)
-//            return 4;
+        if (type == LONG)
+            return 4;
 //        if (type == FLOAT)
 //            return 5;
 //        if (type == DOUBLE)

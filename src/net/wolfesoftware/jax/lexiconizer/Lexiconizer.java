@@ -572,7 +572,7 @@ public class Lexiconizer
 
         if (tryPartReturnBehavior.type != catchPartReturnBehavior.type)
             errors.add(new LexicalException(tryCatch, "return types must match"));
-        context.modifyStack(tryPartReturnBehavior.type.getSize()); // and now put it back on
+        context.modifyStack(tryPartReturnBehavior.type.getSize()); // and now put one of them back on
         return new ReturnBehavior(tryPartReturnBehavior.type);
     }
 
@@ -612,10 +612,9 @@ public class Lexiconizer
         catchBody.endLabel = nestedContext.nextLabel();
         if (!catchBody.variableDeclaration.typeId.type.isInstanceOf(RuntimeType.getType(Throwable.class)))
             errors.add(new LexicalException(catchBody.variableDeclaration, "Type must descend from Throwable. Can't catch a " + catchBody.variableDeclaration.typeId));
-        nestedContext.modifyStack(1); // exception object
-        nestedContext.modifyStack(-1);
+        nestedContext.modifyStack(1); // exception object pushed onto the stack
+        nestedContext.modifyStack(-1); // store exception object in local variable
         ReturnBehavior returnBehavior = lexiconizeExpression(nestedContext, catchBody.expression);
-        // TODO one for the exception object
         return new ReturnBehavior(returnBehavior.type);
     }
 
