@@ -278,6 +278,9 @@ public class Lexiconizer
                     case StaticFunctionInvocation.TYPE:
                         returnBehavior = lexiconizeStaticFunctionInvocation(context, (StaticFunctionInvocation)expression.content);
                         break;
+                    case -1:
+                        returnBehavior = ReturnBehavior.UNKNOWN;
+                        break;
                     default:
                         throw new RuntimeException();
                 }
@@ -289,6 +292,9 @@ public class Lexiconizer
                         break;
                     case StaticDereferenceField.TYPE:
                         returnBehavior = lexiconizeStaticDereferenceField(context, (StaticDereferenceField)expression.content);
+                        break;
+                    case -1:
+                        returnBehavior = ReturnBehavior.UNKNOWN;
                         break;
                     default:
                         throw new RuntimeException();
@@ -620,7 +626,6 @@ public class Lexiconizer
 
     private int disambuateDereferenceField(LocalContext context, Expression expression)
     {
-        // TODO reduce code duplication in /disambiguate.*/
         DereferenceField dereferenceField = (DereferenceField)expression.content;
         if (dereferenceField.expression.content.getElementType() != Id.TYPE)
             return DereferenceField.TYPE;
@@ -634,7 +639,8 @@ public class Lexiconizer
             expression.content = new StaticDereferenceField(typeId, dereferenceField.id);
             return StaticDereferenceField.TYPE;
         }
-        throw new RuntimeException(); // TODO what do we do here?
+        errors.add(LexicalException.cantResolveLocalVariable(id));
+        return -1;
     }
 
     private ReturnBehavior lexiconizeDereferenceField(LocalContext context, DereferenceField dereferenceField)
@@ -649,7 +655,6 @@ public class Lexiconizer
 
     private int disambuateDereferenceMethod(LocalContext context, Expression expression)
     {
-        // TODO reduce code duplication in /disambiguate.*/
         DereferenceMethod dereferenceMethod = (DereferenceMethod)expression.content;
         if (dereferenceMethod.expression.content.getElementType() != Id.TYPE)
             return DereferenceMethod.TYPE;
@@ -663,7 +668,8 @@ public class Lexiconizer
             expression.content = new StaticFunctionInvocation(typeId, dereferenceMethod.functionInvocation);
             return StaticFunctionInvocation.TYPE;
         }
-        return -1; // TODO return something
+        errors.add(LexicalException.cantResolveLocalVariable(id));
+        return -1;
     }
 
     private ReturnBehavior lexiconizeDereferenceMethod(LocalContext context, DereferenceMethod dereferenceMethod)
@@ -757,7 +763,7 @@ public class Lexiconizer
         id.variable = resolveId(context, id);
         if (id.variable == null) {
             errors.add(LexicalException.cantResolveLocalVariable(id));
-            // TODO: return something
+            return ReturnBehavior.UNKNOWN;
         }
         context.modifyStack(id.variable.type.getSize());
         return new ReturnBehavior(id.variable.type);
