@@ -8,10 +8,12 @@ import java.util.*;
 public class ArrayType extends Type
 {
     public final Type scalarType;
+    private final Field lengthField;
     private ArrayType(Type scalarType)
     {
         super(scalarType.fullName + "[]", scalarType.id + "[]");
         this.scalarType = scalarType;
+        lengthField = new Field(this, RuntimeType.INT);
     }
 
     @Override
@@ -23,7 +25,9 @@ public class ArrayType extends Type
     @Override
     public Field resolveField(String name)
     {
-        throw new RuntimeException("TODO: Auto-generated method stub");
+        if (name.equals("length"))
+            return lengthField;
+        return null;
     }
 
     @Override

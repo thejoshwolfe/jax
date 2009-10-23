@@ -119,7 +119,7 @@ public class Lexiconizer
 
     private void preLexiconizeFunctionDefinition(LocalType context, FunctionDefinition functionDefinition)
     {
-        resolveType(functionDefinition.typeId);
+        resolveType(functionDefinition.typeId, true);
         functionDefinition.context = new RootLocalContext(context);
         Type[] arguemntSignature = lexiconizeArgumentDeclarations(functionDefinition.context, functionDefinition.argumentDeclarations);
         functionDefinition.method = new LocalMethod(context, functionDefinition.typeId.type, functionDefinition.id.name, arguemntSignature, true);
@@ -370,11 +370,9 @@ public class Lexiconizer
     {
         TypeCast typeCast = (TypeCast)expression.content;
         // toType
-        resolveType(typeCast.typeId);
+        resolveType(typeCast.typeId, true);
         Type toType = typeCast.typeId.type;
-        if (toType == null)
-            errors.add(LexicalException.cantResolveType(typeCast.typeId));
-        else if (toType == RuntimeType.VOID) {
+        if (toType == RuntimeType.VOID) {
             errors.add(new LexicalException(typeCast.typeId, "can't cast to void."));
             toType = null;
         }
@@ -461,9 +459,7 @@ public class Lexiconizer
     private ReturnBehavior lexiconizeConstructorInvocation(LocalContext context, ConstructorInvocation constructorInvocation)
     {
         TypeId typeId = TypeId.fromId(constructorInvocation.functionInvocation.id);
-        resolveType(typeId);
-        if (typeId.type == null)
-            errors.add(LexicalException.cantResolveType(typeId));
+        resolveType(typeId, true);
         context.modifyStack(2); // new; dup;
         ReturnBehavior[] argumentSignature = lexiconizeArguments(context, constructorInvocation.functionInvocation.arguments);
         constructorInvocation.constructor = resolveConstructor(typeId.type, argumentSignature);
@@ -634,8 +630,7 @@ public class Lexiconizer
         if (localVariable != null)
             return DereferenceField.TYPE;
         TypeId typeId = TypeId.fromId(id);
-        resolveType(typeId);
-        if (typeId.type != null) {
+        if (resolveType(typeId, false)) {
             // convert to StaticDereferenceField
             expression.content = new StaticDereferenceField(typeId, dereferenceField.id);
             return StaticDereferenceField.TYPE;
@@ -664,8 +659,7 @@ public class Lexiconizer
         if (localVariable != null)
             return DereferenceMethod.TYPE;
         TypeId typeId = TypeId.fromId(id);
-        resolveType(typeId);
-        if (typeId.type != null) {
+        if (resolveType(typeId, false)) {
             // convert to StaticFunctionInvocation
             expression.content = new StaticFunctionInvocation(typeId, dereferenceMethod.functionInvocation);
             return StaticFunctionInvocation.TYPE;
@@ -752,10 +746,8 @@ public class Lexiconizer
 
     private ReturnBehavior lexiconizeVariableDeclaration(LocalContext context, VariableDeclaration variableDeclaration)
     {
-        resolveType(variableDeclaration.typeId);
-        if (variableDeclaration.typeId.type == null)
-            errors.add(LexicalException.cantResolveType(variableDeclaration.typeId));
-        else if (variableDeclaration.typeId.type == RuntimeType.VOID)
+        resolveType(variableDeclaration.typeId, true);
+        if (variableDeclaration.typeId.type == RuntimeType.VOID)
             errors.add(new LexicalException(variableDeclaration, "You can't have a void variable."));
         context.addLocalVariable(variableDeclaration.id, variableDeclaration.typeId.type, errors);
         return ReturnBehavior.VOID;
@@ -925,15 +917,21 @@ public class Lexiconizer
         }
     }
 
-    private void resolveType(TypeId typeId)
+    private boolean resolveType(TypeId typeId, boolean errorOnFailure)
     {
-        int arrayOrder = typeId.arrayDimensions.elements.size();
+        boolean failure = false;
         Type type = importedTypes.get(typeId.scalarType.toString());
-        if (type == null)
-            return;
+        if (type == null) {
+            failure = true;
+            type = UnknownType.INSTANCE;
+        }
+        int arrayOrder = typeId.arrayDimensions.elements.size();
         while (arrayOrder-- > 0)
             type = ArrayType.getType(type);
         typeId.type = type;
+        if (failure && errorOnFailure)
+            errors.add(LexicalException.cantResolveType(typeId));
+        return !failure;
     }
 
     private Method resolveFunction(LocalType context, Id id, ReturnBehavior[] argumentSignature)

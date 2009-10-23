@@ -66,7 +66,7 @@ public class RuntimeType extends Type
     public Field resolveField(String name)
     {
         try {
-            return RuntimeField.getField(underlyingType.getField(name));
+            return Field.getField(underlyingType.getField(name));
         } catch (NoSuchFieldException e) {
             return null;
         }
