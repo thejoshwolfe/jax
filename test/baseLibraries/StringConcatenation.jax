@@ -1,0 +1,10 @@
+
+class StringConcatenation {
+    String addThese(String s1, String s2) s1 + s2;
+
+    String addThese(int i, String string, byte b, short s, long l, float f, double d, char c, Object o) {
+        i + string + b + s + l + f + d + c + o
+    };
+
+    String pass() "+++" + " " + "PASS";
+}
