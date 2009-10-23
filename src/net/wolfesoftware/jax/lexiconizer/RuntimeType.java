@@ -214,20 +214,20 @@ public class RuntimeType extends Type
         return primitiveConversionTable[getPrimitiveIndex(fromType)][getPrimitiveIndex(toType)];
     }
     private static int getPrimitiveIndex(Type type) {
-//        if (type == CHAR)
-//            return 0;
+        if (type == CHAR)
+            return 0;
         if (type == BYTE)
             return 1;
-//        if (type == SHORT)
-//            return 2;
+        if (type == SHORT)
+            return 2;
         if (type == INT)
             return 3;
         if (type == LONG)
             return 4;
-//        if (type == FLOAT)
-//            return 5;
-//        if (type == DOUBLE)
-//            return 6;
+        if (type == FLOAT)
+            return 5;
+        if (type == DOUBLE)
+            return 6;
         throw new RuntimeException("hey, this isn't a primitive type: " + type);
     }
 }
