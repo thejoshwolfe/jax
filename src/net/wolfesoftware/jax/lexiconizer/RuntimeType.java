@@ -130,22 +130,26 @@ public class RuntimeType extends Type
         }
     }
     // http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html#84645
-    public static final RuntimeType INT = new PrimitiveType(int.class, "I", 1);
-    public static final RuntimeType LONG = new PrimitiveType(long.class, "J", 2); // J makes sense... :|
-    public static final RuntimeType BYTE = new PrimitiveType(byte.class, "B", 1);
-    public static final RuntimeType FLOAT = new PrimitiveType(float.class, "F", 1);
-    public static final RuntimeType DOUBLE = new PrimitiveType(double.class, "D", 2);
     public static final RuntimeType VOID = new PrimitiveType(void.class, "V", 0);
     public static final RuntimeType BOOLEAN = new PrimitiveType(boolean.class, "Z", 1);
+    public static final RuntimeType BYTE = new PrimitiveType(byte.class, "B", 1);
+    public static final RuntimeType SHORT = new PrimitiveType(short.class, "S", 1);
+    public static final RuntimeType INT = new PrimitiveType(int.class, "I", 1);
+    public static final RuntimeType LONG = new PrimitiveType(long.class, "J", 2); // J makes sense... :|
+    public static final RuntimeType FLOAT = new PrimitiveType(float.class, "F", 1);
+    public static final RuntimeType DOUBLE = new PrimitiveType(double.class, "D", 2);
+    public static final RuntimeType CHAR = new PrimitiveType(char.class, "C", 1);
     public static void initPrimitives(HashMap<String, Type> types)
     {
-        types.put(INT.id, INT);
-        types.put(LONG.id, LONG);
-        types.put(BYTE.id, BYTE);
-        types.put(FLOAT.id, FLOAT);
-        types.put(DOUBLE.id, DOUBLE);
         types.put(VOID.id, VOID);
         types.put(BOOLEAN.id, BOOLEAN);
+        types.put(BYTE.id, BYTE);
+        types.put(SHORT.id, SHORT);
+        types.put(INT.id, INT);
+        types.put(LONG.id, LONG);
+        types.put(FLOAT.id, FLOAT);
+        types.put(DOUBLE.id, DOUBLE);
+        types.put(CHAR.id, CHAR);
     }
 
     public static void initJavaLang(HashMap<String, Type> types)
@@ -169,13 +173,15 @@ public class RuntimeType extends Type
     {
         for (Class<?> type : javaLangClasses)
             cache.put(type, new RuntimeType(type));
-        cache.put(INT.underlyingType, INT);
-        cache.put(LONG.underlyingType, LONG);
-        cache.put(BYTE.underlyingType, BYTE);
-        cache.put(FLOAT.underlyingType, FLOAT);
-        cache.put(DOUBLE.underlyingType, DOUBLE);
         cache.put(VOID.underlyingType, VOID);
         cache.put(BOOLEAN.underlyingType, BOOLEAN);
+        cache.put(BYTE.underlyingType, BYTE);
+        cache.put(SHORT.underlyingType, SHORT);
+        cache.put(INT.underlyingType, INT);
+        cache.put(LONG.underlyingType, LONG);
+        cache.put(FLOAT.underlyingType, FLOAT);
+        cache.put(DOUBLE.underlyingType, DOUBLE);
+        cache.put(CHAR.underlyingType, CHAR);
     }
     public static Type getType(Class<?> underlyingType)
     {
