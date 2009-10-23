@@ -547,6 +547,8 @@ public class Lexiconizer
     {
         // lexiconization already done for typeId
         staticDereferenceField.field = resolveField(staticDereferenceField.typeId.type, staticDereferenceField.id);
+        if (staticDereferenceField.field == null)
+            errors.add(LexicalException.cantResolveField(staticDereferenceField.typeId.type, staticDereferenceField.id));
         Type type = staticDereferenceField.field.returnType;
         context.modifyStack(type.getSize());
         return new ReturnBehavior(type);
@@ -643,7 +645,12 @@ public class Lexiconizer
 
     private ReturnBehavior lexiconizeDereferenceField(LocalContext context, DereferenceField dereferenceField)
     {
-        throw new RuntimeException("TODO: implement lexiconizeDereferenceField()");
+        Type type = lexiconizeExpression(context, dereferenceField.expression).type;
+        Field field = resolveField(type, dereferenceField.id);
+        if (field == null)
+            errors.add(LexicalException.cantResolveField(type, dereferenceField.id));
+        context.modifyStack(field.returnType.getSize());
+        return new ReturnBehavior(field.returnType);
     }
 
     private int disambuateDereferenceMethod(LocalContext context, Expression expression)

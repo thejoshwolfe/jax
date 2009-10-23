@@ -54,4 +54,9 @@ public class LexicalException extends CompileError
         return new LexicalException(typeId, "Dunno what this type is.");
     }
 
+    public static LexicalException cantResolveField(Type type, Id id)
+    {
+        return new LexicalException(id, "The type " + type + " doesn't have a field called " + id);
+    }
+
 }
