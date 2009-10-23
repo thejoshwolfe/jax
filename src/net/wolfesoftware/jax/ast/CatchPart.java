@@ -12,7 +12,7 @@ public class CatchPart extends ParseElement
     @Override
     protected void decompile(String indentation, StringBuilder out)
     {
-        out.append("catch ");
+        out.append(" catch ");
         catchList.decompile(indentation, out);
     }
 

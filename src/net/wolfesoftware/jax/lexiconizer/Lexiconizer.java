@@ -161,7 +161,7 @@ public class Lexiconizer
     private ReturnBehavior lexiconizeExpression(LocalContext context, Expression expression)
     {
         if (expression == null)
-            return ReturnBehavior.VOID;
+            throw null;
         ParseElement content = expression.content;
         ReturnBehavior returnBehavior;
         switch (content.getElementType()) {
@@ -644,7 +644,7 @@ public class Lexiconizer
         Field field = resolveField(type, dereferenceField.id);
         if (field == null)
             errors.add(LexicalException.cantResolveField(type, dereferenceField.id));
-        context.modifyStack(field.returnType.getSize());
+        context.modifyStack(-type.getSize() + field.returnType.getSize());
         return new ReturnBehavior(field.returnType);
     }
 
