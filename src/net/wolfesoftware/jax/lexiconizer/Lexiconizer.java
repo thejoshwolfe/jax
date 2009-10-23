@@ -29,13 +29,17 @@ public class Lexiconizer
 
     private Lexiconization lexiconizeRoot()
     {
+        boolean broken = true;
         try {
             lexiconizeCompilationUnit(root.content);
+            broken = false;
         } catch (RuntimeException e) {
             e.printStackTrace();
         } catch (AssertionError e) {
             e.printStackTrace();
         }
+        if (broken && errors.isEmpty())
+            errors.add(new LexicalException(new Id(""), "Things are broken"));
         return new Lexiconization(root, errors);
     }
 
@@ -122,7 +126,7 @@ public class Lexiconizer
         resolveType(functionDefinition.typeId, true);
         functionDefinition.context = new RootLocalContext(context);
         Type[] arguemntSignature = lexiconizeArgumentDeclarations(functionDefinition.context, functionDefinition.argumentDeclarations);
-        functionDefinition.method = new LocalMethod(context, functionDefinition.typeId.type, functionDefinition.id.name, arguemntSignature, true);
+        functionDefinition.method = new Method(context, functionDefinition.typeId.type, functionDefinition.id.name, arguemntSignature, true);
         context.addMethod(functionDefinition.method);
     }
 
@@ -166,7 +170,7 @@ public class Lexiconizer
         ReturnBehavior returnBehavior;
         switch (content.getElementType()) {
             case Addition.TYPE:
-                returnBehavior = lexiconizeAddition(context, (Addition)content);
+                returnBehavior = lexiconizeAddition(context, expression);
                 break;
             case Subtraction.TYPE:
                 returnBehavior = lexiconizeSubtraction(context, (Subtraction)content);
@@ -560,7 +564,7 @@ public class Lexiconizer
     {
         // lexiconization already done for typeId
         ReturnBehavior[] argumentSignature = lexiconizeArguments(context, staticFunctionInvocation.functionInvocation.arguments);
-        staticFunctionInvocation.functionInvocation.method = resolveMethod(staticFunctionInvocation.typeId.type, staticFunctionInvocation.functionInvocation.id, argumentSignature);
+        staticFunctionInvocation.functionInvocation.method = resolveMethod(staticFunctionInvocation.typeId.type, staticFunctionInvocation.functionInvocation, argumentSignature);
         context.modifyStack(-getArgumentSignatureSize(argumentSignature));
         Type returnType = staticFunctionInvocation.functionInvocation.method.returnType;
         context.modifyStack(returnType.getSize());
@@ -676,7 +680,7 @@ public class Lexiconizer
     {
         ReturnBehavior expressionReturnBehavior = lexiconizeExpression(context, dereferenceMethod.expression);
         ReturnBehavior[] argumentSignature = lexiconizeArguments(context, dereferenceMethod.functionInvocation.arguments);
-        dereferenceMethod.functionInvocation.method = resolveMethod(expressionReturnBehavior.type, dereferenceMethod.functionInvocation.id, argumentSignature);
+        dereferenceMethod.functionInvocation.method = resolveMethod(expressionReturnBehavior.type, dereferenceMethod.functionInvocation, argumentSignature);
         context.modifyStack(-(1 + getArgumentSignatureSize(argumentSignature)));
         context.modifyStack(dereferenceMethod.functionInvocation.method.returnType.getSize());
         return new ReturnBehavior(dereferenceMethod.functionInvocation.method.returnType);
@@ -685,7 +689,7 @@ public class Lexiconizer
     private ReturnBehavior lexiconizeFunctionInvocation(LocalContext context, FunctionInvocation functionInvocation)
     {
         ReturnBehavior[] argumentSignature = lexiconizeArguments(context, functionInvocation.arguments);
-        functionInvocation.method = resolveFunction(context.getClassContext(), functionInvocation.id, argumentSignature);
+        functionInvocation.method = resolveMethod(context.getClassContext(), functionInvocation, argumentSignature);
         context.modifyStack(-getArgumentSignatureSize(argumentSignature));
         context.modifyStack(functionInvocation.method.returnType.getSize());
         return new ReturnBehavior(functionInvocation.method.returnType);
@@ -696,8 +700,15 @@ public class Lexiconizer
         deleteNulls(arguments);
         ReturnBehavior[] rtnArr = new ReturnBehavior[arguments.elements.size()];
         int i = 0;
-        for (Expression element : arguments.elements)
-            rtnArr[i++] = lexiconizeExpression(context, element);
+        for (Expression element : arguments.elements) {
+            if (element.returnBehavior == null)
+                rtnArr[i++] = lexiconizeExpression(context, element);
+            else {
+                // the conversion from addition to string concatenation has already lexiconized some arguments
+                rtnArr[i++] = element.returnBehavior;
+                context.modifyStack(element.returnBehavior.type.getSize());
+            }
+        }
         return rtnArr;
     }
 
@@ -834,9 +845,29 @@ public class Lexiconizer
         return ReturnBehavior.STRING;
     }
 
-    private ReturnBehavior lexiconizeAddition(LocalContext context, Addition addition)
+    private ReturnBehavior lexiconizeAddition(LocalContext context, Expression expression)
     {
-        return lexiconizeIntOperator(context, addition);
+        Addition addition = (Addition)expression.content;
+        Type returnType1 = lexiconizeExpression(context, addition.expression1).type;
+        Type returnType2 = lexiconizeExpression(context, addition.expression2).type;
+        context.modifyStack(-returnType1.getSize() - returnType2.getSize());
+        if (returnType1 == RuntimeType.STRING || returnType2 == RuntimeType.STRING) {
+            // convert to string concatenation
+            // a + b
+            // becomes
+            // String.valueOf(a).concat(String.valueOf(b))
+            Expression string1 = stringValueOf(addition.expression1);
+            Expression string2 = stringValueOf(addition.expression2);
+            Expression concatenation = new Expression(new DereferenceMethod(string1, new FunctionInvocation(new Id("concat"), new Arguments(Collections.nCopies(1, string2)))));
+            return lexiconizeExpression(context, concatenation);
+        }
+        // TODO: don't assume types are int
+        context.modifyStack(1);
+        return new ReturnBehavior(RuntimeType.INT);
+    }
+    private Expression stringValueOf(Expression expression)
+    {
+        return new Expression(new DereferenceMethod(new Expression(new Id("String")), new FunctionInvocation(new Id("valueOf"), new Arguments(Collections.nCopies(1, expression)))));
     }
     private ReturnBehavior lexiconizeSubtraction(LocalContext context, Subtraction subtraction)
     {
@@ -939,14 +970,14 @@ public class Lexiconizer
         return !failure;
     }
 
-    private Method resolveFunction(LocalType context, Id id, ReturnBehavior[] argumentSignature)
+    private Method resolveMethod(Type type, FunctionInvocation functionInvocation, ReturnBehavior[] argumentSignature)
     {
-        return context.resolveMethod(id.name, getArgumentTypes(argumentSignature));
-    }
-
-    private Method resolveMethod(Type type, Id id, ReturnBehavior[] argumentSignature)
-    {
-        return type.resolveMethod(id.name, getArgumentTypes(argumentSignature));
+        Method method = type.resolveMethod(functionInvocation.id.name, getArgumentTypes(argumentSignature));
+        if (method == null) {
+            errors.add(LexicalException.cantResolveMethod(type, functionInvocation.id, argumentSignature));
+            return Method.UNKNOWN;
+        }
+        return method;
     }
 
     private Constructor resolveConstructor(Type type, ReturnBehavior[] argumentSignature)

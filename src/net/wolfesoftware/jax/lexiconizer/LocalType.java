@@ -5,7 +5,7 @@ import java.util.*;
 public class LocalType extends Type
 {
     public final LinkedList<Constructor> constructors = new LinkedList<Constructor>();
-    private final HashMap<String, LinkedList<Method>> methods = new HashMap<String, LinkedList<Method>>();
+    private final LinkedList<Method> methods = new LinkedList<Method>();
     private final HashMap<String, Field> fields = new HashMap<String, Field>();
     public LocalType(String fullName, String id)
     {
@@ -14,30 +14,12 @@ public class LocalType extends Type
 
     public void addMethod(Method method)
     {
-        LinkedList<Method> list = methods.get(method.id);
-        if (list == null)
-        {
-            list = new LinkedList<Method>();
-            methods.put(method.id, list);
-        }
-        list.add(method);
+        methods.add(method);
     }
     @Override
-    public Method resolveMethod(String name, Type[] argumentSignature)
+    protected LinkedList<Method> getMethods()
     {
-        LinkedList<Method> overloads = methods.get(name);
-        if (overloads == null)
-            return null;
-        for (Method m : overloads)
-        {
-            if (m.argumentSignature.length != argumentSignature.length)
-                continue;
-            for (int i = 0; i < argumentSignature.length; i++)
-                if (m.argumentSignature[i] != argumentSignature[i])
-                    continue;
-            return m;
-        }
-        return null;
+        return methods;
     }
     @Override
     protected LinkedList<Constructor> getConstructors()

@@ -10,6 +10,11 @@ public class NullType extends Type
     }
 
     @Override
+    protected LinkedList<Method> getMethods()
+    {
+        return new LinkedList<Method>();
+    }
+    @Override
     protected LinkedList<Constructor> getConstructors()
     {
         return new LinkedList<Constructor>();
@@ -28,12 +33,6 @@ public class NullType extends Type
 
     @Override
     public Field resolveField(String name)
-    {
-        return null;
-    }
-
-    @Override
-    public Method resolveMethod(String name, Type[] argumentSignature)
     {
         return null;
     }

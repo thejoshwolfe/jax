@@ -13,11 +13,19 @@ public abstract class Type
         this.id = id;
     }
 
-    public abstract Method resolveMethod(String name, Type[] argumentSignature);
-    public Constructor resolveConstructor(Type[] argumentSignature)
+    public final Method resolveMethod(String name, Type[] argumentSignature)
+    {
+        LinkedList<Method> overloads = new LinkedList<Method>();
+        for (Method method : getMethods())
+            if (method.id.equals(name))
+                overloads.add(method);
+        return resolveOverloads(overloads, argumentSignature);
+    }
+    public final Constructor resolveConstructor(Type[] argumentSignature)
     {
         return resolveOverloads(getConstructors(), argumentSignature);
     }
+    protected abstract LinkedList<Method> getMethods();
     protected abstract LinkedList<Constructor> getConstructors();
     private static final Comparator<TakesArguments> overloadSorter = new Comparator<TakesArguments>() {
         public int compare(TakesArguments o1, TakesArguments o2)

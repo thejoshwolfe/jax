@@ -6,6 +6,7 @@ public class RuntimeType extends Type
 {
     private final Class<?> underlyingType;
     /** constructor/method loading must be lazy to avoid caching entire base library */
+    private LinkedList<Method> methodsCache = null;
     private LinkedList<Constructor> constructorsCache = null;
     private RuntimeType(Class<?> underlyingType)
     {
@@ -13,55 +14,6 @@ public class RuntimeType extends Type
         this.underlyingType = underlyingType;
     }
 
-    private static final Comparator<java.lang.reflect.Method> overloadSorter = new Comparator<java.lang.reflect.Method>() {
-        public int compare(java.lang.reflect.Method o1, java.lang.reflect.Method o2)
-        {
-            Class<?>[] params1 = o1.getParameterTypes();
-            Class<?>[] params2 = o2.getParameterTypes();
-            for (int i = 0; i < params1.length; i++) {
-                if (params1[i] == params2[i])
-                    continue;
-                return params1[i].isAssignableFrom(params2[i]) ? 1 : -1;
-            }
-            throw new RuntimeException("Duplicate method signatures: " + o1 + " : " + o2);
-        }
-    };
-    @Override
-    public Method resolveMethod(String name, Type[] argumentSignature)
-    {
-        Class<?>[] argumentTypes = new Class<?>[argumentSignature.length];
-        for (int i = 0; i < argumentSignature.length; i++) {
-            if (!(argumentSignature[i] instanceof RuntimeType))
-                throw new RuntimeException("Runtime Types only reference other Runtime Types");
-            argumentTypes[i] = ((RuntimeType)argumentSignature[i]).underlyingType;
-        }
-        java.lang.reflect.Method[] allMethods = underlyingType.getMethods();
-        ArrayList<java.lang.reflect.Method> overloads = new ArrayList<java.lang.reflect.Method>();
-        methods: for (java.lang.reflect.Method method : allMethods) {
-            if (!method.getName().equals(name))
-                continue; // wrong name
-            Class<?>[] parameterTypes = method.getParameterTypes();
-            if (parameterTypes.length != argumentSignature.length)
-                continue; // wrong number of arguments
-            for (int i = 0; i < argumentSignature.length; i++) {
-                if (parameterTypes[i] == argumentTypes[i])
-                    continue; // so far so good
-                if (parameterTypes[i].isPrimitive() || argumentTypes[i].isPrimitive()) {
-                    // TODO: type coercion and/or boxing/unboxing logic.
-                    continue methods; // primitive type mismatch
-                }
-                if (parameterTypes[i].isAssignableFrom(argumentTypes[i]))
-                    continue; // not a match, but it's castable. so far so good.
-                continue methods; // not castable
-            }
-            // this method works
-            overloads.add(method);
-        }
-        if (overloads.size() == 0)
-            return null; // no eligible methods found
-        Collections.sort(overloads, overloadSorter);
-        return RuntimeMethod.getMethod(overloads.get(0));
-    }
     @Override
     public Field resolveField(String name)
     {
@@ -70,6 +22,17 @@ public class RuntimeType extends Type
         } catch (NoSuchFieldException e) {
             return null;
         }
+    }
+
+    @Override
+    protected LinkedList<Method> getMethods()
+    {
+        if (methodsCache == null) {
+            methodsCache = new LinkedList<Method>();
+            for (java.lang.reflect.Method method : underlyingType.getMethods())
+                methodsCache.add(Method.getMethod(method));
+        }
+        return methodsCache;
     }
 
     @Override
@@ -129,16 +92,30 @@ public class RuntimeType extends Type
             return size;
         }
     }
+    private static class NumericPrimitiveType extends PrimitiveType
+    {
+        public NumericPrimitiveType(Class<?> type, String typeCode, int size)
+        {
+            super(type, typeCode, size);
+        }
+        @Override
+        public boolean isInstanceOf(Type type)
+        {
+            if (!(type instanceof NumericPrimitiveType))
+                return false;
+            return getPrimitiveConversionType(this, type) >= 0;
+        }
+    }
     // http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html#84645
     public static final RuntimeType VOID = new PrimitiveType(void.class, "V", 0);
     public static final RuntimeType BOOLEAN = new PrimitiveType(boolean.class, "Z", 1);
-    public static final RuntimeType BYTE = new PrimitiveType(byte.class, "B", 1);
-    public static final RuntimeType SHORT = new PrimitiveType(short.class, "S", 1);
-    public static final RuntimeType INT = new PrimitiveType(int.class, "I", 1);
-    public static final RuntimeType LONG = new PrimitiveType(long.class, "J", 2); // J makes sense... :|
-    public static final RuntimeType FLOAT = new PrimitiveType(float.class, "F", 1);
-    public static final RuntimeType DOUBLE = new PrimitiveType(double.class, "D", 2);
-    public static final RuntimeType CHAR = new PrimitiveType(char.class, "C", 1);
+    public static final RuntimeType BYTE = new NumericPrimitiveType(byte.class, "B", 1);
+    public static final RuntimeType SHORT = new NumericPrimitiveType(short.class, "S", 1);
+    public static final RuntimeType INT = new NumericPrimitiveType(int.class, "I", 1);
+    public static final RuntimeType LONG = new NumericPrimitiveType(long.class, "J", 2); // J makes sense... :|
+    public static final RuntimeType FLOAT = new NumericPrimitiveType(float.class, "F", 1);
+    public static final RuntimeType DOUBLE = new NumericPrimitiveType(double.class, "D", 2);
+    public static final RuntimeType CHAR = new NumericPrimitiveType(char.class, "C", 1);
     public static void initPrimitives(HashMap<String, Type> types)
     {
         types.put(VOID.id, VOID);
@@ -183,6 +160,8 @@ public class RuntimeType extends Type
         cache.put(DOUBLE.underlyingType, DOUBLE);
         cache.put(CHAR.underlyingType, CHAR);
     }
+    public static final RuntimeType STRING = cache.get(String.class);
+    public static final RuntimeType OBJECT = cache.get(Object.class);
     public static Type getType(Class<?> underlyingType)
     {
         RuntimeType type = cache.get(underlyingType);
@@ -192,7 +171,7 @@ public class RuntimeType extends Type
         }
         return type;
     }
-    private static Type[] getTypes(Class<?>[] underlyingTypes)
+    public static Type[] getTypes(Class<?>[] underlyingTypes)
     {
         Type[] returnTypes = new Type[underlyingTypes.length];
         for (int i = 0; i < underlyingTypes.length; i++) 

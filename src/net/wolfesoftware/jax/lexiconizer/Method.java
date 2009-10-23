@@ -1,6 +1,8 @@
 package net.wolfesoftware.jax.lexiconizer;
 
-public abstract class Method extends TakesArguments
+import java.lang.reflect.Modifier;
+
+public class Method extends TakesArguments
 {
     public Type declaringType;
     public Type returnType;
@@ -26,4 +28,15 @@ public abstract class Method extends TakesArguments
         builder.append(returnType.getTypeCode());
         return builder.toString();
     }
+    public String toString()
+    {
+        return getMethodCode();
+    }
+
+    public static Method getMethod(java.lang.reflect.Method method)
+    {
+        return new Method(RuntimeType.getType(method.getDeclaringClass()), RuntimeType.getType(method.getReturnType()), method.getName(), RuntimeType.getTypes(method.getParameterTypes()), Modifier.isStatic(method.getModifiers()));
+    }
+
+    public static final Method UNKNOWN = new Method(UnknownType.INSTANCE, UnknownType.INSTANCE, "", new Type[0], false);
 }

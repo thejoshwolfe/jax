@@ -31,9 +31,9 @@ public class ArrayType extends Type
     }
 
     @Override
-    public Method resolveMethod(String name, Type[] argumentSignature)
+    protected LinkedList<Method> getMethods()
     {
-        throw new RuntimeException("TODO: Auto-generated method stub");
+        return RuntimeType.OBJECT.getMethods();
     }
 
     @Override

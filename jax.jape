@@ -114,7 +114,6 @@ $VariableDeclaration = TypeId ID
     $PrimitiveCast = "(" PrimitiveType ")" Expression
     $TypeIdCast = "(" TypeId ")" ExpressionThatDoesNotStartWithPlusOrMinus(130)       # not a real element name
     |TypeCast = PrimitiveCast | TypeIdCast     # not actually a switch element. Just is one of the two options
-    ~StringConcatenation = Expression : "+" # this is indistinguishable from addition to the parser
 
     $Assignment = ID "=" Expression
 

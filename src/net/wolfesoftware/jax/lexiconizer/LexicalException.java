@@ -1,5 +1,6 @@
 package net.wolfesoftware.jax.lexiconizer;
 
+import java.util.Arrays;
 import net.wolfesoftware.jax.CompileError;
 import net.wolfesoftware.jax.ast.*;
 
@@ -59,4 +60,8 @@ public class LexicalException extends CompileError
         return new LexicalException(id, "The type " + type + " doesn't have a field called " + id);
     }
 
+    public static LexicalException cantResolveMethod(Type type, Id id, ReturnBehavior[] argumentSignature)
+    {
+        return new LexicalException(id, "Can't resolve the method \"" + id + "\" in the type \"" + type + "\" with arguments " + Arrays.toString(argumentSignature) + ".");
+    }
 }
