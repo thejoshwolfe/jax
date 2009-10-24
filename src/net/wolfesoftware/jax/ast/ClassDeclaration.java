@@ -1,9 +1,12 @@
 package net.wolfesoftware.jax.ast;
 
+import net.wolfesoftware.jax.lexiconizer.LocalType;
+
 public class ClassDeclaration extends ParseElement
 {
     public Id id;
     public ClassBody classBody;
+    public LocalType localType;
     public ClassDeclaration(Id id, ClassBody classBody)
     {
         this.id = id;

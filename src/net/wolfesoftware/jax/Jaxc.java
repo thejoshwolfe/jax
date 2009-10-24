@@ -1,6 +1,6 @@
 package net.wolfesoftware.jax;
 
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.List;
 import net.wolfesoftware.jax.codegen.CodeGenerator;
 import net.wolfesoftware.jax.lexiconizer.*;
@@ -11,14 +11,24 @@ import net.wolfesoftware.jax.util.Util;
 
 public class Jaxc
 {
-    public static void main(String[] args) throws FileNotFoundException
+    public static void main(String[] args) throws FileNotFoundException, IOException
     {
         if (args.length == 0)
             throw new IllegalArgumentException();
         System.exit(comprehend(args[args.length - 1]));
     }
 
-    private static int comprehend(String fileName) throws FileNotFoundException
+    public static boolean compile(String jaxFilename)
+    {
+        try {
+            return comprehend(Util.platformizeFilepath(jaxFilename)) == 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private static int comprehend(String fileName) throws FileNotFoundException, IOException
     {
         Tokenization tokenization = Tokenizer.tokenize(Util.fileToString(fileName));
         if (printErrors(tokenization.errors))
@@ -47,15 +57,5 @@ public class Jaxc
         for (CompileError error : errors)
             System.err.println(error.getMessage());
         return errors.size() != 0;
-    }
-
-    public static boolean compile(String jaxFilename)
-    {
-        try {
-            return comprehend(Util.platformizeFilepath(jaxFilename)) == 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
     }
 }

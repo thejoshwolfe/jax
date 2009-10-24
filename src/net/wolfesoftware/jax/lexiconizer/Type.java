@@ -1,6 +1,7 @@
 package net.wolfesoftware.jax.lexiconizer;
 
 import java.util.*;
+import net.wolfesoftware.jax.codegen.classFile.ClassFile;
 
 public abstract class Type
 {

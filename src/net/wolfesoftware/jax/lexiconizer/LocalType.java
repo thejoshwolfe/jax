@@ -1,6 +1,7 @@
 package net.wolfesoftware.jax.lexiconizer;
 
 import java.util.*;
+import net.wolfesoftware.jax.codegen.classFile.ClassFile;
 
 public class LocalType extends Type
 {
@@ -43,5 +44,10 @@ public class LocalType extends Type
     public int getType()
     {
         return TYPE;
+    }
+
+    public short getFlags()
+    {
+        return ClassFile.ACC_PUBLIC;
     }
 }

@@ -89,9 +89,9 @@ public class Lexiconizer
         if (!classDeclaration.id.name.equals(classNameFromFile))
             errors.add(new LexicalException(classDeclaration.id, "Class name does not match file name"));
 
-        LocalType context = new LocalType(classNameFromFile, classDeclaration.id.name);
-        importedTypes.put(classNameFromFile, context);
-        lexiconizeClassBody(context, classDeclaration.classBody);
+        classDeclaration.localType = new LocalType(classNameFromFile, classDeclaration.id.name);
+        importedTypes.put(classNameFromFile, classDeclaration.localType);
+        lexiconizeClassBody(classDeclaration.localType, classDeclaration.classBody);
     }
 
     private void lexiconizeClassBody(LocalType context, ClassBody classBody)
@@ -141,7 +141,7 @@ public class Lexiconizer
         return argumentSignature;
     }
 
-    private void lexiconizeClassMemeber(LocalType context, ClassMember classMember)
+    private void lexiconizeClassMemeber(Type context, ClassMember classMember)
     {
         ParseElement content = classMember.content;
         switch (content.getElementType()) {
@@ -153,7 +153,7 @@ public class Lexiconizer
         }
     }
 
-    private void lexiconizeFunctionDefinition(LocalType context, FunctionDefinition functionDefinition)
+    private void lexiconizeFunctionDefinition(Type context, FunctionDefinition functionDefinition)
     {
         functionDefinition.returnBehavior = lexiconizeExpression(functionDefinition.context, functionDefinition.expression);
         if (functionDefinition.method.returnType != functionDefinition.returnBehavior.type)
