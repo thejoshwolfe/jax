@@ -885,7 +885,7 @@ public class Lexiconizer
     {
         ReturnBehavior returnBehavior = lexiconizeOperator(context, operator, null, false);
         if (returnBehavior.type != RuntimeType.INT)
-            errors.add(new LexicalException(operator, "Expression must be of type int"));
+            errors.add(new LexicalException(operator, "Expression must be of type int."));
         return returnBehavior;
     }
     private ReturnBehavior lexiconizeLessThan(LocalContext context, LessThan lessThan)
