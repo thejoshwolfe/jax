@@ -7,9 +7,9 @@ import net.wolfesoftware.jax.util.Util;
 
 public class CodeGenerator
 {
-    public static void generate(Lexiconization lexiconization, String outputFilename) throws FileNotFoundException, IOException
+    public static void generate(Lexiconization lexiconization, String classPath) throws FileNotFoundException, IOException
     {
-        new CodeGenerator(lexiconization.root, outputFilename).generateCode();
+        new CodeGenerator(lexiconization.root, classPath).generateCode();
     }
 
     private final Root root;

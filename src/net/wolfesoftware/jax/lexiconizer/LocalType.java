@@ -50,4 +50,14 @@ public class LocalType extends Type
     {
         return ClassFile.ACC_PUBLIC;
     }
+
+    public Type getParent()
+    {
+        return RuntimeType.OBJECT;
+    }
+
+    public Type[] getInterfaces()
+    {
+        return new Type[0];
+    }
 }

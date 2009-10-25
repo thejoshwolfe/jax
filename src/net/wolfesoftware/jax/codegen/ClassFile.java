@@ -1,9 +1,9 @@
 package net.wolfesoftware.jax.codegen;
 
 import java.io.*;
-import java.util.*;
+import java.util.LinkedList;
 import net.wolfesoftware.jax.ast.*;
-import net.wolfesoftware.jax.lexiconizer.LocalType;
+import net.wolfesoftware.jax.lexiconizer.*;
 
 /**
  * http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html
@@ -38,20 +38,26 @@ public class ClassFile
     }
 
     private static final int magic = 0xCAFEBABE;
-    private static final short minor_version = 3, major_version = 45; // taken from jasmin source code. dunno what it means
+    private static final short minor_version = 0, major_version = 50;
     private final ConstantPool constant_pool = new ConstantPool();
     private final short access_flags;
-    private final LinkedList<String> interfaces = new LinkedList<String>();
+    private final short this_class;
+    private final short super_class;
+    private final short[] interfaces;
     private final LinkedList<FieldInfo> fields = new LinkedList<FieldInfo>();
     private final LinkedList<MethodInfo> methods = new LinkedList<MethodInfo>();
     private final LinkedList<Attribute> attributes = new LinkedList<Attribute>();
 
-    private ClassFile(LocalType localType)
+    private ClassFile(LocalType type)
     {
-        short accessFlags = localType.getFlags();
         // "All new compilers to the instruction set of the Java virtual machine should set the ACC_SUPER flag."
-        accessFlags |= ACC_SUPER;
-        this.access_flags = accessFlags;
+        access_flags = (short)(type.getFlags() | ACC_SUPER);
+        this_class = constant_pool.getClass(type.getTypeName());
+        super_class = constant_pool.getClass(type.getParent().getTypeName());
+        Type[] interfaces = type.getInterfaces();
+        this.interfaces = new short[interfaces.length];
+        for (int i = 0; i < interfaces.length; i++)
+            this.interfaces[i] = constant_pool.getClass(interfaces[i].getTypeName());
     }
 
     public void write(DataOutputStream out) throws IOException
@@ -59,12 +65,16 @@ public class ClassFile
         out.writeInt(magic);
         out.writeShort(minor_version);
         out.writeShort(major_version);
-        constant_pool.write(out);
-        out.writeShort(access_flags);
 
-        out.writeShort(interfaces.size());
-        for (String _interface : interfaces)
-            out.writeShort(constant_pool.getClass(_interface));
+        constant_pool.write(out);
+        
+        out.writeShort(access_flags);
+        out.writeShort(this_class);
+        out.writeShort(super_class);
+
+        out.writeShort(interfaces.length);
+        for (Short index : interfaces)
+            out.writeShort(index);
 
         out.writeShort(fields.size());
         for (FieldInfo field : fields)

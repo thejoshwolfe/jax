@@ -68,11 +68,9 @@ public class MethodInfo
 
     private void internalGenerate(FunctionDefinition functionDefinition)
     {
-        // main body
         evalExpression(functionDefinition.expression);
-
-        // return statement
         _return(functionDefinition.returnBehavior.type);
+        attributes.add(Attribute.code(codeBufferArray.toByteArray(), constantPool));
     }
 
     private void _return(Type type)

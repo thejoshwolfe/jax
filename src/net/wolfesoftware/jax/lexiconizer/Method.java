@@ -49,6 +49,7 @@ public class Method extends TakesArguments
 
     public static Method getMethod(java.lang.reflect.Method method)
     {
+        // this lies about the flags in getFlags() but that's fine because we don't ever need them for runtime methods
         return new Method(RuntimeType.getType(method.getDeclaringClass()), RuntimeType.getType(method.getReturnType()), method.getName(), RuntimeType.getTypes(method.getParameterTypes()), Modifier.isStatic(method.getModifiers()));
     }
 
