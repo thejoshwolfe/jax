@@ -8,22 +8,22 @@ import net.wolfesoftware.jax.lexiconizer.LocalType;
 /**
  * http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html
  * <pre>ClassFile {
-        u4 magic;
-        u2 minor_version;
-        u2 major_version;
-        u2 constant_pool_count;
-        cp_info constant_pool[constant_pool_count-1];
-        u2 access_flags;
-        u2 this_class;
-        u2 super_class;
-        u2 interfaces_count;
-        u2 interfaces[interfaces_count];
-        u2 fields_count;
-        field_info fields[fields_count];
-        u2 methods_count;
-        method_info methods[methods_count];
-        u2 attributes_count;
-        attribute_info attributes[attributes_count];
+    u4 magic;
+    u2 minor_version;
+    u2 major_version;
+    u2 constant_pool_count;
+    cp_info constant_pool[constant_pool_count-1];
+    u2 access_flags;
+    u2 this_class;
+    u2 super_class;
+    u2 interfaces_count;
+    u2 interfaces[interfaces_count];
+    u2 fields_count;
+    field_info fields[fields_count];
+    u2 methods_count;
+    method_info methods[methods_count];
+    u2 attributes_count;
+    attribute_info attributes[attributes_count];
 }</pre>
  */
 public class ClassFile
@@ -59,6 +59,22 @@ public class ClassFile
         out.writeShort(minor_version);
         out.writeShort(major_version);
         constant_pool.write(out);
+        out.writeShort(access_flags);
+
+        out.writeShort(interfaces.size());
+        for (String _interface : interfaces)
+            out.writeShort(constant_pool.get(_interface));
+
+        out.writeShort(fields.size());
+        for (FieldInfo field : fields)
+            field.write(out);
+
+        out.writeShort(methods.size());
+        for (MethodInfo method : methods)
+            method.write(out);
+
+        // attributes
+
         throw null;
     }
 

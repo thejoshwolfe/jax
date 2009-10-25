@@ -1,9 +1,24 @@
 package net.wolfesoftware.jax.codegen.classFile;
 
+import java.io.*;
 import java.util.ArrayList;
 import net.wolfesoftware.jax.ast.*;
 import net.wolfesoftware.jax.lexiconizer.*;
 
+/**
+ * JVM instructions: http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc.html
+ * 
+ * http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html#1513
+ * <pre>method_info {
+    u2 access_flags;
+    u2 name_index;
+    u2 descriptor_index;
+    u2 attributes_count;
+    attribute_info attributes[attributes_count];
+}</pre>
+
+ * 
+ */
 public class MethodInfo
 {
     public static MethodInfo generate(FunctionDefinition functionDefinition)
@@ -540,5 +555,8 @@ public class MethodInfo
         throw null;
     }
 
-
+    public void write(DataOutputStream out) throws IOException
+    {
+        throw null;
+    }
 }

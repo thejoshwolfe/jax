@@ -6,9 +6,6 @@ import net.wolfesoftware.jax.codegen.classFile.ClassFile;
 import net.wolfesoftware.jax.lexiconizer.Lexiconization;
 import net.wolfesoftware.jax.util.Util;
 
-/**
- * JVM instructions: http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc.html
- */
 public class CodeGenerator
 {
     public static void generate(Lexiconization lexiconization, String outputFilename) throws FileNotFoundException, IOException
