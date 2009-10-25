@@ -1,6 +1,7 @@
 package net.wolfesoftware.jax.lexiconizer;
 
 import java.lang.reflect.Modifier;
+import net.wolfesoftware.jax.codegen.MethodInfo;
 
 public class Method extends TakesArguments
 {
@@ -28,6 +29,10 @@ public class Method extends TakesArguments
         builder.append(returnType.getTypeCode());
         return builder.toString();
     }
+    public short getFlags()
+    {
+        return MethodInfo.ACC_PUBLIC | MethodInfo.ACC_STATIC;
+    }
     public String toString()
     {
         return getMethodCode();
@@ -39,4 +44,5 @@ public class Method extends TakesArguments
     }
 
     public static final Method UNKNOWN = new Method(UnknownType.INSTANCE, UnknownType.INSTANCE, "", new Type[0], false);
+
 }

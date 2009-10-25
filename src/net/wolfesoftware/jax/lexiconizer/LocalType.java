@@ -1,7 +1,7 @@
 package net.wolfesoftware.jax.lexiconizer;
 
 import java.util.*;
-import net.wolfesoftware.jax.codegen.classFile.ClassFile;
+import net.wolfesoftware.jax.codegen.ClassFile;
 
 public class LocalType extends Type
 {

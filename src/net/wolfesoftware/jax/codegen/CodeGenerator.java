@@ -2,7 +2,6 @@ package net.wolfesoftware.jax.codegen;
 
 import java.io.*;
 import net.wolfesoftware.jax.ast.*;
-import net.wolfesoftware.jax.codegen.classFile.ClassFile;
 import net.wolfesoftware.jax.lexiconizer.Lexiconization;
 import net.wolfesoftware.jax.util.Util;
 

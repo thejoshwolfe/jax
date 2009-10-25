@@ -1,4 +1,4 @@
-package net.wolfesoftware.jax.codegen.classFile;
+package net.wolfesoftware.jax.codegen;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -16,24 +16,37 @@ import net.wolfesoftware.jax.lexiconizer.*;
     u2 attributes_count;
     attribute_info attributes[attributes_count];
 }</pre>
-
  * 
  */
 public class MethodInfo
 {
-    public static MethodInfo generate(FunctionDefinition functionDefinition)
+    public static MethodInfo generate(FunctionDefinition functionDefinition, ConstantPool constantPool)
     {
-        return null;
+        MethodInfo methodInfo = new MethodInfo(functionDefinition.method);
+        methodInfo.internalGenerate(functionDefinition);
+        return methodInfo;
     }
 
-    private ArrayList<String> exceptionTable = new ArrayList<String>();
-    private void genFunctionDefinition(FunctionDefinition functionDefinition)
-    {
-        // .limit stack
-        printStatement(".limit stack " + functionDefinition.context.stackCapacity);
-        // .limit locals
-        printStatement(".limit locals " + functionDefinition.context.variableCapacity);
+    public static final short
+    ACC_PUBLIC = 0x0001,
+    ACC_PRIVATE = 0x0002,
+    ACC_PROTECTED = 0x0004,
+    ACC_STATIC = 0x0008,
+    ACC_FINAL = 0x0010,
+    ACC_SYNCHRONIZED = 0x0020,
+    ACC_NATIVE = 0x0100,
+    ACC_ABSTRACT = 0x0400,
+    ACC_STRICT = 0x0800;
 
+    private final short access_flags;
+    private ArrayList<String> exceptionTable = new ArrayList<String>();
+    private MethodInfo(Method method)
+    {
+        access_flags = method.getFlags();
+    }
+
+    private void internalGenerate(FunctionDefinition functionDefinition)
+    {
         // main body
         evalExpression(functionDefinition.expression);
 

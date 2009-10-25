@@ -1,11 +1,11 @@
-package net.wolfesoftware.jax.codegen.classFile;
+package net.wolfesoftware.jax.codegen;
 
 import java.io.DataOutputStream;
 
 /**
  * http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html#20080
  */
-public class ConstantPoolInfo
+public class ConstantPool
 {
 
     public void write(DataOutputStream out)
@@ -13,7 +13,7 @@ public class ConstantPoolInfo
         throw null;
     }
 
-    public int get(Object _interface)
+    public int get(Object constant)
     {
         throw null;
     }
