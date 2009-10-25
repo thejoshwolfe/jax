@@ -46,9 +46,7 @@ public class Jaxc
 
         Optimizer.optimize(lexiconization.root);
 
-        String className = lexiconization.root.content.classDeclaration.id.name;
-        String outFileName = classPath + className + ".jasmin";
-        CodeGenerator.generate(lexiconization, outFileName);
+        CodeGenerator.generate(lexiconization, classPath);
 
         return 0;
     }

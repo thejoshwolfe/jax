@@ -64,7 +64,7 @@ public class ClassFile
 
         out.writeShort(interfaces.size());
         for (String _interface : interfaces)
-            out.writeShort(constant_pool.get(_interface));
+            out.writeShort(constant_pool.getClass(_interface));
 
         out.writeShort(fields.size());
         for (FieldInfo field : fields)

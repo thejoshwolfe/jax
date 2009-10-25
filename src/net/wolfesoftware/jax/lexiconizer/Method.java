@@ -18,20 +18,29 @@ public class Method extends TakesArguments
         this.isStatic = isStatic;
     }
 
-    @Override
-    public String getMethodCode()
+    public String getDescriptor()
     {
-        StringBuilder builder = new StringBuilder(declaringType.getTypeName());
-        builder.append('/').append(id).append('(');
+        StringBuilder builder = new StringBuilder();
+        builder.append('(');
         for (Type type : argumentSignature)
             builder.append(type.getTypeCode());
         builder.append(')');
         builder.append(returnType.getTypeCode());
         return builder.toString();
     }
+
+    @Override
+    public String getMethodCode()
+    {
+        return declaringType.getTypeName() + '/' + id + getDescriptor();
+    }
     public short getFlags()
     {
         return MethodInfo.ACC_PUBLIC | MethodInfo.ACC_STATIC;
+    }
+    public String getName()
+    {
+        return id;
     }
     public String toString()
     {
@@ -44,5 +53,4 @@ public class Method extends TakesArguments
     }
 
     public static final Method UNKNOWN = new Method(UnknownType.INSTANCE, UnknownType.INSTANCE, "", new Type[0], false);
-
 }

@@ -1,7 +1,7 @@
 package net.wolfesoftware.jax.codegen;
 
 import java.io.*;
-import java.util.ArrayList;
+import java.util.*;
 import net.wolfesoftware.jax.ast.*;
 import net.wolfesoftware.jax.lexiconizer.*;
 
@@ -22,7 +22,7 @@ public class MethodInfo
 {
     public static MethodInfo generate(FunctionDefinition functionDefinition, ConstantPool constantPool)
     {
-        MethodInfo methodInfo = new MethodInfo(functionDefinition.method);
+        MethodInfo methodInfo = new MethodInfo(functionDefinition.method, constantPool);
         methodInfo.internalGenerate(functionDefinition);
         return methodInfo;
     }
@@ -39,10 +39,31 @@ public class MethodInfo
     ACC_STRICT = 0x0800;
 
     private final short access_flags;
-    private ArrayList<String> exceptionTable = new ArrayList<String>();
-    private MethodInfo(Method method)
+    private final short name_index;
+    private final short descriptor_index;
+    private final ConstantPool constantPool;
+    private final ByteArrayOutputStream codeBufferArray;
+    private final DataOutputStream codeBuffer;
+    private final LinkedList<Attribute> attributes = new LinkedList<Attribute>();
+    @Deprecated private ArrayList<String> exceptionTable = new ArrayList<String>();
+    private MethodInfo(Method method, ConstantPool constantPool)
     {
         access_flags = method.getFlags();
+        name_index = constantPool.getUtf8(method.getName());
+        descriptor_index = constantPool.getUtf8(method.getDescriptor());
+        this.constantPool = constantPool;
+        codeBufferArray = new ByteArrayOutputStream();
+        codeBuffer = new DataOutputStream(codeBufferArray);
+    }
+
+    public void write(DataOutputStream out) throws IOException
+    {
+        out.writeShort(access_flags);
+        out.writeShort(name_index);
+        out.writeShort(descriptor_index);
+        out.writeShort(attributes.size());
+        for (Attribute attribute : attributes)
+            attribute.write(out);
     }
 
     private void internalGenerate(FunctionDefinition functionDefinition)
@@ -51,20 +72,24 @@ public class MethodInfo
         evalExpression(functionDefinition.expression);
 
         // return statement
-        String rtnStmt = null;
-        Type type = functionDefinition.returnBehavior.type;
-        if (type == RuntimeType.VOID)
-            rtnStmt = "return";
-        else
-            rtnStmt = getTypeLetter(type) + "return";
-        printStatement(rtnStmt);
-
-        // exception table
-        for (String exceptionLine : exceptionTable)
-            printStatement(exceptionLine);
-        exceptionTable.clear();
+        _return(functionDefinition.returnBehavior.type);
     }
 
+    private void _return(Type type)
+    {
+        if (!type.isPrimitive())
+            writeByte(Instructions._return);
+        else if (type == RuntimeType.BOOLEAN || type == RuntimeType.BYTE || type == RuntimeType.SHORT || type == RuntimeType.INT || type == RuntimeType.CHAR)
+            writeByte(Instructions.ireturn);
+        else if (type == RuntimeType.LONG)
+            writeByte(Instructions.lreturn);
+        else if (type == RuntimeType.FLOAT)
+            writeByte(Instructions.freturn);
+        else if (type == RuntimeType.DOUBLE)
+            writeByte(Instructions.dreturn);
+        else
+            throw null;
+    }
 
     private void evalExpression(Expression expression)
     {
@@ -540,8 +565,37 @@ public class MethodInfo
 
     private void evalIntLiteral(IntLiteral intLiteral)
     {
-        printStatement("ldc " + intLiteral.value);
+        ldc(constantPool.getInteger(intLiteral.value));
     }
+    private void ldc(short index)
+    {
+        if (index <= 0xFF) {
+            writeByte(Instructions.ldc);
+            writeByte((byte)index);
+        } else {
+            writeByte(Instructions.ldc_w);
+            writeShort(index);
+        }
+    }
+
+    private void writeByte(byte value)
+    {
+        try {
+            codeBuffer.writeByte(value);
+        } catch (IOException e) {
+            throw null;
+        }
+    }
+
+    private void writeShort(short value)
+    {
+        try {
+            codeBuffer.writeShort(value);
+        } catch (IOException e) {
+            throw null;
+        }
+    }
+
     private void evalFloatLiteral(FloatLiteral floatLiteral)
     {
         printStatement("ldc " + floatLiteral.value);
@@ -568,8 +622,4 @@ public class MethodInfo
         throw null;
     }
 
-    public void write(DataOutputStream out) throws IOException
-    {
-        throw null;
-    }
 }

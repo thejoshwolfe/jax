@@ -33,7 +33,7 @@ public class CodeGenerator
     private void genClassDeclaration(ClassDeclaration classDeclaration) throws FileNotFoundException, IOException
     {
         ClassFile classFile = ClassFile.generate(classDeclaration);
-        String outputFilename = Util.platformizeFilepath(classPath + File.pathSeparator + classDeclaration.localType.getTypeName() + ".class");
+        String outputFilename = Util.platformizeFilepath(classPath + File.separator + classDeclaration.localType.getTypeName() + ".class");
         DataOutputStream out = new DataOutputStream(new FileOutputStream(outputFilename));
         classFile.write(out);
         out.close();
