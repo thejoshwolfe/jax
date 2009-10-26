@@ -26,6 +26,10 @@ public class MethodInfo
         methodInfo.internalGenerate(functionDefinition);
         return methodInfo;
     }
+    public static MethodInfo generate(ConstructorDefinition content, ConstantPool constant_pool)
+    {
+        throw null;
+    }
 
     public static final short
     ACC_PUBLIC = 0x0001,
@@ -618,5 +622,4 @@ public class MethodInfo
     {
         throw null;
     }
-
 }

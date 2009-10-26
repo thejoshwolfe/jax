@@ -83,8 +83,6 @@ public class Lexiconizer
 
     private void lexiconizeClassDeclaration(ClassDeclaration classDeclaration)
     {
-        // verify package here
-        // verify className and fileName match
         String classNameFromFile = filePath.substring(filePath.lastIndexOf('\\') + 1, filePath.lastIndexOf('.'));
         if (!classDeclaration.id.name.equals(classNameFromFile))
             errors.add(new LexicalException(classDeclaration.id, "Class name does not match file name"));
@@ -101,24 +99,42 @@ public class Lexiconizer
         for (ClassMember classMember : classBody.elements)
             preLexiconizeClassMemeber(context, classMember);
 
+        if (context.constructors.isEmpty()) {
+            ClassMember classMember = context.makeDefaultConstructor(classBody);
+            classBody.elements.add(classMember);
+            preLexiconizeClassMemeber(context, classMember);
+        }
+
         for (ClassMember classMember : classBody.elements)
             lexiconizeClassMemeber(context, classMember);
     }
 
-    private void preLexiconizeClassMemeber(LocalType context, ClassMember topLevelItem)
+    private void preLexiconizeClassMemeber(LocalType context, ClassMember classMember)
     {
-        if (topLevelItem == null)
+        if (classMember == null)
             return;
-        ParseElement content = topLevelItem.content;
+        ParseElement content = classMember.content;
         switch (content.getElementType()) {
             case FunctionDefinition.TYPE:
                 preLexiconizeFunctionDefinition(context, (FunctionDefinition)content);
                 break;
+            case ConstructorDefinition.TYPE:
+                preLexiconizeConstructorDefinition(context, (ConstructorDefinition)content);
+                break;
             default:
-                throw new RuntimeException("TODO: implement " + Integer.toString(content.getElementType(), 16));
+                throw new RuntimeException("TODO: implement " + content.getClass().getName());
         }
-        if (context.constructors.size() == 0)
-            context.constructors.add(new Constructor(context, new Type[0]));
+    }
+
+    private void preLexiconizeConstructorDefinition(LocalType context, ConstructorDefinition constructorDefinition)
+    {
+        resolveType(constructorDefinition.typeId, true);
+        if (constructorDefinition.typeId.type != context)
+            errors.add(new LexicalException(constructorDefinition.typeId, "you can't have a constructor for type \"" + constructorDefinition.typeId.type + "\" in this class."));
+        constructorDefinition.context = new RootLocalContext(context);
+        Type[] arguemntSignature = lexiconizeArgumentDeclarations(constructorDefinition.context, constructorDefinition.argumentDeclarations);
+        constructorDefinition.constructor = new Constructor(context, arguemntSignature);
+        context.addConstructor(constructorDefinition.constructor);
     }
 
     private void preLexiconizeFunctionDefinition(LocalType context, FunctionDefinition functionDefinition)
@@ -148,9 +164,21 @@ public class Lexiconizer
             case FunctionDefinition.TYPE:
                 lexiconizeFunctionDefinition(context, (FunctionDefinition)content);
                 break;
+            case ConstructorDefinition.TYPE:
+                lexiconizeConstructorDefinition(context, (ConstructorDefinition)content);
+                break;
             default:
-                throw new RuntimeException("TODO: implement " + Integer.toString(content.getElementType(), 16));
+                throw new RuntimeException("TODO: implement " + content.getClass());
         }
+    }
+
+    private void lexiconizeConstructorDefinition(Type context, ConstructorDefinition constructorDefinition)
+    {
+        constructorDefinition.returnBehavior = lexiconizeExpression(constructorDefinition.context, constructorDefinition.expression);
+        if (constructorDefinition.returnBehavior.type != RuntimeType.VOID)
+            errors.add(LexicalException.mustBeVoid(constructorDefinition.expression));
+        constructorDefinition.context.modifyStack(-constructorDefinition.returnBehavior.type.getSize());
+        Util._assert(constructorDefinition.context.stackSize == 0);
     }
 
     private void lexiconizeFunctionDefinition(Type context, FunctionDefinition functionDefinition)

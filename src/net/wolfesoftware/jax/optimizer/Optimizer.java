@@ -43,9 +43,17 @@ public class Optimizer
             case FunctionDefinition.TYPE:
                 optimizeFunctionDefinition((FunctionDefinition)content);
                 break;
+            case ConstructorDefinition.TYPE:
+                optimizeConstructorDefinition((ConstructorDefinition)content);
+                break;
             default:
                 throw new RuntimeException();
         }
+    }
+
+    private static void optimizeConstructorDefinition(ConstructorDefinition constructorDefinition)
+    {
+        optimizeExpression(constructorDefinition.expression);
     }
 
     private static void optimizeFunctionDefinition(FunctionDefinition functionDefinition)

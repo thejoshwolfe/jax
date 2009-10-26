@@ -1,6 +1,7 @@
 package net.wolfesoftware.jax.lexiconizer;
 
 import java.util.*;
+import net.wolfesoftware.jax.ast.*;
 import net.wolfesoftware.jax.codegen.ClassFile;
 
 public class LocalType extends Type
@@ -13,6 +14,10 @@ public class LocalType extends Type
         super(fullName, id);
     }
 
+    public void addConstructor(Constructor constructor)
+    {
+        constructors.add(constructor);
+    }
     public void addMethod(Method method)
     {
         methods.add(method);
@@ -59,5 +64,10 @@ public class LocalType extends Type
     public Type[] getInterfaces()
     {
         return new Type[0];
+    }
+
+    public ClassMember makeDefaultConstructor(ClassBody classBody)
+    {
+        return new ClassMember(new ConstructorDefinition(TypeId.fromId(new Id(id)), new ArgumentDeclarations(new LinkedList<VariableDeclaration>()), new Expression(Block.EMPTY)));
     }
 }

@@ -103,6 +103,9 @@ public class ClassFile
             case FunctionDefinition.TYPE:
                 methods.add(MethodInfo.generate((FunctionDefinition)content, constant_pool));
                 break;
+            case ConstructorDefinition.TYPE:
+                methods.add(MethodInfo.generate((ConstructorDefinition)content, constant_pool));
+                break;
             default:
                 throw new RuntimeException();
         }
