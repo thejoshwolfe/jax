@@ -28,6 +28,7 @@ public class ConstantPool
     private final HashMap<Short, Short> classMap = new HashMap<Short, Short>();
     public void write(DataOutputStream out) throws IOException
     {
+        out.writeShort(totalSize);
         byte[][] elements = new byte[totalSize][];
         for (Entry<String, Short> entry : utf8Map.entrySet())
             elements[entry.getValue() - 1] = encodeUtf8(entry.getKey());

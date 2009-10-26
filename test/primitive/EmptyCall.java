@@ -1,8 +1,8 @@
-public class ConstReturnCall
+public class EmptyCall
 {
     public static void main(String[] args)
     {
-        new Empty();
+        Empty e;
         System.out.println("+++ PASS");
     }
 }
