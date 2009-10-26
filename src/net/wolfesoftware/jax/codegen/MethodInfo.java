@@ -26,9 +26,11 @@ public class MethodInfo
         methodInfo.internalGenerate(functionDefinition);
         return methodInfo;
     }
-    public static MethodInfo generate(ConstructorDefinition content, ConstantPool constant_pool)
+    public static MethodInfo generate(ConstructorDefinition constructorDefinition, ConstantPool constantPool)
     {
-        throw null;
+        MethodInfo methodInfo = new MethodInfo(constructorDefinition.constructor, constantPool);
+        methodInfo.internalGenerate(constructorDefinition);
+        return methodInfo;
     }
 
     public static final short
@@ -49,7 +51,7 @@ public class MethodInfo
     private final ByteArrayOutputStream codeBufferArray;
     private final DataOutputStream codeBuffer;
     private final LinkedList<Attribute> attributes = new LinkedList<Attribute>();
-    private MethodInfo(Method method, ConstantPool constantPool)
+    private MethodInfo(TakesArguments method, ConstantPool constantPool)
     {
         access_flags = method.getFlags();
         name_index = constantPool.getUtf8(method.getName());
@@ -69,7 +71,7 @@ public class MethodInfo
             attribute.write(out);
     }
 
-    private void internalGenerate(FunctionDefinition functionDefinition)
+    private void internalGenerate(ConstructorOrMethodElement functionDefinition)
     {
         evalExpression(functionDefinition.expression);
         _return(functionDefinition.returnBehavior.type);
@@ -79,6 +81,8 @@ public class MethodInfo
     private void _return(Type type)
     {
         if (!type.isPrimitive())
+            writeByte(Instructions.areturn);
+        else if (type == RuntimeType.VOID)
             writeByte(Instructions._return);
         else if (type == RuntimeType.BOOLEAN || type == RuntimeType.BYTE || type == RuntimeType.SHORT || type == RuntimeType.INT || type == RuntimeType.CHAR)
             writeByte(Instructions.ireturn);

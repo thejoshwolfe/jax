@@ -6,27 +6,14 @@ import net.wolfesoftware.jax.codegen.MethodInfo;
 public class Method extends TakesArguments
 {
     public Type declaringType;
-    public Type returnType;
     public String id;
     public boolean isStatic;
     public Method(Type declaringType, Type returnType, String id, Type[] argumentSignature, boolean isStatic)
     {
-        super(argumentSignature);
+        super(argumentSignature, returnType);
         this.declaringType = declaringType;
-        this.returnType = returnType;
         this.id = id;
         this.isStatic = isStatic;
-    }
-
-    public String getDescriptor()
-    {
-        StringBuilder builder = new StringBuilder();
-        builder.append('(');
-        for (Type type : argumentSignature)
-            builder.append(type.getTypeCode());
-        builder.append(')');
-        builder.append(returnType.getTypeCode());
-        return builder.toString();
     }
 
     @Override
