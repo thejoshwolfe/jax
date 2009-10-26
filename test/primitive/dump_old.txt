@@ -1,0 +1,59 @@
+ca fe ba be 
+00 00 
+00 32 
+
+
+00 07 
+
+01 ; utf8
+00 05 
+45 6d 70 74 79 ; "Empty"
+
+07 ; Class
+00 01 ; -> "Empty"
+
+01 ; utf8
+00 10 
+6a 61 76 61 2f 6c 61 6e 67 2f 4f 62 6a 65 63 74 ; "java/lang/Object"
+
+07 ; Class
+00 03 ; -> "java/lang/Object"
+
+01 ; utf8
+00 06 
+3c 69 6e 69 74 3e ; "<init>"
+
+01 ; utf8
+00 03 
+28 29 56 ; "()V"
+
+01 ; utf8
+00 04 
+43 6f 64 65 ; "Code"
+
+
+00 21 ; public super
+
+00 02 ; Class -> "Empty"
+
+00 04 ; Class -> "java/lang/Object"
+
+
+00 00 
+
+
+00 00 
+
+
+00 01 
+
+	00 01 ; public
+	00 05 ; "<init>"
+	00 06 ; "()V"
+
+	00 01 
+
+		00 07 ; "Code"
+		00 00 00 0d 
+		00 00 00 00 00 00 00 01 b1 00 00 00 00 
+		00 00

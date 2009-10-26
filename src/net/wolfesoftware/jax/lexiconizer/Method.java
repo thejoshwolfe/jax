@@ -5,13 +5,11 @@ import net.wolfesoftware.jax.codegen.MethodInfo;
 
 public class Method extends TakesArguments
 {
-    public Type declaringType;
     public String id;
     public boolean isStatic;
     public Method(Type declaringType, Type returnType, String id, Type[] argumentSignature, boolean isStatic)
     {
-        super(argumentSignature, returnType);
-        this.declaringType = declaringType;
+        super(declaringType, argumentSignature, returnType);
         this.id = id;
         this.isStatic = isStatic;
     }
@@ -21,17 +19,15 @@ public class Method extends TakesArguments
     {
         return declaringType.getTypeName() + '/' + id + getDescriptor();
     }
+    @Override
     public short getFlags()
     {
         return MethodInfo.ACC_PUBLIC | MethodInfo.ACC_STATIC;
     }
+    @Override
     public String getName()
     {
         return id;
-    }
-    public String toString()
-    {
-        return getMethodCode();
     }
 
     public static Method getMethod(java.lang.reflect.Method method)

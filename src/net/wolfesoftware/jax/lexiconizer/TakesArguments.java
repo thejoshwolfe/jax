@@ -2,10 +2,12 @@ package net.wolfesoftware.jax.lexiconizer;
 
 public abstract class TakesArguments
 {
+    public Type declaringType;
     public Type[] argumentSignature;
     public Type returnType;
-    public TakesArguments(Type[] argumentSignature, Type returnType)
+    public TakesArguments(Type declaringType, Type[] argumentSignature, Type returnType)
     {
+        this.declaringType = declaringType;
         this.argumentSignature = argumentSignature;
         this.returnType = returnType;
     }
@@ -21,6 +23,10 @@ public abstract class TakesArguments
         builder.append(')');
         builder.append(returnType.getTypeCode());
         return builder.toString();
+    }
+    public String toString()
+    {
+        return getMethodCode();
     }
 
     public abstract short getFlags();

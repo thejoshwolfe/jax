@@ -8,10 +8,10 @@ public class RootLocalContext extends LocalContext
     public int stackSize = 0;
     public int stackCapacity = 0;
     private int nextLabelNumber = 0;
-    private Type classContext;
+    private LocalType classContext;
     public LinkedList<short[]> exceptionTable = new LinkedList<short[]>();
 
-    public RootLocalContext(Type classContext)
+    public RootLocalContext(LocalType classContext)
     {
         super(null);
         this.classContext = classContext;
@@ -33,7 +33,7 @@ public class RootLocalContext extends LocalContext
     }
 
     @Override
-    public Type getClassContext()
+    public LocalType getClassContext()
     {
         return classContext;
     }

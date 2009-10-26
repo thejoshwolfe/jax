@@ -171,6 +171,9 @@ public class Optimizer
             case ConstructorInvocation.TYPE:
                 optimizeConstructorInvocation((ConstructorInvocation)content);
                 break;
+            case ConstructorRedirect.TYPE:
+                optimizeConstructorRedirect((ConstructorRedirect)content);
+                break;
             case DereferenceMethod.TYPE:
                 optimizeDereferenceMethod((DereferenceMethod)content);
                 break;
@@ -198,6 +201,11 @@ public class Optimizer
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
+    }
+
+    private static void optimizeConstructorRedirect(ConstructorRedirect constructorRedirect)
+    {
+        optimizeArguments(constructorRedirect.arguments);
     }
 
     private static void optimizeNullExpression(NullExpression nullExpression)

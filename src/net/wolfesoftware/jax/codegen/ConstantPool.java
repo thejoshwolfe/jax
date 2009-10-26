@@ -3,6 +3,7 @@ package net.wolfesoftware.jax.codegen;
 import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
+import net.wolfesoftware.jax.lexiconizer.*;
 
 /**
  * http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html#20080
@@ -26,6 +27,8 @@ public class ConstantPool
     private final HashMap<String, Short> utf8Map = new HashMap<String, Short>();
     private final HashMap<Integer, Short> integerMap = new HashMap<Integer, Short>();
     private final HashMap<Short, Short> classMap = new HashMap<Short, Short>();
+    private final HashMap<Integer, Short> methodMap = new HashMap<Integer, Short>();
+    private final HashMap<Integer, Short> nameAndTypeMap = new HashMap<Integer, Short>();
     public void write(DataOutputStream out) throws IOException
     {
         out.writeShort(totalSize);
@@ -36,9 +39,35 @@ public class ConstantPool
             elements[entry.getValue() - 1] = encodeInteger(entry.getKey());
         for (Entry<Short, Short> entry : classMap.entrySet())
             elements[entry.getValue() - 1] = encodeClass(entry.getKey());
+        for (Entry<Integer, Short> entry : methodMap.entrySet())
+            elements[entry.getValue() - 1] = encodeMethod(entry.getKey());
+        for (Entry<Integer, Short> entry : nameAndTypeMap.entrySet())
+            elements[entry.getValue() - 1] = encodeNameAndType(entry.getKey());
 
         for (byte[] element : elements)
             out.write(element);
+    }
+
+    private byte[] encodeNameAndType(Integer value)
+    {
+        return new byte[] {
+                CONSTANT_NameAndType,
+                (byte)(value >>> 12),
+                (byte)(value >>> 8),
+                (byte)(value >>> 4),
+                (byte)(value >>> 0),
+        };
+    }
+
+    private byte[] encodeMethod(Integer value)
+    {
+        return new byte[] {
+                CONSTANT_Methodref,
+                (byte)(value >>> 12),
+                (byte)(value >>> 8),
+                (byte)(value >>> 4),
+                (byte)(value >>> 0),
+        };
     }
 
     private byte[] encodeClass(Short value)
@@ -84,6 +113,22 @@ public class ConstantPool
     {
         return get(integerMap, value);
     }
+    /**
+     *  http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html#42041
+     */
+    public short getMethod(TakesArguments value)
+    {
+        short class_index = getClass(value.declaringType.getTypeName());
+        short name_and_type_index = getNameAndType(value);
+        return get(methodMap, (class_index << 16) | name_and_type_index);
+    }
+    private short getNameAndType(TakesArguments value)
+    {
+        short name_index = getUtf8(value.getName());
+        short descriptor_index = getUtf8(value.getDescriptor());
+        return get(nameAndTypeMap, (name_index << 16) | descriptor_index);
+    }
+
     private <T> short get(HashMap<T, Short> map, T value)
     {
         Short index = map.get(value);
@@ -104,5 +149,4 @@ public class ConstantPool
         // 1-based index
         return ++totalSize;
     }
-
 }

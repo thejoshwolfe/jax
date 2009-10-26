@@ -26,6 +26,8 @@ public final class Lang
     KEYWORD_INT = "int",
     KEYWORD_NEW = "new",
     KEYWORD_NULL = "null",
+    KEYWORD_SUPER = "supre",
+    KEYWORD_THIS = "this",
     KEYWORD_TRUE = "true",
     KEYWORD_TRY = "try",
     KEYWORD_VOID = "void",

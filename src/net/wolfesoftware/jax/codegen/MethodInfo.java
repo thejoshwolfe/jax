@@ -206,6 +206,9 @@ public class MethodInfo
             case ConstructorInvocation.TYPE:
                 evalConstructorInvocation((ConstructorInvocation)content);
                 break;
+            case ConstructorRedirect.TYPE:
+                evalConstructorRedirect((ConstructorRedirect)content);
+                break;
             case DereferenceMethod.TYPE:
                 evalDereferenceMethod((DereferenceMethod)content);
                 break;
@@ -235,6 +238,35 @@ public class MethodInfo
         }
     }
 
+    private void evalConstructorRedirect(ConstructorRedirect constructorRedirect)
+    {
+        aload(0);
+        evalArguments(constructorRedirect.arguments);
+        writeByte(Instructions.invokespecial);
+        short index = constantPool.getMethod(constructorRedirect.constructor);
+        writeShort(index);
+    }
+    private void aload(int index)
+    {
+        switch (index) {
+            case 0:
+                writeByte(Instructions.aload_0);
+                break;
+            case 1:
+                writeByte(Instructions.aload_1);
+                break;
+            case 2:
+                writeByte(Instructions.aload_2);
+                break;
+            case 3:
+                writeByte(Instructions.aload_3);
+                break;
+            default:
+                writeByte(Instructions.aload);
+                writeByte((byte)index);
+                break;
+        }
+    }
     private void evalShortCircuitAnd(ShortCircuitAnd shortCircuitAnd)
     {
         evalExpression(shortCircuitAnd.expression1);
@@ -303,7 +335,7 @@ public class MethodInfo
 
     private void evalConstructorInvocation(ConstructorInvocation constructorInvocation)
     {
-        printStatement("new " + constructorInvocation.constructor.type.getTypeName());
+        printStatement("new " + constructorInvocation.constructor.declaringType.getTypeName());
         printStatement("dup");
         evalArguments(constructorInvocation.functionInvocation.arguments);
         printStatement("invokespecial " + constructorInvocation.constructor.getMethodCode());

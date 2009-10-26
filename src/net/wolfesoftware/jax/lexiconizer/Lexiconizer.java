@@ -3,6 +3,7 @@ package net.wolfesoftware.jax.lexiconizer;
 import java.util.*;
 import net.wolfesoftware.jax.ast.*;
 import net.wolfesoftware.jax.parser.Parsing;
+import net.wolfesoftware.jax.tokenizer.Lang;
 import net.wolfesoftware.jax.util.Util;
 
 public class Lexiconizer
@@ -99,11 +100,11 @@ public class Lexiconizer
         for (ClassMember classMember : classBody.elements)
             preLexiconizeClassMemeber(context, classMember);
 
-//        if (context.constructors.isEmpty()) {
-//            ClassMember classMember = context.makeDefaultConstructor(classBody);
-//            classBody.elements.add(classMember);
-//            preLexiconizeClassMemeber(context, classMember);
-//        }
+        if (context.constructors.isEmpty()) {
+            ClassMember classMember = context.makeDefaultConstructor(classBody);
+            classBody.elements.add(classMember);
+            preLexiconizeClassMemeber(context, classMember);
+        }
 
         for (ClassMember classMember : classBody.elements)
             lexiconizeClassMemeber(context, classMember);
@@ -174,6 +175,8 @@ public class Lexiconizer
 
     private void lexiconizeConstructorDefinition(Type context, ConstructorDefinition constructorDefinition)
     {
+        ConstructorRedirect constructorRedirect = new ConstructorRedirect(Lang.KEYWORD_SUPER, new Arguments(new LinkedList<Expression>()));
+        constructorDefinition.expression = new Expression(new Block(new BlockContents(Arrays.asList(new Expression(constructorRedirect), constructorDefinition.expression))));
         constructorDefinition.returnBehavior = lexiconizeExpression(constructorDefinition.context, constructorDefinition.expression);
         if (constructorDefinition.returnBehavior.type != RuntimeType.VOID)
             errors.add(LexicalException.mustBeVoid(constructorDefinition.expression));
@@ -302,6 +305,9 @@ public class Lexiconizer
             case ConstructorInvocation.TYPE:
                 returnBehavior = lexiconizeConstructorInvocation(context, (ConstructorInvocation)content);
                 break;
+            case ConstructorRedirect.TYPE:
+                returnBehavior = lexiconizeConstructorRedirect(context, (ConstructorRedirect)content);
+                break;
             case DereferenceMethod.TYPE:
                 switch (disambuateDereferenceMethod(context, expression)) {
                     case DereferenceMethod.TYPE:
@@ -349,6 +355,24 @@ public class Lexiconizer
         }
         expression.returnBehavior = returnBehavior;
         return returnBehavior;
+    }
+
+    private ReturnBehavior lexiconizeConstructorRedirect(LocalContext context, ConstructorRedirect constructorRedirect)
+    {
+        ReturnBehavior[] argumentSignature = lexiconizeArguments(context, constructorRedirect.arguments);
+        Type type;
+        if (constructorRedirect.thisOrSuper == Lang.KEYWORD_THIS)
+            type = context.getClassContext();
+        else if (constructorRedirect.thisOrSuper == Lang.KEYWORD_SUPER)
+            type = context.getClassContext().getParent();
+        else
+            throw null;
+        constructorRedirect.constructor = resolveConstructor(type, argumentSignature);
+        context.modifyStack(1);
+        context.modifyStack(-1);
+        if (constructorRedirect.constructor == null)
+            errors.add(new LexicalException(constructorRedirect, "can't resolve this constructor"));
+        return ReturnBehavior.VOID;
     }
 
     private ReturnBehavior lexiconizeNullExpression(LocalContext context, NullExpression nullExpression)
