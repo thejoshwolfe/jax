@@ -1,5 +1,7 @@
 package net.wolfesoftware.jax.lexiconizer;
 
+import java.util.LinkedList;
+
 public class RootLocalContext extends LocalContext
 {
     public int variableCapacity = 0;
@@ -7,6 +9,7 @@ public class RootLocalContext extends LocalContext
     public int stackCapacity = 0;
     private int nextLabelNumber = 0;
     private Type classContext;
+    public LinkedList<short[]> exceptionTable = new LinkedList<short[]>();
 
     public RootLocalContext(Type classContext)
     {

@@ -6,8 +6,8 @@ import net.wolfesoftware.jax.ast.*;
 import net.wolfesoftware.jax.lexiconizer.*;
 
 /**
- * JVM instructions: http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc.html
- * 
+ * http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc.html
+ * <p/>
  * http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html#1513
  * <pre>method_info {
     u2 access_flags;
@@ -45,7 +45,6 @@ public class MethodInfo
     private final ByteArrayOutputStream codeBufferArray;
     private final DataOutputStream codeBuffer;
     private final LinkedList<Attribute> attributes = new LinkedList<Attribute>();
-    @Deprecated private ArrayList<String> exceptionTable = new ArrayList<String>();
     private MethodInfo(Method method, ConstantPool constantPool)
     {
         access_flags = method.getFlags();
@@ -70,7 +69,7 @@ public class MethodInfo
     {
         evalExpression(functionDefinition.expression);
         _return(functionDefinition.returnBehavior.type);
-        attributes.add(Attribute.code(codeBufferArray.toByteArray(), constantPool));
+        attributes.add(Attribute.code(codeBufferArray.toByteArray(), functionDefinition.context, constantPool));
     }
 
     private void _return(Type type)
@@ -360,7 +359,7 @@ public class MethodInfo
         printLabel(tryCatch.endLabel);
         for (CatchBody catchBody : tryCatch.catchPart.catchList.elements) {
             String typeName = catchBody.variableDeclaration.typeId.type.getTypeCode();
-            exceptionTable.add(".catch " + typeName + " from " + tryCatch.tryPart.startLabel + " to " + tryCatch.tryPart.endLabel + " using " + catchBody.startLabel);
+//            exceptionTable.add(".catch " + typeName + " from " + tryCatch.tryPart.startLabel + " to " + tryCatch.tryPart.endLabel + " using " + catchBody.startLabel);
         }
     }
 
