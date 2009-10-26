@@ -17,6 +17,7 @@ public abstract class Attribute
     public abstract void write(DataOutputStream out) throws IOException;
 
     /**
+     * http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html#1546
      * <pre>Code_attribute {
     u2 attribute_name_index;
     u4 attribute_length;
@@ -46,7 +47,8 @@ public abstract class Attribute
         final short[][] excpetion_table = context.exceptionTable.toArray(new short[excpetion_table_length][]);
         final short attributes_count = 0;
         final Attribute[] attributes = {};
-        int attributeLength = 2 + 4 + 2 + 2 + 4 + code.length + 2 + (2 + 2 + 2 + 2) * excpetion_table.length + 2;
+        // "The value of the attribute_length item indicates the length of the attribute, excluding the initial six bytes."
+        int attributeLength = 2 + 2 + 4 + code.length + 2 + (2 + 2 + 2 + 2) * excpetion_table.length + 2;
         for (Attribute attribute : attributes)
             attributeLength += attribute.length;
         attribute_length = attributeLength;

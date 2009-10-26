@@ -85,7 +85,7 @@ public class Lexiconizer
     {
         String classNameFromFile = filePath.substring(filePath.lastIndexOf('\\') + 1, filePath.lastIndexOf('.'));
         if (!classDeclaration.id.name.equals(classNameFromFile))
-            errors.add(new LexicalException(classDeclaration.id, "Class name does not match file name"));
+            errors.add(new LexicalException(classDeclaration.id, "Class name does not match file name \"" + classNameFromFile + "\"."));
 
         classDeclaration.localType = new LocalType(classNameFromFile, classDeclaration.id.name);
         importedTypes.put(classNameFromFile, classDeclaration.localType);
@@ -99,11 +99,11 @@ public class Lexiconizer
         for (ClassMember classMember : classBody.elements)
             preLexiconizeClassMemeber(context, classMember);
 
-        if (context.constructors.isEmpty()) {
-            ClassMember classMember = context.makeDefaultConstructor(classBody);
-            classBody.elements.add(classMember);
-            preLexiconizeClassMemeber(context, classMember);
-        }
+//        if (context.constructors.isEmpty()) {
+//            ClassMember classMember = context.makeDefaultConstructor(classBody);
+//            classBody.elements.add(classMember);
+//            preLexiconizeClassMemeber(context, classMember);
+//        }
 
         for (ClassMember classMember : classBody.elements)
             lexiconizeClassMemeber(context, classMember);

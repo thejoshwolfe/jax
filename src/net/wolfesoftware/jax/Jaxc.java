@@ -21,7 +21,7 @@ public class Jaxc
     public static boolean compile(String jaxFilename)
     {
         try {
-            return comprehend(Util.platformizeFilepath(jaxFilename)) == 0;
+            return comprehend(Util.unixizeFilepath(jaxFilename)) == 0;
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -38,7 +38,7 @@ public class Jaxc
         if (printErrors(parsing.errors))
             return 1;
 
-        String classPath = fileName.substring(0, fileName.lastIndexOf('\\') + 1);
+        String classPath = fileName.substring(0, fileName.lastIndexOf('/') + 1);
         String relativePath = fileName.substring(classPath.length());
         Lexiconization lexiconization = Lexiconizer.lexiconize(parsing, relativePath);
         if (printErrors(lexiconization.errors))
