@@ -267,6 +267,90 @@ public class MethodInfo
                 break;
         }
     }
+    private void iload(int index)
+    {
+        switch (index) {
+            case 0:
+                writeByte(Instructions.iload_0);
+                break;
+            case 1:
+                writeByte(Instructions.iload_1);
+                break;
+            case 2:
+                writeByte(Instructions.iload_2);
+                break;
+            case 3:
+                writeByte(Instructions.iload_3);
+                break;
+            default:
+                writeByte(Instructions.iload);
+                writeByte((byte)index);
+                break;
+        }
+    }
+    private void lload(int index)
+    {
+        switch (index) {
+            case 0:
+                writeByte(Instructions.lload_0);
+                break;
+            case 1:
+                writeByte(Instructions.lload_1);
+                break;
+            case 2:
+                writeByte(Instructions.lload_2);
+                break;
+            case 3:
+                writeByte(Instructions.lload_3);
+                break;
+            default:
+                writeByte(Instructions.lload);
+                writeByte((byte)index);
+                break;
+        }
+    }
+    private void fload(int index)
+    {
+        switch (index) {
+            case 0:
+                writeByte(Instructions.fload_0);
+                break;
+            case 1:
+                writeByte(Instructions.fload_1);
+                break;
+            case 2:
+                writeByte(Instructions.fload_2);
+                break;
+            case 3:
+                writeByte(Instructions.fload_3);
+                break;
+            default:
+                writeByte(Instructions.fload);
+                writeByte((byte)index);
+                break;
+        }
+    }
+    private void dload(int index)
+    {
+        switch (index) {
+            case 0:
+                writeByte(Instructions.dload_0);
+                break;
+            case 1:
+                writeByte(Instructions.dload_1);
+                break;
+            case 2:
+                writeByte(Instructions.dload_2);
+                break;
+            case 3:
+                writeByte(Instructions.dload_3);
+                break;
+            default:
+                writeByte(Instructions.dload);
+                writeByte((byte)index);
+                break;
+        }
+    }
     private void evalShortCircuitAnd(ShortCircuitAnd shortCircuitAnd)
     {
         evalExpression(shortCircuitAnd.expression1);
@@ -308,7 +392,17 @@ public class MethodInfo
     private void evalNegation(Negation negation)
     {
         evalExpression(negation.expression);
-        printStatement("ineg");
+        Type type = negation.type;
+        if (type == RuntimeType.INT)
+            writeByte(Instructions.ineg);
+        else if (type == RuntimeType.LONG)
+            writeByte(Instructions.lneg);
+        else if (type == RuntimeType.FLOAT)
+            writeByte(Instructions.fneg);
+        else if (type == RuntimeType.DOUBLE)
+            writeByte(Instructions.dneg);
+        else
+            throw null;
     }
 
     private void evalReferenceConversion(ReferenceConversion referenceConversion)
@@ -343,23 +437,31 @@ public class MethodInfo
 
     private void evalPreIncrement(PreIncrement preIncrement)
     {
-        printStatement("iinc " + preIncrement.id.variable.number + " 1");
+        writeByte(Instructions.iinc);
+        writeByte((byte)preIncrement.id.variable.number);
+        writeByte((byte)1);
         evalId(preIncrement.id);
     }
     private void evalPreDecrement(PreDecrement preDecrement)
     {
-        printStatement("iinc " + preDecrement.id.variable.number + " -1");
+        writeByte(Instructions.iinc);
+        writeByte((byte)preDecrement.id.variable.number);
+        writeByte((byte)-1);
         evalId(preDecrement.id);
     }
     private void evalPostIncrement(PostIncrement postIncrement)
     {
         evalId(postIncrement.id);
-        printStatement("iinc " + postIncrement.id.variable.number + " 1");
+        writeByte(Instructions.iinc);
+        writeByte((byte)postIncrement.id.variable.number);
+        writeByte((byte)1);
     }
     private void evalPostDecrement(PostDecrement postDecrement)
     {
         evalId(postDecrement.id);
-        printStatement("iinc " + postDecrement.id.variable.number + " -1");
+        writeByte(Instructions.iinc);
+        writeByte((byte)postDecrement.id.variable.number);
+        writeByte((byte)-1);
     }
 
     private void evalForLoop(ForLoop forLoop)
@@ -486,17 +588,13 @@ public class MethodInfo
 
     private String getTypeLetter(Type type)
     {
-        if (!type.isPrimitive())
-            return "a";
-        if (type == RuntimeType.BOOLEAN || type == RuntimeType.BYTE || type == RuntimeType.SHORT || type == RuntimeType.INT || type == RuntimeType.CHAR)
-            return "i";
-        if (type == RuntimeType.LONG)
-            return "l";
-        if (type == RuntimeType.FLOAT)
-            return "f";
-        if (type == RuntimeType.DOUBLE)
-            return "d";
-        throw new RuntimeException(type.toString());
+        throw null;
+    }
+    private Type translateTypeForInstructions(Type type)
+    {
+        if (type == RuntimeType.BOOLEAN || type == RuntimeType.BYTE || type == RuntimeType.SHORT || type == RuntimeType.CHAR)
+            return RuntimeType.INT;
+        return type;
     }
 
     private void evalVariableDeclaration(VariableDeclaration variableDeclaration)
@@ -509,14 +607,142 @@ public class MethodInfo
         evalVariableDeclaration(variableCreation.variableDeclaration);
 
         evalExpression(variableCreation.expression);
-        String typeLetter = getTypeLetter(variableCreation.variableDeclaration.id.variable.type);
-        printStatement(typeLetter + "store " + variableCreation.variableDeclaration.id.variable.number);
+        LocalVariable variable = variableCreation.variableDeclaration.id.variable;
+        Type type = translateTypeForInstructions(variable.type);
+        if (!type.isPrimitive())
+            astore(variable.number);
+        else if (type == RuntimeType.INT)
+            istore(variable.number);
+        else if (type == RuntimeType.LONG)
+            lstore(variable.number);
+        else if (type == RuntimeType.FLOAT)
+            fstore(variable.number);
+        else if (type == RuntimeType.DOUBLE)
+            dstore(variable.number);
+        else
+            throw null;
+    }
+    private void astore(int number)
+    {
+        switch (number) {
+            case 0:
+                writeByte(Instructions.astore_0);
+                break;
+            case 1:
+                writeByte(Instructions.astore_1);
+                break;
+            case 2:
+                writeByte(Instructions.astore_2);
+                break;
+            case 3:
+                writeByte(Instructions.astore_3);
+                break;
+            default:
+                writeByte(Instructions.astore);
+                writeByte((byte)number);
+                break;
+        }
+    }
+    private void istore(int number)
+    {
+        switch (number) {
+            case 0:
+                writeByte(Instructions.istore_0);
+                break;
+            case 1:
+                writeByte(Instructions.istore_1);
+                break;
+            case 2:
+                writeByte(Instructions.istore_2);
+                break;
+            case 3:
+                writeByte(Instructions.istore_3);
+                break;
+            default:
+                writeByte(Instructions.istore);
+                writeByte((byte)number);
+                break;
+        }
+    }
+    private void lstore(int number)
+    {
+        switch (number) {
+            case 0:
+                writeByte(Instructions.lstore_0);
+                break;
+            case 1:
+                writeByte(Instructions.lstore_1);
+                break;
+            case 2:
+                writeByte(Instructions.lstore_2);
+                break;
+            case 3:
+                writeByte(Instructions.lstore_3);
+                break;
+            default:
+                writeByte(Instructions.lstore);
+                writeByte((byte)number);
+                break;
+        }
+    }
+    private void fstore(int number)
+    {
+        switch (number) {
+            case 0:
+                writeByte(Instructions.fstore_0);
+                break;
+            case 1:
+                writeByte(Instructions.fstore_1);
+                break;
+            case 2:
+                writeByte(Instructions.fstore_2);
+                break;
+            case 3:
+                writeByte(Instructions.fstore_3);
+                break;
+            default:
+                writeByte(Instructions.fstore);
+                writeByte((byte)number);
+                break;
+        }
+    }
+    private void dstore(int number)
+    {
+        switch (number) {
+            case 0:
+                writeByte(Instructions.dstore_0);
+                break;
+            case 1:
+                writeByte(Instructions.dstore_1);
+                break;
+            case 2:
+                writeByte(Instructions.dstore_2);
+                break;
+            case 3:
+                writeByte(Instructions.dstore_3);
+                break;
+            default:
+                writeByte(Instructions.dstore);
+                writeByte((byte)number);
+                break;
+        }
     }
 
     private void evalId(Id id)
     {
-        String typeLetter = getTypeLetter(id.variable.type);
-        printStatement(typeLetter + "load " + id.variable.number);
+        Type type = translateTypeForInstructions(id.variable.type);
+        if (type.isPrimitive())
+            aload(id.variable.number);
+        else if (type == RuntimeType.INT)
+            iload(id.variable.number);
+        else if (type == RuntimeType.LONG)
+            lload(id.variable.number);
+        else if (type == RuntimeType.FLOAT)
+            fload(id.variable.number);
+        else if (type == RuntimeType.DOUBLE)
+            dload(id.variable.number);
+        else
+            throw null;
     }
 
     private void evalBlock(Block block)
@@ -543,25 +769,67 @@ public class MethodInfo
 
     private void evalAddition(Addition addition)
     {
-        evalOperator(addition, "add");
+        evalExpression(addition.expression1);
+        evalExpression(addition.expression2);
+        Type type = addition.type;
+        if (type == RuntimeType.INT)
+            writeByte(Instructions.iadd);
+        else if (type == RuntimeType.LONG)
+            writeByte(Instructions.ladd);
+        else if (type == RuntimeType.FLOAT)
+            writeByte(Instructions.fadd);
+        else if (type == RuntimeType.DOUBLE)
+            writeByte(Instructions.dadd);
+        else
+            throw null;
     }
     private void evalSubtraction(Subtraction subtraction)
     {
-        evalOperator(subtraction, "sub");
+        evalExpression(subtraction.expression1);
+        evalExpression(subtraction.expression2);
+        Type type = subtraction.type;
+        if (type == RuntimeType.INT)
+            writeByte(Instructions.isub);
+        else if (type == RuntimeType.LONG)
+            writeByte(Instructions.lsub);
+        else if (type == RuntimeType.FLOAT)
+            writeByte(Instructions.fsub);
+        else if (type == RuntimeType.DOUBLE)
+            writeByte(Instructions.dsub);
+        else
+            throw null;
     }
     private void evalMultiplication(Multiplication multiplication)
     {
-        evalOperator(multiplication, "mul");
+        evalExpression(multiplication.expression1);
+        evalExpression(multiplication.expression2);
+        Type type = multiplication.type;
+        if (type == RuntimeType.INT)
+            writeByte(Instructions.imul);
+        else if (type == RuntimeType.LONG)
+            writeByte(Instructions.lmul);
+        else if (type == RuntimeType.FLOAT)
+            writeByte(Instructions.fmul);
+        else if (type == RuntimeType.DOUBLE)
+            writeByte(Instructions.dmul);
+        else
+            throw null;
     }
     private void evalDivision(Division division)
     {
-        evalOperator(division, "div");
-    }
-    private void evalOperator(BinaryOperatorElement operator, String operation)
-    {
-        evalExpression(operator.expression1);
-        evalExpression(operator.expression2);
-        printStatement("i" + operation);
+        evalExpression(division.expression1);
+        evalExpression(division.expression2);
+        Type type = division.type;
+        if (type == RuntimeType.INT)
+            writeByte(Instructions.idiv);
+        else if (type == RuntimeType.LONG)
+            writeByte(Instructions.ldiv);
+        else if (type == RuntimeType.FLOAT)
+            writeByte(Instructions.fdiv);
+        else if (type == RuntimeType.DOUBLE)
+            writeByte(Instructions.ddiv);
+        else
+            throw null;
     }
     private void evalLessThan(LessThan lessThan)
     {

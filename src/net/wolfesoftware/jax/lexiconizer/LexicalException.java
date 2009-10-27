@@ -1,6 +1,6 @@
 package net.wolfesoftware.jax.lexiconizer;
 
-import java.util.Arrays;
+import java.util.*;
 import net.wolfesoftware.jax.CompileError;
 import net.wolfesoftware.jax.ast.*;
 
@@ -63,5 +63,17 @@ public class LexicalException extends CompileError
     public static LexicalException cantResolveMethod(Type type, Id id, ReturnBehavior[] argumentSignature)
     {
         return new LexicalException(id, "Can't resolve the method \"" + id + "\" in the type \"" + type + "\" with arguments " + Arrays.toString(argumentSignature) + ".");
+    }
+
+    public static boolean mustBeNumeric(Expression expression, ArrayList<LexicalException> errors)
+    {
+        Type type = expression.returnBehavior.type;
+        if (type == UnknownType.INSTANCE)
+            return false;
+        if (!(type.isPrimitive() && type != RuntimeType.VOID)) {
+            errors.add(new LexicalException(expression, "This thing is type \"" + type + "\" and it needs to be numeric."));
+            return false;
+        }
+        return true;
     }
 }

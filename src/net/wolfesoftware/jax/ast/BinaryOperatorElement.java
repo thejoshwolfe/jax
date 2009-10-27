@@ -1,10 +1,13 @@
 package net.wolfesoftware.jax.ast;
 
+import net.wolfesoftware.jax.lexiconizer.Type;
+
 public abstract class BinaryOperatorElement extends ParseElement
 {
+    public Type type;
+
     public Expression expression1;
     public Expression expression2;
-
     public BinaryOperatorElement(Expression expression1, Expression expression2)
     {
         this.expression1 = expression1;

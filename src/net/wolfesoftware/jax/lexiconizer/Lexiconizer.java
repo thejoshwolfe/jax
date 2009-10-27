@@ -421,11 +421,10 @@ public class Lexiconizer
     private ReturnBehavior lexiconizeNegation(LocalContext context, Negation negation)
     {
         ReturnBehavior returnBehavior = lexiconizeExpression(context, negation.expression);
-        if (returnBehavior.type != RuntimeType.INT) {
-            errors.add(LexicalException.mustBeInt(negation.expression));
+        if (!LexicalException.mustBeNumeric(negation.expression, errors))
             context.modifyStack(RuntimeType.INT.getSize() - returnBehavior.type.getSize());
-        }
-        return ReturnBehavior.INT;
+        negation.type = returnBehavior.type;
+        return returnBehavior;
     }
 
     private ReturnBehavior lexiconizeTypeCast(LocalContext context, Expression expression)
@@ -902,24 +901,23 @@ public class Lexiconizer
         Addition addition = (Addition)expression.content;
         Type returnType1 = lexiconizeExpression(context, addition.expression1).type;
         Type returnType2 = lexiconizeExpression(context, addition.expression2).type;
-        context.modifyStack(-returnType1.getSize() - returnType2.getSize());
         if (returnType1 == RuntimeType.STRING || returnType2 == RuntimeType.STRING) {
             // convert to string concatenation
             // a + b
             // becomes
             // String.valueOf(a).concat(String.valueOf(b))
+            context.modifyStack(-returnType1.getSize() - returnType2.getSize());
             Expression string1 = stringValueOf(addition.expression1);
             Expression string2 = stringValueOf(addition.expression2);
-            expression.content = new DereferenceMethod(string1, new FunctionInvocation(new Id("concat"), new Arguments(Collections.nCopies(1, string2))));
+            expression.content = new DereferenceMethod(string1, new FunctionInvocation(new Id("concat"), new Arguments(Arrays.asList(string2))));
             return lexiconizeExpression(context, expression);
+        } else {
+            return lexiconizeIntOperator(context, addition);
         }
-        // TODO: don't assume types are int
-        context.modifyStack(1);
-        return new ReturnBehavior(RuntimeType.INT);
     }
     private Expression stringValueOf(Expression expression)
     {
-        return new Expression(new DereferenceMethod(new Expression(new Id("String")), new FunctionInvocation(new Id("valueOf"), new Arguments(Collections.nCopies(1, expression)))));
+        return new Expression(new DereferenceMethod(new Expression(new Id("String")), new FunctionInvocation(new Id("valueOf"), new Arguments(Arrays.asList(expression)))));
     }
     private ReturnBehavior lexiconizeSubtraction(LocalContext context, Subtraction subtraction)
     {
@@ -935,10 +933,30 @@ public class Lexiconizer
     }
     private ReturnBehavior lexiconizeIntOperator(LocalContext context, BinaryOperatorElement operator)
     {
-        ReturnBehavior returnBehavior = lexiconizeOperator(context, operator, null, false);
-        if (returnBehavior.type != RuntimeType.INT)
-            errors.add(new LexicalException(operator, "Expression must be of type int."));
-        return returnBehavior;
+        Type returnType1 = lazyLexiconizeExpression(context, operator.expression1).type;
+        boolean good = LexicalException.mustBeNumeric(operator.expression1, errors);
+        context.modifyStack(-returnType1.getSize());
+
+        Type returnType2 = lazyLexiconizeExpression(context, operator.expression2).type;
+        good &= LexicalException.mustBeNumeric(operator.expression2, errors);
+        context.modifyStack(-returnType2.getSize());
+
+        // TODO coerce types (promote long + int to long + long and so forth)
+        if (!good) {
+            context.modifyStack(1);
+            return ReturnBehavior.INT;
+        }
+        if (returnType1 != returnType2)
+            errors.add(new LexicalException(operator, "Operand types must match for now. You've got a \"" + returnType1 + "\" and a \"" + returnType2 +"\"."));
+        operator.type = returnType1;
+        context.modifyStack(operator.type.getSize());
+        return new ReturnBehavior(operator.type);
+    }
+    private ReturnBehavior lazyLexiconizeExpression(LocalContext context, Expression expression)
+    {
+        if (expression.returnBehavior != null)
+            return expression.returnBehavior;
+        return lexiconizeExpression(context, expression);
     }
     private ReturnBehavior lexiconizeLessThan(LocalContext context, LessThan lessThan)
     {

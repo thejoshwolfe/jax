@@ -1,7 +1,11 @@
 package net.wolfesoftware.jax.ast;
 
+import net.wolfesoftware.jax.lexiconizer.Type;
+
 public class Negation extends ParseElement
 {
+    public Type type;
+
     public Expression expression;
     public Negation(Expression expression)
     {

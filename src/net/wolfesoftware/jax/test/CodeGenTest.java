@@ -20,7 +20,7 @@ public class CodeGenTest
     private static final int mode = 1*RUN | 1*CLEAN | 1*VERBOSE;
     private static final String dir = "test";
     private static final String[] tests = {
-//        "primitive/Arithmetic",
+        "primitive/Arithmetic",
 //        "primitive/BooleanType",
 //        "primitive/FloatingTypes",
         "primitive/ConstReturn",
