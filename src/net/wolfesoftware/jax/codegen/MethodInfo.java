@@ -361,38 +361,46 @@ public class MethodInfo
     private void evalShortCircuitAnd(ShortCircuitAnd shortCircuitAnd)
     {
         evalExpression(shortCircuitAnd.expression1);
-        printStatement("ifne " + shortCircuitAnd.label1);
-        printStatement("iconst_0");
-        printStatement("goto " + shortCircuitAnd.label2);
-        printLabel(shortCircuitAnd.label1);
+        int ifOffset = offset;
+        writeByte(Instructions.ifne);
+        writeDummyShort();
+        writeByte(Instructions.iconst_0);
+        int gotoOffset = offset;
+        writeByte(Instructions._goto);
+        writeDummyShort();
+        fillins.add(new Fillin(ifOffset));
         evalExpression(shortCircuitAnd.expression2);
-        printLabel(shortCircuitAnd.label2);
+        fillins.add(new Fillin(gotoOffset));
     }
     private void evalShortCircuitOr(ShortCircuitOr shortCircuitOr)
     {
         evalExpression(shortCircuitOr.expression1);
-        printStatement("ifeq " + shortCircuitOr.label1);
-        printStatement("iconst_1");
-        printStatement("goto " + shortCircuitOr.label2);
-        printLabel(shortCircuitOr.label1);
+        int ifOffset = offset;
+        writeByte(Instructions.ifeq);
+        writeDummyShort();
+        writeByte(Instructions.iconst_1);
+        int gotoOffset = offset;
+        writeByte(Instructions._goto);
+        writeDummyShort();
+        fillins.add(new Fillin(ifOffset));
         evalExpression(shortCircuitOr.expression2);
-        printLabel(shortCircuitOr.label2);
+        fillins.add(new Fillin(gotoOffset));
     }
 
     private void evalBooleanNot(BooleanNot booleanNot)
     {
         evalExpression(booleanNot.expression);
-        printStatement("ifne " + booleanNot.label1);
-        printStatement("iconst_1");
-        printStatement("goto " + booleanNot.label2);
-        printLabel(booleanNot.label1);
-        printStatement("iconst_0");
-        printLabel(booleanNot.label2);
+        writeByte(Instructions.ifne);
+        writeShort((short)7); // skip to the iconst_0
+        writeByte(Instructions.iconst_1);
+        writeByte(Instructions._goto);
+        writeShort((short)4); // jump over the iconst_0
+        writeByte(Instructions.iconst_0);
     }
 
     private void evalNullExpression(NullExpression nullExpression)
     {
-        printStatement("aconst_null");
+        writeShort(Instructions.aconst_null);
     }
 
 

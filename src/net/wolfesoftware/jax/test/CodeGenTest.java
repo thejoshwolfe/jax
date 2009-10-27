@@ -31,7 +31,7 @@ public class CodeGenTest
         "primitive/VoidFunction",
         "controlStructures/IfThenElse",
         "controlStructures/ForLoop",
-//        "controlStructures/ShortCircuit",
+        "controlStructures/ShortCircuit",
 //        "controlStructures/WhileLoop",
 //        "oop/FunctionInvocation",
 //        "oop/NewConstructor",
