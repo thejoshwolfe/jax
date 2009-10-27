@@ -581,14 +581,21 @@ public class MethodInfo
     private void evalAssignment(Assignment assignment)
     {
         evalExpression(assignment.expression);
-        printStatement("dup");
-        String typeLetter = getTypeLetter(assignment.id.variable.type);
-        printStatement(typeLetter + "store " + assignment.id.variable.number);
+        dup(assignment.expression.returnBehavior.type);
+        store(assignment.id.variable.type, assignment.id.variable.number);
     }
-
-    private String getTypeLetter(Type type)
+    private void dup(Type type)
     {
-        throw null;
+        switch (type.getSize()) {
+            case 1:
+                writeByte(Instructions.dup);
+                break;
+            case 2:
+                writeByte(Instructions.dup2);
+                break;
+            default:
+                throw null;
+        }
     }
     private Type translateTypeForInstructions(Type type)
     {
@@ -608,17 +615,21 @@ public class MethodInfo
 
         evalExpression(variableCreation.expression);
         LocalVariable variable = variableCreation.variableDeclaration.id.variable;
-        Type type = translateTypeForInstructions(variable.type);
+        store(variable.type, variable.number);
+    }
+    private void store(Type type, int number)
+    {
+        type = translateTypeForInstructions(type);
         if (!type.isPrimitive())
-            astore(variable.number);
+            astore(number);
         else if (type == RuntimeType.INT)
-            istore(variable.number);
+            istore(number);
         else if (type == RuntimeType.LONG)
-            lstore(variable.number);
+            lstore(number);
         else if (type == RuntimeType.FLOAT)
-            fstore(variable.number);
+            fstore(number);
         else if (type == RuntimeType.DOUBLE)
-            dstore(variable.number);
+            dstore(number);
         else
             throw null;
     }
@@ -755,13 +766,25 @@ public class MethodInfo
         for (int i = 0; i < blockContents.elements.size(); i++) {
             Expression element = blockContents.elements.get(i);
             evalExpression(element);
-            if (element.returnBehavior.type != RuntimeType.VOID) {
+            if (element.returnBehavior.type != RuntimeType.VOID)
                 if (i < blockContents.elements.size() - 1 || blockContents.forceVoid)
-                    printStatement("pop");
-            }
+                    pop(element.returnBehavior.type);
         }
     }
 
+    private void pop(Type type)
+    {
+        switch (type.getSize()) {
+            case 1:
+                writeByte(Instructions.pop);
+                break;
+            case 2:
+                writeByte(Instructions.pop2);
+                break;
+            default:
+                throw null;
+        }
+    }
     private void evalQuantity(Quantity quantity)
     {
         evalExpression(quantity.expression);

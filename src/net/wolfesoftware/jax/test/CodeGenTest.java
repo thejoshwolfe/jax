@@ -25,7 +25,7 @@ public class CodeGenTest
         "primitive/FloatingTypes",
         "primitive/ConstReturn",
         "primitive/Empty",
-//        "primitive/LocalVariables",
+        "primitive/LocalVariables",
 //        "primitive/StringLiteral",
 //        "primitive/TypeCasting",
 //        "primitive/VoidFunction",
