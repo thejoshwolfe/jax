@@ -1,6 +1,8 @@
 package net.wolfesoftware.jax.lexiconizer;
 
 import java.util.LinkedList;
+import net.wolfesoftware.jax.ast.Id;
+import net.wolfesoftware.jax.tokenizer.Lang;
 
 public class RootLocalContext extends LocalContext
 {
@@ -11,10 +13,12 @@ public class RootLocalContext extends LocalContext
     private LocalType classContext;
     public LinkedList<short[]> exceptionTable = new LinkedList<short[]>();
 
-    public RootLocalContext(LocalType classContext)
+    public RootLocalContext(LocalType classContext, boolean isStatic)
     {
         super(null);
         this.classContext = classContext;
+        if (!isStatic)
+            addLocalVariable(new Id(Lang.KEYWORD_THIS), classContext, null);
     }
 
     public void ensureVariableCapacity(int capacity)

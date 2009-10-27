@@ -132,7 +132,7 @@ public class Lexiconizer
         resolveType(constructorDefinition.typeId, true);
         if (constructorDefinition.typeId.type != context)
             errors.add(new LexicalException(constructorDefinition.typeId, "you can't have a constructor for type \"" + constructorDefinition.typeId.type + "\" in this class."));
-        constructorDefinition.context = new RootLocalContext(context);
+        constructorDefinition.context = new RootLocalContext(context, false);
         Type[] arguemntSignature = lexiconizeArgumentDeclarations(constructorDefinition.context, constructorDefinition.argumentDeclarations);
         constructorDefinition.constructor = new Constructor(context, arguemntSignature);
         context.addConstructor(constructorDefinition.constructor);
@@ -141,7 +141,7 @@ public class Lexiconizer
     private void preLexiconizeFunctionDefinition(LocalType context, FunctionDefinition functionDefinition)
     {
         resolveType(functionDefinition.typeId, true);
-        functionDefinition.context = new RootLocalContext(context);
+        functionDefinition.context = new RootLocalContext(context, true);
         Type[] arguemntSignature = lexiconizeArgumentDeclarations(functionDefinition.context, functionDefinition.argumentDeclarations);
         functionDefinition.method = new Method(context, functionDefinition.typeId.type, functionDefinition.id.name, arguemntSignature, true);
         context.addMethod(functionDefinition.method);
