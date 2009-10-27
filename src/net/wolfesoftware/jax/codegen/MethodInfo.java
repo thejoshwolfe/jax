@@ -731,7 +731,7 @@ public class MethodInfo
     private void evalId(Id id)
     {
         Type type = translateTypeForInstructions(id.variable.type);
-        if (type.isPrimitive())
+        if (!type.isPrimitive())
             aload(id.variable.number);
         else if (type == RuntimeType.INT)
             iload(id.variable.number);

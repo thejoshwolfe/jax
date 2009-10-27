@@ -935,10 +935,11 @@ public class Lexiconizer
     {
         Type returnType1 = lazyLexiconizeExpression(context, operator.expression1).type;
         boolean good = LexicalException.mustBeNumeric(operator.expression1, errors);
-        context.modifyStack(-returnType1.getSize());
 
         Type returnType2 = lazyLexiconizeExpression(context, operator.expression2).type;
         good &= LexicalException.mustBeNumeric(operator.expression2, errors);
+
+        context.modifyStack(-returnType1.getSize());
         context.modifyStack(-returnType2.getSize());
 
         // TODO coerce types (promote long + int to long + long and so forth)
