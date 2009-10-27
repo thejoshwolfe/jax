@@ -31,7 +31,7 @@ public class ConstantPool
     private final HashMap<Integer, Short> nameAndTypeMap = new HashMap<Integer, Short>();
     public void write(DataOutputStream out) throws IOException
     {
-        out.writeShort(totalSize);
+        out.writeShort(totalSize + 1);
         byte[][] elements = new byte[totalSize][];
         for (Entry<String, Short> entry : utf8Map.entrySet())
             elements[entry.getValue() - 1] = encodeUtf8(entry.getKey());
@@ -48,29 +48,29 @@ public class ConstantPool
             out.write(element);
     }
 
-    private byte[] encodeNameAndType(Integer value)
+    private byte[] encodeNameAndType(int value)
     {
         return new byte[] {
                 CONSTANT_NameAndType,
-                (byte)(value >>> 12),
+                (byte)(value >>> 24),
+                (byte)(value >>> 16),
                 (byte)(value >>> 8),
-                (byte)(value >>> 4),
                 (byte)(value >>> 0),
         };
     }
 
-    private byte[] encodeMethod(Integer value)
+    private byte[] encodeMethod(int value)
     {
         return new byte[] {
                 CONSTANT_Methodref,
-                (byte)(value >>> 12),
+                (byte)(value >>> 24),
+                (byte)(value >>> 16),
                 (byte)(value >>> 8),
-                (byte)(value >>> 4),
                 (byte)(value >>> 0),
         };
     }
 
-    private byte[] encodeClass(Short value)
+    private byte[] encodeClass(short value)
     {
         return new byte[] {
                 CONSTANT_Class,
@@ -79,13 +79,13 @@ public class ConstantPool
         };
     }
 
-    private byte[] encodeInteger(Integer value)
+    private byte[] encodeInteger(int value)
     {
         return new byte[] {
                 CONSTANT_Integer,
-                (byte)(value >>> 12),
+                (byte)(value >>> 24),
+                (byte)(value >>> 16),
                 (byte)(value >>> 8),
-                (byte)(value >>> 4),
                 (byte)(value >>> 0),
         };
     }
