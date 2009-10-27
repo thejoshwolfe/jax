@@ -30,7 +30,7 @@ public class CodeGenTest
         "primitive/TypeCasting",
         "primitive/VoidFunction",
         "controlStructures/IfThenElse",
-//        "controlStructures/ForLoop",
+        "controlStructures/ForLoop",
 //        "controlStructures/ShortCircuit",
 //        "controlStructures/WhileLoop",
 //        "oop/FunctionInvocation",

@@ -475,17 +475,23 @@ public class MethodInfo
     private void evalForLoop(ForLoop forLoop)
     {
         evalExpression(forLoop.expression1);
-        printStatement("goto " + forLoop.initialGotoLabel);
-        printLabel(forLoop.continueToLabel);
+        int initialGotoOffset = offset;
+        writeByte(Instructions._goto);
+        writeDummyShort();
+        int continueToOffset = offset;
         evalExpression(forLoop.expression3);
         if (forLoop.expression3.returnBehavior.type != RuntimeType.VOID)
-            printStatement("pop");
-        printLabel(forLoop.initialGotoLabel);
+            pop(forLoop.expression3.returnBehavior.type);
+        fillins.add(new Fillin(initialGotoOffset));
         evalExpression(forLoop.expression2);
-        printStatement("ifeq " + forLoop.breakToLabel);
+        int breakToOffset = offset;
+        writeByte(Instructions.ifeq);
+        writeDummyShort();
         evalExpression(forLoop.expression4);
-        printStatement("goto " + forLoop.continueToLabel);
-        printLabel(forLoop.breakToLabel);
+        short continueToDelta = (short)(continueToOffset - offset);
+        writeByte(Instructions._goto);
+        writeShort(continueToDelta);
+        fillins.add(new Fillin(breakToOffset));
     }
 
 
@@ -557,9 +563,15 @@ public class MethodInfo
     {
         evalArguments(functionInvocation.arguments);
 
-        String invokeInstruction = functionInvocation.method.isStatic ? "invokestatic " : "invokevirtual ";
-
-        printStatement(invokeInstruction + functionInvocation.method.getMethodCode());
+        // TODO: "special handling for superclass, private, and instance initialization method invocations"
+        Method method = functionInvocation.method;
+        byte invokeInstruction;
+        if (method.isStatic)
+            invokeInstruction = Instructions.invokestatic;
+        else
+            invokeInstruction = Instructions.invokevirtual;
+        writeByte(invokeInstruction);
+        writeShort(constantPool.getMethod(functionInvocation.method));
     }
 
     private void evalArguments(Arguments arguments)
@@ -573,23 +585,23 @@ public class MethodInfo
         evalExpression(ifThenElse.expression1);
         int ifOffset = offset;
         writeByte(Instructions.ifeq);
-        writeShort((short)0);
+        writeDummyShort();
         evalExpression(ifThenElse.expression2);
         int gotoOffset = offset;
         writeByte(Instructions._goto);
-        writeShort((short)0);
-        fillins.add(new Fillin(ifOffset + 1, offset - ifOffset));
+        writeDummyShort();
+        fillins.add(new Fillin(ifOffset));
         evalExpression(ifThenElse.expression3);
-        fillins.add(new Fillin(gotoOffset + 1, offset - gotoOffset));
+        fillins.add(new Fillin(gotoOffset));
     }
     private void evalIfThen(IfThen ifThen)
     {
         evalExpression(ifThen.expression1);
         int ifOffset = offset;
         writeByte(Instructions.ifeq);
-        writeShort((short)0);
+        writeDummyShort();
         evalExpression(ifThen.expression2);
-        fillins.add(new Fillin(ifOffset + 1, offset - ifOffset));
+        fillins.add(new Fillin(ifOffset));
     }
 
     private void evalAssignment(Assignment assignment)
@@ -931,6 +943,10 @@ public class MethodInfo
         }
     }
 
+    private void writeDummyShort()
+    {
+        writeShort((short)0);
+    }
     private void writeShort(short value)
     {
         try {
@@ -967,14 +983,14 @@ public class MethodInfo
     {
         throw null;
     }
-    private static class Fillin
+    private class Fillin
     {
-        public int address;
-        public short value;
-        public Fillin(int address, int value)
+        public final int address;
+        public final short value;
+        public Fillin(int branchInstructionOffset)
         {
-            this.address = address;
-            this.value = (short)value;
+            address = branchInstructionOffset + 1;
+            value = (short)(offset - branchInstructionOffset);
         }
     }
 }
