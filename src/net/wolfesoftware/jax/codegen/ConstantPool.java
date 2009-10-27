@@ -31,6 +31,7 @@ public class ConstantPool
     private final HashMap<Double, Short> doubleMap = new HashMap<Double, Short>();
     private final HashMap<Short, Short> classMap = new HashMap<Short, Short>();
     private final HashMap<Short, Short> stringMap = new HashMap<Short, Short>();
+    private final HashMap<Integer, Short> fieldMap = new HashMap<Integer, Short>();
     private final HashMap<Integer, Short> methodMap = new HashMap<Integer, Short>();
     private final HashMap<Integer, Short> nameAndTypeMap = new HashMap<Integer, Short>();
     public void write(DataOutputStream out) throws IOException
@@ -55,6 +56,8 @@ public class ConstantPool
             elements[entry.getValue() - 1] = encodeClass(entry.getKey());
         for (Entry<Short, Short> entry : stringMap.entrySet())
             elements[entry.getValue() - 1] = encodeString(entry.getKey());
+        for (Entry<Integer, Short> entry : fieldMap.entrySet())
+            elements[entry.getValue() - 1] = encodeField(entry.getKey());
         for (Entry<Integer, Short> entry : methodMap.entrySet())
             elements[entry.getValue() - 1] = encodeMethod(entry.getKey());
         for (Entry<Integer, Short> entry : nameAndTypeMap.entrySet())
@@ -151,6 +154,16 @@ public class ConstantPool
         };
     }
 
+    private byte[] encodeField(int value)
+    {
+        return new byte[] {
+                CONSTANT_Fieldref,
+                (byte)(value >>> 24),
+                (byte)(value >>> 16),
+                (byte)(value >>> 8),
+                (byte)(value >>> 0),
+        };
+    }
     private byte[] encodeMethod(int value)
     {
         return new byte[] {
@@ -201,7 +214,12 @@ public class ConstantPool
     {
         return get(stringMap, getUtf8(value), 1);
     }
-
+    public short getField(Field field)
+    {
+        short class_index = getClass(field.declaringType);
+        short name_and_type_index = getNameAndType(field);
+        return get(fieldMap, (class_index << 16) | name_and_type_index, 1);
+    }
     /**
      *  http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html#42041
      */
@@ -210,6 +228,12 @@ public class ConstantPool
         short class_index = getClass(value.declaringType);
         short name_and_type_index = getNameAndType(value);
         return get(methodMap, (class_index << 16) | name_and_type_index, 1);
+    }
+    private short getNameAndType(Field field)
+    {
+        short name_index = getUtf8(field.name);
+        short descriptor_index = getUtf8(field.getDescriptor());
+        return get(nameAndTypeMap, (name_index << 16) | descriptor_index, 1);
     }
     private short getNameAndType(TakesArguments value)
     {

@@ -563,8 +563,8 @@ public class MethodInfo
 
     private void evalStaticDereferenceField(StaticDereferenceField staticDereferenceField)
     {
-        String statement = "getstatic " + staticDereferenceField.field.declaringType.getTypeName() + '/' + staticDereferenceField.id.name + ' ' + staticDereferenceField.field.returnType.getTypeCode();
-        printStatement(statement);
+        writeByte(Instructions.getstatic);
+        writeShort(constantPool.getField(staticDereferenceField.field));
     }
 
     private void evalDereferenceMethod(DereferenceMethod dereferenceMethod)
