@@ -408,13 +408,14 @@ public class MethodInfo
     private void evalReferenceConversion(ReferenceConversion referenceConversion)
     {
         evalExpression(referenceConversion.expression);
-        printStatement("checkcast " + referenceConversion.toType.getTypeName());
+        writeByte(Instructions.checkcast);
+        writeShort(constantPool.getClass(referenceConversion.toType.getTypeName()));
     }
 
     private void evalPrimitiveConversion(PrimitiveConversion primitiveConversion)
     {
         evalExpression(primitiveConversion.expression);
-        printStatement(primitiveConversion.instruction);
+        writeByte(primitiveConversion.instruction);
     }
 
     private void evalWhileLoop(WhileLoop whileLoop)

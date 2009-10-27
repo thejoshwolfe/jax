@@ -1,13 +1,14 @@
 package net.wolfesoftware.jax.ast;
 
+import net.wolfesoftware.jax.codegen.Instructions;
 import net.wolfesoftware.jax.lexiconizer.*;
 
 public class PrimitiveConversion extends ParseElement
 {
     public Expression expression;
-    public String instruction;
+    public byte instruction;
     private Type toType;
-    private PrimitiveConversion(Expression expression, String instruction, Type toType)
+    private PrimitiveConversion(Expression expression, byte instruction, Type toType)
     {
         this.expression = expression;
         this.instruction = instruction;
@@ -31,7 +32,7 @@ public class PrimitiveConversion extends ParseElement
     {
         if (fromType == RuntimeType.INT) {
             if (toType == RuntimeType.BYTE)
-                return new PrimitiveConversion(expression, "i2b", toType);
+                return new PrimitiveConversion(expression, Instructions.i2b, toType);
         }
         return null;
     }
