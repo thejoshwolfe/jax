@@ -50,6 +50,8 @@ public class MethodInfo
     private final ConstantPool constantPool;
     private final ByteArrayOutputStream codeBufferArray;
     private final DataOutputStream codeBuffer;
+    private int offset = 0;
+    private final ArrayList<Fillin> fillins = new ArrayList<Fillin>();
     private final LinkedList<Attribute> attributes = new LinkedList<Attribute>();
     private MethodInfo(TakesArguments method, ConstantPool constantPool)
     {
@@ -75,7 +77,12 @@ public class MethodInfo
     {
         evalExpression(functionDefinition.expression);
         _return(functionDefinition.returnBehavior.type);
-        attributes.add(Attribute.code(codeBufferArray.toByteArray(), functionDefinition.context, constantPool));
+        byte[] codeBytes = codeBufferArray.toByteArray();
+        for (Fillin fillin : fillins) {
+            codeBytes[fillin.address + 0] = (byte)(fillin.value >> 8);
+            codeBytes[fillin.address + 1] = (byte)(fillin.value >> 0);
+        }
+        attributes.add(Attribute.code(codeBytes, functionDefinition.context, constantPool));
     }
 
     private void _return(Type type)
@@ -564,19 +571,25 @@ public class MethodInfo
     private void evalIfThenElse(IfThenElse ifThenElse)
     {
         evalExpression(ifThenElse.expression1);
-        printStatement("ifeq " + ifThenElse.label1);
+        int ifOffset = offset;
+        writeByte(Instructions.ifeq);
+        writeShort((short)0);
         evalExpression(ifThenElse.expression2);
-        printStatement("goto " + ifThenElse.label2);
-        printLabel(ifThenElse.label1);
+        int gotoOffset = offset;
+        writeByte(Instructions._goto);
+        writeShort((short)0);
+        fillins.add(new Fillin(ifOffset + 1, offset - ifOffset));
         evalExpression(ifThenElse.expression3);
-        printLabel(ifThenElse.label2);
+        fillins.add(new Fillin(gotoOffset + 1, offset - gotoOffset));
     }
     private void evalIfThen(IfThen ifThen)
     {
         evalExpression(ifThen.expression1);
-        printStatement("ifeq " + ifThen.label);
+        int ifOffset = offset;
+        writeByte(Instructions.ifeq);
+        writeShort((short)0);
         evalExpression(ifThen.expression2);
-        printLabel(ifThen.label);
+        fillins.add(new Fillin(ifOffset + 1, offset - ifOffset));
     }
 
     private void evalAssignment(Assignment assignment)
@@ -912,6 +925,7 @@ public class MethodInfo
     {
         try {
             codeBuffer.writeByte(value);
+            offset++;
         } catch (IOException e) {
             throw null;
         }
@@ -921,6 +935,7 @@ public class MethodInfo
     {
         try {
             codeBuffer.writeShort(value);
+            offset += 2;
         } catch (IOException e) {
             throw null;
         }
@@ -951,5 +966,15 @@ public class MethodInfo
     private void printLabel(String labelName)
     {
         throw null;
+    }
+    private static class Fillin
+    {
+        public int address;
+        public short value;
+        public Fillin(int address, int value)
+        {
+            this.address = address;
+            this.value = (short)value;
+        }
     }
 }
