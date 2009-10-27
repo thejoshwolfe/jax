@@ -940,7 +940,7 @@ public class MethodInfo
     }
     private void evalStringLiteral(StringLiteral stringLiteral)
     {
-        printStatement("ldc " + stringLiteral.source);
+        ldc(constantPool.getString(stringLiteral.value));
     }
 
     private void printStatement(String s)

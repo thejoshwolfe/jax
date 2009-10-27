@@ -30,6 +30,7 @@ public class ConstantPool
     private final HashMap<Long, Short> longMap = new HashMap<Long, Short>();
     private final HashMap<Double, Short> doubleMap = new HashMap<Double, Short>();
     private final HashMap<Short, Short> classMap = new HashMap<Short, Short>();
+    private final HashMap<Short, Short> stringMap = new HashMap<Short, Short>();
     private final HashMap<Integer, Short> methodMap = new HashMap<Integer, Short>();
     private final HashMap<Integer, Short> nameAndTypeMap = new HashMap<Integer, Short>();
     public void write(DataOutputStream out) throws IOException
@@ -52,6 +53,8 @@ public class ConstantPool
         }
         for (Entry<Short, Short> entry : classMap.entrySet())
             elements[entry.getValue() - 1] = encodeClass(entry.getKey());
+        for (Entry<Short, Short> entry : stringMap.entrySet())
+            elements[entry.getValue() - 1] = encodeString(entry.getKey());
         for (Entry<Integer, Short> entry : methodMap.entrySet())
             elements[entry.getValue() - 1] = encodeMethod(entry.getKey());
         for (Entry<Integer, Short> entry : nameAndTypeMap.entrySet())
@@ -139,6 +142,15 @@ public class ConstantPool
         };
     }
 
+    private byte[] encodeString(short value)
+    {
+        return new byte[] {
+                CONSTANT_String,
+                (byte)(value >>> 8),
+                (byte)(value >>> 0),
+        };
+    }
+
     private byte[] encodeMethod(int value)
     {
         return new byte[] {
@@ -181,10 +193,13 @@ public class ConstantPool
     {
         return get(doubleMap, value, 2);
     }
-
     public short getClass(String className)
     {
         return get(classMap, getUtf8(className), 1);
+    }
+    public short getString(String value)
+    {
+        return get(stringMap, getUtf8(value), 1);
     }
 
     /**
@@ -220,6 +235,4 @@ public class ConstantPool
         // 1-based index
         return ++totalSize;
     }
-
-
 }
