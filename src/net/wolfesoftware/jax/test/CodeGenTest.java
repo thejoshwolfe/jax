@@ -32,7 +32,7 @@ public class CodeGenTest
         "controlStructures/IfThenElse",
         "controlStructures/ForLoop",
         "controlStructures/ShortCircuit",
-//        "controlStructures/WhileLoop",
+        "controlStructures/WhileLoop",
 //        "oop/FunctionInvocation",
 //        "oop/NewConstructor",
 //        "baseLibraries/Import",

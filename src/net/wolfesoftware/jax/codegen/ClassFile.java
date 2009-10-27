@@ -52,12 +52,12 @@ public class ClassFile
     {
         // "All new compilers to the instruction set of the Java virtual machine should set the ACC_SUPER flag."
         access_flags = (short)(type.getFlags() | ACC_SUPER);
-        this_class = constant_pool.getClass(type.getTypeName());
-        super_class = constant_pool.getClass(type.getParent().getTypeName());
+        this_class = constant_pool.getClass(type);
+        super_class = constant_pool.getClass(type.getParent());
         Type[] interfaces = type.getInterfaces();
         this.interfaces = new short[interfaces.length];
         for (int i = 0; i < interfaces.length; i++)
-            this.interfaces[i] = constant_pool.getClass(interfaces[i].getTypeName());
+            this.interfaces[i] = constant_pool.getClass(interfaces[i]);
     }
 
     public void write(DataOutputStream out) throws IOException

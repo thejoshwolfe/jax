@@ -193,9 +193,9 @@ public class ConstantPool
     {
         return get(doubleMap, value, 2);
     }
-    public short getClass(String className)
+    public short getClass(Type type)
     {
-        return get(classMap, getUtf8(className), 1);
+        return get(classMap, getUtf8(type.getTypeName()), 1);
     }
     public short getString(String value)
     {
@@ -207,7 +207,7 @@ public class ConstantPool
      */
     public short getMethod(TakesArguments value)
     {
-        short class_index = getClass(value.declaringType.getTypeName());
+        short class_index = getClass(value.declaringType);
         short name_and_type_index = getNameAndType(value);
         return get(methodMap, (class_index << 16) | name_and_type_index, 1);
     }

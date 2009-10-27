@@ -424,7 +424,7 @@ public class MethodInfo
     {
         evalExpression(referenceConversion.expression);
         writeByte(Instructions.checkcast);
-        writeShort(constantPool.getClass(referenceConversion.toType.getTypeName()));
+        writeShort(constantPool.getClass(referenceConversion.toType));
     }
 
     private void evalPrimitiveConversion(PrimitiveConversion primitiveConversion)
@@ -435,20 +435,26 @@ public class MethodInfo
 
     private void evalWhileLoop(WhileLoop whileLoop)
     {
-        printLabel(whileLoop.continueToLabel);
+        int continueToOffset = offset;
         evalExpression(whileLoop.expression1);
-        printStatement("ifeq " + whileLoop.breakToLabel);
+        int ifOffset = offset;
+        writeByte(Instructions.ifeq);
+        writeDummyShort();
         evalExpression(whileLoop.expression2);
-        printStatement("goto " + whileLoop.continueToLabel);
-        printLabel(whileLoop.breakToLabel);
+        short continueToDelta = (short)(continueToOffset - offset);
+        writeByte(Instructions._goto);
+        writeShort(continueToDelta);
+        fillins.add(new Fillin(ifOffset));
     }
 
     private void evalConstructorInvocation(ConstructorInvocation constructorInvocation)
     {
-        printStatement("new " + constructorInvocation.constructor.declaringType.getTypeName());
-        printStatement("dup");
+        writeByte(Instructions._new);
+        writeShort(constantPool.getClass(constructorInvocation.constructor.declaringType));
+        writeByte(Instructions.dup);
         evalArguments(constructorInvocation.functionInvocation.arguments);
-        printStatement("invokespecial " + constructorInvocation.constructor.getMethodCode());
+        writeByte(Instructions.invokespecial);
+        writeShort(constantPool.getMethod(constructorInvocation.constructor));
     }
 
     private void evalPreIncrement(PreIncrement preIncrement)
