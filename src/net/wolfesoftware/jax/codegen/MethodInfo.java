@@ -513,7 +513,25 @@ public class MethodInfo
     {
         evalExpression(arrayDereference.expression1);
         evalExpression(arrayDereference.expression2);
-        printStatement("aaload");
+        Type type = ((ArrayType)arrayDereference.expression1.returnBehavior.type).scalarType;
+        if (!type.isPrimitive())
+            writeByte(Instructions.aaload);
+        else if (type == RuntimeType.INT)
+            writeByte(Instructions.iaload);
+        else if (type == RuntimeType.LONG)
+            writeByte(Instructions.laload);
+        else if (type == RuntimeType.FLOAT)
+            writeByte(Instructions.faload);
+        else if (type == RuntimeType.DOUBLE)
+            writeByte(Instructions.daload);
+        else if (type == RuntimeType.BYTE || type == RuntimeType.BOOLEAN)
+            writeByte(Instructions.baload);
+        else if (type == RuntimeType.CHAR)
+            writeByte(Instructions.caload);
+        else if (type == RuntimeType.SHORT)
+            writeByte(Instructions.saload);
+        else
+            throw null;
     }
 
     private void evalStaticFunctionInvocation(StaticFunctionInvocation staticFunctionInvocation)
