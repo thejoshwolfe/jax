@@ -1,6 +1,6 @@
 class FloatingTypes {
     float _3_14f() 3.14f;
-	double _2_718() 2.718;
-	float gimmeThatFloat(float that) that;
-	double gimmeThatDouble(double that) that;
+    double _2_718() 2.718;
+    float gimmeThatFloat(float that) that;
+    double gimmeThatDouble(double that) that;
 }

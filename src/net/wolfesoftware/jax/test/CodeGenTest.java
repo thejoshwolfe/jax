@@ -22,7 +22,7 @@ public class CodeGenTest
     private static final String[] tests = {
         "primitive/Arithmetic",
 //        "primitive/BooleanType",
-//        "primitive/FloatingTypes",
+        "primitive/FloatingTypes",
         "primitive/ConstReturn",
         "primitive/Empty",
 //        "primitive/LocalVariables",

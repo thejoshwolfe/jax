@@ -26,6 +26,9 @@ public class ConstantPool
     private short totalSize = 0;
     private final HashMap<String, Short> utf8Map = new HashMap<String, Short>();
     private final HashMap<Integer, Short> integerMap = new HashMap<Integer, Short>();
+    private final HashMap<Float, Short> floatMap = new HashMap<Float, Short>();
+    private final HashMap<Long, Short> longMap = new HashMap<Long, Short>();
+    private final HashMap<Double, Short> doubleMap = new HashMap<Double, Short>();
     private final HashMap<Short, Short> classMap = new HashMap<Short, Short>();
     private final HashMap<Integer, Short> methodMap = new HashMap<Integer, Short>();
     private final HashMap<Integer, Short> nameAndTypeMap = new HashMap<Integer, Short>();
@@ -37,6 +40,16 @@ public class ConstantPool
             elements[entry.getValue() - 1] = encodeUtf8(entry.getKey());
         for (Entry<Integer, Short> entry : integerMap.entrySet())
             elements[entry.getValue() - 1] = encodeInteger(entry.getKey());
+        for (Entry<Float, Short> entry : floatMap.entrySet())
+            elements[entry.getValue() - 1] = encodeFloat(entry.getKey());
+        for (Entry<Long, Short> entry : longMap.entrySet()) {
+            elements[entry.getValue() - 1] = encodeLong(entry.getKey());
+            elements[entry.getValue()] = new byte[0];
+        }
+        for (Entry<Double, Short> entry : doubleMap.entrySet()) {
+            elements[entry.getValue() - 1] = encodeDouble(entry.getKey());
+            elements[entry.getValue()] = new byte[0];
+        }
         for (Entry<Short, Short> entry : classMap.entrySet())
             elements[entry.getValue() - 1] = encodeClass(entry.getKey());
         for (Entry<Integer, Short> entry : methodMap.entrySet())
@@ -46,48 +59,6 @@ public class ConstantPool
 
         for (byte[] element : elements)
             out.write(element);
-    }
-
-    private byte[] encodeNameAndType(int value)
-    {
-        return new byte[] {
-                CONSTANT_NameAndType,
-                (byte)(value >>> 24),
-                (byte)(value >>> 16),
-                (byte)(value >>> 8),
-                (byte)(value >>> 0),
-        };
-    }
-
-    private byte[] encodeMethod(int value)
-    {
-        return new byte[] {
-                CONSTANT_Methodref,
-                (byte)(value >>> 24),
-                (byte)(value >>> 16),
-                (byte)(value >>> 8),
-                (byte)(value >>> 0),
-        };
-    }
-
-    private byte[] encodeClass(short value)
-    {
-        return new byte[] {
-                CONSTANT_Class,
-                (byte)(value >>> 8),
-                (byte)(value >>> 0),
-        };
-    }
-
-    private byte[] encodeInteger(int value)
-    {
-        return new byte[] {
-                CONSTANT_Integer,
-                (byte)(value >>> 24),
-                (byte)(value >>> 16),
-                (byte)(value >>> 8),
-                (byte)(value >>> 0),
-        };
     }
 
     private byte[] encodeUtf8(String value)
@@ -105,14 +76,117 @@ public class ConstantPool
         }
     }
 
+    private byte[] encodeInteger(int value)
+    {
+        return new byte[] {
+                CONSTANT_Integer,
+                (byte)(value >>> 24),
+                (byte)(value >>> 16),
+                (byte)(value >>> 8),
+                (byte)(value >>> 0),
+        };
+    }
+
+    private byte[] encodeFloat(float value)
+    {
+        int intValue = Float.floatToIntBits(value);
+        return new byte[] {
+                CONSTANT_Float,
+                (byte)(intValue >>> 24),
+                (byte)(intValue >>> 16),
+                (byte)(intValue >>> 8),
+                (byte)(intValue >>> 0),
+        };
+    }
+
+    private byte[] encodeLong(long value)
+    {
+        return new byte[] {
+                CONSTANT_Long,
+                (byte)(value >>> 56),
+                (byte)(value >>> 48),
+                (byte)(value >>> 40),
+                (byte)(value >>> 32),
+                (byte)(value >>> 24),
+                (byte)(value >>> 16),
+                (byte)(value >>> 8),
+                (byte)(value >>> 0),
+        };
+    }
+
+    private byte[] encodeDouble(double value)
+    {
+        long longValue = Double.doubleToLongBits(value);
+        return new byte[] {
+                CONSTANT_Double,
+                (byte)(longValue >>> 56),
+                (byte)(longValue >>> 48),
+                (byte)(longValue >>> 40),
+                (byte)(longValue >>> 32),
+                (byte)(longValue >>> 24),
+                (byte)(longValue >>> 16),
+                (byte)(longValue >>> 8),
+                (byte)(longValue >>> 0),
+        };
+    }
+
+    private byte[] encodeClass(short value)
+    {
+        return new byte[] {
+                CONSTANT_Class,
+                (byte)(value >>> 8),
+                (byte)(value >>> 0),
+        };
+    }
+
+    private byte[] encodeMethod(int value)
+    {
+        return new byte[] {
+                CONSTANT_Methodref,
+                (byte)(value >>> 24),
+                (byte)(value >>> 16),
+                (byte)(value >>> 8),
+                (byte)(value >>> 0),
+        };
+    }
+
+    private byte[] encodeNameAndType(int value)
+    {
+        return new byte[] {
+                CONSTANT_NameAndType,
+                (byte)(value >>> 24),
+                (byte)(value >>> 16),
+                (byte)(value >>> 8),
+                (byte)(value >>> 0),
+        };
+    }
+
     public short getUtf8(String value)
     {
-        return get(utf8Map, value);
+        return get(utf8Map, value, 1);
     }
     public short getInteger(int value)
     {
-        return get(integerMap, value);
+        return get(integerMap, value, 1);
     }
+    public short getFloat(float value)
+    {
+        return get(floatMap, value, 1);
+    }
+    public short getLong(long value)
+    {
+        return get(longMap, value, 2);
+    }
+    public short getDouble(double value)
+    {
+        return get(doubleMap, value, 2);
+    }
+
+    public short getClass(String className)
+    {
+        return get(classMap, getUtf8(className), 1);
+    }
+
     /**
      *  http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html#42041
      */
@@ -120,28 +194,25 @@ public class ConstantPool
     {
         short class_index = getClass(value.declaringType.getTypeName());
         short name_and_type_index = getNameAndType(value);
-        return get(methodMap, (class_index << 16) | name_and_type_index);
+        return get(methodMap, (class_index << 16) | name_and_type_index, 1);
     }
     private short getNameAndType(TakesArguments value)
     {
         short name_index = getUtf8(value.getName());
         short descriptor_index = getUtf8(value.getDescriptor());
-        return get(nameAndTypeMap, (name_index << 16) | descriptor_index);
+        return get(nameAndTypeMap, (name_index << 16) | descriptor_index, 1);
     }
 
-    private <T> short get(HashMap<T, Short> map, T value)
+    private <T> short get(HashMap<T, Short> map, T value, int size)
     {
         Short index = map.get(value);
         if (index != null)
             return index.shortValue();
         index = nextIndex();
+        if (size == 2)
+            nextIndex();
         map.put(value, index);
         return index;
-    }
-
-    public short getClass(String className)
-    {
-        return get(classMap, getUtf8(className));
     }
 
     private Short nextIndex()
@@ -149,4 +220,6 @@ public class ConstantPool
         // 1-based index
         return ++totalSize;
     }
+
+
 }

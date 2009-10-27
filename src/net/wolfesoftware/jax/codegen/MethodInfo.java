@@ -903,15 +903,16 @@ public class MethodInfo
 
     private void evalFloatLiteral(FloatLiteral floatLiteral)
     {
-        printStatement("ldc " + floatLiteral.value);
+        ldc(constantPool.getFloat(floatLiteral.value));
     }
     private void evalDoubleLiteral(DoubleLiteral doubleLiteral)
     {
-        printStatement("ldc2_w " + doubleLiteral.value);
+        writeByte(Instructions.ldc2_w);
+        writeShort(constantPool.getDouble(doubleLiteral.value));
     }
     private void evalBooleanLiteral(BooleanLiteral booleanLiteral)
     {
-        printStatement("ldc " + (booleanLiteral.value ? 1 : 0));
+        writeByte(booleanLiteral.value ? Instructions.iconst_1 : Instructions.iconst_0);
     }
     private void evalStringLiteral(StringLiteral stringLiteral)
     {
