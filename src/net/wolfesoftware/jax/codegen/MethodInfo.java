@@ -856,39 +856,40 @@ public class MethodInfo
     }
     private void evalLessThan(LessThan lessThan)
     {
-        evalComparison(lessThan, "lt");
+        evalComparison(lessThan, Instructions.if_icmplt);
     }
     private void evalGreaterThan(GreaterThan greaterThan)
     {
-        evalComparison(greaterThan, "gt");
+        evalComparison(greaterThan, Instructions.if_icmpgt);
     }
     private void evalLessThanOrEqual(LessThanOrEqual lessThanOrEqual)
     {
-        evalComparison(lessThanOrEqual, "le");
+        evalComparison(lessThanOrEqual, Instructions.if_icmple);
     }
     private void evalGreaterThanOrEqual(GreaterThanOrEqual greaterThanOrEqual)
     {
-        evalComparison(greaterThanOrEqual, "ge");
+        evalComparison(greaterThanOrEqual, Instructions.if_icmpge);
     }
     private void evalEquality(Equality equality)
     {
-        evalComparison(equality, "eq");
+        byte instruction = equality.expression1.returnBehavior.type.isPrimitive() ? Instructions.if_icmpeq : Instructions.if_acmpeq;
+        evalComparison(equality, instruction);
     }
     private void evalInequality(Inequality inequality)
     {
-        evalComparison(inequality, "ne");
+        byte instruction = inequality.expression1.returnBehavior.type.isPrimitive() ? Instructions.if_icmpne : Instructions.if_acmpne;
+        evalComparison(inequality, instruction);
     }
-    private void evalComparison(ComparisonOperator operator, String condition)
+    private void evalComparison(ComparisonOperator operator, byte instruction)
     {
         evalExpression(operator.expression1);
         evalExpression(operator.expression2);
-        boolean referenceCompare = !operator.expression1.returnBehavior.type.isPrimitive();
-        printStatement("if_" + (referenceCompare ? "a" : "i") + "cmp" + condition + " " + operator.label1);
-        printStatement("iconst_0");
-        printStatement("goto " + operator.label2);
-        printLabel(operator.label1);
-        printStatement("iconst_1");
-        printLabel(operator.label2);
+        writeByte(instruction);
+        writeShort((short)7); // jump forward to the iconst_1
+        writeByte(Instructions.iconst_0);
+        writeByte(Instructions._goto);
+        writeShort((short)4); // jump over the iconst_1
+        writeByte(Instructions.iconst_1);
     }
 
     private void evalIntLiteral(IntLiteral intLiteral)

@@ -21,7 +21,7 @@ public class CodeGenTest
     private static final String dir = "test";
     private static final String[] tests = {
         "primitive/Arithmetic",
-//        "primitive/BooleanType",
+        "primitive/BooleanType",
         "primitive/FloatingTypes",
         "primitive/ConstReturn",
         "primitive/Empty",
