@@ -2,11 +2,11 @@ package net.wolfesoftware.jax.ast;
 
 public class CatchBody extends ParseElement
 {
+    public int startOffset;
+    public int endGotoOffset;
+
     public VariableDeclaration variableDeclaration;
     public Expression expression;
-    public String startLabel;
-    public String endLabel;
-
     public CatchBody(VariableDeclaration variableDeclaration, Expression expression)
     {
         this.variableDeclaration = variableDeclaration;

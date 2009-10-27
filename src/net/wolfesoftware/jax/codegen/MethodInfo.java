@@ -47,12 +47,14 @@ public class MethodInfo
     private final short access_flags;
     private final short name_index;
     private final short descriptor_index;
+    public LinkedList<Long> exception_table = new LinkedList<Long>();
+    private final LinkedList<Attribute> attributes = new LinkedList<Attribute>();
+
     private final ConstantPool constantPool;
     private final ByteArrayOutputStream codeBufferArray;
     private final DataOutputStream codeBuffer;
     private int offset = 0;
     private final ArrayList<Fillin> fillins = new ArrayList<Fillin>();
-    private final LinkedList<Attribute> attributes = new LinkedList<Attribute>();
     private MethodInfo(TakesArguments method, ConstantPool constantPool)
     {
         access_flags = method.getFlags();
@@ -82,7 +84,7 @@ public class MethodInfo
             codeBytes[fillin.address + 0] = (byte)(fillin.value >> 8);
             codeBytes[fillin.address + 1] = (byte)(fillin.value >> 0);
         }
-        attributes.add(Attribute.code(codeBytes, functionDefinition.context, constantPool));
+        attributes.add(Attribute.code(codeBytes, functionDefinition.context, exception_table, constantPool));
     }
 
     private void _return(Type type)
@@ -542,21 +544,31 @@ public class MethodInfo
     private void evalTryCatch(TryCatch tryCatch)
     {
         evalTryPart(tryCatch.tryPart);
-        printStatement("goto " + tryCatch.endLabel);
+        int gotoOffset = offset;
+        writeByte(Instructions._goto);
+        writeDummyShort();
         evalCatchPart(tryCatch.catchPart);
-        printLabel(tryCatch.endLabel);
-        for (CatchBody catchBody : tryCatch.catchPart.catchList.elements) {
-            String typeName = catchBody.variableDeclaration.typeId.type.getTypeCode();
-//            exceptionTable.add(".catch " + typeName + " from " + tryCatch.tryPart.startLabel + " to " + tryCatch.tryPart.endLabel + " using " + catchBody.startLabel);
+        fillins.add(new Fillin(gotoOffset));
+        List<CatchBody> catchElements = tryCatch.catchPart.catchList.elements;
+        for (int i = 0; i < catchElements.size() - 1; i++)
+            fillins.add(new Fillin(catchElements.get(i).endGotoOffset));
+        for (CatchBody catchBody : catchElements) {
+            Type type = catchBody.variableDeclaration.typeId.type;
+            short start_pc = (short)tryCatch.tryPart.startOffset;
+            short end_pc = (short)tryCatch.tryPart.endOffset;
+            short handler_pc = (short)catchBody.startOffset;
+            short catch_type = constantPool.getClass(type);
+            long exception = (long)start_pc << 48 | (long)end_pc << 32 | (long)handler_pc << 16 | (long)catch_type << 0;
+            exception_table.add(exception);
         }
     }
 
     private void evalTryPart(TryPart tryPart)
     {
-        printLabel(tryPart.startLabel);
+        tryPart.startOffset = offset;
         // TODO: store stack in locals
         evalExpression(tryPart.expression);
-        printLabel(tryPart.endLabel);
+        tryPart.endOffset = offset;
         // TODO: restore locals onto stack
     }
 
@@ -567,16 +579,20 @@ public class MethodInfo
 
     private void evalCatchList(CatchList catchList)
     {
-        for (CatchBody catchBody : catchList.elements)
-            evalCatchBody(catchBody);
+        for (int i = 0; i < catchList.elements.size(); i++)
+            evalCatchBody(catchList.elements.get(i), i < catchList.elements.size() - 1);
     }
 
-    private void evalCatchBody(CatchBody catchBody)
+    private void evalCatchBody(CatchBody catchBody, boolean addGoto)
     {
-        printLabel(catchBody.startLabel);
-        printStatement("astore " + catchBody.variableDeclaration.id.variable.number);
+        catchBody.startOffset = offset;
+        astore(catchBody.variableDeclaration.id.variable.number);
         evalExpression(catchBody.expression);
-        // TODO: restore locals onto stack
+        if (addGoto) {
+            catchBody.endGotoOffset = offset;
+            writeByte(Instructions._goto);
+            writeDummyShort();
+        }
     }
 
     private void evalStaticDereferenceField(StaticDereferenceField staticDereferenceField)

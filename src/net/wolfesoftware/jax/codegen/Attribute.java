@@ -1,6 +1,7 @@
 package net.wolfesoftware.jax.codegen;
 
 import java.io.*;
+import java.util.LinkedList;
 import net.wolfesoftware.jax.lexiconizer.RootLocalContext;
 
 /**
@@ -35,7 +36,7 @@ public abstract class Attribute
     attribute_info attributes[attributes_count];
 }</pre>
      */
-    public static Attribute code(byte[] codeBytes, RootLocalContext context, ConstantPool constantPool)
+    public static Attribute code(byte[] codeBytes, RootLocalContext context, LinkedList<Long> exceptionTable, ConstantPool constantPool)
     {
         final short attribute_name_index = constantPool.getUtf8("Code");
         final int attribute_length;
@@ -43,12 +44,12 @@ public abstract class Attribute
         final short max_locals = (short)context.variableCapacity;
         final int code_length = codeBytes.length;
         final byte[] code = codeBytes;
-        final short excpetion_table_length = (short)context.exceptionTable.size();
-        final short[][] excpetion_table = context.exceptionTable.toArray(new short[excpetion_table_length][]);
+        final short excpetion_table_length = (short)exceptionTable.size();
+        final LinkedList<Long> exception_table = exceptionTable;
         final short attributes_count = 0;
         final Attribute[] attributes = {};
         // "The value of the attribute_length item indicates the length of the attribute, excluding the initial six bytes."
-        int attributeLength = 2 + 2 + 4 + code.length + 2 + (2 + 2 + 2 + 2) * excpetion_table.length + 2;
+        int attributeLength = 2 + 2 + 4 + code.length + 2 + 4 * exception_table.size() + 2;
         for (Attribute attribute : attributes)
             attributeLength += attribute.length;
         attribute_length = attributeLength;
@@ -62,9 +63,8 @@ public abstract class Attribute
                 out.writeInt(code_length);
                 out.write(code);
                 out.writeShort(excpetion_table_length);
-                for (short[] exception : excpetion_table)
-                    for (short s : exception)
-                        out.writeShort(s);
+                for (Long exception : exception_table)
+                    out.writeLong(exception);
                 out.writeShort(attributes_count);
                 for (Attribute attribute : attributes)
                     attribute.write(out);

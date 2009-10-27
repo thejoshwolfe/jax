@@ -3,8 +3,8 @@ package net.wolfesoftware.jax.ast;
 public class TryPart extends ParseElement
 {
     public Expression expression;
-    public String startLabel;
-    public String endLabel;
+    public int startOffset;
+    public int endOffset;
 
     public TryPart(Expression expression)
     {
