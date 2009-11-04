@@ -30,9 +30,9 @@ public class ClassFile
 {
     public static final short ACC_PUBLIC = 0x0001, ACC_FINAL = 0x0010, ACC_SUPER = 0x0020, ACC_INTERFANCE = 0x0200, ACC_ABSTRACT = 0x0400;
 
-    public static ClassFile generate(ClassDeclaration classDeclaration)
+    public static ClassFile generate(String sourceFile, ClassDeclaration classDeclaration)
     {
-        ClassFile classFile = new ClassFile(classDeclaration.localType);
+        ClassFile classFile = new ClassFile(sourceFile, classDeclaration.localType);
         classFile.generate(classDeclaration.classBody);
         return classFile;
     }
@@ -48,7 +48,7 @@ public class ClassFile
     private final LinkedList<MethodInfo> methods = new LinkedList<MethodInfo>();
     private final LinkedList<Attribute> attributes = new LinkedList<Attribute>();
 
-    private ClassFile(LocalType type)
+    private ClassFile(String sourceFile, LocalType type)
     {
         // "All new compilers to the instruction set of the Java virtual machine should set the ACC_SUPER flag."
         access_flags = (short)(type.getFlags() | ACC_SUPER);
@@ -58,6 +58,7 @@ public class ClassFile
         this.interfaces = new short[interfaces.length];
         for (int i = 0; i < interfaces.length; i++)
             this.interfaces[i] = constant_pool.getClass(interfaces[i]);
+        attributes.add(Attribute.sourceFile(sourceFile, constant_pool));
     }
 
     public void write(DataOutputStream out) throws IOException

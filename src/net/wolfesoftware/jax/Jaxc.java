@@ -46,7 +46,7 @@ public class Jaxc
 
         Optimizer.optimize(lexiconization.root);
 
-        CodeGenerator.generate(lexiconization, classPath);
+        CodeGenerator.generate(lexiconization, Util.platformizeFilepath(fileName), classPath);
 
         return 0;
     }

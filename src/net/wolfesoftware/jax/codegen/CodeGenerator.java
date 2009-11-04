@@ -7,16 +7,18 @@ import net.wolfesoftware.jax.util.Util;
 
 public class CodeGenerator
 {
-    public static void generate(Lexiconization lexiconization, String classPath) throws FileNotFoundException, IOException
+    public static void generate(Lexiconization lexiconization, String sourceFile, String classPath) throws FileNotFoundException, IOException
     {
-        new CodeGenerator(lexiconization.root, classPath).generateCode();
+        new CodeGenerator(lexiconization.root, sourceFile, classPath).generateCode();
     }
 
     private final Root root;
+    private final String sourceFile;
     private final String classPath;
-    private CodeGenerator(Root root, String classPath)
+    public CodeGenerator(Root root, String sourceFile, String classPath)
     {
         this.root = root;
+        this.sourceFile = sourceFile;
         this.classPath = classPath;
     }
 
@@ -32,7 +34,7 @@ public class CodeGenerator
 
     private void genClassDeclaration(ClassDeclaration classDeclaration) throws FileNotFoundException, IOException
     {
-        ClassFile classFile = ClassFile.generate(classDeclaration);
+        ClassFile classFile = ClassFile.generate(sourceFile, classDeclaration);
         String outputFilename = Util.platformizeFilepath(classPath + File.separator + classDeclaration.localType.getTypeName() + ".class");
         DataOutputStream out = new DataOutputStream(new FileOutputStream(outputFilename));
         classFile.write(out);

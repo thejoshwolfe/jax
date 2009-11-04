@@ -87,24 +87,6 @@ public class MethodInfo
         attributes.add(Attribute.code(codeBytes, functionDefinition.context, exception_table, constantPool));
     }
 
-    private void _return(Type type)
-    {
-        if (!type.isPrimitive())
-            writeByte(Instructions.areturn);
-        else if (type == RuntimeType.VOID)
-            writeByte(Instructions._return);
-        else if (type == RuntimeType.BOOLEAN || type == RuntimeType.BYTE || type == RuntimeType.SHORT || type == RuntimeType.INT || type == RuntimeType.CHAR)
-            writeByte(Instructions.ireturn);
-        else if (type == RuntimeType.LONG)
-            writeByte(Instructions.lreturn);
-        else if (type == RuntimeType.FLOAT)
-            writeByte(Instructions.freturn);
-        else if (type == RuntimeType.DOUBLE)
-            writeByte(Instructions.dreturn);
-        else
-            throw null;
-    }
-
     private void evalExpression(Expression expression)
     {
         ParseElement content = expression.content;
@@ -254,111 +236,6 @@ public class MethodInfo
         writeByte(Instructions.invokespecial);
         short index = constantPool.getMethod(constructorRedirect.constructor);
         writeShort(index);
-    }
-    private void aload(int index)
-    {
-        switch (index) {
-            case 0:
-                writeByte(Instructions.aload_0);
-                break;
-            case 1:
-                writeByte(Instructions.aload_1);
-                break;
-            case 2:
-                writeByte(Instructions.aload_2);
-                break;
-            case 3:
-                writeByte(Instructions.aload_3);
-                break;
-            default:
-                writeByte(Instructions.aload);
-                writeByte((byte)index);
-                break;
-        }
-    }
-    private void iload(int index)
-    {
-        switch (index) {
-            case 0:
-                writeByte(Instructions.iload_0);
-                break;
-            case 1:
-                writeByte(Instructions.iload_1);
-                break;
-            case 2:
-                writeByte(Instructions.iload_2);
-                break;
-            case 3:
-                writeByte(Instructions.iload_3);
-                break;
-            default:
-                writeByte(Instructions.iload);
-                writeByte((byte)index);
-                break;
-        }
-    }
-    private void lload(int index)
-    {
-        switch (index) {
-            case 0:
-                writeByte(Instructions.lload_0);
-                break;
-            case 1:
-                writeByte(Instructions.lload_1);
-                break;
-            case 2:
-                writeByte(Instructions.lload_2);
-                break;
-            case 3:
-                writeByte(Instructions.lload_3);
-                break;
-            default:
-                writeByte(Instructions.lload);
-                writeByte((byte)index);
-                break;
-        }
-    }
-    private void fload(int index)
-    {
-        switch (index) {
-            case 0:
-                writeByte(Instructions.fload_0);
-                break;
-            case 1:
-                writeByte(Instructions.fload_1);
-                break;
-            case 2:
-                writeByte(Instructions.fload_2);
-                break;
-            case 3:
-                writeByte(Instructions.fload_3);
-                break;
-            default:
-                writeByte(Instructions.fload);
-                writeByte((byte)index);
-                break;
-        }
-    }
-    private void dload(int index)
-    {
-        switch (index) {
-            case 0:
-                writeByte(Instructions.dload_0);
-                break;
-            case 1:
-                writeByte(Instructions.dload_1);
-                break;
-            case 2:
-                writeByte(Instructions.dload_2);
-                break;
-            case 3:
-                writeByte(Instructions.dload_3);
-                break;
-            default:
-                writeByte(Instructions.dload);
-                writeByte((byte)index);
-                break;
-        }
     }
     private void evalShortCircuitAnd(ShortCircuitAnd shortCircuitAnd)
     {
@@ -543,8 +420,10 @@ public class MethodInfo
 
     private void evalTryCatch(TryCatch tryCatch)
     {
-        evalTryPart(tryCatch.tryPart);
+        tryCatch.tryPart.startOffset = offset;
+        evalExpression(tryCatch.tryPart.expression);
         int gotoOffset = offset;
+        tryCatch.tryPart.endOffset = offset;
         writeByte(Instructions._goto);
         writeDummyShort();
         evalCatchPart(tryCatch.catchPart);
@@ -561,15 +440,6 @@ public class MethodInfo
             long exception = (long)start_pc << 48 | (long)end_pc << 32 | (long)handler_pc << 16 | (long)catch_type << 0;
             exception_table.add(exception);
         }
-    }
-
-    private void evalTryPart(TryPart tryPart)
-    {
-        tryPart.startOffset = offset;
-        // TODO: store stack in locals
-        evalExpression(tryPart.expression);
-        tryPart.endOffset = offset;
-        // TODO: restore locals onto stack
     }
 
     private void evalCatchPart(CatchPart catchPart)
@@ -658,26 +528,6 @@ public class MethodInfo
         dup(assignment.expression.returnBehavior.type);
         store(assignment.id.variable.type, assignment.id.variable.number);
     }
-    private void dup(Type type)
-    {
-        switch (type.getSize()) {
-            case 1:
-                writeByte(Instructions.dup);
-                break;
-            case 2:
-                writeByte(Instructions.dup2);
-                break;
-            default:
-                throw null;
-        }
-    }
-    private Type translateTypeForInstructions(Type type)
-    {
-        if (type == RuntimeType.BOOLEAN || type == RuntimeType.BYTE || type == RuntimeType.SHORT || type == RuntimeType.CHAR)
-            return RuntimeType.INT;
-        return type;
-    }
-
     private void evalVariableDeclaration(VariableDeclaration variableDeclaration)
     {
         // do nothing
@@ -690,6 +540,210 @@ public class MethodInfo
         evalExpression(variableCreation.expression);
         LocalVariable variable = variableCreation.variableDeclaration.id.variable;
         store(variable.type, variable.number);
+    }
+    private void evalId(Id id)
+    {
+        Type type = translateTypeForInstructions(id.variable.type);
+        if (!type.isPrimitive())
+            aload(id.variable.number);
+        else if (type == RuntimeType.INT)
+            iload(id.variable.number);
+        else if (type == RuntimeType.LONG)
+            lload(id.variable.number);
+        else if (type == RuntimeType.FLOAT)
+            fload(id.variable.number);
+        else if (type == RuntimeType.DOUBLE)
+            dload(id.variable.number);
+        else
+            throw null;
+    }
+
+    private void evalBlock(Block block)
+    {
+        evalBlockContents(block.blockContents);
+    }
+
+    private void evalBlockContents(BlockContents blockContents)
+    {
+        for (int i = 0; i < blockContents.elements.size(); i++) {
+            Expression element = blockContents.elements.get(i);
+            evalExpression(element);
+            if (element.returnBehavior.type != RuntimeType.VOID)
+                if (i < blockContents.elements.size() - 1 || blockContents.forceVoid)
+                    pop(element.returnBehavior.type);
+        }
+    }
+
+    private void evalQuantity(Quantity quantity)
+    {
+        evalExpression(quantity.expression);
+    }
+
+    private void evalAddition(Addition addition)
+    {
+        evalExpression(addition.expression1);
+        evalExpression(addition.expression2);
+        Type type = addition.type;
+        if (type == RuntimeType.INT)
+            writeByte(Instructions.iadd);
+        else if (type == RuntimeType.LONG)
+            writeByte(Instructions.ladd);
+        else if (type == RuntimeType.FLOAT)
+            writeByte(Instructions.fadd);
+        else if (type == RuntimeType.DOUBLE)
+            writeByte(Instructions.dadd);
+        else
+            throw null;
+    }
+    private void evalSubtraction(Subtraction subtraction)
+    {
+        evalExpression(subtraction.expression1);
+        evalExpression(subtraction.expression2);
+        Type type = subtraction.type;
+        if (type == RuntimeType.INT)
+            writeByte(Instructions.isub);
+        else if (type == RuntimeType.LONG)
+            writeByte(Instructions.lsub);
+        else if (type == RuntimeType.FLOAT)
+            writeByte(Instructions.fsub);
+        else if (type == RuntimeType.DOUBLE)
+            writeByte(Instructions.dsub);
+        else
+            throw null;
+    }
+    private void evalMultiplication(Multiplication multiplication)
+    {
+        evalExpression(multiplication.expression1);
+        evalExpression(multiplication.expression2);
+        Type type = multiplication.type;
+        if (type == RuntimeType.INT)
+            writeByte(Instructions.imul);
+        else if (type == RuntimeType.LONG)
+            writeByte(Instructions.lmul);
+        else if (type == RuntimeType.FLOAT)
+            writeByte(Instructions.fmul);
+        else if (type == RuntimeType.DOUBLE)
+            writeByte(Instructions.dmul);
+        else
+            throw null;
+    }
+    private void evalDivision(Division division)
+    {
+        evalExpression(division.expression1);
+        evalExpression(division.expression2);
+        Type type = division.type;
+        if (type == RuntimeType.INT)
+            writeByte(Instructions.idiv);
+        else if (type == RuntimeType.LONG)
+            writeByte(Instructions.ldiv);
+        else if (type == RuntimeType.FLOAT)
+            writeByte(Instructions.fdiv);
+        else if (type == RuntimeType.DOUBLE)
+            writeByte(Instructions.ddiv);
+        else
+            throw null;
+    }
+    private void evalLessThan(LessThan lessThan)
+    {
+        evalComparison(lessThan, Instructions.if_icmplt);
+    }
+    private void evalGreaterThan(GreaterThan greaterThan)
+    {
+        evalComparison(greaterThan, Instructions.if_icmpgt);
+    }
+    private void evalLessThanOrEqual(LessThanOrEqual lessThanOrEqual)
+    {
+        evalComparison(lessThanOrEqual, Instructions.if_icmple);
+    }
+    private void evalGreaterThanOrEqual(GreaterThanOrEqual greaterThanOrEqual)
+    {
+        evalComparison(greaterThanOrEqual, Instructions.if_icmpge);
+    }
+    private void evalEquality(Equality equality)
+    {
+        byte instruction = equality.expression1.returnBehavior.type.isPrimitive() ? Instructions.if_icmpeq : Instructions.if_acmpeq;
+        evalComparison(equality, instruction);
+    }
+    private void evalInequality(Inequality inequality)
+    {
+        byte instruction = inequality.expression1.returnBehavior.type.isPrimitive() ? Instructions.if_icmpne : Instructions.if_acmpne;
+        evalComparison(inequality, instruction);
+    }
+    private void evalComparison(ComparisonOperator operator, byte instruction)
+    {
+        evalExpression(operator.expression1);
+        evalExpression(operator.expression2);
+        writeByte(instruction);
+        writeShort((short)7); // jump forward to the iconst_1
+        writeByte(Instructions.iconst_0);
+        writeByte(Instructions._goto);
+        writeShort((short)4); // jump over the iconst_1
+        writeByte(Instructions.iconst_1);
+    }
+
+    private void evalIntLiteral(IntLiteral intLiteral)
+    {
+        ldc(constantPool.getInteger(intLiteral.value));
+    }
+    private void evalFloatLiteral(FloatLiteral floatLiteral)
+    {
+        ldc(constantPool.getFloat(floatLiteral.value));
+    }
+    private void evalDoubleLiteral(DoubleLiteral doubleLiteral)
+    {
+        writeByte(Instructions.ldc2_w);
+        writeShort(constantPool.getDouble(doubleLiteral.value));
+    }
+    private void evalBooleanLiteral(BooleanLiteral booleanLiteral)
+    {
+        writeByte(booleanLiteral.value ? Instructions.iconst_1 : Instructions.iconst_0);
+    }
+    private void evalStringLiteral(StringLiteral stringLiteral)
+    {
+        ldc(constantPool.getString(stringLiteral.value));
+    }
+
+    private Type translateTypeForInstructions(Type type)
+    {
+        if (type == RuntimeType.BOOLEAN || type == RuntimeType.BYTE || type == RuntimeType.SHORT || type == RuntimeType.CHAR)
+            return RuntimeType.INT;
+        return type;
+    }
+    private void ldc(short index)
+    {
+        if (index <= 0xFF) {
+            writeByte(Instructions.ldc);
+            writeByte((byte)index);
+        } else {
+            writeByte(Instructions.ldc_w);
+            writeShort(index);
+        }
+    }
+    private void pop(Type type)
+    {
+        switch (type.getSize()) {
+            case 1:
+                writeByte(Instructions.pop);
+                break;
+            case 2:
+                writeByte(Instructions.pop2);
+                break;
+            default:
+                throw null;
+        }
+    }
+    private void dup(Type type)
+    {
+        switch (type.getSize()) {
+            case 1:
+                writeByte(Instructions.dup);
+                break;
+            case 2:
+                writeByte(Instructions.dup2);
+                break;
+            default:
+                throw null;
+        }
     }
     private void store(Type type, int number)
     {
@@ -812,175 +866,128 @@ public class MethodInfo
                 break;
         }
     }
-
-    private void evalId(Id id)
+    private void aload(int index)
     {
-        Type type = translateTypeForInstructions(id.variable.type);
-        if (!type.isPrimitive())
-            aload(id.variable.number);
-        else if (type == RuntimeType.INT)
-            iload(id.variable.number);
-        else if (type == RuntimeType.LONG)
-            lload(id.variable.number);
-        else if (type == RuntimeType.FLOAT)
-            fload(id.variable.number);
-        else if (type == RuntimeType.DOUBLE)
-            dload(id.variable.number);
-        else
-            throw null;
-    }
-
-    private void evalBlock(Block block)
-    {
-        evalBlockContents(block.blockContents);
-    }
-
-    private void evalBlockContents(BlockContents blockContents)
-    {
-        for (int i = 0; i < blockContents.elements.size(); i++) {
-            Expression element = blockContents.elements.get(i);
-            evalExpression(element);
-            if (element.returnBehavior.type != RuntimeType.VOID)
-                if (i < blockContents.elements.size() - 1 || blockContents.forceVoid)
-                    pop(element.returnBehavior.type);
-        }
-    }
-
-    private void pop(Type type)
-    {
-        switch (type.getSize()) {
+        switch (index) {
+            case 0:
+                writeByte(Instructions.aload_0);
+                break;
             case 1:
-                writeByte(Instructions.pop);
+                writeByte(Instructions.aload_1);
                 break;
             case 2:
-                writeByte(Instructions.pop2);
+                writeByte(Instructions.aload_2);
+                break;
+            case 3:
+                writeByte(Instructions.aload_3);
                 break;
             default:
-                throw null;
+                writeByte(Instructions.aload);
+                writeByte((byte)index);
+                break;
         }
     }
-    private void evalQuantity(Quantity quantity)
+    private void iload(int index)
     {
-        evalExpression(quantity.expression);
-    }
-
-    private void evalAddition(Addition addition)
-    {
-        evalExpression(addition.expression1);
-        evalExpression(addition.expression2);
-        Type type = addition.type;
-        if (type == RuntimeType.INT)
-            writeByte(Instructions.iadd);
-        else if (type == RuntimeType.LONG)
-            writeByte(Instructions.ladd);
-        else if (type == RuntimeType.FLOAT)
-            writeByte(Instructions.fadd);
-        else if (type == RuntimeType.DOUBLE)
-            writeByte(Instructions.dadd);
-        else
-            throw null;
-    }
-    private void evalSubtraction(Subtraction subtraction)
-    {
-        evalExpression(subtraction.expression1);
-        evalExpression(subtraction.expression2);
-        Type type = subtraction.type;
-        if (type == RuntimeType.INT)
-            writeByte(Instructions.isub);
-        else if (type == RuntimeType.LONG)
-            writeByte(Instructions.lsub);
-        else if (type == RuntimeType.FLOAT)
-            writeByte(Instructions.fsub);
-        else if (type == RuntimeType.DOUBLE)
-            writeByte(Instructions.dsub);
-        else
-            throw null;
-    }
-    private void evalMultiplication(Multiplication multiplication)
-    {
-        evalExpression(multiplication.expression1);
-        evalExpression(multiplication.expression2);
-        Type type = multiplication.type;
-        if (type == RuntimeType.INT)
-            writeByte(Instructions.imul);
-        else if (type == RuntimeType.LONG)
-            writeByte(Instructions.lmul);
-        else if (type == RuntimeType.FLOAT)
-            writeByte(Instructions.fmul);
-        else if (type == RuntimeType.DOUBLE)
-            writeByte(Instructions.dmul);
-        else
-            throw null;
-    }
-    private void evalDivision(Division division)
-    {
-        evalExpression(division.expression1);
-        evalExpression(division.expression2);
-        Type type = division.type;
-        if (type == RuntimeType.INT)
-            writeByte(Instructions.idiv);
-        else if (type == RuntimeType.LONG)
-            writeByte(Instructions.ldiv);
-        else if (type == RuntimeType.FLOAT)
-            writeByte(Instructions.fdiv);
-        else if (type == RuntimeType.DOUBLE)
-            writeByte(Instructions.ddiv);
-        else
-            throw null;
-    }
-    private void evalLessThan(LessThan lessThan)
-    {
-        evalComparison(lessThan, Instructions.if_icmplt);
-    }
-    private void evalGreaterThan(GreaterThan greaterThan)
-    {
-        evalComparison(greaterThan, Instructions.if_icmpgt);
-    }
-    private void evalLessThanOrEqual(LessThanOrEqual lessThanOrEqual)
-    {
-        evalComparison(lessThanOrEqual, Instructions.if_icmple);
-    }
-    private void evalGreaterThanOrEqual(GreaterThanOrEqual greaterThanOrEqual)
-    {
-        evalComparison(greaterThanOrEqual, Instructions.if_icmpge);
-    }
-    private void evalEquality(Equality equality)
-    {
-        byte instruction = equality.expression1.returnBehavior.type.isPrimitive() ? Instructions.if_icmpeq : Instructions.if_acmpeq;
-        evalComparison(equality, instruction);
-    }
-    private void evalInequality(Inequality inequality)
-    {
-        byte instruction = inequality.expression1.returnBehavior.type.isPrimitive() ? Instructions.if_icmpne : Instructions.if_acmpne;
-        evalComparison(inequality, instruction);
-    }
-    private void evalComparison(ComparisonOperator operator, byte instruction)
-    {
-        evalExpression(operator.expression1);
-        evalExpression(operator.expression2);
-        writeByte(instruction);
-        writeShort((short)7); // jump forward to the iconst_1
-        writeByte(Instructions.iconst_0);
-        writeByte(Instructions._goto);
-        writeShort((short)4); // jump over the iconst_1
-        writeByte(Instructions.iconst_1);
-    }
-
-    private void evalIntLiteral(IntLiteral intLiteral)
-    {
-        ldc(constantPool.getInteger(intLiteral.value));
-    }
-    private void ldc(short index)
-    {
-        if (index <= 0xFF) {
-            writeByte(Instructions.ldc);
-            writeByte((byte)index);
-        } else {
-            writeByte(Instructions.ldc_w);
-            writeShort(index);
+        switch (index) {
+            case 0:
+                writeByte(Instructions.iload_0);
+                break;
+            case 1:
+                writeByte(Instructions.iload_1);
+                break;
+            case 2:
+                writeByte(Instructions.iload_2);
+                break;
+            case 3:
+                writeByte(Instructions.iload_3);
+                break;
+            default:
+                writeByte(Instructions.iload);
+                writeByte((byte)index);
+                break;
         }
     }
-
+    private void lload(int index)
+    {
+        switch (index) {
+            case 0:
+                writeByte(Instructions.lload_0);
+                break;
+            case 1:
+                writeByte(Instructions.lload_1);
+                break;
+            case 2:
+                writeByte(Instructions.lload_2);
+                break;
+            case 3:
+                writeByte(Instructions.lload_3);
+                break;
+            default:
+                writeByte(Instructions.lload);
+                writeByte((byte)index);
+                break;
+        }
+    }
+    private void fload(int index)
+    {
+        switch (index) {
+            case 0:
+                writeByte(Instructions.fload_0);
+                break;
+            case 1:
+                writeByte(Instructions.fload_1);
+                break;
+            case 2:
+                writeByte(Instructions.fload_2);
+                break;
+            case 3:
+                writeByte(Instructions.fload_3);
+                break;
+            default:
+                writeByte(Instructions.fload);
+                writeByte((byte)index);
+                break;
+        }
+    }
+    private void dload(int index)
+    {
+        switch (index) {
+            case 0:
+                writeByte(Instructions.dload_0);
+                break;
+            case 1:
+                writeByte(Instructions.dload_1);
+                break;
+            case 2:
+                writeByte(Instructions.dload_2);
+                break;
+            case 3:
+                writeByte(Instructions.dload_3);
+                break;
+            default:
+                writeByte(Instructions.dload);
+                writeByte((byte)index);
+                break;
+        }
+    }
+    private void _return(Type type)
+    {
+        if (!type.isPrimitive())
+            writeByte(Instructions.areturn);
+        else if (type == RuntimeType.VOID)
+            writeByte(Instructions._return);
+        else if (type == RuntimeType.BOOLEAN || type == RuntimeType.BYTE || type == RuntimeType.SHORT || type == RuntimeType.INT || type == RuntimeType.CHAR)
+            writeByte(Instructions.ireturn);
+        else if (type == RuntimeType.LONG)
+            writeByte(Instructions.lreturn);
+        else if (type == RuntimeType.FLOAT)
+            writeByte(Instructions.freturn);
+        else if (type == RuntimeType.DOUBLE)
+            writeByte(Instructions.dreturn);
+        else
+            throw null;
+    }
     private void writeByte(byte value)
     {
         try {
@@ -990,7 +997,6 @@ public class MethodInfo
             throw null;
         }
     }
-
     private void writeDummyShort()
     {
         writeShort((short)0);
@@ -1003,33 +1009,6 @@ public class MethodInfo
         } catch (IOException e) {
             throw null;
         }
-    }
-
-    private void evalFloatLiteral(FloatLiteral floatLiteral)
-    {
-        ldc(constantPool.getFloat(floatLiteral.value));
-    }
-    private void evalDoubleLiteral(DoubleLiteral doubleLiteral)
-    {
-        writeByte(Instructions.ldc2_w);
-        writeShort(constantPool.getDouble(doubleLiteral.value));
-    }
-    private void evalBooleanLiteral(BooleanLiteral booleanLiteral)
-    {
-        writeByte(booleanLiteral.value ? Instructions.iconst_1 : Instructions.iconst_0);
-    }
-    private void evalStringLiteral(StringLiteral stringLiteral)
-    {
-        ldc(constantPool.getString(stringLiteral.value));
-    }
-
-    private void printStatement(String s)
-    {
-        throw null;
-    }
-    private void printLabel(String labelName)
-    {
-        throw null;
     }
     private class Fillin
     {

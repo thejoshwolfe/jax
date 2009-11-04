@@ -51,7 +51,7 @@ public abstract class Attribute
         // "The value of the attribute_length item indicates the length of the attribute, excluding the initial six bytes."
         int attributeLength = 2 + 2 + 4 + code.length + 2 + 4 * exception_table.size() + 2;
         for (Attribute attribute : attributes)
-            attributeLength += attribute.length;
+            attributeLength += 6 + attribute.length;
         attribute_length = attributeLength;
         return new Attribute(attribute_length) {
             public void write(DataOutputStream out) throws IOException
@@ -68,6 +68,21 @@ public abstract class Attribute
                 out.writeShort(attributes_count);
                 for (Attribute attribute : attributes)
                     attribute.write(out);
+            }
+        };
+    }
+
+    public static Attribute sourceFile(String sourceFile, ConstantPool constantPool)
+    {
+        final short attribute_name_index = constantPool.getUtf8("SourceFile");
+        final int attribute_length = 2;
+        final short sourcefile_index = constantPool.getUtf8(sourceFile);
+        return new Attribute(attribute_length) {
+            public void write(DataOutputStream out) throws IOException
+            {
+                out.writeShort(attribute_name_index);
+                out.writeInt(attribute_length);
+                out.writeShort(sourcefile_index);
             }
         };
     }
