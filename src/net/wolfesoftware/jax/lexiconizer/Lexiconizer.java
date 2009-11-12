@@ -263,6 +263,9 @@ public class Lexiconizer
             case IntLiteral.TYPE:
                 returnBehavior = lexiconizeIntLiteral(context, (IntLiteral)content);
                 break;
+            case LongLiteral.TYPE:
+                returnBehavior = lexiconizeLongLiteral(context, (LongLiteral)content);
+                break;
             case FloatLiteral.TYPE:
                 returnBehavior = lexiconizeFloatLiteral(context, (FloatLiteral)content);
                 break;
@@ -869,6 +872,11 @@ public class Lexiconizer
     {
         context.modifyStack(1);
         return ReturnBehavior.INT;
+    }
+    private ReturnBehavior lexiconizeLongLiteral(LocalContext context, LongLiteral longLiteral)
+    {
+        context.modifyStack(2);
+        return ReturnBehavior.LONG;
     }
     private ReturnBehavior lexiconizeFloatLiteral(LocalContext context, FloatLiteral floatLiteral)
     {

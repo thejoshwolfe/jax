@@ -24,7 +24,7 @@ public final class Tokenizer
     private static final String multiLineCommentCode = "\\/\\*.*?\\*\\/";
     private static final String skipCode = "\\s+|" + multiLineCommentCode  + "|" + lineCommentCode;
     private static final String identifierCode = "[A-Za-z_][A-Za-z0-9_]*";
-    private static final String literalCode = "\\d+(:?\\.\\d+)?[f]?";
+    private static final String literalCode = "\\d+(\\.\\d+)?[fFlL]?";
     private static final Pattern tokenPattern;
     static {
         StringBuilder tokenCode = new StringBuilder(128);
@@ -43,7 +43,7 @@ public final class Tokenizer
         int end = 0;
         while (tokenMatcher.lookingAt()) {
             start = tokenMatcher.start();
-            String tokenText = tokenMatcher.group(0);
+            String tokenText = tokenMatcher.group();
             Token token = createToken(tokenText);
             if (token != null)
                 tokens.add(token);
@@ -74,12 +74,16 @@ public final class Tokenizer
         if (Character.isDigit(c) || c == '-') {
             try {
                 if (text.contains(".")) {
-                    if (text.endsWith("f"))
+                    if (text.endsWith("f") || text.endsWith("F"))
                         return new FloatToken(start, text, Float.parseFloat(text));
                     else
                         return new DoubleToken(start, text, Double.parseDouble(text));
-                } else
-                    return new IntToken(start, text, Integer.parseInt(text));
+                } else {
+                    if (text.endsWith("l") || text.endsWith("L"))
+                        return new LongToken(start, text, Long.parseLong(text.substring(0, text.length() - 1)));
+                    else
+                        return new IntToken(start, text, Integer.parseInt(text));
+                }
             } catch (NumberFormatException e) {
                 errors.add(new TokenizingException(start, text, "number format is wrong."));
                 return null;

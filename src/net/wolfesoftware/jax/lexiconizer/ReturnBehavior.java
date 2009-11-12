@@ -4,6 +4,7 @@ public class ReturnBehavior
 {
     public static final ReturnBehavior VOID = new ReturnBehavior(RuntimeType.VOID);
     public static final ReturnBehavior INT = new ReturnBehavior(RuntimeType.INT);
+    public static final ReturnBehavior LONG = new ReturnBehavior(RuntimeType.LONG);
     public static final ReturnBehavior FLOAT = new ReturnBehavior(RuntimeType.FLOAT);
     public static final ReturnBehavior DOUBLE = new ReturnBehavior(RuntimeType.DOUBLE);
     public static final ReturnBehavior BOOLEAN = new ReturnBehavior(RuntimeType.BOOLEAN);
