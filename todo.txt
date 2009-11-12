@@ -41,6 +41,12 @@ Version 1.0:
 
 - throw
 
+- detect ambiguous overload resolution
+
+- ? :
+
+
+
 
 Version 1.1:
 

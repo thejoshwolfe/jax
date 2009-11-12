@@ -76,4 +76,9 @@ public class LexicalException extends CompileError
         }
         return true;
     }
+
+    public static LexicalException cantConvert(Expression element, Type fromType, Type toType)
+    {
+        return new LexicalException(element, "Can't convert expression of type " + fromType + " to type " + toType + ".");
+    }
 }

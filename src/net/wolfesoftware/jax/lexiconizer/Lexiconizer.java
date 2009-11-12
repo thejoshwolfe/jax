@@ -2,6 +2,7 @@ package net.wolfesoftware.jax.lexiconizer;
 
 import java.util.*;
 import net.wolfesoftware.jax.ast.*;
+import net.wolfesoftware.jax.codegen.Instructions;
 import net.wolfesoftware.jax.parser.Parsing;
 import net.wolfesoftware.jax.tokenizer.Lang;
 import net.wolfesoftware.jax.util.Util;
@@ -186,7 +187,9 @@ public class Lexiconizer
 
     private void lexiconizeFunctionDefinition(Type context, FunctionDefinition functionDefinition)
     {
-        functionDefinition.returnBehavior = lexiconizeExpression(functionDefinition.context, functionDefinition.expression);
+        lexiconizeExpression(functionDefinition.context, functionDefinition.expression);
+        implicitCast(functionDefinition.expression, functionDefinition.method.returnType);
+        functionDefinition.returnBehavior = functionDefinition.expression.returnBehavior;
         if (functionDefinition.method.returnType != functionDefinition.returnBehavior.type)
             errors.add(LexicalException.cantCast(functionDefinition.expression, functionDefinition.returnBehavior.type, functionDefinition.method.returnType));
         functionDefinition.context.modifyStack(-functionDefinition.returnBehavior.type.getSize());
@@ -455,9 +458,6 @@ public class Lexiconizer
         } else if (toType == null)
             return new ReturnBehavior(fromType);
 
-        // identity
-        if (fromType == toType)
-            return new ReturnBehavior(toType);
         context.modifyStack(toType.getSize() - returnBehavior.type.getSize());
 
         // primitive vs reference
@@ -471,25 +471,8 @@ public class Lexiconizer
                 errors.add(LexicalException.cantCast(typeCast.typeId, fromType, toType));
                 return new ReturnBehavior(toType);
             }
-            switch (RuntimeType.getPrimitiveConversionType(fromType, toType)) {
-                case -1:
-                    // narrowing
-                    expression.content = PrimitiveConversion.getConversion(fromType, toType, typeCast.expression);
-                    if (expression.content == null) {
-                        errors.add(LexicalException.cantCast(typeCast, fromType, toType));
-                        expression.content = typeCast;
-                    }
-                    break;
-                case 0:
-                    throw null; // identity casts are dealt with earlier
-                case 1:
-                    // inline widening cast
-                    expression.content = typeCast.expression.content;
-                    break;
-                default:
-                    throw null;
-            }
-            return new ReturnBehavior(toType);
+            expression.content = getPrimitiveConversion(fromType, toType, typeCast.expression);
+            return expression.returnBehavior = new ReturnBehavior(toType);
         } else {
             // reference
             if (fromType.isInstanceOf(toType)) {
@@ -801,12 +784,45 @@ public class Lexiconizer
         assignment.id.variable = resolveId(context, assignment.id);
         if (assignment.id.variable == null)
             errors.add(LexicalException.cantResolveLocalVariable(assignment.id));
-        ReturnBehavior returnBehavior = lexiconizeExpression(context, assignment.expression);
-        if (assignment.id.variable != null && assignment.id.variable.type != returnBehavior.type)
-            errors.add(LexicalException.cantCast(assignment.expression, returnBehavior.type, assignment.id.variable.type));
-        context.modifyStack(returnBehavior.type.getSize()); // "dup" for multiassignment. This is likely to change in the future.
-        context.modifyStack(-returnBehavior.type.getSize());
-        return new ReturnBehavior(returnBehavior.type);
+        lexiconizeExpression(context, assignment.expression);
+        if (assignment.id.variable != null)
+            implicitCast(assignment.expression, assignment.id.variable.type);
+        Type returnType = assignment.expression.returnBehavior.type;
+        context.modifyStack(returnType.getSize()); // "dup" for multiassignment.
+        context.modifyStack(-returnType.getSize());
+        return new ReturnBehavior(returnType);
+    }
+
+    private void implicitCast(Expression expression, Type toType)
+    {
+        Type fromType = expression.returnBehavior.type;
+        boolean primitive = fromType.isPrimitive();
+        if (primitive != toType.isPrimitive()) {
+            errors.add(new LexicalException(expression, "can't cast between primitives and non-primitives"));
+            return;
+        }
+        if (primitive) {
+            if (fromType == RuntimeType.BOOLEAN || toType == RuntimeType.BOOLEAN) {
+                errors.add(LexicalException.cantConvert(expression, fromType, toType));
+                return;
+            }
+            switch (RuntimeType.getPrimitiveConversionType(fromType, toType)) {
+                case -1:
+                    errors.add(LexicalException.cantConvert(expression, fromType, toType));
+                    break;
+                case 0:
+                    break;
+                case 1:
+                    expression.content = getPrimitiveConversion(fromType, toType, expression);
+                    break;
+                default:
+                    throw null;
+            }
+        } else {
+            if (!fromType.isInstanceOf(toType))
+                errors.add(LexicalException.cantConvert(expression, fromType, toType));
+        }
+        expression.returnBehavior = new ReturnBehavior(toType);
     }
 
     private ReturnBehavior lexiconizeVariableDeclaration(LocalContext context, VariableDeclaration variableDeclaration)
@@ -1082,6 +1098,69 @@ public class Lexiconizer
             sum += returnBehavior.type.getSize();
         return sum;
     }
+    private ParseElement getPrimitiveConversion(Type fromType, Type toType, Expression expression)
+    {
+        // same type needs no conversion
+        if (fromType == toType)
+            return expression.content;
+        // for little baby types, treat them like ints
+        if (fromType == RuntimeType.CHAR || fromType == RuntimeType.BYTE || fromType == RuntimeType.SHORT)
+            return getPrimitiveConversion(RuntimeType.INT, toType, expression);
+        // for converting great big types down to little baby types, we need to do it in two steps
+        if (fromType == RuntimeType.LONG || fromType == RuntimeType.FLOAT || fromType == RuntimeType.DOUBLE) {
+            if (toType == RuntimeType.CHAR || toType == RuntimeType.BYTE || toType == RuntimeType.SHORT) {
+                // convert down to int
+                Expression innerExpression = new Expression(getPrimitiveConversion(fromType, RuntimeType.INT, expression));
+                innerExpression.returnBehavior = new ReturnBehavior(RuntimeType.INT);
+                // convert down to the baby type
+                return getPrimitiveConversion(RuntimeType.INT, toType, innerExpression);
+            }
+        }
+        if (fromType == RuntimeType.INT) {
+            if (toType == RuntimeType.CHAR)
+                return new PrimitiveConversion(expression, Instructions.i2c, toType);
+            if (toType == RuntimeType.BYTE)
+                return new PrimitiveConversion(expression, Instructions.i2b, toType);
+            if (toType == RuntimeType.SHORT)
+                return new PrimitiveConversion(expression, Instructions.i2s, toType);
+            if (toType == RuntimeType.LONG)
+                return new PrimitiveConversion(expression, Instructions.i2l, toType);
+            if (toType == RuntimeType.FLOAT)
+                return new PrimitiveConversion(expression, Instructions.i2f, toType);
+            if (toType == RuntimeType.DOUBLE)
+                return new PrimitiveConversion(expression, Instructions.i2d, toType);
+            throw null;
+        }
+        if (fromType == RuntimeType.LONG) {
+            if (toType == RuntimeType.INT)
+                return new PrimitiveConversion(expression, Instructions.l2i, toType);
+            if (toType == RuntimeType.FLOAT)
+                return new PrimitiveConversion(expression, Instructions.l2f, toType);
+            if (toType == RuntimeType.DOUBLE)
+                return new PrimitiveConversion(expression, Instructions.l2d, toType);
+            throw null;
+        }
+        if (fromType == RuntimeType.FLOAT) {
+            if (toType == RuntimeType.INT)
+                return new PrimitiveConversion(expression, Instructions.f2i, toType);
+            if (toType == RuntimeType.LONG)
+                return new PrimitiveConversion(expression, Instructions.f2l, toType);
+            if (toType == RuntimeType.DOUBLE)
+                return new PrimitiveConversion(expression, Instructions.f2d, toType);
+            throw null;
+        }
+        if (fromType == RuntimeType.DOUBLE) {
+            if (toType == RuntimeType.INT)
+                return new PrimitiveConversion(expression, Instructions.d2i, toType);
+            if (toType == RuntimeType.LONG)
+                return new PrimitiveConversion(expression, Instructions.d2l, toType);
+            if (toType == RuntimeType.FLOAT)
+                return new PrimitiveConversion(expression, Instructions.d2f, toType);
+            throw null;
+        }
+        throw null;
+    }
+
     private static void deleteNulls(ListElement<?> listElement)
     {
         Iterator<?> iterator = listElement.elements.iterator();
