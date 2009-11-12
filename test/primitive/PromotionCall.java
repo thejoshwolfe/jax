@@ -7,13 +7,15 @@ public class PromotionCall
         Method[] methods = Promotion.class.getMethods();
         for (Method method : methods) {
             if (method.getName().startsWith("add2"))
-                continue; // helper function. not part of test
+                continue; // helper function. not to be called here.
             Object value;
             try {
                 value = method.invoke(null);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
+            if (method.getReturnType() == void.class)
+                continue;
             Class<?> valueClass = value.getClass();
             if (valueClass == Integer.class)
                 checkInt(method.getName(), value);

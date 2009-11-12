@@ -72,4 +72,24 @@ class Promotion {
     double argumentIntToDouble() add2Double(2);
     double argumentLongToDouble() add2Double(2L);
     double argumentFloatToDouble() add2Double(2.0f);
+
+    void assignmentByteToShort() {short a = (byte)2;};
+    void assignmentCharToInt() {int a = (char)2;};
+    void assignmentByteToInt() {int a = (byte)2;};
+    void assignmentShortToInt() {int a = (short)2;};
+    void assignmentCharToLong() {long a = (char)2;};
+    void assignmentByteToLong() {long a = (byte)2;};
+    void assignmentShortToLong() {long a = (short)2;};
+    void assignmentIntToLong() {long a = 2;};
+    void assignmentCharToFloat() {float a = (char)2;};
+    void assignmentByteToFloat() {float a = (byte)2;};
+    void assignmentShortToFloat() {float a = (short)2;};
+    void assignmentIntToFloat() {float a = 2;};
+    void assignmentLongToFloat() {float a = 2L;};
+    void assignmentCharToDouble() {double a = (char)2;};
+    void assignmentByteToDouble() {double a = (byte)2;};
+    void assignmentShortToDouble() {double a = (short)2;};
+    void assignmentIntToDouble() {double a = 2;};
+    void assignmentLongToDouble() {double a = 2L;};
+    void assignmentFloatToDouble() {double a = 2.0f;};
 }

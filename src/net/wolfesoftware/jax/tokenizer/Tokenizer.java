@@ -71,7 +71,7 @@ public final class Tokenizer
         char c = text.charAt(0);
         if (Character.isLetter(c) || c == '$' || c == '_')
             return new IdentifierToken(start, text);
-        if (Character.isDigit(c) || c == '-') {
+        if (Character.isDigit(c)) {
             try {
                 if (text.contains(".")) {
                     if (text.endsWith("f") || text.endsWith("F"))
