@@ -1,0 +1,75 @@
+
+class Promotion {
+    int returnCharToInt() (char)4;
+    int returnByteToInt() (byte)4;
+    int returnShortToInt() (short)4;
+    long returnCharToLong() (char)4;
+    long returnByteToLong() (byte)4;
+    long returnShortToLong() (short)4;
+    long returnIntToLong() 4;
+    float returnCharToFloat() (char)4;
+    float returnByteToFloat() (byte)4;
+    float returnShortToFloat() (short)4;
+    float returnIntToFloat() 4;
+    float returnLongToFloat() 4L;
+    double returnCharToDouble() (char)4;
+    double returnByteToDouble() (byte)4;
+    double returnShortToDouble() (short)4;
+    double returnIntToDouble() 4;
+    double returnLongToDouble() 4L;
+    double returnFloatToDouble() 4.0f;
+
+    int unaryCharToInt() -(char)(-4);
+    int unaryByteToInt() -(byte)(-4);
+    int unaryShortToInt() -(short)(-4);
+
+    int binaryCharCharToInt()  ((char)2) + ((char)2);
+    int binaryCharByteToInt()  ((char)2) + ((byte)2);
+    int binaryCharShortToInt()  ((char)2) + ((short)2);
+    int binaryByteByteToInt()  ((byte)2) + ((byte)2);
+    int binaryByteShortToInt()  ((byte)2) + ((short)2);
+    int binaryShortShortToInt()  ((short)2) + ((short)2);
+
+    int binaryCharToInt() 2 + (char)2;
+    int binaryByteToInt() 2 + (byte)2;
+    int binaryShortToInt() 2 + (short)2;
+    long binaryCharToLong() 2L + (char)2;
+    long binaryByteToLong() 2L + (byte)2;
+    long binaryShortToLong() 2L + (short)2;
+    long binaryIntToLong() 2L + 2;
+    float binaryCharToFloat() 2.0f + (char)2;
+    float binaryByteToFloat() 2.0f + (byte)2;
+    float binaryShortToFloat() 2.0f + (short)2;
+    float binaryIntToFloat() 2.0f + 2;
+    float binaryLongToFloat() 2.0f + 2L;
+    double binaryCharToDouble() 2.0 + (char)2;
+    double binaryByteToDouble() 2.0 + (byte)2;
+    double binaryShortToDouble() 2.0 + (short)2;
+    double binaryIntToDouble() 2.0 + 2;
+    double binaryLongToDouble() 2.0 + 2L;
+    double binaryFloatToDouble() 2.0 + 2.0f;
+
+    int add2Int(int value) 2 + value;
+    long add2Long(long value) 2L + value;
+    float add2Float(float value) 2.0f + value;
+    double add2Double(double value) 2.0 + value;
+
+    int argumentCharToInt() add2Int((char)2);
+    int argumentByteToInt() add2Int((byte)2);
+    int argumentShortToInt() add2Int((short)2);
+    long argumentCharToLong() add2Long((char)2);
+    long argumentByteToLong() add2Long((byte)2);
+    long argumentShortToLong() add2Long((short)2);
+    long argumentIntToLong() add2Long(2);
+    float argumentCharToFloat() add2Float((char)2);
+    float argumentByteToFloat() add2Float((byte)2);
+    float argumentShortToFloat() add2Float((short)2);
+    float argumentIntToFloat() add2Float(2);
+    float argumentLongToFloat() add2Float(2L);
+    double argumentCharToDouble() add2Double((char)2);
+    double argumentByteToDouble() add2Double((byte)2);
+    double argumentShortToDouble() add2Double((short)2);
+    double argumentIntToDouble() add2Double(2);
+    double argumentLongToDouble() add2Double(2L);
+    double argumentFloatToDouble() add2Double(2.0f);
+}
