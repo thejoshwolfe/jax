@@ -8,15 +8,16 @@ Something thing =
         new Something();
 
 Iterator<Item> iter = friend.getItemList().iterator();
-Something thing = while (iter.hasNext()) {
-    Item item = iter.next();
-    if (item.isWhatINeed())
-        break(item.getTheThing());
-    iter.remove();
-} else {
-    friend.yourListIsEmptyNow();
-    friend.getLastResort()
-}
+Something thing = 
+    while (iter.hasNext()) {
+        Item item = iter.next();
+        if (item.isWhatINeed())
+            break(item.getTheThing());
+        iter.remove();
+    } else {
+        friend.yourListIsEmptyNow();
+        friend.getLastResort()
+    };
 
 
 switches returning values:
