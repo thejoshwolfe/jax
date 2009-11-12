@@ -5,6 +5,8 @@ Version 1.0:
 - restore exception handling functionality. there are problems with our .class files (says javac).
 - use local variables to preserve the operand stack when entering/exiting try-catch blocks.
 
+- understand classfile format version number
+
 - fields
 - static and non-static initializers
 
@@ -70,11 +72,6 @@ Version 2.0:
 
 
 Version 3.0:
-
-- referencing other .java files:
-    We'll need to parse .java files to lexiconize our own classes, 
-    generate our .class files,
-    then use javac on the rest of the .java files.
 
 - Java compatibility mode:
     - Semicolon insertion after "}"

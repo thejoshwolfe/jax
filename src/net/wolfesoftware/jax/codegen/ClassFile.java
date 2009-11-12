@@ -68,7 +68,7 @@ public class ClassFile
         out.writeShort(major_version);
 
         constant_pool.write(out);
-        
+
         out.writeShort(access_flags);
         out.writeShort(this_class);
         out.writeShort(super_class);
