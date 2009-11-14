@@ -70,7 +70,7 @@ public class LexicalException extends CompileError
         Type type = expression.returnBehavior.type;
         if (type == UnknownType.INSTANCE)
             return false;
-        if (!(type.isPrimitive() && type != RuntimeType.VOID)) {
+        if (!(type.isPrimitive() && type != RuntimeType.VOID && type != RuntimeType.BOOLEAN)) {
             errors.add(new LexicalException(expression, "This thing is type \"" + type + "\" and it needs to be numeric."));
             return false;
         }
