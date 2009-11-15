@@ -95,6 +95,9 @@ public class MethodInfo
             case IntLiteral.TYPE:
                 evalIntLiteral((IntLiteral)content);
                 break;
+            case LongLiteral.TYPE:
+                evalLongLiteral((LongLiteral)content);
+                break;
             case FloatLiteral.TYPE:
                 evalFloatLiteral((FloatLiteral)content);
                 break;
@@ -286,17 +289,7 @@ public class MethodInfo
     private void evalNegation(Negation negation)
     {
         evalExpression(negation.expression);
-        Type type = negation.type;
-        if (type == RuntimeType.INT)
-            writeByte(Instructions.ineg);
-        else if (type == RuntimeType.LONG)
-            writeByte(Instructions.lneg);
-        else if (type == RuntimeType.FLOAT)
-            writeByte(Instructions.fneg);
-        else if (type == RuntimeType.DOUBLE)
-            writeByte(Instructions.dneg);
-        else
-            throw null;
+        writeByte(negation.instruction);
     }
 
     private void evalReferenceConversion(ReferenceConversion referenceConversion)
@@ -684,6 +677,10 @@ public class MethodInfo
     private void evalIntLiteral(IntLiteral intLiteral)
     {
         ldc(constantPool.getInteger(intLiteral.value));
+    }
+    private void evalLongLiteral(LongLiteral longLiteral)
+    {
+        ldc(constantPool.getLong(longLiteral.value));
     }
     private void evalFloatLiteral(FloatLiteral floatLiteral)
     {

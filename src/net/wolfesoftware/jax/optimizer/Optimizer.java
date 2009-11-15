@@ -129,6 +129,9 @@ public class Optimizer
             case IntLiteral.TYPE:
                 optimizeIntLiteral((IntLiteral)content);
                 break;
+            case LongLiteral.TYPE:
+                optimizeLongLiteral((LongLiteral)content);
+                break;
             case FloatLiteral.TYPE:
                 optimizeFloatLiteral((FloatLiteral)content);
                 break;
@@ -385,6 +388,10 @@ public class Optimizer
     }
 
     private static void optimizeIntLiteral(IntLiteral intLiteral)
+    {
+        // do nothing
+    }
+    private static void optimizeLongLiteral(LongLiteral content)
     {
         // do nothing
     }

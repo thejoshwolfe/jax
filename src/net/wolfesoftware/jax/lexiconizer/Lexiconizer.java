@@ -426,11 +426,24 @@ public class Lexiconizer
 
     private ReturnBehavior lexiconizeNegation(LocalContext context, Negation negation)
     {
-        ReturnBehavior returnBehavior = lexiconizeExpression(context, negation.expression);
-        if (!LexicalException.mustBeNumeric(negation.expression, errors))
-            context.modifyStack(RuntimeType.INT.getSize() - returnBehavior.type.getSize());
-        negation.type = returnBehavior.type;
-        return returnBehavior;
+        Type operandType = lexiconizeExpression(context, negation.expression).type;
+        if (!LexicalException.mustBeNumeric(negation.expression, errors)) {
+            context.modifyStack(RuntimeType.INT.getSize() - operandType.getSize());
+            return ReturnBehavior.INT;
+        }
+        Type resultType = operandType;
+        if (operandType == RuntimeType.CHAR || operandType == RuntimeType.BYTE || operandType == RuntimeType.SHORT)
+            resultType = RuntimeType.INT;
+        if (resultType == RuntimeType.INT)
+            negation.instruction = Instructions.ineg;
+        else if (resultType == RuntimeType.LONG)
+            negation.instruction = Instructions.lneg;
+        else if (resultType == RuntimeType.FLOAT)
+            negation.instruction = Instructions.fneg;
+        else if (resultType == RuntimeType.DOUBLE)
+            negation.instruction = Instructions.dneg;
+
+        return new ReturnBehavior(resultType);
     }
 
     private ReturnBehavior lexiconizeTypeCast(LocalContext context, Expression expression)
@@ -957,13 +970,14 @@ public class Lexiconizer
         Type returnType2 = lazyLexiconizeExpression(context, operator.expression2).type;
         good &= LexicalException.mustBeNumeric(operator.expression2, errors);
 
-
         if (!good) {
             context.modifyStack(-returnType1.getSize() - returnType2.getSize() + RuntimeType.INT.getSize());
             return ReturnBehavior.INT;
         }
 
         Type resultType = RuntimeType.getPrimitiveConversionType(returnType1, returnType2) < 0 ? returnType1 : returnType2;
+        if (resultType == RuntimeType.CHAR || resultType == RuntimeType.BYTE || resultType == RuntimeType.SHORT)
+            resultType = RuntimeType.INT;
         convertPrimitive(context, returnType1, resultType, operator.expression1);
         convertPrimitive(context, returnType2, resultType, operator.expression2);
 
