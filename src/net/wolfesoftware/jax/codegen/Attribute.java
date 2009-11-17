@@ -44,7 +44,7 @@ public abstract class Attribute
         final short max_locals = (short)context.variableCapacity;
         final int code_length = codeBytes.length;
         final byte[] code = codeBytes;
-        final short excpetion_table_length = (short)exceptionTable.size();
+        final short exception_table_length = (short)exceptionTable.size();
         final LinkedList<Long> exception_table = exceptionTable;
         final short attributes_count = 0;
         final Attribute[] attributes = {};
@@ -62,7 +62,7 @@ public abstract class Attribute
                 out.writeShort(max_locals);
                 out.writeInt(code_length);
                 out.write(code);
-                out.writeShort(excpetion_table_length);
+                out.writeShort(exception_table_length);
                 for (Long exception : exception_table)
                     out.writeLong(exception);
                 out.writeShort(attributes_count);
