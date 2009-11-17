@@ -699,11 +699,11 @@ public class Lexiconizer
     private ReturnBehavior lexiconizeDereferenceField(LocalContext context, DereferenceField dereferenceField)
     {
         Type type = lexiconizeExpression(context, dereferenceField.expression).type;
-        Field field = resolveField(type, dereferenceField.id);
-        if (field == null)
+        dereferenceField.field = resolveField(type, dereferenceField.id);
+        if (dereferenceField.field == null)
             errors.add(LexicalException.cantResolveField(type, dereferenceField.id));
-        context.modifyStack(-type.getSize() + field.returnType.getSize());
-        return new ReturnBehavior(field.returnType);
+        context.modifyStack(-type.getSize() + dereferenceField.field.returnType.getSize());
+        return new ReturnBehavior(dereferenceField.field.returnType);
     }
 
     private int disambuateDereferenceMethod(LocalContext context, Expression expression)

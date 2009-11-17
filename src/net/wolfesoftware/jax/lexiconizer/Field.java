@@ -29,4 +29,8 @@ public class Field
     {
         return returnType.getTypeCode();
     }
+    public boolean isArrayLength()
+    {
+        return false;
+    }
 }

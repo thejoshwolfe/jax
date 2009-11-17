@@ -206,6 +206,9 @@ public class MethodInfo
             case DereferenceMethod.TYPE:
                 evalDereferenceMethod((DereferenceMethod)content);
                 break;
+            case DereferenceField.TYPE:
+                evalDereferenceField((DereferenceField)content);
+                break;
             case StaticDereferenceField.TYPE:
                 evalStaticDereferenceField((StaticDereferenceField)content);
                 break;
@@ -468,6 +471,17 @@ public class MethodInfo
     {
         evalExpression(dereferenceMethod.expression);
         evalFunctionInvocation(dereferenceMethod.functionInvocation);
+    }
+
+    private void evalDereferenceField(DereferenceField dereferenceField)
+    {
+        evalExpression(dereferenceField.expression);
+        if (dereferenceField.field.isArrayLength())
+            writeByte(Instructions.arraylength);
+        else {
+            writeByte(Instructions.getfield);
+            writeShort(constantPool.getField(dereferenceField.field));
+        }
     }
 
     private void evalFunctionInvocation(FunctionInvocation functionInvocation)

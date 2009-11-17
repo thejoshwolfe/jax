@@ -180,6 +180,9 @@ public class Optimizer
             case DereferenceMethod.TYPE:
                 optimizeDereferenceMethod((DereferenceMethod)content);
                 break;
+            case DereferenceField.TYPE:
+                optimizeDereferenceField((DereferenceField)content);
+                break;
             case StaticDereferenceField.TYPE:
                 optimizeStaticDereferenceField((StaticDereferenceField)content);
                 break;
@@ -336,6 +339,11 @@ public class Optimizer
     {
         optimizeExpression(dereferenceMethod.expression);
         optimizeFunctionInvocation(dereferenceMethod.functionInvocation);
+    }
+
+    private static void optimizeDereferenceField(DereferenceField dereferenceField)
+    {
+        optimizeExpression(dereferenceField.expression);
     }
 
     private static void optimizeFunctionInvocation(FunctionInvocation functionInvocation)

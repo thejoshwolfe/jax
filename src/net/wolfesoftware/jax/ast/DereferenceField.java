@@ -1,10 +1,13 @@
 package net.wolfesoftware.jax.ast;
 
+import net.wolfesoftware.jax.lexiconizer.Field;
+
 public class DereferenceField extends ParseElement
 {
+    public Field field;
+
     public Expression expression;
     public Id id;
-
     public DereferenceField(Expression expression, Id id)
     {
         this.expression = expression;

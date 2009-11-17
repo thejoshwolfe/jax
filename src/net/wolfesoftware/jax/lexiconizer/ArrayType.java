@@ -13,7 +13,13 @@ public class ArrayType extends Type
     {
         super(scalarType.fullName + "[]", scalarType.id + "[]");
         this.scalarType = scalarType;
-        lengthField = new Field(this, RuntimeType.INT, "length");
+        lengthField = new Field(this, RuntimeType.INT, "length") {
+            @Override
+            public boolean isArrayLength()
+            {
+                return true;
+            }
+        };
     }
 
     @Override
