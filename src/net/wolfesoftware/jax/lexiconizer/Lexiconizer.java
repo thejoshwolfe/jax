@@ -374,6 +374,7 @@ public class Lexiconizer
         else
             throw null;
         constructorRedirect.constructor = resolveConstructor(type, argumentSignature);
+        implicitCastArguments(context, constructorRedirect.arguments, constructorRedirect.constructor.argumentSignature);
         context.modifyStack(1);
         context.modifyStack(-1);
         if (constructorRedirect.constructor == null)
@@ -520,9 +521,10 @@ public class Lexiconizer
         context.modifyStack(2); // new; dup;
         ReturnBehavior[] argumentSignature = lexiconizeArguments(context, constructorInvocation.functionInvocation.arguments);
         constructorInvocation.constructor = resolveConstructor(typeId.type, argumentSignature);
+        implicitCastArguments(context, constructorInvocation.functionInvocation.arguments, constructorInvocation.constructor.argumentSignature);
         if (constructorInvocation.constructor == null)
             errors.add(new LexicalException(constructorInvocation, "can't resolve this constructor"));
-        context.modifyStack(-(1 + getArgumentSignatureSize(argumentSignature)));
+        context.modifyStack(-(1 + getArgumentSignatureSize(constructorInvocation.constructor.argumentSignature)));
         return new ReturnBehavior(typeId.type);
     }
 
@@ -612,7 +614,8 @@ public class Lexiconizer
         // lexiconization already done for typeId
         ReturnBehavior[] argumentSignature = lexiconizeArguments(context, staticFunctionInvocation.functionInvocation.arguments);
         staticFunctionInvocation.functionInvocation.method = resolveMethod(staticFunctionInvocation.typeId.type, staticFunctionInvocation.functionInvocation, argumentSignature);
-        context.modifyStack(-getArgumentSignatureSize(argumentSignature));
+        implicitCastArguments(context, staticFunctionInvocation.functionInvocation.arguments, staticFunctionInvocation.functionInvocation.method.argumentSignature);
+        context.modifyStack(-getArgumentSignatureSize(staticFunctionInvocation.functionInvocation.method.argumentSignature));
         Type returnType = staticFunctionInvocation.functionInvocation.method.returnType;
         context.modifyStack(returnType.getSize());
         return new ReturnBehavior(returnType);
@@ -723,7 +726,8 @@ public class Lexiconizer
         ReturnBehavior expressionReturnBehavior = lexiconizeExpression(context, dereferenceMethod.expression);
         ReturnBehavior[] argumentSignature = lexiconizeArguments(context, dereferenceMethod.functionInvocation.arguments);
         dereferenceMethod.functionInvocation.method = resolveMethod(expressionReturnBehavior.type, dereferenceMethod.functionInvocation, argumentSignature);
-        context.modifyStack(-(1 + getArgumentSignatureSize(argumentSignature)));
+        implicitCastArguments(context, dereferenceMethod.functionInvocation.arguments, dereferenceMethod.functionInvocation.method.argumentSignature);
+        context.modifyStack(-(1 + getArgumentSignatureSize(dereferenceMethod.functionInvocation.method.argumentSignature)));
         context.modifyStack(dereferenceMethod.functionInvocation.method.returnType.getSize());
         return new ReturnBehavior(dereferenceMethod.functionInvocation.method.returnType);
     }
@@ -732,7 +736,8 @@ public class Lexiconizer
     {
         ReturnBehavior[] argumentSignature = lexiconizeArguments(context, functionInvocation.arguments);
         functionInvocation.method = resolveMethod(context.getClassContext(), functionInvocation, argumentSignature);
-        context.modifyStack(-getArgumentSignatureSize(argumentSignature));
+        implicitCastArguments(context, functionInvocation.arguments, functionInvocation.method.argumentSignature);
+        context.modifyStack(-getArgumentSignatureSize(functionInvocation.method.argumentSignature));
         context.modifyStack(functionInvocation.method.returnType.getSize());
         return new ReturnBehavior(functionInvocation.method.returnType);
     }
@@ -752,6 +757,13 @@ public class Lexiconizer
             }
         }
         return rtnArr;
+    }
+
+    private void implicitCastArguments(LocalContext context, Arguments arguments, Type[] argumentSignature)
+    {
+        int i = 0;
+        for (Expression element : arguments.elements)
+            implicitCast(context, element, argumentSignature[i++]);
     }
 
     private ReturnBehavior lexiconizeIfThenElse(LocalContext context, IfThenElse ifThenElse)
@@ -834,7 +846,7 @@ public class Lexiconizer
             if (!fromType.isInstanceOf(toType))
                 errors.add(LexicalException.cantConvert(expression, fromType, toType));
         }
-        expression.returnBehavior = new ReturnBehavior(toType);
+        expression.returnBehavior = new ReturnBehavior(toType); // TODO this is overwriting a valid object at least sometimes
     }
 
     private ReturnBehavior lexiconizeVariableDeclaration(LocalContext context, VariableDeclaration variableDeclaration)
@@ -1107,11 +1119,11 @@ public class Lexiconizer
             argumentTypes[i] = argumentSignature[i].type;
         return argumentTypes;
     }
-    private int getArgumentSignatureSize(ReturnBehavior[] argumentSignature)
+    private int getArgumentSignatureSize(Type[] argumentSignature)
     {
         int sum = 0;
-        for (ReturnBehavior returnBehavior : argumentSignature)
-            sum += returnBehavior.type.getSize();
+        for (Type type : argumentSignature)
+            sum += type.getSize();
         return sum;
     }
     private void convertPrimitive(LocalContext context, Type fromType, Type toType, Expression expression)

@@ -4,7 +4,7 @@ public class PromotionCall
 {
     public static void main(String[] args)
     {
-        Method[] methods = Promotion.class.getMethods();
+        Method[] methods = Promotion.class.getDeclaredMethods();
         for (Method method : methods) {
             if (method.getName().startsWith("add2"))
                 continue; // helper function. not to be called here.
@@ -12,7 +12,7 @@ public class PromotionCall
             try {
                 value = method.invoke(null);
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException(method.getName(), e);
             }
             if (method.getReturnType() == void.class)
                 continue;

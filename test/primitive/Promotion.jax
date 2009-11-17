@@ -19,9 +19,9 @@ class Promotion {
     double returnLongToDouble() 4L;
     double returnFloatToDouble() 4.0f;
 
-    int unaryCharToInt() -(char)(-4);
-    int unaryByteToInt() -(byte)(-4);
-    int unaryShortToInt() -(short)(-4);
+    int unaryCharToInt() - -(char)4;
+    int unaryByteToInt() - -(byte)4;
+    int unaryShortToInt() - -(short)4;
 
     int binaryCharCharToInt()  ((char)2) + ((char)2);
     int binaryCharByteToInt()  ((char)2) + ((byte)2);

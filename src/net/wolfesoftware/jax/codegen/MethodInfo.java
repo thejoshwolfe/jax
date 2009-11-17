@@ -680,7 +680,8 @@ public class MethodInfo
     }
     private void evalLongLiteral(LongLiteral longLiteral)
     {
-        ldc(constantPool.getLong(longLiteral.value));
+        writeByte(Instructions.ldc2_w);
+        writeShort(constantPool.getLong(longLiteral.value));
     }
     private void evalFloatLiteral(FloatLiteral floatLiteral)
     {

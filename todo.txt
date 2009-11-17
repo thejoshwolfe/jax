@@ -7,9 +7,12 @@ Version 1.0:
 
 - checked exceptions
 
+- uninitialized variable access
+- unreachable code
+
 - understand classfile format version number
 
-- fields
+- field declarations
 - static and non-static initializers
 
 - array store
