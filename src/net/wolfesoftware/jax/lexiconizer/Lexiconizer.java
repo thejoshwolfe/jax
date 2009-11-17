@@ -490,8 +490,12 @@ public class Lexiconizer
             return expression.returnBehavior;
         } else {
             // reference
-            if (!fromType.isInstanceOf(toType))
-                expression.content = new ReferenceConversion(expression, toType);
+            if (!fromType.isInstanceOf(toType)) {
+                Expression innerExpression = new Expression(expression.content);
+                innerExpression.returnBehavior = expression.returnBehavior;
+                expression.content = new ReferenceConversion(innerExpression, toType);
+                expression.returnBehavior = new ReturnBehavior(toType);
+            }
             return new ReturnBehavior(toType);
         }
     }
