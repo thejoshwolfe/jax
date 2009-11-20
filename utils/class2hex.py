@@ -247,17 +247,48 @@ def main(input, output):
         if name == "ConstantValue":
             assert(length == 2)
             (h, valueIndex) = readShort()
-            output.write("%s\t; value = %s\n" % (indentation, str(constantPool[valueIndex][1])))
-            output.write("%s\t%s\n" % (indentation, h))
+            output.write("%s; value = %s\n" % (indentation, str(constantPool[valueIndex][1])))
+            output.write(indentation + h + "\n")
         elif name == "SourceFile":
             assert(length == 2)
             (h, valueIndex) = readShort()
-            output.write("%s\t; value = \"%s\"\n" % (indentation, constantPool[valueIndex][1]))
+            output.write("%s; value = \"%s\"\n" % (indentation, constantPool[valueIndex][1]))
+            output.write(indentation + h + "\n")
+        elif name == "Code":
+            assert(length >= 13)
+            (h1, maxStack) = readShort()
+            (h2, maxLocals) = readShort()
+            output.write("%s; max_stack=%i, max_locals=%i\n" % (indentation, maxStack, maxLocals))
+            output.write((indentation + "%s\n") * 2 % (h1, h2))
+            (h, codeLength) = readInt()
+            output.write("%s; code_length=%i\n" % (indentation, codeLength))
+            output.write(indentation + h + "\n")
+            (h, _) = readString(codeLength)
             output.write("%s\t%s\n" % (indentation, h))
+            (h, exceptionTableLength) = readShort()
+            output.write("%s; exception table; size=%i\n" % (indentation, exceptionTableLength))
+            output.write(indentation + h + "\n")
+            for i in range(exceptionTableLength):
+                (h1, startPc) = readShort()
+                (h2, endPc) = readShort()
+                (h3, handlerPc) = readShort()
+                (h4, catchTypeIndex) = readShort()
+                exceptionName = constantPool[constantPool[catchTypeIndex][1]][1]
+                output.write("%s\t; from %i to %i catch %s at %i\n" % (indentation, startPc, endPc, exceptionName, handlerPc))
+                output.write((indentation + "\t%s\n") * 4 % (h1, h2, h3, h4))
+            (h, attributeCount) = readShort()
+            output.write("%s; attributes; size=%i\n" % (indentation, attributeCount))
+            output.write(indentation + h + "\n")
+            for i in range(attributeCount):
+                errorMessage = readAttribute(indentation + "\t")
+                if errorMessage != None:
+                    return errorMessage
+            
         else:
             # unknown attribute name
             (h, _) = readString(length)
-            output.write(indentation + "\t" + h + "\n")
+            output.write(indentation + "; unknown attribute name\n")
+            output.write(indentation + h + "\n")
     
     # fields
     (h, fieldCount) = readShort()
@@ -288,7 +319,9 @@ def main(input, output):
         output.write("\t; attributes; size=%i\n" % attributeCount)
         output.write("\t" + h + "\n")
         for i in range(attributeCount):
-            readAttribute("\t\t")
+            errorMessage = readAttribute("\t\t")
+            if errorMessage != None:
+                return errorMessage
         output.write("\t\n")
     
     # methods
@@ -324,7 +357,9 @@ def main(input, output):
         output.write("\t; attributes; size=%i\n" % attributeCount)
         output.write("\t" + h + "\n")
         for i in range(attributeCount):
-            readAttribute("\t\t")
+            errorMessage = readAttribute("\t\t")
+            if errorMessage != None:
+                return errorMessage
         output.write("\t\n")
     
     # class attributes
@@ -332,7 +367,9 @@ def main(input, output):
     output.write("; attributes; size=%i\n" % attributeCount)
     output.write(h + "\n")
     for i in range(attributeCount):
-        readAttribute("\t")
+        errorMessage = readAttribute("\t")
+        if errorMessage != None:
+	    return errorMessage
     output.write("\n")
     
     # EOF
