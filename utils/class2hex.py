@@ -244,13 +244,20 @@ def main(input, output):
         (h2, length) = readInt()
         output.write("%s; attribute \"%s\"; size=%i\n" % (indentation, name, length))
         output.write(((indentation + "%s\n") * 2) % (h1, h2))
-        if False:
-            pass
+        if name == "ConstantValue":
+            assert(length == 2)
+            (h, valueIndex) = readShort()
+            output.write("%s\t; value = %s\n" % (indentation, str(constantPool[valueIndex][1])))
+            output.write("%s\t%s\n" % (indentation, h))
+        elif name == "SourceFile":
+            assert(length == 2)
+            (h, valueIndex) = readShort()
+            output.write("%s\t; value = \"%s\"\n" % (indentation, constantPool[valueIndex][1]))
+            output.write("%s\t%s\n" % (indentation, h))
         else:
             # unknown attribute name
             (h, _) = readString(length)
-            output.write(indentation + "\t" + h)
-        output.write(indentation + "\n")
+            output.write(indentation + "\t" + h + "\n")
     
     # fields
     (h, fieldCount) = readShort()
@@ -284,6 +291,53 @@ def main(input, output):
             readAttribute("\t\t")
         output.write("\t\n")
     
+    # methods
+    (h, methodCount) = readShort()
+    output.write("; methods; size=%i\n" % methodCount)
+    output.write(h + "\n")
+    for i in range(methodCount):
+        (h1, accessFlags) = readShort()
+        (h2, nameIndex) = readShort()
+        (h3, descriptorIndex) = readShort()
+        output.write("\t; ")
+        if accessFlags & ACC_PUBLIC:
+            output.write("public ")
+        elif accessFlags & ACC_PRIVATE:
+            output.write("private ")
+        elif accessFlags & ACC_PROTECTED:
+            output.write("protected ")
+        if accessFlags & ACC_STATIC:
+            output.write("static ")
+        if accessFlags & ACC_FINAL:
+            output.write("final ")
+        if accessFlags & ACC_SYNCHRONIZED:
+            output.write("synchronized ")
+        if accessFlags & ACC_NATIVE:
+            output.write("native ")
+        if accessFlags & ACC_ABSTRACT:
+            output.write("abstract ")
+        if accessFlags & ACC_STRICT:
+            output.write("strictfp ")
+        output.write(constantPool[nameIndex][1] + ":" + constantPool[descriptorIndex][1] + "\n")
+        output.write(("\t%s\n" * 3) % (h1, h2, h3))
+        (h, attributeCount) = readShort()
+        output.write("\t; attributes; size=%i\n" % attributeCount)
+        output.write("\t" + h + "\n")
+        for i in range(attributeCount):
+            readAttribute("\t\t")
+        output.write("\t\n")
+    
+    # class attributes
+    (h, attributeCount) = readShort()
+    output.write("; attributes; size=%i\n" % attributeCount)
+    output.write(h + "\n")
+    for i in range(attributeCount):
+        readAttribute("\t")
+    output.write("\n")
+    
+    # EOF
+    if index[0] != len(input):
+        return "Expected EOF at offset " + str(index[0])
 
 if __name__ == "__main__":
     if len(argv) == 1:
