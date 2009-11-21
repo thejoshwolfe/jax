@@ -28,230 +28,230 @@ ACC_STRICT = 0x0800
 
 
 
-notSupported = "notSupported"
-noArguments = "noArguments"
-byteImmediate = "byteImmediate"
-shortImmediate = "shortImmediate"
-varientConstant = "varientConstant"
-varientConstant_w = "varientConstant_w"
-localVariableIndex = "localVariableIndex"
-branchOffset = "branchOffset"
-branchOffset_w = "branchOffset_w"
-tableswitch = "tableswitch"
-lookupswitch = "lookupswitch"
-fieldrefIndex = "fieldrefIndex"
-methodrefIndex = "methodrefIndex"
-interfaceMethodref = "interfaceMethodrefIndex"
-classIndex = "classIndex"
-atypeCode = "atypeCode"
-wideArguments = "wideArguments"
-multianewarray = "multianewarray"
+ARG_NOT_SUPPORTED = "ARG_NOT_SUPPORTED"
+ARG_NONE = "ARG_NONE"
+ARG_BYTE_IMMEDIATE = "ARG_BYTE_IMMEDIATE"
+ARG_SHORT_IMMEDIATE = "ARG_SHORT_IMMEDIATE"
+ARG_VARIENT_CONSTANT = "ARG_VARIENT_CONSTANT"
+ARG_VARIENT_CONSTANT_W = "ARG_VARIENT_CONSTANT_W"
+ARG_LOCAL_VARIABLE_INDEX = "ARG_LOCAL_VARIABLE_INDEX"
+ARG_BRANCH_OFFSET = "ARG_BRANCH_OFFSET"
+ARG_BRANCH_OFFSET_W = "ARG_BRANCH_OFFSET_W"
+ARG_TABLESWITCH = "ARG_TABLESWITCH"
+ARG_LOOKUPSWITCH = "ARG_LOOKUPSWITCH"
+ARG_FIELDREF_INDEX = "ARG_FIELDREF_INDEX"
+ARG_METHODREF_INDEX = "ARG_METHODREF_INDEX"
+ARG_INTERFACE_METHODREF = "ARG_INTERFACE_METHODREF"
+ARG_CLASS_INDEX = "ARG_CLASS_INDEX"
+ARG_ATYPE_CODE = "ARG_ATYPE_CODE"
+ARG_WIDE_ARGUMENTS = "ARG_WIDE_ARGUMENTS"
+ARG_MULTIANEWARRAY = "ARG_MULTIANEWARRAY"
 
 # index is opcode
 instructions = [
-    ("nop", noArguments),
-    ("aconst_null", noArguments),
-    ("iconst_m1", noArguments),
-    ("iconst_0", noArguments),
-    ("iconst_1", noArguments),
-    ("iconst_2", noArguments),
-    ("iconst_3", noArguments),
-    ("iconst_4", noArguments),
-    ("iconst_5", noArguments),
-    ("lconst_0", noArguments),
-    ("lconst_1", noArguments),
-    ("fconst_0", noArguments),
-    ("fconst_1", noArguments),
-    ("fconst_2", noArguments),
-    ("dconst_0", noArguments),
-    ("dconst_1", noArguments),
-    ("bipush", byteImmediate),
-    ("sipush", shortImmediate),
-    ("ldc", varientConstant),
-    ("ldc_w", varientConstant_w),
-    ("ldc2_w", varientConstant_w),
-    ("iload", localVariableIndex),
-    ("lload", localVariableIndex),
-    ("fload", localVariableIndex),
-    ("dload", localVariableIndex),
-    ("aload", localVariableIndex),
-    ("iload_0", noArguments),
-    ("iload_1", noArguments),
-    ("iload_2", noArguments),
-    ("iload_3", noArguments),
-    ("lload_0", noArguments),
-    ("lload_1", noArguments),
-    ("lload_2", noArguments),
-    ("lload_3", noArguments),
-    ("fload_0", noArguments),
-    ("fload_1", noArguments),
-    ("fload_2", noArguments),
-    ("fload_3", noArguments),
-    ("dload_0", noArguments),
-    ("dload_1", noArguments),
-    ("dload_2", noArguments),
-    ("dload_3", noArguments),
-    ("aload_0", noArguments),
-    ("aload_1", noArguments),
-    ("aload_2", noArguments),
-    ("aload_3", noArguments),
-    ("iaload", noArguments),
-    ("laload", noArguments),
-    ("faload", noArguments),
-    ("daload", noArguments),
-    ("aaload", noArguments),
-    ("baload", noArguments),
-    ("caload", noArguments),
-    ("saload", noArguments),
-    ("istore", localVariableIndex),
-    ("lstore", localVariableIndex),
-    ("fstore", localVariableIndex),
-    ("dstore", localVariableIndex),
-    ("astore", localVariableIndex),
-    ("istore_0", noArguments),
-    ("istore_1", noArguments),
-    ("istore_2", noArguments),
-    ("istore_3", noArguments),
-    ("lstore_0", noArguments),
-    ("lstore_1", noArguments),
-    ("lstore_2", noArguments),
-    ("lstore_3", noArguments),
-    ("fstore_0", noArguments),
-    ("fstore_1", noArguments),
-    ("fstore_2", noArguments),
-    ("fstore_3", noArguments),
-    ("dstore_0", noArguments),
-    ("dstore_1", noArguments),
-    ("dstore_2", noArguments),
-    ("dstore_3", noArguments),
-    ("astore_0", noArguments),
-    ("astore_1", noArguments),
-    ("astore_2", noArguments),
-    ("astore_3", noArguments),
-    ("iastore", noArguments),
-    ("lastore", noArguments),
-    ("fastore", noArguments),
-    ("dastore", noArguments),
-    ("aastore", noArguments),
-    ("bastore", noArguments),
-    ("castore", noArguments),
-    ("sastore", noArguments),
-    ("pop", noArguments),
-    ("pop2", noArguments),
-    ("dup", noArguments),
-    ("dup_x1", noArguments),
-    ("dup_x2", noArguments),
-    ("dup2", noArguments),
-    ("dup2_x1", noArguments),
-    ("dup2_x2", noArguments),
-    ("swap", noArguments),
-    ("iadd", noArguments),
-    ("ladd", noArguments),
-    ("fadd", noArguments),
-    ("dadd", noArguments),
-    ("isub", noArguments),
-    ("lsub", noArguments),
-    ("fsub", noArguments),
-    ("dsub", noArguments),
-    ("imul", noArguments),
-    ("lmul", noArguments),
-    ("fmul", noArguments),
-    ("dmul", noArguments),
-    ("idiv", noArguments),
-    ("ldiv", noArguments),
-    ("fdiv", noArguments),
-    ("ddiv", noArguments),
-    ("irem", noArguments),
-    ("lrem", noArguments),
-    ("frem", noArguments),
-    ("drem", noArguments),
-    ("ineg", noArguments),
-    ("lneg", noArguments),
-    ("fneg", noArguments),
-    ("dneg", noArguments),
-    ("ishl", noArguments),
-    ("lshl", noArguments),
-    ("ishr", noArguments),
-    ("lshr", noArguments),
-    ("iushr", noArguments),
-    ("lushr", noArguments),
-    ("iand", noArguments),
-    ("land", noArguments),
-    ("ior", noArguments),
-    ("lor", noArguments),
-    ("ixor", noArguments),
-    ("lxor", noArguments),
-    ("iinc", noArguments),
-    ("i2l", noArguments),
-    ("i2f", noArguments),
-    ("i2d", noArguments),
-    ("l2i", noArguments),
-    ("l2f", noArguments),
-    ("l2d", noArguments),
-    ("f2i", noArguments),
-    ("f2l", noArguments),
-    ("f2d", noArguments),
-    ("d2i", noArguments),
-    ("d2l", noArguments),
-    ("d2f", noArguments),
-    ("i2b", noArguments),
-    ("i2c", noArguments),
-    ("i2s", noArguments),
-    ("lcmp", noArguments),
-    ("fcmpl", noArguments),
-    ("fcmpg", noArguments),
-    ("dcmpl", noArguments),
-    ("dcmpg", noArguments),
-    ("ifeq", branchOffset),
-    ("ifne", branchOffset),
-    ("iflt", branchOffset),
-    ("ifge", branchOffset),
-    ("ifgt", branchOffset),
-    ("ifle", branchOffset),
-    ("if_icmpeq", branchOffset),
-    ("if_icmpne", branchOffset),
-    ("if_icmplt", branchOffset),
-    ("if_icmpge", branchOffset),
-    ("if_icmpgt", branchOffset),
-    ("if_icmple", branchOffset),
-    ("if_acmpeq", branchOffset),
-    ("if_acmpne", branchOffset),
-    ("goto", branchOffset),
-    ("jsr", branchOffset),
-    ("ret", localVariableIndex),
-    ("tableswitch", tableswitch),
-    ("lookupswitch", lookupswitch),
-    ("ireturn", noArguments),
-    ("lreturn", noArguments),
-    ("freturn", noArguments),
-    ("dreturn", noArguments),
-    ("areturn", noArguments),
-    ("return", noArguments),
-    ("getstatic", fieldrefIndex),
-    ("putstatic", fieldrefIndex),
-    ("getfield", fieldrefIndex),
-    ("putfield", fieldrefIndex),
-    ("invokevirtual", methodrefIndex),
-    ("invokespecial", methodrefIndex),
-    ("invokestatic", methodrefIndex),
-    ("invokeinterface", interfaceMethodref),
-    ("invokedynamic", notSupported),
-    ("new", classIndex),
-    ("newarray", atypeCode),
-    ("anewarray", classIndex),
-    ("arraylength", noArguments),
-    ("athrow", noArguments),
-    ("checkcast", classIndex),
-    ("instanceof", classIndex),
-    ("monitorenter", noArguments),
-    ("monitorexit", noArguments),
-    ("wide", wideArguments),
-    ("multianewarray", multianewarray),
-    ("ifnull", branchOffset),
-    ("ifnonnull", branchOffset),
-    ("goto_w", branchOffset_w),
-    ("jsr_w", branchOffset_w),
-    ("breakpoint", noArguments),
+    ("nop", ARG_NONE),
+    ("aconst_null", ARG_NONE),
+    ("iconst_m1", ARG_NONE),
+    ("iconst_0", ARG_NONE),
+    ("iconst_1", ARG_NONE),
+    ("iconst_2", ARG_NONE),
+    ("iconst_3", ARG_NONE),
+    ("iconst_4", ARG_NONE),
+    ("iconst_5", ARG_NONE),
+    ("lconst_0", ARG_NONE),
+    ("lconst_1", ARG_NONE),
+    ("fconst_0", ARG_NONE),
+    ("fconst_1", ARG_NONE),
+    ("fconst_2", ARG_NONE),
+    ("dconst_0", ARG_NONE),
+    ("dconst_1", ARG_NONE),
+    ("bipush", ARG_BYTE_IMMEDIATE),
+    ("sipush", ARG_SHORT_IMMEDIATE),
+    ("ldc", ARG_VARIENT_CONSTANT),
+    ("ldc_w", ARG_VARIENT_CONSTANT_W),
+    ("ldc2_w", ARG_VARIENT_CONSTANT_W),
+    ("iload", ARG_LOCAL_VARIABLE_INDEX),
+    ("lload", ARG_LOCAL_VARIABLE_INDEX),
+    ("fload", ARG_LOCAL_VARIABLE_INDEX),
+    ("dload", ARG_LOCAL_VARIABLE_INDEX),
+    ("aload", ARG_LOCAL_VARIABLE_INDEX),
+    ("iload_0", ARG_NONE),
+    ("iload_1", ARG_NONE),
+    ("iload_2", ARG_NONE),
+    ("iload_3", ARG_NONE),
+    ("lload_0", ARG_NONE),
+    ("lload_1", ARG_NONE),
+    ("lload_2", ARG_NONE),
+    ("lload_3", ARG_NONE),
+    ("fload_0", ARG_NONE),
+    ("fload_1", ARG_NONE),
+    ("fload_2", ARG_NONE),
+    ("fload_3", ARG_NONE),
+    ("dload_0", ARG_NONE),
+    ("dload_1", ARG_NONE),
+    ("dload_2", ARG_NONE),
+    ("dload_3", ARG_NONE),
+    ("aload_0", ARG_NONE),
+    ("aload_1", ARG_NONE),
+    ("aload_2", ARG_NONE),
+    ("aload_3", ARG_NONE),
+    ("iaload", ARG_NONE),
+    ("laload", ARG_NONE),
+    ("faload", ARG_NONE),
+    ("daload", ARG_NONE),
+    ("aaload", ARG_NONE),
+    ("baload", ARG_NONE),
+    ("caload", ARG_NONE),
+    ("saload", ARG_NONE),
+    ("istore", ARG_LOCAL_VARIABLE_INDEX),
+    ("lstore", ARG_LOCAL_VARIABLE_INDEX),
+    ("fstore", ARG_LOCAL_VARIABLE_INDEX),
+    ("dstore", ARG_LOCAL_VARIABLE_INDEX),
+    ("astore", ARG_LOCAL_VARIABLE_INDEX),
+    ("istore_0", ARG_NONE),
+    ("istore_1", ARG_NONE),
+    ("istore_2", ARG_NONE),
+    ("istore_3", ARG_NONE),
+    ("lstore_0", ARG_NONE),
+    ("lstore_1", ARG_NONE),
+    ("lstore_2", ARG_NONE),
+    ("lstore_3", ARG_NONE),
+    ("fstore_0", ARG_NONE),
+    ("fstore_1", ARG_NONE),
+    ("fstore_2", ARG_NONE),
+    ("fstore_3", ARG_NONE),
+    ("dstore_0", ARG_NONE),
+    ("dstore_1", ARG_NONE),
+    ("dstore_2", ARG_NONE),
+    ("dstore_3", ARG_NONE),
+    ("astore_0", ARG_NONE),
+    ("astore_1", ARG_NONE),
+    ("astore_2", ARG_NONE),
+    ("astore_3", ARG_NONE),
+    ("iastore", ARG_NONE),
+    ("lastore", ARG_NONE),
+    ("fastore", ARG_NONE),
+    ("dastore", ARG_NONE),
+    ("aastore", ARG_NONE),
+    ("bastore", ARG_NONE),
+    ("castore", ARG_NONE),
+    ("sastore", ARG_NONE),
+    ("pop", ARG_NONE),
+    ("pop2", ARG_NONE),
+    ("dup", ARG_NONE),
+    ("dup_x1", ARG_NONE),
+    ("dup_x2", ARG_NONE),
+    ("dup2", ARG_NONE),
+    ("dup2_x1", ARG_NONE),
+    ("dup2_x2", ARG_NONE),
+    ("swap", ARG_NONE),
+    ("iadd", ARG_NONE),
+    ("ladd", ARG_NONE),
+    ("fadd", ARG_NONE),
+    ("dadd", ARG_NONE),
+    ("isub", ARG_NONE),
+    ("lsub", ARG_NONE),
+    ("fsub", ARG_NONE),
+    ("dsub", ARG_NONE),
+    ("imul", ARG_NONE),
+    ("lmul", ARG_NONE),
+    ("fmul", ARG_NONE),
+    ("dmul", ARG_NONE),
+    ("idiv", ARG_NONE),
+    ("ldiv", ARG_NONE),
+    ("fdiv", ARG_NONE),
+    ("ddiv", ARG_NONE),
+    ("irem", ARG_NONE),
+    ("lrem", ARG_NONE),
+    ("frem", ARG_NONE),
+    ("drem", ARG_NONE),
+    ("ineg", ARG_NONE),
+    ("lneg", ARG_NONE),
+    ("fneg", ARG_NONE),
+    ("dneg", ARG_NONE),
+    ("ishl", ARG_NONE),
+    ("lshl", ARG_NONE),
+    ("ishr", ARG_NONE),
+    ("lshr", ARG_NONE),
+    ("iushr", ARG_NONE),
+    ("lushr", ARG_NONE),
+    ("iand", ARG_NONE),
+    ("land", ARG_NONE),
+    ("ior", ARG_NONE),
+    ("lor", ARG_NONE),
+    ("ixor", ARG_NONE),
+    ("lxor", ARG_NONE),
+    ("iinc", ARG_NONE),
+    ("i2l", ARG_NONE),
+    ("i2f", ARG_NONE),
+    ("i2d", ARG_NONE),
+    ("l2i", ARG_NONE),
+    ("l2f", ARG_NONE),
+    ("l2d", ARG_NONE),
+    ("f2i", ARG_NONE),
+    ("f2l", ARG_NONE),
+    ("f2d", ARG_NONE),
+    ("d2i", ARG_NONE),
+    ("d2l", ARG_NONE),
+    ("d2f", ARG_NONE),
+    ("i2b", ARG_NONE),
+    ("i2c", ARG_NONE),
+    ("i2s", ARG_NONE),
+    ("lcmp", ARG_NONE),
+    ("fcmpl", ARG_NONE),
+    ("fcmpg", ARG_NONE),
+    ("dcmpl", ARG_NONE),
+    ("dcmpg", ARG_NONE),
+    ("ifeq", ARG_BRANCH_OFFSET),
+    ("ifne", ARG_BRANCH_OFFSET),
+    ("iflt", ARG_BRANCH_OFFSET),
+    ("ifge", ARG_BRANCH_OFFSET),
+    ("ifgt", ARG_BRANCH_OFFSET),
+    ("ifle", ARG_BRANCH_OFFSET),
+    ("if_icmpeq", ARG_BRANCH_OFFSET),
+    ("if_icmpne", ARG_BRANCH_OFFSET),
+    ("if_icmplt", ARG_BRANCH_OFFSET),
+    ("if_icmpge", ARG_BRANCH_OFFSET),
+    ("if_icmpgt", ARG_BRANCH_OFFSET),
+    ("if_icmple", ARG_BRANCH_OFFSET),
+    ("if_acmpeq", ARG_BRANCH_OFFSET),
+    ("if_acmpne", ARG_BRANCH_OFFSET),
+    ("goto", ARG_BRANCH_OFFSET),
+    ("jsr", ARG_BRANCH_OFFSET),
+    ("ret", ARG_LOCAL_VARIABLE_INDEX),
+    ("tableswitch", ARG_TABLESWITCH),
+    ("lookupswitch", ARG_LOOKUPSWITCH),
+    ("ireturn", ARG_NONE),
+    ("lreturn", ARG_NONE),
+    ("freturn", ARG_NONE),
+    ("dreturn", ARG_NONE),
+    ("areturn", ARG_NONE),
+    ("return", ARG_NONE),
+    ("getstatic", ARG_FIELDREF_INDEX),
+    ("putstatic", ARG_FIELDREF_INDEX),
+    ("getfield", ARG_FIELDREF_INDEX),
+    ("putfield", ARG_FIELDREF_INDEX),
+    ("invokevirtual", ARG_METHODREF_INDEX),
+    ("invokespecial", ARG_METHODREF_INDEX),
+    ("invokestatic", ARG_METHODREF_INDEX),
+    ("invokeinterface", ARG_INTERFACE_METHODREF),
+    ("invokedynamic", ARG_NOT_SUPPORTED),
+    ("new", ARG_CLASS_INDEX),
+    ("newarray", ARG_ATYPE_CODE),
+    ("anewarray", ARG_CLASS_INDEX),
+    ("arraylength", ARG_NONE),
+    ("athrow", ARG_NONE),
+    ("checkcast", ARG_CLASS_INDEX),
+    ("instanceof", ARG_CLASS_INDEX),
+    ("monitorenter", ARG_NONE),
+    ("monitorexit", ARG_NONE),
+    ("wide", ARG_WIDE_ARGUMENTS),
+    ("multianewarray", ARG_MULTIANEWARRAY),
+    ("ifnull", ARG_BRANCH_OFFSET),
+    ("ifnonnull", ARG_BRANCH_OFFSET),
+    ("goto_w", ARG_BRANCH_OFFSET_W),
+    ("jsr_w", ARG_BRANCH_OFFSET_W),
+    ("breakpoint", ARG_NONE),
 ]
 
 
@@ -276,6 +276,8 @@ def main(input, output):
         return (hexStr, value)
     def readByte():
         return read(">b")
+    def readUByte():
+        return read(">B")
     def readShort():
         return read(">h")
     def readInt():
@@ -501,15 +503,74 @@ def main(input, output):
             (h, codeLength) = readInt()
             output.write("%s; code_length=%i\n" % (indentation, codeLength))
             output.write(indentation + h + "\n")
-            (h, _) = readString(codeLength)
-            output.write("%s\t%s\n" % (indentation, h))
-            #offset = 0
-            #while offset < attributeLength:
-            #    (h1, instruction) = readByte()
-            #    (instructionName, argumentType) = instructions[instruction]
-            #    if argumentType == noArguments:
-            #        
-            #        offset += 1
+#            (h, _) = readString(codeLength)
+#            output.write("%s\t%s\n" % (indentation, h))
+            offset = 0
+            while offset < codeLength:
+                (opcodeHex, opcode) = readUByte()
+                (instructionName, argumentType) = instructions[opcode]
+                instructionHex = None
+                argsStr = None
+                if argumentType == ARG_NOT_SUPPORTED:
+                    return "Instruction %s is not supported" % instructionName
+                elif argumentType == ARG_NONE:
+                    instructionHex = opcodeHex
+                    argsStr = ""
+                elif argumentType == ARG_BYTE_IMMEDIATE:
+                    (h, value) = readByte()
+                    instructionHex = opcodeHex + h
+                    argsStr = " = " + str(value)
+		elif argumentType == ARG_SHORT_IMMEDIATE:
+                    (h, value) = readShort()
+                    instructionHex = opcodeHex + h
+                    argsStr = " = " + str(value)
+		elif argumentType == ARG_VARIENT_CONSTANT:
+		    return "argument type " + argumentType + " is not implemented yet"
+		elif argumentType == ARG_VARIENT_CONSTANT_W:
+		    return "argument type " + argumentType + " is not implemented yet"
+		elif argumentType == ARG_LOCAL_VARIABLE_INDEX:
+		    return "argument type " + argumentType + " is not implemented yet"
+		elif argumentType == ARG_BRANCH_OFFSET:
+		    return "argument type " + argumentType + " is not implemented yet"
+		elif argumentType == ARG_BRANCH_OFFSET_W:
+		    return "argument type " + argumentType + " is not implemented yet"
+		elif argumentType == ARG_TABLESWITCH:
+		    return "argument type " + argumentType + " is not implemented yet"
+		elif argumentType == ARG_LOOKUPSWITCH:
+		    return "argument type " + argumentType + " is not implemented yet"
+		elif argumentType == ARG_FIELDREF_INDEX:
+		    (h, fieldrefIndex) = readShort()
+		    className = constantPool[constantPool[constantPool[fieldrefIndex][1]][1]][1]
+		    nameAndTypeIndex = constantPool[fieldrefIndex][2]
+		    signature = constantPool[constantPool[nameAndTypeIndex][1]][1] + ":" + constantPool[constantPool[nameAndTypeIndex][2]][1]
+                    instructionHex = opcodeHex + h
+                    argsStr = " %s.%s" % (className, signature)
+		elif argumentType == ARG_METHODREF_INDEX:
+		    (h, methodrefIndex) = readShort()
+		    className = constantPool[constantPool[constantPool[methodrefIndex][1]][1]][1]
+		    nameAndTypeIndex = constantPool[methodrefIndex][2]
+		    signature = constantPool[constantPool[nameAndTypeIndex][1]][1] + ":" + constantPool[constantPool[nameAndTypeIndex][2]][1]
+                    instructionHex = opcodeHex + h
+                    argsStr = " %s.%s" % (className, signature)
+		elif argumentType == ARG_INTERFACE_METHODREF:
+		    return "argument type " + argumentType + " is not implemented yet"
+		elif argumentType == ARG_CLASS_INDEX:
+		    (h, classIndex) = readShort()
+		    className = constantPool[constantPool[classIndex][1]][1]
+                    instructionHex = opcodeHex + h
+                    argsStr = " " + className
+		elif argumentType == ARG_ATYPE_CODE:
+		    return "argument type " + argumentType + " is not implemented yet"
+		elif argumentType == ARG_WIDE_ARGUMENTS:
+		    return "argument type " + argumentType + " is not implemented yet"
+		elif argumentType == ARG_MULTIANEWARRAY:
+		    return "argument type " + argumentType + " is not implemented yet"
+                else:
+                    pdb.set_trace()
+                    return "omgwtf!!"
+                output.write("%s\t%s; %i:  %s%s\n" % (indentation, instructionHex.ljust(9), offset, instructionName, argsStr))
+                offset += len(instructionHex) / 3
+                
             (h, exceptionTableLength) = readShort()
             output.write("%s; exception table; size=%i\n" % (indentation, exceptionTableLength))
             output.write(indentation + h + "\n")
