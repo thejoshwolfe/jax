@@ -26,6 +26,235 @@ ACC_INTERFACE = 0x0200
 ACC_ABSTRACT = 0x0400
 ACC_STRICT = 0x0800
 
+
+
+notSupported = "notSupported"
+noArguments = "noArguments"
+byteImmediate = "byteImmediate"
+shortImmediate = "shortImmediate"
+varientConstant = "varientConstant"
+varientConstant_w = "varientConstant_w"
+localVariableIndex = "localVariableIndex"
+branchOffset = "branchOffset"
+branchOffset_w = "branchOffset_w"
+tableswitch = "tableswitch"
+lookupswitch = "lookupswitch"
+fieldrefIndex = "fieldrefIndex"
+methodrefIndex = "methodrefIndex"
+interfaceMethodref = "interfaceMethodrefIndex"
+classIndex = "classIndex"
+atypeCode = "atypeCode"
+wideArguments = "wideArguments"
+multianewarray = "multianewarray"
+
+# index is opcode
+instructions = [
+    ("nop", noArguments),
+    ("aconst_null", noArguments),
+    ("iconst_m1", noArguments),
+    ("iconst_0", noArguments),
+    ("iconst_1", noArguments),
+    ("iconst_2", noArguments),
+    ("iconst_3", noArguments),
+    ("iconst_4", noArguments),
+    ("iconst_5", noArguments),
+    ("lconst_0", noArguments),
+    ("lconst_1", noArguments),
+    ("fconst_0", noArguments),
+    ("fconst_1", noArguments),
+    ("fconst_2", noArguments),
+    ("dconst_0", noArguments),
+    ("dconst_1", noArguments),
+    ("bipush", byteImmediate),
+    ("sipush", shortImmediate),
+    ("ldc", varientConstant),
+    ("ldc_w", varientConstant_w),
+    ("ldc2_w", varientConstant_w),
+    ("iload", localVariableIndex),
+    ("lload", localVariableIndex),
+    ("fload", localVariableIndex),
+    ("dload", localVariableIndex),
+    ("aload", localVariableIndex),
+    ("iload_0", noArguments),
+    ("iload_1", noArguments),
+    ("iload_2", noArguments),
+    ("iload_3", noArguments),
+    ("lload_0", noArguments),
+    ("lload_1", noArguments),
+    ("lload_2", noArguments),
+    ("lload_3", noArguments),
+    ("fload_0", noArguments),
+    ("fload_1", noArguments),
+    ("fload_2", noArguments),
+    ("fload_3", noArguments),
+    ("dload_0", noArguments),
+    ("dload_1", noArguments),
+    ("dload_2", noArguments),
+    ("dload_3", noArguments),
+    ("aload_0", noArguments),
+    ("aload_1", noArguments),
+    ("aload_2", noArguments),
+    ("aload_3", noArguments),
+    ("iaload", noArguments),
+    ("laload", noArguments),
+    ("faload", noArguments),
+    ("daload", noArguments),
+    ("aaload", noArguments),
+    ("baload", noArguments),
+    ("caload", noArguments),
+    ("saload", noArguments),
+    ("istore", localVariableIndex),
+    ("lstore", localVariableIndex),
+    ("fstore", localVariableIndex),
+    ("dstore", localVariableIndex),
+    ("astore", localVariableIndex),
+    ("istore_0", noArguments),
+    ("istore_1", noArguments),
+    ("istore_2", noArguments),
+    ("istore_3", noArguments),
+    ("lstore_0", noArguments),
+    ("lstore_1", noArguments),
+    ("lstore_2", noArguments),
+    ("lstore_3", noArguments),
+    ("fstore_0", noArguments),
+    ("fstore_1", noArguments),
+    ("fstore_2", noArguments),
+    ("fstore_3", noArguments),
+    ("dstore_0", noArguments),
+    ("dstore_1", noArguments),
+    ("dstore_2", noArguments),
+    ("dstore_3", noArguments),
+    ("astore_0", noArguments),
+    ("astore_1", noArguments),
+    ("astore_2", noArguments),
+    ("astore_3", noArguments),
+    ("iastore", noArguments),
+    ("lastore", noArguments),
+    ("fastore", noArguments),
+    ("dastore", noArguments),
+    ("aastore", noArguments),
+    ("bastore", noArguments),
+    ("castore", noArguments),
+    ("sastore", noArguments),
+    ("pop", noArguments),
+    ("pop2", noArguments),
+    ("dup", noArguments),
+    ("dup_x1", noArguments),
+    ("dup_x2", noArguments),
+    ("dup2", noArguments),
+    ("dup2_x1", noArguments),
+    ("dup2_x2", noArguments),
+    ("swap", noArguments),
+    ("iadd", noArguments),
+    ("ladd", noArguments),
+    ("fadd", noArguments),
+    ("dadd", noArguments),
+    ("isub", noArguments),
+    ("lsub", noArguments),
+    ("fsub", noArguments),
+    ("dsub", noArguments),
+    ("imul", noArguments),
+    ("lmul", noArguments),
+    ("fmul", noArguments),
+    ("dmul", noArguments),
+    ("idiv", noArguments),
+    ("ldiv", noArguments),
+    ("fdiv", noArguments),
+    ("ddiv", noArguments),
+    ("irem", noArguments),
+    ("lrem", noArguments),
+    ("frem", noArguments),
+    ("drem", noArguments),
+    ("ineg", noArguments),
+    ("lneg", noArguments),
+    ("fneg", noArguments),
+    ("dneg", noArguments),
+    ("ishl", noArguments),
+    ("lshl", noArguments),
+    ("ishr", noArguments),
+    ("lshr", noArguments),
+    ("iushr", noArguments),
+    ("lushr", noArguments),
+    ("iand", noArguments),
+    ("land", noArguments),
+    ("ior", noArguments),
+    ("lor", noArguments),
+    ("ixor", noArguments),
+    ("lxor", noArguments),
+    ("iinc", noArguments),
+    ("i2l", noArguments),
+    ("i2f", noArguments),
+    ("i2d", noArguments),
+    ("l2i", noArguments),
+    ("l2f", noArguments),
+    ("l2d", noArguments),
+    ("f2i", noArguments),
+    ("f2l", noArguments),
+    ("f2d", noArguments),
+    ("d2i", noArguments),
+    ("d2l", noArguments),
+    ("d2f", noArguments),
+    ("i2b", noArguments),
+    ("i2c", noArguments),
+    ("i2s", noArguments),
+    ("lcmp", noArguments),
+    ("fcmpl", noArguments),
+    ("fcmpg", noArguments),
+    ("dcmpl", noArguments),
+    ("dcmpg", noArguments),
+    ("ifeq", branchOffset),
+    ("ifne", branchOffset),
+    ("iflt", branchOffset),
+    ("ifge", branchOffset),
+    ("ifgt", branchOffset),
+    ("ifle", branchOffset),
+    ("if_icmpeq", branchOffset),
+    ("if_icmpne", branchOffset),
+    ("if_icmplt", branchOffset),
+    ("if_icmpge", branchOffset),
+    ("if_icmpgt", branchOffset),
+    ("if_icmple", branchOffset),
+    ("if_acmpeq", branchOffset),
+    ("if_acmpne", branchOffset),
+    ("goto", branchOffset),
+    ("jsr", branchOffset),
+    ("ret", localVariableIndex),
+    ("tableswitch", tableswitch),
+    ("lookupswitch", lookupswitch),
+    ("ireturn", noArguments),
+    ("lreturn", noArguments),
+    ("freturn", noArguments),
+    ("dreturn", noArguments),
+    ("areturn", noArguments),
+    ("return", noArguments),
+    ("getstatic", fieldrefIndex),
+    ("putstatic", fieldrefIndex),
+    ("getfield", fieldrefIndex),
+    ("putfield", fieldrefIndex),
+    ("invokevirtual", methodrefIndex),
+    ("invokespecial", methodrefIndex),
+    ("invokestatic", methodrefIndex),
+    ("invokeinterface", interfaceMethodref),
+    ("invokedynamic", notSupported),
+    ("new", classIndex),
+    ("newarray", atypeCode),
+    ("anewarray", classIndex),
+    ("arraylength", noArguments),
+    ("athrow", noArguments),
+    ("checkcast", classIndex),
+    ("instanceof", classIndex),
+    ("monitorenter", noArguments),
+    ("monitorexit", noArguments),
+    ("wide", wideArguments),
+    ("multianewarray", multianewarray),
+    ("ifnull", branchOffset),
+    ("ifnonnull", branchOffset),
+    ("goto_w", branchOffset_w),
+    ("jsr_w", branchOffset_w),
+    ("breakpoint", noArguments),
+]
+
+
 def main(input, output):
     """
     input : str - such as open("Example.class", "r").read()
@@ -179,7 +408,7 @@ def main(input, output):
             stringIndex = constantPool[i][1]
             assert(constantPool[stringIndex][0] == CONSTANT_Utf8)
             value = constantPool[stringIndex][1]
-            output.write("String = %s\n" % value)
+            output.write("String = \"%s\"\n" % value)
             i += 1
         elif type in (CONSTANT_Fieldref, CONSTANT_Methodref, CONSTANT_InterfaceMethodref):
             (classIndex, nameAndTypeIndex) = constantPool[i][1:]
@@ -237,25 +466,34 @@ def main(input, output):
         output.write(", ".join(interfaceNames))
     output.write(("\n" + "%s\n" * 4 + "%s\n") % (h1, h2, h3, h4, interfacesHexStr))
 
+    # function for calling readAttribute()
+    def readAttributes(attributeCount, indentation):
+        for i in range(attributeCount):
+            errorMessage = readAttribute(indentation)
+            if errorMessage != None:
+                return errorMessage
+            if i < attributeCount:
+                output.write(indentation + "\n")
+    
     # function for reading attributes on fields, methods, and at the end of the class
     def readAttribute(indentation):
         (h1, nameIndex) = readShort()
         name = constantPool[nameIndex][1]
-        (h2, length) = readInt()
-        output.write("%s; attribute \"%s\"; size=%i\n" % (indentation, name, length))
+        (h2, attributeLength) = readInt()
+        output.write("%s; attribute \"%s\"; size=%i\n" % (indentation, name, attributeLength))
         output.write(((indentation + "%s\n") * 2) % (h1, h2))
         if name == "ConstantValue":
-            assert(length == 2)
+            assert(attributeLength == 2)
             (h, valueIndex) = readShort()
             output.write("%s; value = %s\n" % (indentation, str(constantPool[valueIndex][1])))
             output.write(indentation + h + "\n")
         elif name == "SourceFile":
-            assert(length == 2)
+            assert(attributeLength == 2)
             (h, valueIndex) = readShort()
             output.write("%s; value = \"%s\"\n" % (indentation, constantPool[valueIndex][1]))
             output.write(indentation + h + "\n")
         elif name == "Code":
-            assert(length >= 13)
+            assert(attributeLength >= 13)
             (h1, maxStack) = readShort()
             (h2, maxLocals) = readShort()
             output.write("%s; max_stack=%i, max_locals=%i\n" % (indentation, maxStack, maxLocals))
@@ -265,6 +503,13 @@ def main(input, output):
             output.write(indentation + h + "\n")
             (h, _) = readString(codeLength)
             output.write("%s\t%s\n" % (indentation, h))
+            #offset = 0
+            #while offset < attributeLength:
+            #    (h1, instruction) = readByte()
+            #    (instructionName, argumentType) = instructions[instruction]
+            #    if argumentType == noArguments:
+            #        
+            #        offset += 1
             (h, exceptionTableLength) = readShort()
             output.write("%s; exception table; size=%i\n" % (indentation, exceptionTableLength))
             output.write(indentation + h + "\n")
@@ -279,14 +524,13 @@ def main(input, output):
             (h, attributeCount) = readShort()
             output.write("%s; attributes; size=%i\n" % (indentation, attributeCount))
             output.write(indentation + h + "\n")
-            for i in range(attributeCount):
-                errorMessage = readAttribute(indentation + "\t")
-                if errorMessage != None:
-                    return errorMessage
+            errorMessage = readAttributes(attributeCount, indentation + "\t")
+            if errorMessage != None:
+                return errorMessage
             
         else:
             # unknown attribute name
-            (h, _) = readString(length)
+            (h, _) = readString(attributeLength)
             output.write(indentation + "; unknown attribute name\n")
             output.write(indentation + h + "\n")
     
@@ -318,10 +562,9 @@ def main(input, output):
         (h, attributeCount) = readShort()
         output.write("\t; attributes; size=%i\n" % attributeCount)
         output.write("\t" + h + "\n")
-        for i in range(attributeCount):
-            errorMessage = readAttribute("\t\t")
-            if errorMessage != None:
-                return errorMessage
+        errorMessage = readAttributes(attributeCount, "\t\t")
+        if errorMessage != None:
+            return errorMessage
         output.write("\t\n")
     
     # methods
@@ -356,20 +599,18 @@ def main(input, output):
         (h, attributeCount) = readShort()
         output.write("\t; attributes; size=%i\n" % attributeCount)
         output.write("\t" + h + "\n")
-        for i in range(attributeCount):
-            errorMessage = readAttribute("\t\t")
-            if errorMessage != None:
-                return errorMessage
+        errorMessage = readAttributes(attributeCount, "\t\t")
+        if errorMessage != None:
+            return errorMessage
         output.write("\t\n")
     
     # class attributes
     (h, attributeCount) = readShort()
     output.write("; attributes; size=%i\n" % attributeCount)
     output.write(h + "\n")
-    for i in range(attributeCount):
-        errorMessage = readAttribute("\t")
-        if errorMessage != None:
-	    return errorMessage
+    errorMessage = readAttributes(attributeCount, "\t")
+    if errorMessage != None:
+        return errorMessage
     output.write("\n")
     
     # EOF
