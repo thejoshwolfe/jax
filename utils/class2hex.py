@@ -525,15 +525,43 @@ def main(input, output):
                     instructionHex = opcodeHex + h
                     argsStr = " = " + str(value)
 		elif argumentType == ARG_VARIENT_CONSTANT:
-		    return "argument type " + argumentType + " is not implemented yet"
+                    (h, index) = readUByte()
+                    instructionHex = opcodeHex + h
+                    typeStr = {
+                        CONSTANT_Integer:"Integer",
+	                CONSTANT_Float:"Float",
+	                CONSTANT_String:"String",
+                    }[constantPool[index][0]]
+                    value = constantPool[index][1]
+                    if typeStr == "String":
+                        value = constantPool[value][1]
+                    argsStr = " %s = %s" % (typeStr, str(value))
 		elif argumentType == ARG_VARIENT_CONSTANT_W:
-		    return "argument type " + argumentType + " is not implemented yet"
+                    (h, index) = readShort()
+                    instructionHex = opcodeHex + h
+                    typeStr = {
+                        CONSTANT_Integer:"Integer",
+	                CONSTANT_Long:"Long",
+	                CONSTANT_Float:"Float",
+	                CONSTANT_Double:"Double",
+	                CONSTANT_String:"String",
+                    }[constantPool[index][0]]
+                    value = constantPool[index][1]
+                    if typeStr == "String":
+                        value = constantPool[value][1]
+                    argsStr = " %s = %s" % (typeStr, str(value))
 		elif argumentType == ARG_LOCAL_VARIABLE_INDEX:
-		    return "argument type " + argumentType + " is not implemented yet"
+                    (h, value) = readUByte()
+                    instructionHex = opcodeHex + h
+                    argsStr = " = " + str(value)
 		elif argumentType == ARG_BRANCH_OFFSET:
-		    return "argument type " + argumentType + " is not implemented yet"
+                    (h, value) = readShort()
+                    instructionHex = opcodeHex + h
+                    argsStr = " " + str(value + offset)
 		elif argumentType == ARG_BRANCH_OFFSET_W:
-		    return "argument type " + argumentType + " is not implemented yet"
+                    (h, value) = readInt()
+                    instructionHex = opcodeHex + h
+                    argsStr = " " + str(value + offset)
 		elif argumentType == ARG_TABLESWITCH:
 		    return "argument type " + argumentType + " is not implemented yet"
 		elif argumentType == ARG_LOOKUPSWITCH:
@@ -553,7 +581,13 @@ def main(input, output):
                     instructionHex = opcodeHex + h
                     argsStr = " %s.%s" % (className, signature)
 		elif argumentType == ARG_INTERFACE_METHODREF:
-		    return "argument type " + argumentType + " is not implemented yet"
+		    (h1, interfaceMethodrefIndex) = readShort()
+		    (h2, _) = readShort()
+		    className = constantPool[constantPool[constantPool[interfaceMethodrefIndex][1]][1]][1]
+		    nameAndTypeIndex = constantPool[interfaceMethodrefIndex][2]
+		    signature = constantPool[constantPool[nameAndTypeIndex][1]][1] + ":" + constantPool[constantPool[nameAndTypeIndex][2]][1]
+                    instructionHex = opcodeHex + h1 + h2
+                    argsStr = " %s.%s" % (className, signature)
 		elif argumentType == ARG_CLASS_INDEX:
 		    (h, classIndex) = readShort()
 		    className = constantPool[constantPool[classIndex][1]][1]
