@@ -1,21 +1,41 @@
-import sys
+from sys import argv, stdin, stdout, stderr, exit
 import re
 
-input = open(sys.argv[1], "r")
-inputContent = input.read()
-input.close()
+tokenPattern = re.compile(r"([0-9a-fA-F]{2})|(\s+)|(;.*$)", re.MULTILINE)
+newlinePattern = re.compile(r"\r\n|[\n\r]")
 
-tokenPattern = r"(\s+)|(;.*$)|([0-9a-fA-F]{2})"
-matches = re.findall(tokenPattern, inputContent, re.MULTILINE)
+def main(input, output):
+    """
+    input  : str - such as open("Example.class", "r").read()
+    output : file - such as stdout or anything with a method write(str)
+    return : str - error message or None
+    """
+    offset = 0
+    lineNumber = 1 # for error reporting
+    while offset < len(input):
+        match = tokenPattern.match(input, offset)
+        if match == None:
+            return "You're doing it wrong in line %i" % lineNumber
+        hexText = match.group(1)
+        if hexText != None:
+            output.write(chr(int(hexText, 16)))
+        whitespace = match.group(2)
+        if whitespace != None:
+            lineNumber += len(newlinePattern.findall(whitespace))
+        offset = match.end()
 
-outputContent = ""
-for match in matches:
-    digits = match[2]
-    if digits == "":
-        continue
-    outputContent += chr(int(digits, 16))
-
-output = open(sys.argv[2], "w")
-output.write(outputContent)
-output.close()
-
+if __name__ == "__main__":
+    if len(argv) == 1:
+        input = stdin.read()
+    elif len(argv) == 2:
+        input = open(argv[1], "r").read()
+    else:
+        stderr.write("too many arguments\n")
+        exit(1)
+    
+    errorMessage = main(input, stdout)
+    returnCode = 0
+    if errorMessage != None:
+        stderr.write(errorMessage + "\n")
+        returnCode = 1
+    exit(returnCode)
