@@ -736,7 +736,7 @@ if __name__ == "__main__":
         output = stdout
     elif len(argv) == 3:
         input = open(argv[1], "rb").read()
-        output = open(argv[1], "w")
+        output = open(argv[2], "w")
     else:
         stderr.write("too many arguments\n")
         stdout.write(usage)
