@@ -7,6 +7,8 @@ public final class Util
 {
     private Util()
     {
+        // don't instantiate this class
+        _assert(false);
     }
 
     public static String[] fileToLines(String fileName) throws FileNotFoundException
@@ -57,20 +59,28 @@ public final class Util
     public static String[] splitDirAndFile(String filepath)
     {
         String[] dirAndFile = new String[2];
-        if (filepath.contains("/"))
-        {
+        if (filepath.contains("/")) {
             int splitter = filepath.lastIndexOf('/');
             dirAndFile[0] = filepath.substring(0, splitter);
             dirAndFile[1] = filepath.substring(splitter + 1);
-        }
-        else
-        {
+        } else {
             dirAndFile[0] = ".";
             dirAndFile[1] = filepath;
         }
         return dirAndFile;
     }
 
+    /**
+     * Executes a command and waits for the process to exit.
+     * The process is queried every 100 milliseconds for completion.
+     * stdoutBuffer and stderrBuffer can be the same object.
+     * 
+     * @param cmd the command to be passed to {@link Runtime#exec(String[])}.
+     * @param stdoutBuffer buffer to which the process's stdout will be written. can be null.
+     * @param stderrBuffer buffer to which the process's stderr will be written. can be null.
+     * @return the exit value of the process
+     * @throws RuntimeException IOException and InterruptedException are wrapped in RuntimeException and thrown
+     */
     public static int exec(String[] cmd, StringBuffer stdoutBuffer, StringBuffer stderrBuffer)
     {
         if (stdoutBuffer == null)
@@ -82,30 +92,27 @@ public final class Util
             InputStreamReader stdout = new InputStreamReader(p.getInputStream());
             InputStreamReader stderr = new InputStreamReader(p.getErrorStream());
             while (true) {
-                Integer exitValue = null;
+                int exitValue = -1;
+                boolean done;
                 try {
                     exitValue = p.exitValue();
+                    done = true;
                 } catch (IllegalThreadStateException e) {
+                    done = false;
                 }
                 while (stdout.ready())
                     stdoutBuffer.append((char)stdout.read());
                 while (stderr.ready())
                     stderrBuffer.append((char)stderr.read());
-                if (exitValue != null)
+                if (done)
                     return exitValue;
+                Thread.sleep(100);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
-    }
-
-    public static String readAll(InputStream input)
-    {
-        Scanner scanner = new Scanner(input);
-        StringBuilder stringBuilder = new StringBuilder();
-        while (scanner.hasNextLine())
-            stringBuilder.append(scanner.nextLine()).append('\n');
-        return stringBuilder.toString();
     }
 
     public static void _assert(boolean pass)
