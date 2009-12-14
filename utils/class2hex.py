@@ -1,5 +1,18 @@
+#!/usr/bin/env python
+
 from sys import argv, stdin, stdout, stderr, exit
 from struct import unpack, calcsize
+import os.path
+
+usage = """\
+usage: %s [inFile [outFile]]
+        if input/output unspecified stdin/stdout are used
+examples:
+        %s MyClass.class MyClass.hex
+        %s MyClass.class
+"""
+usage %= ((os.path.split(__file__)[1],) * (len(usage.split("%s")) - 1))
+
 
 CONSTANT_Utf8 = 1
 CONSTANT_Integer = 3
@@ -257,7 +270,7 @@ instructions = [
 
 def main(input, output):
     """
-    input : str - such as open("Example.class", "r").read()
+    input  : str - such as open("Example.class", "r").read()
     output : file - such as stdout or anything with a method write(str)
     return : str - error message or None
     """
@@ -600,7 +613,6 @@ def main(input, output):
 		elif argumentType == ARG_MULTIANEWARRAY:
 		    return "argument type " + argumentType + " is not implemented yet"
                 else:
-                    pdb.set_trace()
                     return "omgwtf!!"
                 output.write("%s\t%s; %i:  %s%s\n" % (indentation, instructionHex.ljust(9), offset, instructionName, argsStr))
                 offset += len(instructionHex) / 3
@@ -713,15 +725,28 @@ def main(input, output):
         return "Expected EOF at offset " + str(index[0])
 
 if __name__ == "__main__":
+    if len(argv) >= 2 and argv[1] in ("-h", "-help", "--help"):
+        stdout.write(usage)
+        exit(1)
     if len(argv) == 1:
         input = stdin.read()
+        output = stdout
+    elif len(argv) == 2:
+        input = open(argv[1], "rb").read()
+        output = stdout
+    elif len(argv) == 3:
+        input = open(argv[1], "rb").read()
+        output = open(argv[1], "w")
     else:
-        input = open(argv[1], "r").read()
-    
-    errorMessage = main(input, stdout)
+        stderr.write("too many arguments\n")
+        stdout.write(usage)
+        exit(1)
+    errorMessage = main(input, output)
     returnCode = 0
     if errorMessage != None:
         stderr.write(errorMessage + "\n")
         returnCode = 1
+    if output != stdout:
+        output.close()
     exit(returnCode)
 
