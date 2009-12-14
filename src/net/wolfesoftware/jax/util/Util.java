@@ -71,17 +71,32 @@ public final class Util
         return dirAndFile;
     }
 
-    public static InputStream exec(String[] cmd)
+    public static int exec(String[] cmd, StringBuffer stdoutBuffer, StringBuffer stderrBuffer)
     {
+        if (stdoutBuffer == null)
+            stdoutBuffer = new StringBuffer();
+        if (stderrBuffer == null)
+            stderrBuffer = new StringBuffer();
         try {
             Process p = Runtime.getRuntime().exec(cmd);
-            return p.waitFor() == 0 ? p.getInputStream() : null;
+            InputStreamReader stdout = new InputStreamReader(p.getInputStream());
+            InputStreamReader stderr = new InputStreamReader(p.getErrorStream());
+            while (true) {
+                Integer exitValue = null;
+                try {
+                    exitValue = p.exitValue();
+                } catch (IllegalThreadStateException e) {
+                }
+                while (stdout.ready())
+                    stdoutBuffer.append((char)stdout.read());
+                while (stderr.ready())
+                    stderrBuffer.append((char)stderr.read());
+                if (exitValue != null)
+                    return exitValue;
+            }
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
     public static String readAll(InputStream input)

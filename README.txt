@@ -33,8 +33,6 @@ In the Jax code, the try...catch expression evaluates to an int, and is then sto
 try...catch, if...else, and all other "statements" in Java evaluate as expressions in Jax.
 The return type of an expression can be "void", meaning you can't assign or use the value anywhere.
 
-Jax currently outputs Jasmin assembly and then invokes Jasmin on it to produce .class files.
-
 
 Current state of Jax:
 

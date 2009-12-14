@@ -6,7 +6,7 @@ Phases of compiling (see Main.comprehend():
 2. Parsing - generates and Abstract Syntax Tree
 3. Lexiconization (or Lexical Analysis for you traditionalists) - fills in the AST with contextual info
 4. Optimization (optional) - reduces the AST when possible
-5. Code Generation - generates Jasmin code, then invokes Jasmin to generate a .class file
+5. Code Generation - generates a .class file
 
 See test/README_tests.txt for testing/demo info.
 

@@ -1,4 +1,2 @@
 /bin/
 *.class
-*.jasmin
-!/HelloWorld.jasmin
