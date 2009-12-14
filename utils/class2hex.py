@@ -516,8 +516,6 @@ def main(input, output):
             (h, codeLength) = readInt()
             output.write("%s; code_length=%i\n" % (indentation, codeLength))
             output.write(indentation + h + "\n")
-#            (h, _) = readString(codeLength)
-#            output.write("%s\t%s\n" % (indentation, h))
             offset = 0
             while offset < codeLength:
                 (opcodeHex, opcode) = readUByte()
@@ -533,85 +531,85 @@ def main(input, output):
                     (h, value) = readByte()
                     instructionHex = opcodeHex + h
                     argsStr = " = " + str(value)
-		elif argumentType == ARG_SHORT_IMMEDIATE:
+                elif argumentType == ARG_SHORT_IMMEDIATE:
                     (h, value) = readShort()
                     instructionHex = opcodeHex + h
                     argsStr = " = " + str(value)
-		elif argumentType == ARG_VARIENT_CONSTANT:
+                elif argumentType == ARG_VARIENT_CONSTANT:
                     (h, index) = readUByte()
                     instructionHex = opcodeHex + h
                     typeStr = {
                         CONSTANT_Integer:"Integer",
-	                CONSTANT_Float:"Float",
-	                CONSTANT_String:"String",
+                        CONSTANT_Float:"Float",
+                        CONSTANT_String:"String",
                     }[constantPool[index][0]]
                     value = constantPool[index][1]
                     if typeStr == "String":
                         value = constantPool[value][1]
                     argsStr = " %s = %s" % (typeStr, str(value))
-		elif argumentType == ARG_VARIENT_CONSTANT_W:
+                elif argumentType == ARG_VARIENT_CONSTANT_W:
                     (h, index) = readShort()
                     instructionHex = opcodeHex + h
                     typeStr = {
                         CONSTANT_Integer:"Integer",
-	                CONSTANT_Long:"Long",
-	                CONSTANT_Float:"Float",
-	                CONSTANT_Double:"Double",
-	                CONSTANT_String:"String",
+                        CONSTANT_Long:"Long",
+                        CONSTANT_Float:"Float",
+                        CONSTANT_Double:"Double",
+                        CONSTANT_String:"String",
                     }[constantPool[index][0]]
                     value = constantPool[index][1]
                     if typeStr == "String":
                         value = constantPool[value][1]
                     argsStr = " %s = %s" % (typeStr, str(value))
-		elif argumentType == ARG_LOCAL_VARIABLE_INDEX:
+                elif argumentType == ARG_LOCAL_VARIABLE_INDEX:
                     (h, value) = readUByte()
                     instructionHex = opcodeHex + h
                     argsStr = " = " + str(value)
-		elif argumentType == ARG_BRANCH_OFFSET:
+                elif argumentType == ARG_BRANCH_OFFSET:
                     (h, value) = readShort()
                     instructionHex = opcodeHex + h
                     argsStr = " " + str(value + offset)
-		elif argumentType == ARG_BRANCH_OFFSET_W:
+                elif argumentType == ARG_BRANCH_OFFSET_W:
                     (h, value) = readInt()
                     instructionHex = opcodeHex + h
                     argsStr = " " + str(value + offset)
-		elif argumentType == ARG_TABLESWITCH:
-		    return "argument type " + argumentType + " is not implemented yet"
-		elif argumentType == ARG_LOOKUPSWITCH:
-		    return "argument type " + argumentType + " is not implemented yet"
-		elif argumentType == ARG_FIELDREF_INDEX:
-		    (h, fieldrefIndex) = readShort()
-		    className = constantPool[constantPool[constantPool[fieldrefIndex][1]][1]][1]
-		    nameAndTypeIndex = constantPool[fieldrefIndex][2]
-		    signature = constantPool[constantPool[nameAndTypeIndex][1]][1] + ":" + constantPool[constantPool[nameAndTypeIndex][2]][1]
+                elif argumentType == ARG_TABLESWITCH:
+                    return "argument type " + argumentType + " is not implemented yet"
+                elif argumentType == ARG_LOOKUPSWITCH:
+                    return "argument type " + argumentType + " is not implemented yet"
+                elif argumentType == ARG_FIELDREF_INDEX:
+                    (h, fieldrefIndex) = readShort()
+                    className = constantPool[constantPool[constantPool[fieldrefIndex][1]][1]][1]
+                    nameAndTypeIndex = constantPool[fieldrefIndex][2]
+                    signature = constantPool[constantPool[nameAndTypeIndex][1]][1] + ":" + constantPool[constantPool[nameAndTypeIndex][2]][1]
                     instructionHex = opcodeHex + h
                     argsStr = " %s.%s" % (className, signature)
-		elif argumentType == ARG_METHODREF_INDEX:
-		    (h, methodrefIndex) = readShort()
-		    className = constantPool[constantPool[constantPool[methodrefIndex][1]][1]][1]
-		    nameAndTypeIndex = constantPool[methodrefIndex][2]
-		    signature = constantPool[constantPool[nameAndTypeIndex][1]][1] + ":" + constantPool[constantPool[nameAndTypeIndex][2]][1]
+                elif argumentType == ARG_METHODREF_INDEX:
+                    (h, methodrefIndex) = readShort()
+                    className = constantPool[constantPool[constantPool[methodrefIndex][1]][1]][1]
+                    nameAndTypeIndex = constantPool[methodrefIndex][2]
+                    signature = constantPool[constantPool[nameAndTypeIndex][1]][1] + ":" + constantPool[constantPool[nameAndTypeIndex][2]][1]
                     instructionHex = opcodeHex + h
                     argsStr = " %s.%s" % (className, signature)
-		elif argumentType == ARG_INTERFACE_METHODREF:
-		    (h1, interfaceMethodrefIndex) = readShort()
-		    (h2, _) = readShort()
-		    className = constantPool[constantPool[constantPool[interfaceMethodrefIndex][1]][1]][1]
-		    nameAndTypeIndex = constantPool[interfaceMethodrefIndex][2]
-		    signature = constantPool[constantPool[nameAndTypeIndex][1]][1] + ":" + constantPool[constantPool[nameAndTypeIndex][2]][1]
+                elif argumentType == ARG_INTERFACE_METHODREF:
+                    (h1, interfaceMethodrefIndex) = readShort()
+                    (h2, _) = readShort()
+                    className = constantPool[constantPool[constantPool[interfaceMethodrefIndex][1]][1]][1]
+                    nameAndTypeIndex = constantPool[interfaceMethodrefIndex][2]
+                    signature = constantPool[constantPool[nameAndTypeIndex][1]][1] + ":" + constantPool[constantPool[nameAndTypeIndex][2]][1]
                     instructionHex = opcodeHex + h1 + h2
                     argsStr = " %s.%s" % (className, signature)
-		elif argumentType == ARG_CLASS_INDEX:
-		    (h, classIndex) = readShort()
-		    className = constantPool[constantPool[classIndex][1]][1]
+                elif argumentType == ARG_CLASS_INDEX:
+                    (h, classIndex) = readShort()
+                    className = constantPool[constantPool[classIndex][1]][1]
                     instructionHex = opcodeHex + h
                     argsStr = " " + className
-		elif argumentType == ARG_ATYPE_CODE:
-		    return "argument type " + argumentType + " is not implemented yet"
-		elif argumentType == ARG_WIDE_ARGUMENTS:
-		    return "argument type " + argumentType + " is not implemented yet"
-		elif argumentType == ARG_MULTIANEWARRAY:
-		    return "argument type " + argumentType + " is not implemented yet"
+                elif argumentType == ARG_ATYPE_CODE:
+                    return "argument type " + argumentType + " is not implemented yet"
+                elif argumentType == ARG_WIDE_ARGUMENTS:
+                    return "argument type " + argumentType + " is not implemented yet"
+                elif argumentType == ARG_MULTIANEWARRAY:
+                    return "argument type " + argumentType + " is not implemented yet"
                 else:
                     return "omgwtf!!"
                 output.write("%s\t%s; %i:  %s%s\n" % (indentation, instructionHex.ljust(9), offset, instructionName, argsStr))
