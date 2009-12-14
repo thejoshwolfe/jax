@@ -19,8 +19,9 @@ import net.wolfesoftware.jax.util.*;
  */
 public class CodeGenTest
 {
-    private static final int RUN = 1, CLEAN = 2, VERBOSE = 4;
-    private static final int mode = 1*RUN | 1*CLEAN | 1*VERBOSE;
+    private static final boolean RUN = true;
+    private static final boolean CLEAN = true;
+    private static final boolean VERBOSE = true;
     private static final String dir = "test";
     private static final String[] tests = {
         "primitive/Arithmetic",
@@ -56,18 +57,18 @@ public class CodeGenTest
         boolean allPass = true;
         try {
             for (String test : tests) {
-                if ((mode & RUN) != 0)
+                if (RUN)
                     allPass &= codeGenTest(dir + "/" + test);
                 tmpFiles.add(dir + "/" + test + ".jasmin");
                 tmpFiles.add(dir + "/" + test + ".class");
                 tmpFiles.add(dir + "/" + test + "Call.class");
             }
         } finally {
-            if ((mode & CLEAN) != 0)
+            if (CLEAN)
                 for (String file : tmpFiles)
                     new File(Util.platformizeFilepath(file)).delete();
 
-            if ((mode & RUN) == 0)
+            if (RUN)
                 System.out.println("done");
             else if (allPass)
                 System.out.println("+++ ALL PASS");
@@ -86,7 +87,7 @@ public class CodeGenTest
             if (stdout != null) {
                 String output = Util.readAll(stdout);
                 if (output.trim().equals("+++ PASS")) {
-                    if ((mode & VERBOSE) != 0)
+                    if (VERBOSE)
                         System.out.println("+++ PASS " + dirAndTest);
                     return true;
                 }
