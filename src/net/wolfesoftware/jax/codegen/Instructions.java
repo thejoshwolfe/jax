@@ -1,5 +1,8 @@
 package net.wolfesoftware.jax.codegen;
 
+/**
+ * http://java.sun.com/docs/books/jvms/second_edition/html/Mnemonics.doc.html#4326
+ */
 public interface Instructions
 {
     byte nop = 0;
