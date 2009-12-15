@@ -21,34 +21,34 @@ import net.wolfesoftware.jax.util.*;
 public class CodeGenTest
 {
     private static final boolean RUN = true;
-    private static final boolean CLEAN = true;
+    private static final boolean CLEAN = false;
     private static final boolean VERBOSE = true;
     private static final String dir = "test";
     private static final String[] tests = {
         "primitive/Arithmetic",
-        "primitive/BooleanType",
-        "primitive/FloatingTypes",
-        "primitive/ConstReturn",
-        "primitive/Empty",
-        "primitive/LocalVariables",
-        "primitive/Promotion",
-        "primitive/StringLiteral",
-        "primitive/TypeCasting",
-        "primitive/VoidFunction",
-        "controlStructures/IfThenElse",
-        "controlStructures/ForLoop",
-        "controlStructures/ShortCircuit",
-        "controlStructures/WhileLoop",
-        "oop/FunctionInvocation",
-        "oop/NewConstructor",
-        "baseLibraries/Import",
-        "baseLibraries/ImportStar",
-        "baseLibraries/RuntimeType",
-        "baseLibraries/StringConcatenation",
-        "arrays/ArrayType",
-        "arrays/ArrayDereference",
-        "exceptions/TryCatch",
-        "Fancy",
+//        "primitive/BooleanType",
+//        "primitive/FloatingTypes",
+//        "primitive/ConstReturn",
+//        "primitive/Empty",
+//        "primitive/LocalVariables",
+//        "primitive/Promotion",
+//        "primitive/StringLiteral",
+//        "primitive/TypeCasting",
+//        "primitive/VoidFunction",
+//        "controlStructures/IfThenElse",
+//        "controlStructures/ForLoop",
+//        "controlStructures/ShortCircuit",
+//        "controlStructures/WhileLoop",
+//        "oop/FunctionInvocation",
+//        "oop/NewConstructor",
+//        "baseLibraries/Import",
+//        "baseLibraries/ImportStar",
+//        "baseLibraries/RuntimeType",
+//        "baseLibraries/StringConcatenation",
+//        "arrays/ArrayType",
+//        "arrays/ArrayDereference",
+//        "exceptions/TryCatch",
+//        "Fancy",
 //        "Goal",
     };
 

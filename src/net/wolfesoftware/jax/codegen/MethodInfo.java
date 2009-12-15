@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 import net.wolfesoftware.jax.ast.*;
 import net.wolfesoftware.jax.lexiconizer.*;
+import net.wolfesoftware.jax.util.Util;
 
 /**
  * http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc.html
@@ -54,6 +55,7 @@ public class MethodInfo
     private final ByteArrayOutputStream codeBufferArray;
     private final DataOutputStream codeBuffer;
     private int offset = 0;
+    private RootLocalContext context;
     private final ArrayList<Fillin> fillins = new ArrayList<Fillin>();
     private MethodInfo(TakesArguments method, ConstantPool constantPool)
     {
@@ -77,14 +79,16 @@ public class MethodInfo
 
     private void internalGenerate(ConstructorOrMethodElement functionDefinition)
     {
+        context = functionDefinition.context;
         evalExpression(functionDefinition.expression);
         _return(functionDefinition.returnBehavior.type);
+        Util._assert(context.stackSize == 0);
         byte[] codeBytes = codeBufferArray.toByteArray();
         for (Fillin fillin : fillins) {
             codeBytes[fillin.address + 0] = (byte)(fillin.value >> 8);
             codeBytes[fillin.address + 1] = (byte)(fillin.value >> 0);
         }
-        attributes.add(Attribute.code(codeBytes, functionDefinition.context, exception_table, constantPool));
+        attributes.add(Attribute.code(codeBytes, context, exception_table, constantPool));
     }
 
     private void evalExpression(Expression expression)
@@ -177,7 +181,7 @@ public class MethodInfo
                 evalVariableCreation((VariableCreation)content);
                 break;
             case VariableDeclaration.TYPE:
-                evalVariableDeclaration((VariableDeclaration)content);
+                // do nothing
                 break;
             case Assignment.TYPE:
                 evalAssignment((Assignment)content);
@@ -240,6 +244,7 @@ public class MethodInfo
         aload(0);
         evalArguments(constructorRedirect.arguments);
         writeByte(Instructions.invokespecial);
+        context.modifyStack(-1); // TODO hard-coded for default constructor
         short index = constantPool.getMethod(constructorRedirect.constructor);
         writeShort(index);
     }
@@ -535,15 +540,9 @@ public class MethodInfo
         dup(assignment.expression.returnBehavior.type);
         store(assignment.id.variable.type, assignment.id.variable.number);
     }
-    private void evalVariableDeclaration(VariableDeclaration variableDeclaration)
-    {
-        // do nothing
-    }
 
     private void evalVariableCreation(VariableCreation variableCreation)
     {
-        evalVariableDeclaration(variableCreation.variableDeclaration);
-
         evalExpression(variableCreation.expression);
         LocalVariable variable = variableCreation.variableDeclaration.id.variable;
         store(variable.type, variable.number);
@@ -563,6 +562,7 @@ public class MethodInfo
             dload(id.variable.number);
         else
             throw null;
+        context.modifyStack(type.getSize());
     }
 
     private void evalBlock(Block block)
@@ -601,6 +601,7 @@ public class MethodInfo
             writeByte(Instructions.dadd);
         else
             throw null;
+        modifyOperatorStack(addition);
     }
     private void evalSubtraction(Subtraction subtraction)
     {
@@ -617,6 +618,7 @@ public class MethodInfo
             writeByte(Instructions.dsub);
         else
             throw null;
+        modifyOperatorStack(subtraction);
     }
     private void evalMultiplication(Multiplication multiplication)
     {
@@ -633,6 +635,7 @@ public class MethodInfo
             writeByte(Instructions.dmul);
         else
             throw null;
+        modifyOperatorStack(multiplication);
     }
     private void evalDivision(Division division)
     {
@@ -649,6 +652,7 @@ public class MethodInfo
             writeByte(Instructions.ddiv);
         else
             throw null;
+        modifyOperatorStack(division);
     }
     private void evalLessThan(LessThan lessThan)
     {
@@ -686,33 +690,46 @@ public class MethodInfo
         writeByte(Instructions._goto);
         writeShort((short)4); // jump over the iconst_1
         writeByte(Instructions.iconst_1);
+        modifyOperatorStack(operator);
+    }
+    private void modifyOperatorStack(BinaryOperatorElement operator)
+    {
+        int size1 = operator.expression1.returnBehavior.type.getSize(), size2 = operator.expression2.returnBehavior.type.getSize();
+        context.modifyStack(-size1 + -size2 + operator.type.getSize());
     }
 
     private void evalIntLiteral(IntLiteral intLiteral)
     {
+        // TODO use iconst_<n> sometimes
         ldc(constantPool.getInteger(intLiteral.value));
+        context.modifyStack(1);
     }
     private void evalLongLiteral(LongLiteral longLiteral)
     {
         writeByte(Instructions.ldc2_w);
         writeShort(constantPool.getLong(longLiteral.value));
+        context.modifyStack(2);
     }
     private void evalFloatLiteral(FloatLiteral floatLiteral)
     {
         ldc(constantPool.getFloat(floatLiteral.value));
+        context.modifyStack(1);
     }
     private void evalDoubleLiteral(DoubleLiteral doubleLiteral)
     {
         writeByte(Instructions.ldc2_w);
         writeShort(constantPool.getDouble(doubleLiteral.value));
+        context.modifyStack(2);
     }
     private void evalBooleanLiteral(BooleanLiteral booleanLiteral)
     {
         writeByte(booleanLiteral.value ? Instructions.iconst_1 : Instructions.iconst_0);
+        context.modifyStack(1);
     }
     private void evalStringLiteral(StringLiteral stringLiteral)
     {
         ldc(constantPool.getString(stringLiteral.value));
+        context.modifyStack(1);
     }
 
     private Type translateTypeForInstructions(Type type)
@@ -772,6 +789,7 @@ public class MethodInfo
             dstore(number);
         else
             throw null;
+        context.modifyStack(-type.getSize());
     }
     private void astore(int number)
     {
@@ -898,6 +916,7 @@ public class MethodInfo
                 writeByte((byte)index);
                 break;
         }
+        context.modifyStack(1);
     }
     private void iload(int index)
     {
@@ -999,6 +1018,7 @@ public class MethodInfo
             writeByte(Instructions.dreturn);
         else
             throw null;
+        context.modifyStack(-type.getSize());
     }
     private void writeByte(byte value)
     {
