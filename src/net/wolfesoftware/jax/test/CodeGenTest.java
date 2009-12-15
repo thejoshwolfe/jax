@@ -47,8 +47,8 @@ public class CodeGenTest
         "baseLibraries/StringConcatenation",
         "arrays/ArrayType",
         "arrays/ArrayDereference",
-//        "exceptions/TryCatch",
-//        "Fancy",
+        "exceptions/TryCatch",
+        "Fancy",
 //        "Goal",
     };
 

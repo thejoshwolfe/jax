@@ -49,7 +49,7 @@ public abstract class Attribute
         final short attributes_count = 0;
         final Attribute[] attributes = {};
         // "The value of the attribute_length item indicates the length of the attribute, excluding the initial six bytes."
-        int attributeLength = 2 + 2 + 4 + code.length + 2 + 4 * exception_table.size() + 2;
+        int attributeLength = 2 + 2 + 4 + code.length + 2 + 8 * exception_table.size() + 2;
         for (Attribute attribute : attributes)
             attributeLength += 6 + attribute.length;
         attribute_length = attributeLength;
