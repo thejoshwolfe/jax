@@ -2,7 +2,6 @@ This is a roadmap/todo.
 
 Version 1.0:
 
-- restore exception handling functionality. there are problems with our .class files (says javac).
 - use local variables to preserve the operand stack when entering/exiting try-catch blocks.
 
 - checked exceptions
