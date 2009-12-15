@@ -1,10 +1,13 @@
 package net.wolfesoftware.jax.ast;
 
+import net.wolfesoftware.jax.lexiconizer.Type;
+
 public class TryCatch extends ParseElement
 {
+    public Type type;
+
     public TryPart tryPart;
     public CatchPart catchPart;
-
     public TryCatch(TryPart tryPart, CatchPart catchPart)
     {
         this.tryPart = tryPart;

@@ -609,6 +609,7 @@ public class Lexiconizer
 
         if (tryPartReturnBehavior.type != catchPartReturnBehavior.type)
             errors.add(new LexicalException(tryCatch, "return types must match"));
+        tryCatch.type = tryPartReturnBehavior.type;
         return new ReturnBehavior(tryPartReturnBehavior.type);
     }
 
@@ -1085,7 +1086,7 @@ public class Lexiconizer
         // single operation conversion
         byte instruction = getPrimitiveConversionInstruction(fromType, toType);
         Expression innerExpression = new Expression(expression.content);
-        innerExpression.returnBehavior = expression.returnBehavior;
+        innerExpression.returnBehavior = new ReturnBehavior(fromType);
         expression.content = new PrimitiveConversion(innerExpression, instruction, toType);
         expression.returnBehavior = new ReturnBehavior(toType);
     }
