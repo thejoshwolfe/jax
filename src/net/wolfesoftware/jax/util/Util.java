@@ -76,17 +76,17 @@ public final class Util
      * stdoutBuffer and stderrBuffer can be the same object.
      * 
      * @param cmd the command to be passed to {@link Runtime#exec(String[])}.
-     * @param stdoutBuffer buffer to which the process's stdout will be written. can be null.
-     * @param stderrBuffer buffer to which the process's stderr will be written. can be null.
+     * @param stdoutStream stream to which the process's stdout will be written. can be null.
+     * @param stderrStream stream to which the process's stderr will be written. can be null.
      * @return the exit value of the process
      * @throws RuntimeException IOException and InterruptedException are wrapped in RuntimeException and thrown
      */
-    public static int exec(String[] cmd, StringBuffer stdoutBuffer, StringBuffer stderrBuffer)
+    public static int exec(String[] cmd, PrintStream stdoutStream, PrintStream stderrStream)
     {
-        if (stdoutBuffer == null)
-            stdoutBuffer = new StringBuffer();
-        if (stderrBuffer == null)
-            stderrBuffer = new StringBuffer();
+        if (stdoutStream == null)
+            stdoutStream = new PrintStream(new ByteArrayOutputStream());
+        if (stderrStream == null)
+            stderrStream = new PrintStream(new ByteArrayOutputStream());
         try {
             Process p = Runtime.getRuntime().exec(cmd);
             InputStreamReader stdout = new InputStreamReader(p.getInputStream());
@@ -101,9 +101,9 @@ public final class Util
                     done = false;
                 }
                 while (stdout.ready())
-                    stdoutBuffer.append((char)stdout.read());
+                    stdoutStream.print((char)stdout.read());
                 while (stderr.ready())
-                    stderrBuffer.append((char)stderr.read());
+                    stderrStream.print((char)stderr.read());
                 if (done)
                     return exitValue;
                 Thread.sleep(100);
