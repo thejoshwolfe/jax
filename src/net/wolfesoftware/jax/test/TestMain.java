@@ -10,15 +10,21 @@ import java.util.ArrayList;
 public class TestMain
 {
     private static final boolean RUN = true;
-    private static final boolean CLEAN = true;
+    private static final boolean CLEAN = false;
     private static final boolean VERBOSE = false;
 
     private static ArrayList<TestCase> getTests()
     {
         ArrayList<TestCase> tests = new ArrayList<TestCase>();
-        for (TestCase test : CallTest.getTests())
-            tests.add(test);
+//        addAll(tests, CallTests.getTests());
+        addAll(tests, MiscTests.getTests());
         return tests;
+    }
+
+    private static void addAll(ArrayList<TestCase> tests, TestCase[] testCases)
+    {
+        for (TestCase test : testCases)
+            tests.add(test);
     }
 
     public static void main(String args[])

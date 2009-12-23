@@ -14,7 +14,7 @@ import net.wolfesoftware.jax.util.*;
  * Note: eclipse's default cwd for running and debugging projects is the project's directory. 
  * This means that {@link #dir} is relative to this project's directory.
  */
-public class CallTest
+public class CallTests
 {
     private static final String dir = "test/call";
     private static final String[] tests = {

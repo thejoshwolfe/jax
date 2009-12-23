@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.zip.*;
 import java.io.*;
 
-class Goal
+class FancyZipThing
 {
     void main(String[] args)
     {
