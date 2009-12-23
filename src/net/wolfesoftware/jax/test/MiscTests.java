@@ -1,8 +1,9 @@
 package net.wolfesoftware.jax.test;
 
-import java.io.PrintStream;
+import java.io.*;
 import java.util.ArrayList;
 import net.wolfesoftware.jax.Jaxc;
+import net.wolfesoftware.jax.util.Util;
 
 public class MiscTests
 {
@@ -17,7 +18,8 @@ public class MiscTests
     {
         private static final String className = "FancyZipThing";
         private static final String jaxFilePath = rootDir + "/" + className + ".jax";
-        
+        private static final String zipFilePath = rootDir + "/zipfile.zip";
+
         @Override
         public void clean()
         {
@@ -31,9 +33,17 @@ public class MiscTests
         @Override
         public boolean run(PrintStream verboseStream, PrintStream stderrStream)
         {
+            verboseStream.println("jaxc " + jaxFilePath);
             if (!Jaxc.compile(jaxFilePath))
                 return false;
-            
+            ByteArrayOutputStream stdoutBuffer = new ByteArrayOutputStream();
+            PrintStream stdoutStream = new PrintStream(stdoutBuffer);
+            String[] cmd = { "java", "-cp", rootDir, className, zipFilePath };
+            verboseStream.println(Util.join(cmd, " "));
+            if (Util.exec(cmd, stdoutStream, stderrStream) != 0)
+                return false;
+            stdoutStream.flush();
+            System.out.print(stdoutBuffer.toString());
             return true;
         }
     }
