@@ -16,7 +16,7 @@ import net.wolfesoftware.jax.util.*;
  */
 public class CallTest
 {
-    private static final String dir = "test";
+    private static final String dir = "test/call";
     private static final String[] tests = {
         "primitive/Arithmetic",
         "primitive/BooleanType",
@@ -42,7 +42,6 @@ public class CallTest
         "arrays/ArrayDereference",
         "exceptions/TryCatch",
         "Fancy",
-//        "Goal",
     };
 
     public static TestCase[] getTests()
