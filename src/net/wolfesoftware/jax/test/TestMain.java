@@ -16,7 +16,7 @@ public class TestMain
     private static ArrayList<TestCase> getTests()
     {
         ArrayList<TestCase> tests = new ArrayList<TestCase>();
-//        addAll(tests, CallTests.getTests());
+        addAll(tests, CallTests.getTests());
         addAll(tests, MiscTests.getTests());
         return tests;
     }
@@ -45,6 +45,7 @@ public class TestMain
                 System.out.println(status + test.getName());
             }
         }
+
         if (CLEAN)
             for (TestCase test : tests)
                 test.clean();

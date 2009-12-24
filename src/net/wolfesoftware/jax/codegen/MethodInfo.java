@@ -511,20 +511,30 @@ public class MethodInfo
     {
         evalArguments(functionInvocation.arguments);
 
-        // TODO: "special handling for superclass, private, and instance initialization method invocations"
         Method method = functionInvocation.method;
-        byte invokeInstruction;
-        if (method.isStatic)
-            invokeInstruction = Instructions.invokestatic;
-        else
-            invokeInstruction = Instructions.invokevirtual;
-        writeByte(invokeInstruction);
-        writeShort(constantPool.getMethod(functionInvocation.method));
         int stackSize = 0;
         for (Expression expression : functionInvocation.arguments.elements)
             stackSize += expression.returnBehavior.type.getSize();
         if (!method.isStatic)
             stackSize += 1;
+        if (method.declaringType.isInterface()) {
+            // interface method
+            writeByte(Instructions.invokeinterface);
+            writeShort(constantPool.getInterfaceMethod(functionInvocation.method));
+            // this is dumb. "The redundancy is historical."
+            writeByte((byte)stackSize);
+            writeByte((byte)0);
+        } else {
+            // non-interface method
+            // TODO: "special handling for superclass, private, and instance initialization method invocations"
+            byte invokeInstruction;
+            if (method.isStatic)
+                invokeInstruction = Instructions.invokestatic;
+            else
+                invokeInstruction = Instructions.invokevirtual;
+            writeByte(invokeInstruction);
+            writeShort(constantPool.getMethod(functionInvocation.method));
+        }
         context.modifyStack(-stackSize);
         context.modifyStack(method.returnType.getSize());
     }

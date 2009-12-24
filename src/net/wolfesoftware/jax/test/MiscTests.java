@@ -43,7 +43,8 @@ public class MiscTests
             if (Util.exec(cmd, stdoutStream, stderrStream) != 0)
                 return false;
             stdoutStream.flush();
-            System.out.print(stdoutBuffer.toString());
+            if (!stdoutBuffer.toString().contains("was deflated at"))
+                return false;
             return true;
         }
     }

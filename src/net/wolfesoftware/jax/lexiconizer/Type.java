@@ -82,6 +82,10 @@ public abstract class Type
         return fullName;
     }
 
+    public boolean isInterface()
+    {
+        return false;
+    }
     public boolean isPrimitive()
     {
         return false;

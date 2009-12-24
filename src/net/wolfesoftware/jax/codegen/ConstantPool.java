@@ -33,6 +33,7 @@ public class ConstantPool
     private final HashMap<Short, Short> stringMap = new HashMap<Short, Short>();
     private final HashMap<Integer, Short> fieldMap = new HashMap<Integer, Short>();
     private final HashMap<Integer, Short> methodMap = new HashMap<Integer, Short>();
+    private final HashMap<Integer, Short> interfaceMethodMap = new HashMap<Integer, Short>();
     private final HashMap<Integer, Short> nameAndTypeMap = new HashMap<Integer, Short>();
     public void write(DataOutputStream out) throws IOException
     {
@@ -60,6 +61,8 @@ public class ConstantPool
             elements[entry.getValue() - 1] = encodeField(entry.getKey());
         for (Entry<Integer, Short> entry : methodMap.entrySet())
             elements[entry.getValue() - 1] = encodeMethod(entry.getKey());
+        for (Entry<Integer, Short> entry : interfaceMethodMap.entrySet())
+            elements[entry.getValue() - 1] = encodeInterfaceMethod(entry.getKey());
         for (Entry<Integer, Short> entry : nameAndTypeMap.entrySet())
             elements[entry.getValue() - 1] = encodeNameAndType(entry.getKey());
 
@@ -174,6 +177,16 @@ public class ConstantPool
                 (byte)(value >>> 0),
         };
     }
+    private byte[] encodeInterfaceMethod(int value)
+    {
+        return new byte[] {
+                CONSTANT_InterfaceMethodref,
+                (byte)(value >>> 24),
+                (byte)(value >>> 16),
+                (byte)(value >>> 8),
+                (byte)(value >>> 0),
+        };
+    }
 
     private byte[] encodeNameAndType(int value)
     {
@@ -228,6 +241,12 @@ public class ConstantPool
         short class_index = getClass(value.declaringType);
         short name_and_type_index = getNameAndType(value);
         return get(methodMap, (class_index << 16) | name_and_type_index, 1);
+    }
+    public short getInterfaceMethod(Method method)
+    {
+        short class_index = getClass(method.declaringType);
+        short name_and_type_index = getNameAndType(method);
+        return get(interfaceMethodMap, (class_index << 16) | name_and_type_index, 1);
     }
     private short getNameAndType(Field field)
     {

@@ -55,9 +55,9 @@ public class RuntimeType extends Type
     }
 
     @Override
-    public boolean isPrimitive()
+    public boolean isInterface()
     {
-        return underlyingType.isPrimitive();
+        return underlyingType.isInterface();
     }
 
     public static final int TYPE = 0x1b070487;
@@ -90,6 +90,11 @@ public class RuntimeType extends Type
         public int getSize()
         {
             return size;
+        }
+        @Override
+        public boolean isPrimitive()
+        {
+            return true;
         }
     }
     private static class NumericPrimitiveType extends PrimitiveType
