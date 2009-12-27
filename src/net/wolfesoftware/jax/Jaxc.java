@@ -15,10 +15,33 @@ public class Jaxc
     {
         if (args.length == 0)
             throw new IllegalArgumentException();
-        System.exit(comprehend(args[args.length - 1]));
+        List<String> argsList = Util.arrayToList(args);
+        JaxcOptions options = JaxcOptions.parse(argsList);
+        String[] filenames = argsList.toArray(new String[argsList.size()]);
+        int exitValue = compile(filenames, options) ? 0 : 1;
+        System.exit(exitValue);
     }
 
+    public static boolean compile(String[] jaxFilenames)
+    {
+        for (String jaxFilename : jaxFilenames)
+            if (!compile(jaxFilename))
+                return false;
+        return true;
+    }
+    public static boolean compile(String[] jaxFilenames, JaxcOptions options)
+    {
+        for (String jaxFilename : jaxFilenames)
+            if (!compile(jaxFilename, options))
+                return false;
+        return true;
+    }
     public static boolean compile(String jaxFilename)
+    {
+        return compile(jaxFilename, null);
+    }
+
+    public static boolean compile(String jaxFilename, JaxcOptions options)
     {
         try {
             return comprehend(Util.unixizeFilepath(jaxFilename)) == 0;

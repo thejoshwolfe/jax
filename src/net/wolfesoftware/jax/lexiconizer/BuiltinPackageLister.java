@@ -434,7 +434,7 @@ public class BuiltinPackageLister
 
     public static void importPackageStar(QualifiedName qualifiedName, HashMap<String, Type> importedTypes, ArrayList<LexicalException> errors)
     {
-        String packageName = Util.join(qualifiedName.elements.toArray(), ".");
+        String packageName = Util.join(qualifiedName.elements, ".");
         String[] classNames = packages.get(packageName);
         if (classNames == null) {
             errors.add(LexicalException.cantResolveImport(qualifiedName));

@@ -888,7 +888,7 @@ public final class Parser
             }
             public String toString()
             {
-                return "([" + Util.join(expressions.toArray(), ", ") + "], " + end + ")";
+                return "([" + Util.join(expressions, ", ") + "], " + end + ")";
             }
         }
     }

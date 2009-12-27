@@ -25,6 +25,19 @@ public final class Util
         return join(fileToLines(fileName), "\n");
     }
 
+    public static <T> String join(Iterable<T> elements, String delimiter)
+    {
+        StringBuilder builder = new StringBuilder();
+        boolean empty = true;
+        for (T element : elements) {
+            if (empty)
+                empty = false;
+            else
+                builder.append(delimiter);
+            builder.append(element);
+        }
+        return builder.toString();
+    }
     public static <T> String join(T[] elements, String delimiter)
     {
         StringBuilder builder = new StringBuilder();
@@ -119,5 +132,13 @@ public final class Util
     {
         if (!pass)
             throw new AssertionError();
+    }
+
+    public static <T> ArrayList<T> arrayToList(T[] elements)
+    {
+        ArrayList<T> list = new ArrayList<T>(elements.length);
+        for (T element : elements)
+            list.add(element);
+        return list;
     }
 }
