@@ -12,6 +12,7 @@ public class MiscTests
     {
         ArrayList<TestCase> tests = new ArrayList<TestCase>();
         tests.add(new FancyZipTestCase());
+        tests.add(new ScannerTestCase());
         return tests.toArray(new TestCase[tests.size()]);
     }
     private static class FancyZipTestCase extends TestCase
@@ -45,6 +46,31 @@ public class MiscTests
             stdoutStream.flush();
             if (!stdoutBuffer.toString().contains("was deflated at"))
                 return false;
+            return true;
+        }
+    }
+    static class ScannerTestCase extends TestCase
+    {
+        private static final String classpath = rootDir;
+        private static final String className = "goal.testcases.Scanner";
+        private static final String fileBase = classpath + "/" + className.replace('.', '/');
+        static final String filepath = fileBase + ".jax";
+        @Override
+        public void clean()
+        {
+            deleteFile(fileBase + ".class");
+        }
+        @Override
+        public String getName()
+        {
+            return fileBase;
+        }
+        @Override
+        public boolean run(PrintStream verboseStream, PrintStream stderrStream)
+        {
+            if (!compileJax(filepath, verboseStream))
+                return false;
+            // TODO, do something with the class
             return true;
         }
     }

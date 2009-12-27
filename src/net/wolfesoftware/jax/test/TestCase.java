@@ -1,6 +1,7 @@
 package net.wolfesoftware.jax.test;
 
 import java.io.*;
+import net.wolfesoftware.jax.Jaxc;
 import net.wolfesoftware.jax.util.Util;
 
 public abstract class TestCase
@@ -12,5 +13,10 @@ public abstract class TestCase
     protected void deleteFile(String filepath)
     {
         new File(Util.platformizeFilepath(filepath)).delete();
+    }
+    protected boolean compileJax(String filepath, PrintStream verboseStream)
+    {
+        verboseStream.println("jaxc " + filepath);
+        return Jaxc.compile(filepath);
     }
 }

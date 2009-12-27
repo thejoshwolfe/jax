@@ -2,8 +2,7 @@ package net.wolfesoftware.jax.test;
 
 import java.io.*;
 import java.util.ArrayList;
-import net.wolfesoftware.jax.Jaxc;
-import net.wolfesoftware.jax.util.*;
+import net.wolfesoftware.jax.util.Util;
 
 /**
  * This class performs tests on files in {@link #dir} named in {@link #tests}.
@@ -59,7 +58,7 @@ public class CallTests
                 @Override
                 public boolean run(PrintStream verboseStream, PrintStream stderrStream)
                 {
-                    if (!compileJax(dirAndTest + ".jax", verboseStream, stderrStream))
+                    if (!compileJax(dirAndTest + ".jax", verboseStream))
                         return false;
                     if (!compileJava(dirAndTest + "Call.java", verboseStream, stderrStream))
                         return false;
@@ -78,11 +77,6 @@ public class CallTests
         return testCases.toArray(new TestCase[testCases.size()]);
     }
 
-    private static boolean compileJax(String filepath, PrintStream verboseStream, PrintStream stderrStream)
-    {
-        verboseStream.println("jaxc " + filepath);
-        return Jaxc.compile(filepath);
-    }
     private static boolean compileJava(String filepath, PrintStream verboseStream, PrintStream stderrStream)
     {
         filepath = Util.unixizeFilepath(filepath);
