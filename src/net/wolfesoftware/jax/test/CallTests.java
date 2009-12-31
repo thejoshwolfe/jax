@@ -58,7 +58,7 @@ public class CallTests
                 @Override
                 public boolean run(PrintStream verboseStream, PrintStream stderrStream)
                 {
-                    if (!compileJax(dirAndTest + ".jax", verboseStream))
+                    if (!compileJax(dirAndTest + ".jax", verboseStream, null))
                         return false;
                     if (!compileJava(dirAndTest + "Call.java", verboseStream, stderrStream))
                         return false;

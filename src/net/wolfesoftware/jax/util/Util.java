@@ -134,7 +134,7 @@ public final class Util
             throw new AssertionError();
     }
 
-    public static <T> ArrayList<T> arrayToList(T[] elements)
+    public static <T> ArrayList<T> arrayToList(T ... elements)
     {
         ArrayList<T> list = new ArrayList<T>(elements.length);
         for (T element : elements)

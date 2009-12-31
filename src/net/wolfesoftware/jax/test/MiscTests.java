@@ -2,7 +2,7 @@ package net.wolfesoftware.jax.test;
 
 import java.io.*;
 import java.util.ArrayList;
-import net.wolfesoftware.jax.Jaxc;
+import net.wolfesoftware.jax.*;
 import net.wolfesoftware.jax.util.Util;
 
 public class MiscTests
@@ -34,8 +34,7 @@ public class MiscTests
         @Override
         public boolean run(PrintStream verboseStream, PrintStream stderrStream)
         {
-            verboseStream.println("jaxc " + jaxFilePath);
-            if (!Jaxc.compile(jaxFilePath))
+            if (!compileJax(jaxFilePath, verboseStream, null))
                 return false;
             ByteArrayOutputStream stdoutBuffer = new ByteArrayOutputStream();
             PrintStream stdoutStream = new PrintStream(stdoutBuffer);
@@ -49,7 +48,7 @@ public class MiscTests
             return true;
         }
     }
-    static class ScannerTestCase extends TestCase
+    private static class ScannerTestCase extends TestCase
     {
         private static final String classpath = rootDir;
         private static final String className = "goal.testcases.Scanner";
@@ -68,9 +67,11 @@ public class MiscTests
         @Override
         public boolean run(PrintStream verboseStream, PrintStream stderrStream)
         {
-            if (!compileJax(filepath, verboseStream))
+            JaxcOptions options = new JaxcOptions();
+            options.classPath = new String[] { classpath };
+            if (!compileJax(filepath, verboseStream, options))
                 return false;
-            // TODO, do something with the class
+            // TODO, do something with the class file once it works
             return true;
         }
     }

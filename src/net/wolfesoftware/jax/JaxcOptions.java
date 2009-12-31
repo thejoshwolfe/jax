@@ -32,11 +32,12 @@ public class JaxcOptions
             try {
                 Field field = JaxcOptions.class.getField(fieldName);
                 Field defaultField = JaxcOptions.class.getField("DEFAULT_" + fieldName);
-                String[] value = (String[])field.get(this);
+                String[] values = (String[])field.get(this);
                 String[] defaultValue = (String[])defaultField.get(null);
-                if (Arrays.equals(value, defaultValue))
+                if (Arrays.equals(values, defaultValue))
                     continue;
-                options.add("-" + fieldName + "=" + value);
+                for (String value : values)
+                    options.add("-" + fieldName + "=" + value);
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
             } catch (IllegalAccessException e) {
@@ -83,7 +84,7 @@ public class JaxcOptions
             }
             // get argValue from next arg if needed
             if (argValue == null) {
-                if (i < args.size() - 1) {
+                if (i == args.size() - 1) {
                     needValueArgs.add(arg);
                     continue;
                 }
@@ -102,6 +103,15 @@ public class JaxcOptions
                 argsMap.put(argName, argValues);
             }
             argValues.add(argValue);
+        }
+        // report problems
+        if (!(unknownArgs.isEmpty() && needValueArgs.isEmpty())) {
+            ArrayList<String> errorMessages = new ArrayList<String>();
+            for (String unknownArg : unknownArgs)
+                errorMessages.add("Unknown option: " + unknownArg);
+            for (String needValueArg : needValueArgs)
+                errorMessages.add("Option needs value: " + needValueArg);
+            throw new IllegalArgumentException(Util.join(errorMessages, "\n"));
         }
 
         // remove all the switches and leave only the non-switches.
