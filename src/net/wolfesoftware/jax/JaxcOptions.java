@@ -7,7 +7,7 @@ import net.wolfesoftware.jax.util.Util;
 
 public class JaxcOptions
 {
-    public static final String[] DEFAULT_classPath = {"."};
+    public static final String[] DEFAULT_classPath = { "." };
     public String[] classPath = DEFAULT_classPath;
     public static final HashMap<String, String> aliases = new HashMap<String, String>();
     static {
