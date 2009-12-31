@@ -47,7 +47,17 @@ public class JaxcOptions
         return Util.join(options, " ");
     }
 
-    public static JaxcOptions parse(List<String> args)
+    /**
+     * Removes options from args and returns an options object.
+     * @param args list of string arguments like from <code>main(String[] args)</code>.
+     *     Options are removed from the list leaving only non-option arguments. Array-based
+     *     List implementations are recommended as random access is performed and 'removal'
+     *     is actually implemented as a {@link List#clear() clear} and 
+     *     {@link List#addAll(Collection) addAll}.
+     * @return a {@link JaxcOptions} object representing the options removed from args
+     * @throws IllegalArgumentException if a parameter is unrecognized or needs a value it didn't get.
+     */
+    public static JaxcOptions parse(List<String> args) throws IllegalArgumentException
     {
         HashMap<String, LinkedList<String>> argsMap = new HashMap<String, LinkedList<String>>();
         ArrayList<String> keepArgs = new ArrayList<String>();
