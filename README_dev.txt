@@ -1,14 +1,41 @@
 
-first read README.txt, then this document.
+read README.txt before this document.
 
-Phases of compiling (see Main.comprehend():
-1. Tokenization - generates an array of tokens
-2. Parsing - generates and Abstract Syntax Tree
-3. Lexiconization (or Lexical Analysis for you traditionalists) - fills in the AST with contextual info
-4. Optimization (optional) - reduces the AST when possible
-5. Code Generation - generates a .class file
+See README_tests.txt for testing/demo info.
 
-See test/README_tests.txt for testing/demo info.
+Phases of compiling (see also Jaxc.comprehend():
+1. Tokenization (aka scanning, lexing, lexical analysis): Takes an array of bytes or a String and produces an array of Tokens.
+  - possible errors:
+    * invalid source code characters (such as '`' and '#')
+    * no closing single/double quote mark (same as invalid string/char literal characters (such as newlines))
+    * invalid string/char literal escape sequence (such as '\a')
+    * numeric literal overflow (such as 0x100000000 or 1e1000f)
+2. Parsing (aka syntax analysis): Takes an array of Tokens and builds an Abstract Syntax Tree (ast).
+  - possible errors:
+    * syntax error / parse error (such as one caused by "a + b c").
+3. Semalysis ((portmanteau) aka semantic analysis. previously called "Lexiconization" which is wrong): Examines an ast and fills in contextual information such as identifier resolution and type checking.
+  - possible errors:
+    * unresolved identifier
+    * type checking
+    * overload resolution
+4. Staticalysis ((portmanteau) aka static code analysis, back-end analysis): Examines a semalysized ast and predicts runtime behavior to find problems and opportunities for optimizations.
+  - possible errors:
+    * uninitialized variables
+    * unreachable code
+    * functions must always return something
+    * checked exceptions
+  - possible warnings:
+    * unused/unread variables(, parameters?)
+    * unused/unread private members
+5. Optimization (combine with staticalysis?): performs the following:
+  - constant folding/propogation
+  - dead code removal
+  - method inlining
+6. Code Generation: Takes a staticalysized ast and writes 1 or more .class files.
+  - determine stack requirement
+  - no language errors or warnings
+  - possible file write errors
+
 
 
 The parsing grammar of the language is coded out in "jax.jape". The class Parser and the classes in

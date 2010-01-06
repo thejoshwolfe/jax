@@ -1,6 +1,6 @@
 package net.wolfesoftware.jax.ast;
 
-import net.wolfesoftware.jax.lexiconizer.Type;
+import net.wolfesoftware.jax.semalysizer.Type;
 
 public class TryCatch extends ParseElement
 {

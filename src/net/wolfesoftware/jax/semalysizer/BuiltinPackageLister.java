@@ -1,4 +1,4 @@
-package net.wolfesoftware.jax.lexiconizer;
+package net.wolfesoftware.jax.semalysizer;
 
 import java.util.*;
 import net.wolfesoftware.jax.ast.QualifiedName;
@@ -432,12 +432,12 @@ public class BuiltinPackageLister
         packages.put("sunw.util", new String[] { "EventListener", "EventObject" });
     }
 
-    public static void importPackageStar(QualifiedName qualifiedName, HashMap<String, Type> importedTypes, ArrayList<LexicalException> errors)
+    public static void importPackageStar(QualifiedName qualifiedName, HashMap<String, Type> importedTypes, ArrayList<SemalyticalException> errors)
     {
         String packageName = Util.join(qualifiedName.elements, ".");
         String[] classNames = packages.get(packageName);
         if (classNames == null) {
-            errors.add(LexicalException.cantResolveImport(qualifiedName));
+            errors.add(SemalyticalException.cantResolveImport(qualifiedName));
             return;
         }
         try {

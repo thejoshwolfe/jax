@@ -1,4 +1,4 @@
-package net.wolfesoftware.jax.lexiconizer;
+package net.wolfesoftware.jax.semalysizer;
 
 import java.util.*;
 import net.wolfesoftware.jax.ast.*;
@@ -7,11 +7,11 @@ import net.wolfesoftware.jax.parser.Parsing;
 import net.wolfesoftware.jax.tokenizer.Lang;
 import net.wolfesoftware.jax.util.Util;
 
-public class Lexiconizer
+public class Semalysizer
 {
-    public static Lexiconization lexiconize(Parsing parsing, String filePath)
+    public static Semalysization semalysize(Parsing parsing, String filePath)
     {
-        return new Lexiconizer(parsing, filePath).lexiconizeRoot();
+        return new Semalysizer(parsing, filePath).semalysizeRoot();
     }
 
     private final HashMap<String, Type> importedTypes = new HashMap<String, Type>();
@@ -21,19 +21,19 @@ public class Lexiconizer
     }
     private final Root root;
     private final String filePath;
-    private final ArrayList<LexicalException> errors = new ArrayList<LexicalException>();
+    private final ArrayList<SemalyticalException> errors = new ArrayList<SemalyticalException>();
 
-    private Lexiconizer(Parsing parsing, String filePath)
+    private Semalysizer(Parsing parsing, String filePath)
     {
         root = parsing.root;
         this.filePath = filePath;
     }
 
-    private Lexiconization lexiconizeRoot()
+    private Semalysization semalysizeRoot()
     {
         boolean broken = true;
         try {
-            lexiconizeCompilationUnit(root.content);
+            semalysizeCompilationUnit(root.content);
             broken = false;
         } catch (RuntimeException e) {
             e.printStackTrace();
@@ -41,160 +41,160 @@ public class Lexiconizer
             e.printStackTrace();
         }
         if (broken && errors.isEmpty())
-            errors.add(new LexicalException(new Id(""), "Things are broken"));
-        return new Lexiconization(root, errors);
+            errors.add(new SemalyticalException(new Id(""), "Things are broken"));
+        return new Semalysization(root, errors);
     }
 
-    private void lexiconizeCompilationUnit(CompilationUnit compilationUnit)
+    private void semalysizeCompilationUnit(CompilationUnit compilationUnit)
     {
-        lexiconizeImports(compilationUnit.imports);
-        lexiconizeClassDeclaration(compilationUnit.classDeclaration);
+        semalysizeImports(compilationUnit.imports);
+        semalysizeClassDeclaration(compilationUnit.classDeclaration);
     }
 
-    private void lexiconizeImports(Imports imports)
+    private void semalysizeImports(Imports imports)
     {
         for (ImportStatement importStatement : imports.elements)
-            lexiconizeImportStatement(importStatement);
+            semalysizeImportStatement(importStatement);
     }
 
-    private void lexiconizeImportStatement(ImportStatement importStatement)
+    private void semalysizeImportStatement(ImportStatement importStatement)
     {
         ParseElement content = importStatement.content;
         switch (importStatement.content.getElementType()) {
             case ImportStar.TYPE:
-                lexiconizeImportStar((ImportStar)content);
+                semalysizeImportStar((ImportStar)content);
                 break;
             case ImportClass.TYPE:
-                lexiconizeImportClass((ImportClass)content);
+                semalysizeImportClass((ImportClass)content);
                 break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
     }
 
-    private void lexiconizeImportStar(ImportStar importStar)
+    private void semalysizeImportStar(ImportStar importStar)
     {
         deleteNulls(importStar.qualifiedName);
         BuiltinPackageLister.importPackageStar(importStar.qualifiedName, importedTypes, errors);
     }
 
-    private void lexiconizeImportClass(ImportClass importClass)
+    private void semalysizeImportClass(ImportClass importClass)
     {
         resolveQualifiedName(importClass.qualifiedName);
     }
 
-    private void lexiconizeClassDeclaration(ClassDeclaration classDeclaration)
+    private void semalysizeClassDeclaration(ClassDeclaration classDeclaration)
     {
         String classNameFromFile = filePath.substring(filePath.lastIndexOf('\\') + 1, filePath.lastIndexOf('.'));
         if (!classDeclaration.id.name.equals(classNameFromFile))
-            errors.add(new LexicalException(classDeclaration.id, "Class name does not match file name \"" + classNameFromFile + "\"."));
+            errors.add(new SemalyticalException(classDeclaration.id, "Class name does not match file name \"" + classNameFromFile + "\"."));
 
         classDeclaration.localType = new LocalType(classNameFromFile, classDeclaration.id.name);
         importedTypes.put(classNameFromFile, classDeclaration.localType);
-        lexiconizeClassBody(classDeclaration.localType, classDeclaration.classBody);
+        semalysizeClassBody(classDeclaration.localType, classDeclaration.classBody);
     }
 
-    private void lexiconizeClassBody(LocalType context, ClassBody classBody)
+    private void semalysizeClassBody(LocalType context, ClassBody classBody)
     {
         deleteNulls(classBody);
 
         for (ClassMember classMember : classBody.elements)
-            preLexiconizeClassMemeber(context, classMember);
+            preSemalysizeClassMemeber(context, classMember);
 
         if (context.constructors.isEmpty()) {
             ClassMember classMember = context.makeDefaultConstructor(classBody);
             classBody.elements.add(classMember);
-            preLexiconizeClassMemeber(context, classMember);
+            preSemalysizeClassMemeber(context, classMember);
         }
 
         for (ClassMember classMember : classBody.elements)
-            lexiconizeClassMemeber(context, classMember);
+            semalysizeClassMemeber(context, classMember);
     }
 
-    private void preLexiconizeClassMemeber(LocalType context, ClassMember classMember)
+    private void preSemalysizeClassMemeber(LocalType context, ClassMember classMember)
     {
         if (classMember == null)
             return;
         ParseElement content = classMember.content;
         switch (content.getElementType()) {
             case FunctionDefinition.TYPE:
-                preLexiconizeFunctionDefinition(context, (FunctionDefinition)content);
+                preSemalysizeFunctionDefinition(context, (FunctionDefinition)content);
                 break;
             case ConstructorDefinition.TYPE:
-                preLexiconizeConstructorDefinition(context, (ConstructorDefinition)content);
+                preSemalysizeConstructorDefinition(context, (ConstructorDefinition)content);
                 break;
             default:
                 throw new RuntimeException("TODO: implement " + content.getClass().getName());
         }
     }
 
-    private void preLexiconizeConstructorDefinition(LocalType context, ConstructorDefinition constructorDefinition)
+    private void preSemalysizeConstructorDefinition(LocalType context, ConstructorDefinition constructorDefinition)
     {
         resolveType(constructorDefinition.typeId, true);
         if (constructorDefinition.typeId.type != context)
-            errors.add(new LexicalException(constructorDefinition.typeId, "you can't have a constructor for type \"" + constructorDefinition.typeId.type + "\" in this class."));
+            errors.add(new SemalyticalException(constructorDefinition.typeId, "you can't have a constructor for type \"" + constructorDefinition.typeId.type + "\" in this class."));
         constructorDefinition.context = new RootLocalContext(context, false);
-        Type[] arguemntSignature = lexiconizeArgumentDeclarations(constructorDefinition.context, constructorDefinition.argumentDeclarations);
+        Type[] arguemntSignature = semalysizeArgumentDeclarations(constructorDefinition.context, constructorDefinition.argumentDeclarations);
         constructorDefinition.constructor = new Constructor(context, arguemntSignature);
         context.addConstructor(constructorDefinition.constructor);
     }
 
-    private void preLexiconizeFunctionDefinition(LocalType context, FunctionDefinition functionDefinition)
+    private void preSemalysizeFunctionDefinition(LocalType context, FunctionDefinition functionDefinition)
     {
         resolveType(functionDefinition.typeId, true);
         functionDefinition.context = new RootLocalContext(context, true);
-        Type[] arguemntSignature = lexiconizeArgumentDeclarations(functionDefinition.context, functionDefinition.argumentDeclarations);
+        Type[] arguemntSignature = semalysizeArgumentDeclarations(functionDefinition.context, functionDefinition.argumentDeclarations);
         functionDefinition.method = new Method(context, functionDefinition.typeId.type, functionDefinition.id.name, arguemntSignature, true);
         context.addMethod(functionDefinition.method);
     }
 
-    private Type[] lexiconizeArgumentDeclarations(LocalContext context, ArgumentDeclarations argumentDeclarations)
+    private Type[] semalysizeArgumentDeclarations(LocalContext context, ArgumentDeclarations argumentDeclarations)
     {
         Type[] argumentSignature = new Type[argumentDeclarations.elements.size()];
         int i = 0;
         for (VariableDeclaration variableDeclaration : argumentDeclarations.elements) {
-            lexiconizeVariableDeclaration(context, variableDeclaration);
+            semalysizeVariableDeclaration(context, variableDeclaration);
             argumentSignature[i++] = variableDeclaration.typeId.type;
         }
         return argumentSignature;
     }
 
-    private void lexiconizeClassMemeber(Type context, ClassMember classMember)
+    private void semalysizeClassMemeber(Type context, ClassMember classMember)
     {
         ParseElement content = classMember.content;
         switch (content.getElementType()) {
             case FunctionDefinition.TYPE:
-                lexiconizeFunctionDefinition(context, (FunctionDefinition)content);
+                semalysizeFunctionDefinition(context, (FunctionDefinition)content);
                 break;
             case ConstructorDefinition.TYPE:
-                lexiconizeConstructorDefinition(context, (ConstructorDefinition)content);
+                semalysizeConstructorDefinition(context, (ConstructorDefinition)content);
                 break;
             default:
                 throw new RuntimeException("TODO: implement " + content.getClass());
         }
     }
 
-    private void lexiconizeConstructorDefinition(Type context, ConstructorDefinition constructorDefinition)
+    private void semalysizeConstructorDefinition(Type context, ConstructorDefinition constructorDefinition)
     {
         ConstructorRedirect constructorRedirect = new ConstructorRedirect(Lang.KEYWORD_SUPER, new Arguments(new LinkedList<Expression>()));
         constructorDefinition.expression = new Expression(new Block(new BlockContents(Arrays.asList(new Expression(constructorRedirect), constructorDefinition.expression))));
-        constructorDefinition.returnBehavior = lexiconizeExpression(constructorDefinition.context, constructorDefinition.expression);
+        constructorDefinition.returnBehavior = semalysizeExpression(constructorDefinition.context, constructorDefinition.expression);
         if (constructorDefinition.returnBehavior.type != RuntimeType.VOID)
-            errors.add(LexicalException.mustBeVoid(constructorDefinition.expression));
+            errors.add(SemalyticalException.mustBeVoid(constructorDefinition.expression));
         Util._assert(constructorDefinition.context.stackSize == 0);
     }
 
-    private void lexiconizeFunctionDefinition(Type context, FunctionDefinition functionDefinition)
+    private void semalysizeFunctionDefinition(Type context, FunctionDefinition functionDefinition)
     {
-        lexiconizeExpression(functionDefinition.context, functionDefinition.expression);
+        semalysizeExpression(functionDefinition.context, functionDefinition.expression);
         implicitCast(functionDefinition.context, functionDefinition.expression, functionDefinition.method.returnType);
         functionDefinition.returnBehavior = functionDefinition.expression.returnBehavior;
         if (functionDefinition.method.returnType != functionDefinition.returnBehavior.type)
-            errors.add(LexicalException.cantCast(functionDefinition.expression, functionDefinition.returnBehavior.type, functionDefinition.method.returnType));
+            errors.add(SemalyticalException.cantCast(functionDefinition.expression, functionDefinition.returnBehavior.type, functionDefinition.method.returnType));
         Util._assert(functionDefinition.context.stackSize == 0);
     }
 
-    private ReturnBehavior lexiconizeExpression(LocalContext context, Expression expression)
+    private ReturnBehavior semalysizeExpression(LocalContext context, Expression expression)
     {
         if (expression == null)
             throw null;
@@ -202,123 +202,123 @@ public class Lexiconizer
         ReturnBehavior returnBehavior;
         switch (content.getElementType()) {
             case Addition.TYPE:
-                returnBehavior = lexiconizeAddition(context, expression);
+                returnBehavior = semalysizeAddition(context, expression);
                 break;
             case Subtraction.TYPE:
-                returnBehavior = lexiconizeSubtraction(context, (Subtraction)content);
+                returnBehavior = semalysizeSubtraction(context, (Subtraction)content);
                 break;
             case Multiplication.TYPE:
-                returnBehavior = lexiconizeMultiplication(context, (Multiplication)content);
+                returnBehavior = semalysizeMultiplication(context, (Multiplication)content);
                 break;
             case Division.TYPE:
-                returnBehavior = lexiconizeDivision(context, (Division)content);
+                returnBehavior = semalysizeDivision(context, (Division)content);
                 break;
             case PreIncrement.TYPE:
-                returnBehavior = lexiconizePreIncrement(context, (PreIncrement)content);
+                returnBehavior = semalysizePreIncrement(context, (PreIncrement)content);
                 break;
             case PreDecrement.TYPE:
-                returnBehavior = lexiconizePreDecrement(context, (PreDecrement)content);
+                returnBehavior = semalysizePreDecrement(context, (PreDecrement)content);
                 break;
             case PostIncrement.TYPE:
-                returnBehavior = lexiconizePostIncrement(context, (PostIncrement)content);
+                returnBehavior = semalysizePostIncrement(context, (PostIncrement)content);
                 break;
             case PostDecrement.TYPE:
-                returnBehavior = lexiconizePostDecrement(context, (PostDecrement)content);
+                returnBehavior = semalysizePostDecrement(context, (PostDecrement)content);
                 break;
             case LessThan.TYPE:
-                returnBehavior = lexiconizeLessThan(context, (LessThan)content);
+                returnBehavior = semalysizeLessThan(context, (LessThan)content);
                 break;
             case GreaterThan.TYPE:
-                returnBehavior = lexiconizeGreaterThan(context, (GreaterThan)content);
+                returnBehavior = semalysizeGreaterThan(context, (GreaterThan)content);
                 break;
             case LessThanOrEqual.TYPE:
-                returnBehavior = lexiconizeLessThanOrEqual(context, (LessThanOrEqual)content);
+                returnBehavior = semalysizeLessThanOrEqual(context, (LessThanOrEqual)content);
                 break;
             case GreaterThanOrEqual.TYPE:
-                returnBehavior = lexiconizeGreaterThanOrEqual(context, (GreaterThanOrEqual)content);
+                returnBehavior = semalysizeGreaterThanOrEqual(context, (GreaterThanOrEqual)content);
                 break;
             case Equality.TYPE:
-                returnBehavior = lexiconizeEquality(context, (Equality)content);
+                returnBehavior = semalysizeEquality(context, (Equality)content);
                 break;
             case Inequality.TYPE:
-                returnBehavior = lexiconizeInequality(context, (Inequality)content);
+                returnBehavior = semalysizeInequality(context, (Inequality)content);
                 break;
             case ShortCircuitAnd.TYPE:
-                returnBehavior = lexiconizeShortCircuitAnd(context, (ShortCircuitAnd)content);
+                returnBehavior = semalysizeShortCircuitAnd(context, (ShortCircuitAnd)content);
                 break;
             case ShortCircuitOr.TYPE:
-                returnBehavior = lexiconizeShortCircuitOr(context, (ShortCircuitOr)content);
+                returnBehavior = semalysizeShortCircuitOr(context, (ShortCircuitOr)content);
                 break;
             case Negation.TYPE:
-                returnBehavior = lexiconizeNegation(context, (Negation)content);
+                returnBehavior = semalysizeNegation(context, (Negation)content);
                 break;
             case BooleanNot.TYPE:
-                returnBehavior = lexiconizeBooleanNot(context, (BooleanNot)content);
+                returnBehavior = semalysizeBooleanNot(context, (BooleanNot)content);
                 break;
             case Id.TYPE:
-                returnBehavior = lexiconizeId(context, (Id)content);
+                returnBehavior = semalysizeId(context, (Id)content);
                 break;
             case Block.TYPE:
-                returnBehavior = lexiconizeBlock(context, (Block)content);
+                returnBehavior = semalysizeBlock(context, (Block)content);
                 break;
             case IntLiteral.TYPE:
-                returnBehavior = lexiconizeIntLiteral(context, (IntLiteral)content);
+                returnBehavior = semalysizeIntLiteral(context, (IntLiteral)content);
                 break;
             case LongLiteral.TYPE:
-                returnBehavior = lexiconizeLongLiteral(context, (LongLiteral)content);
+                returnBehavior = semalysizeLongLiteral(context, (LongLiteral)content);
                 break;
             case FloatLiteral.TYPE:
-                returnBehavior = lexiconizeFloatLiteral(context, (FloatLiteral)content);
+                returnBehavior = semalysizeFloatLiteral(context, (FloatLiteral)content);
                 break;
             case DoubleLiteral.TYPE:
-                returnBehavior = lexiconizeDoubleLiteral(context, (DoubleLiteral)content);
+                returnBehavior = semalysizeDoubleLiteral(context, (DoubleLiteral)content);
                 break;
             case BooleanLiteral.TYPE:
-                returnBehavior = lexiconizeBooleanLiteral(context, (BooleanLiteral)content);
+                returnBehavior = semalysizeBooleanLiteral(context, (BooleanLiteral)content);
                 break;
             case StringLiteral.TYPE:
-                returnBehavior = lexiconizeStringLiteral(context, (StringLiteral)content);
+                returnBehavior = semalysizeStringLiteral(context, (StringLiteral)content);
                 break;
             case Quantity.TYPE:
-                returnBehavior = lexiconizeQuantity(context, (Quantity)content);
+                returnBehavior = semalysizeQuantity(context, (Quantity)content);
                 break;
             case VariableCreation.TYPE:
-                returnBehavior = lexiconizeVariableCreation(context, (VariableCreation)content);
+                returnBehavior = semalysizeVariableCreation(context, (VariableCreation)content);
                 break;
             case VariableDeclaration.TYPE:
-                returnBehavior = lexiconizeVariableDeclaration(context, (VariableDeclaration)content);
+                returnBehavior = semalysizeVariableDeclaration(context, (VariableDeclaration)content);
                 break;
             case Assignment.TYPE:
-                returnBehavior = lexiconizeAssignment(context, (Assignment)content);
+                returnBehavior = semalysizeAssignment(context, (Assignment)content);
                 break;
             case IfThenElse.TYPE:
-                returnBehavior = lexiconizeIfThenElse(context, (IfThenElse)content);
+                returnBehavior = semalysizeIfThenElse(context, (IfThenElse)content);
                 break;
             case IfThen.TYPE:
-                returnBehavior = lexiconizeIfThen(context, (IfThen)content);
+                returnBehavior = semalysizeIfThen(context, (IfThen)content);
                 break;
             case ForLoop.TYPE:
-                returnBehavior = lexiconizeForLoop(context, (ForLoop)content);
+                returnBehavior = semalysizeForLoop(context, (ForLoop)content);
                 break;
             case WhileLoop.TYPE:
-                returnBehavior = lexiconizeWhileLoop(context, (WhileLoop)content);
+                returnBehavior = semalysizeWhileLoop(context, (WhileLoop)content);
                 break;
             case FunctionInvocation.TYPE:
-                returnBehavior = lexiconizeFunctionInvocation(context, (FunctionInvocation)content);
+                returnBehavior = semalysizeFunctionInvocation(context, (FunctionInvocation)content);
                 break;
             case ConstructorInvocation.TYPE:
-                returnBehavior = lexiconizeConstructorInvocation(context, (ConstructorInvocation)content);
+                returnBehavior = semalysizeConstructorInvocation(context, (ConstructorInvocation)content);
                 break;
             case ConstructorRedirect.TYPE:
-                returnBehavior = lexiconizeConstructorRedirect(context, (ConstructorRedirect)content);
+                returnBehavior = semalysizeConstructorRedirect(context, (ConstructorRedirect)content);
                 break;
             case DereferenceMethod.TYPE:
                 switch (disambuateDereferenceMethod(context, expression)) {
                     case DereferenceMethod.TYPE:
-                        returnBehavior = lexiconizeDereferenceMethod(context, (DereferenceMethod)content);
+                        returnBehavior = semalysizeDereferenceMethod(context, (DereferenceMethod)content);
                         break;
                     case StaticFunctionInvocation.TYPE:
-                        returnBehavior = lexiconizeStaticFunctionInvocation(context, (StaticFunctionInvocation)expression.content);
+                        returnBehavior = semalysizeStaticFunctionInvocation(context, (StaticFunctionInvocation)expression.content);
                         break;
                     case -1:
                         returnBehavior = ReturnBehavior.UNKNOWN;
@@ -330,10 +330,10 @@ public class Lexiconizer
             case DereferenceField.TYPE:
                 switch (disambuateDereferenceField(context, expression)) {
                     case DereferenceField.TYPE:
-                        returnBehavior = lexiconizeDereferenceField(context, (DereferenceField)content);
+                        returnBehavior = semalysizeDereferenceField(context, (DereferenceField)content);
                         break;
                     case StaticDereferenceField.TYPE:
-                        returnBehavior = lexiconizeStaticDereferenceField(context, (StaticDereferenceField)expression.content);
+                        returnBehavior = semalysizeStaticDereferenceField(context, (StaticDereferenceField)expression.content);
                         break;
                     case -1:
                         returnBehavior = ReturnBehavior.UNKNOWN;
@@ -343,16 +343,16 @@ public class Lexiconizer
                 }
                 break;
             case ArrayDereference.TYPE:
-                returnBehavior = lexiconizeArrayDereference(context, (ArrayDereference)content);
+                returnBehavior = semalysizeArrayDereference(context, (ArrayDereference)content);
                 break;
             case TryCatch.TYPE:
-                returnBehavior = lexiconizeTryCatch(context, (TryCatch)content);
+                returnBehavior = semalysizeTryCatch(context, (TryCatch)content);
                 break;
             case TypeCast.TYPE:
-                returnBehavior = lexiconizeTypeCast(context, expression);
+                returnBehavior = semalysizeTypeCast(context, expression);
                 break;
             case NullExpression.TYPE:
-                returnBehavior = lexiconizeNullExpression(context, (NullExpression)content);
+                returnBehavior = semalysizeNullExpression(context, (NullExpression)content);
                 break;
             default:
                 throw new RuntimeException(content.getClass().toString());
@@ -361,9 +361,9 @@ public class Lexiconizer
         return returnBehavior;
     }
 
-    private ReturnBehavior lexiconizeConstructorRedirect(LocalContext context, ConstructorRedirect constructorRedirect)
+    private ReturnBehavior semalysizeConstructorRedirect(LocalContext context, ConstructorRedirect constructorRedirect)
     {
-        ReturnBehavior[] argumentSignature = lexiconizeArguments(context, constructorRedirect.arguments);
+        ReturnBehavior[] argumentSignature = semalysizeArguments(context, constructorRedirect.arguments);
         Type type;
         if (constructorRedirect.thisOrSuper == Lang.KEYWORD_THIS)
             type = context.getClassContext();
@@ -374,52 +374,52 @@ public class Lexiconizer
         constructorRedirect.constructor = resolveConstructor(type, argumentSignature);
         implicitCastArguments(context, constructorRedirect.arguments, constructorRedirect.constructor.argumentSignature);
         if (constructorRedirect.constructor == null)
-            errors.add(new LexicalException(constructorRedirect, "can't resolve this constructor"));
+            errors.add(new SemalyticalException(constructorRedirect, "can't resolve this constructor"));
         return ReturnBehavior.VOID;
     }
 
-    private ReturnBehavior lexiconizeNullExpression(LocalContext context, NullExpression nullExpression)
+    private ReturnBehavior semalysizeNullExpression(LocalContext context, NullExpression nullExpression)
     {
         return ReturnBehavior.NULL;
     }
 
-    private ReturnBehavior lexiconizeShortCircuitAnd(LocalContext context, ShortCircuitAnd shortCircuitAnd)
+    private ReturnBehavior semalysizeShortCircuitAnd(LocalContext context, ShortCircuitAnd shortCircuitAnd)
     {
-        return lexiconizeShortCircuitOperator(context, shortCircuitAnd);
+        return semalysizeShortCircuitOperator(context, shortCircuitAnd);
     }
 
-    private ReturnBehavior lexiconizeShortCircuitOr(LocalContext context, ShortCircuitOr shortCircuitOr)
+    private ReturnBehavior semalysizeShortCircuitOr(LocalContext context, ShortCircuitOr shortCircuitOr)
     {
-        return lexiconizeShortCircuitOperator(context, shortCircuitOr);
+        return semalysizeShortCircuitOperator(context, shortCircuitOr);
     }
 
-    private ReturnBehavior lexiconizeShortCircuitOperator(LocalContext context, ShortCircuitOperator shortCircuitOperator)
+    private ReturnBehavior semalysizeShortCircuitOperator(LocalContext context, ShortCircuitOperator shortCircuitOperator)
     {
-        ReturnBehavior returnBehavior1 = lexiconizeExpression(context, shortCircuitOperator.expression1);
+        ReturnBehavior returnBehavior1 = semalysizeExpression(context, shortCircuitOperator.expression1);
         if (returnBehavior1.type != RuntimeType.BOOLEAN)
-            errors.add(LexicalException.mustBeBoolean(shortCircuitOperator.expression1));
-        ReturnBehavior returnBehavior2 = lexiconizeExpression(context, shortCircuitOperator.expression2);
+            errors.add(SemalyticalException.mustBeBoolean(shortCircuitOperator.expression1));
+        ReturnBehavior returnBehavior2 = semalysizeExpression(context, shortCircuitOperator.expression2);
         if (returnBehavior2.type != RuntimeType.BOOLEAN)
-            errors.add(LexicalException.mustBeBoolean(shortCircuitOperator.expression2));
+            errors.add(SemalyticalException.mustBeBoolean(shortCircuitOperator.expression2));
         shortCircuitOperator.label1 = context.nextLabel();
         shortCircuitOperator.label2 = context.nextLabel();
         return new ReturnBehavior(RuntimeType.BOOLEAN);
     }
 
-    private ReturnBehavior lexiconizeBooleanNot(LocalContext context, BooleanNot booleanNot)
+    private ReturnBehavior semalysizeBooleanNot(LocalContext context, BooleanNot booleanNot)
     {
-        ReturnBehavior returnBehavior = lexiconizeExpression(context, booleanNot.expression);
+        ReturnBehavior returnBehavior = semalysizeExpression(context, booleanNot.expression);
         if (returnBehavior.type != RuntimeType.BOOLEAN)
-            errors.add(LexicalException.mustBeBoolean(booleanNot.expression));
+            errors.add(SemalyticalException.mustBeBoolean(booleanNot.expression));
         booleanNot.label1 = context.nextLabel();
         booleanNot.label2 = context.nextLabel();
         return new ReturnBehavior(RuntimeType.BOOLEAN);
     }
 
-    private ReturnBehavior lexiconizeNegation(LocalContext context, Negation negation)
+    private ReturnBehavior semalysizeNegation(LocalContext context, Negation negation)
     {
-        Type operandType = lexiconizeExpression(context, negation.expression).type;
-        if (!LexicalException.mustBeNumeric(negation.expression, errors))
+        Type operandType = semalysizeExpression(context, negation.expression).type;
+        if (!SemalyticalException.mustBeNumeric(negation.expression, errors))
             return ReturnBehavior.INT;
         Type resultType = operandType;
         if (operandType == RuntimeType.CHAR || operandType == RuntimeType.BYTE || operandType == RuntimeType.SHORT)
@@ -436,10 +436,10 @@ public class Lexiconizer
         return new ReturnBehavior(resultType);
     }
 
-    private ReturnBehavior lexiconizeTypeCast(LocalContext context, Expression expression)
+    private ReturnBehavior semalysizeTypeCast(LocalContext context, Expression expression)
     {
         TypeCast typeCast = (TypeCast)expression.content;
-        Type fromType = lexiconizeExpression(context, typeCast.expression).type;
+        Type fromType = semalysizeExpression(context, typeCast.expression).type;
 
         // inline the TypeCast object. Other classes are used when needed.
         expression.content = typeCast.expression.content;
@@ -448,12 +448,12 @@ public class Lexiconizer
         resolveType(typeCast.typeId, true);
         Type toType = typeCast.typeId.type;
         if (toType == RuntimeType.VOID) {
-            errors.add(new LexicalException(typeCast.typeId, "can't cast to void."));
+            errors.add(new SemalyticalException(typeCast.typeId, "can't cast to void."));
             toType = null;
         }
         // fromType
         if (fromType == RuntimeType.VOID) {
-            errors.add(new LexicalException(typeCast, "can't cast from void."));
+            errors.add(new SemalyticalException(typeCast, "can't cast from void."));
             fromType = null;
         }
         // error recovery
@@ -466,13 +466,13 @@ public class Lexiconizer
 
         // primitive vs reference
         if (fromType.isPrimitive() != toType.isPrimitive()) {
-            errors.add(new LexicalException(typeCast.typeId, "can't cast between primitives and non-primitives"));
+            errors.add(new SemalyticalException(typeCast.typeId, "can't cast between primitives and non-primitives"));
             return new ReturnBehavior(toType);
         }
         if (toType.isPrimitive()) {
             // primitive
             if (fromType == RuntimeType.BOOLEAN || toType == RuntimeType.BOOLEAN) {
-                errors.add(LexicalException.cantCast(typeCast.typeId, fromType, toType));
+                errors.add(SemalyticalException.cantCast(typeCast.typeId, fromType, toType));
                 return new ReturnBehavior(toType);
             }
             convertPrimitive(context, fromType, toType, expression);
@@ -489,163 +489,163 @@ public class Lexiconizer
         }
     }
 
-    private ReturnBehavior lexiconizeWhileLoop(LocalContext context, WhileLoop whileLoop)
+    private ReturnBehavior semalysizeWhileLoop(LocalContext context, WhileLoop whileLoop)
     {
         whileLoop.continueToLabel = context.nextLabel();
-        ReturnBehavior returnBehavior1 = lexiconizeExpression(context, whileLoop.expression1);
+        ReturnBehavior returnBehavior1 = semalysizeExpression(context, whileLoop.expression1);
         if (returnBehavior1.type != RuntimeType.BOOLEAN)
-            errors.add(LexicalException.mustBeBoolean(whileLoop.expression1));
+            errors.add(SemalyticalException.mustBeBoolean(whileLoop.expression1));
 
-        ReturnBehavior returnBehavior2 = lexiconizeExpression(context, whileLoop.expression2);
+        ReturnBehavior returnBehavior2 = semalysizeExpression(context, whileLoop.expression2);
         if (returnBehavior2.type != RuntimeType.VOID)
-            errors.add(LexicalException.mustBeVoid(whileLoop.expression2));
+            errors.add(SemalyticalException.mustBeVoid(whileLoop.expression2));
 
         whileLoop.breakToLabel = context.nextLabel();
         return ReturnBehavior.VOID;
     }
 
-    private ReturnBehavior lexiconizeConstructorInvocation(LocalContext context, ConstructorInvocation constructorInvocation)
+    private ReturnBehavior semalysizeConstructorInvocation(LocalContext context, ConstructorInvocation constructorInvocation)
     {
         TypeId typeId = TypeId.fromId(constructorInvocation.functionInvocation.id);
         resolveType(typeId, true);
-        ReturnBehavior[] argumentSignature = lexiconizeArguments(context, constructorInvocation.functionInvocation.arguments);
+        ReturnBehavior[] argumentSignature = semalysizeArguments(context, constructorInvocation.functionInvocation.arguments);
         constructorInvocation.constructor = resolveConstructor(typeId.type, argumentSignature);
         implicitCastArguments(context, constructorInvocation.functionInvocation.arguments, constructorInvocation.constructor.argumentSignature);
         if (constructorInvocation.constructor == null)
-            errors.add(new LexicalException(constructorInvocation, "can't resolve this constructor"));
+            errors.add(new SemalyticalException(constructorInvocation, "can't resolve this constructor"));
         return new ReturnBehavior(typeId.type);
     }
 
-    private ReturnBehavior lexiconizePreIncrement(LocalContext context, PreIncrement preIncrement)
+    private ReturnBehavior semalysizePreIncrement(LocalContext context, PreIncrement preIncrement)
     {
-        return lexiconizeIncrementDecrement(context, preIncrement);
+        return semalysizeIncrementDecrement(context, preIncrement);
     }
-    private ReturnBehavior lexiconizePreDecrement(LocalContext context, PreDecrement preDecrement)
+    private ReturnBehavior semalysizePreDecrement(LocalContext context, PreDecrement preDecrement)
     {
-        return lexiconizeIncrementDecrement(context, preDecrement);
+        return semalysizeIncrementDecrement(context, preDecrement);
     }
-    private ReturnBehavior lexiconizePostIncrement(LocalContext context, PostIncrement postIncrement)
+    private ReturnBehavior semalysizePostIncrement(LocalContext context, PostIncrement postIncrement)
     {
-        return lexiconizeIncrementDecrement(context, postIncrement);
+        return semalysizeIncrementDecrement(context, postIncrement);
     }
-    private ReturnBehavior lexiconizePostDecrement(LocalContext context, PostDecrement postDecrement)
+    private ReturnBehavior semalysizePostDecrement(LocalContext context, PostDecrement postDecrement)
     {
-        return lexiconizeIncrementDecrement(context, postDecrement);
+        return semalysizeIncrementDecrement(context, postDecrement);
     }
-    private ReturnBehavior lexiconizeIncrementDecrement(LocalContext context, IncrementDecrement incrementDecrement)
+    private ReturnBehavior semalysizeIncrementDecrement(LocalContext context, IncrementDecrement incrementDecrement)
     {
         if (incrementDecrement.expression.content.getElementType() != Id.TYPE)
-            errors.add(LexicalException.mustBeVariable(incrementDecrement.expression.content));
+            errors.add(SemalyticalException.mustBeVariable(incrementDecrement.expression.content));
         else {
             incrementDecrement.id = (Id)incrementDecrement.expression.content;
-            lexiconizeId(context, incrementDecrement.id);
+            semalysizeId(context, incrementDecrement.id);
             if (incrementDecrement.id.variable.type != RuntimeType.INT)
-                errors.add(LexicalException.variableMustBeInt(incrementDecrement.id));
+                errors.add(SemalyticalException.variableMustBeInt(incrementDecrement.id));
         }
         return ReturnBehavior.INT;
     }
 
-    private ReturnBehavior lexiconizeForLoop(LocalContext context, ForLoop forLoop)
+    private ReturnBehavior semalysizeForLoop(LocalContext context, ForLoop forLoop)
     {
         LocalContext innerContext = new LocalContext(context);
-        ReturnBehavior returnBehavior1 = lexiconizeExpression(innerContext, forLoop.expression1);
+        ReturnBehavior returnBehavior1 = semalysizeExpression(innerContext, forLoop.expression1);
         if (returnBehavior1.type != RuntimeType.VOID)
-            errors.add(LexicalException.mustBeVoid(forLoop.expression1));
+            errors.add(SemalyticalException.mustBeVoid(forLoop.expression1));
 
         forLoop.continueToLabel = innerContext.nextLabel();
-        lexiconizeExpression(innerContext, forLoop.expression3);
+        semalysizeExpression(innerContext, forLoop.expression3);
 
         forLoop.initialGotoLabel = innerContext.nextLabel();
-        ReturnBehavior returnBehavior2 = lexiconizeExpression(innerContext, forLoop.expression2);
+        ReturnBehavior returnBehavior2 = semalysizeExpression(innerContext, forLoop.expression2);
         if (returnBehavior2.type != RuntimeType.BOOLEAN)
-            errors.add(LexicalException.mustBeBoolean(forLoop.expression2));
+            errors.add(SemalyticalException.mustBeBoolean(forLoop.expression2));
 
-        ReturnBehavior returnBehavior4 = lexiconizeExpression(innerContext, forLoop.expression4);
+        ReturnBehavior returnBehavior4 = semalysizeExpression(innerContext, forLoop.expression4);
         if (returnBehavior4.type != RuntimeType.VOID)
-            errors.add(LexicalException.mustBeVoid(forLoop.expression4));
+            errors.add(SemalyticalException.mustBeVoid(forLoop.expression4));
 
         forLoop.breakToLabel = innerContext.nextLabel();
 
         return ReturnBehavior.VOID;
     }
 
-    private ReturnBehavior lexiconizeArrayDereference(LocalContext context, ArrayDereference arrayDereference)
+    private ReturnBehavior semalysizeArrayDereference(LocalContext context, ArrayDereference arrayDereference)
     {
-        ReturnBehavior returnBehavior1 = lexiconizeExpression(context, arrayDereference.expression1);
+        ReturnBehavior returnBehavior1 = semalysizeExpression(context, arrayDereference.expression1);
         if (returnBehavior1.type.getType() != ArrayType.TYPE)
-            errors.add(new LexicalException(arrayDereference, "Can't dereference this thing like an array"));
-        ReturnBehavior returnBehavior2 = lexiconizeExpression(context, arrayDereference.expression2);
+            errors.add(new SemalyticalException(arrayDereference, "Can't dereference this thing like an array"));
+        ReturnBehavior returnBehavior2 = semalysizeExpression(context, arrayDereference.expression2);
         if (returnBehavior2.type != RuntimeType.INT)
-            errors.add(LexicalException.mustBeInt(arrayDereference.expression2));
+            errors.add(SemalyticalException.mustBeInt(arrayDereference.expression2));
 
         Type scalarType = ((ArrayType)returnBehavior1.type).scalarType;
         return new ReturnBehavior(scalarType);
     }
 
-    private ReturnBehavior lexiconizeStaticDereferenceField(LocalContext context, StaticDereferenceField staticDereferenceField)
+    private ReturnBehavior semalysizeStaticDereferenceField(LocalContext context, StaticDereferenceField staticDereferenceField)
     {
-        // lexiconization already done for typeId
+        // semalysization already done for typeId
         staticDereferenceField.field = resolveField(staticDereferenceField.typeId.type, staticDereferenceField.id);
         if (staticDereferenceField.field == null)
-            errors.add(LexicalException.cantResolveField(staticDereferenceField.typeId.type, staticDereferenceField.id));
+            errors.add(SemalyticalException.cantResolveField(staticDereferenceField.typeId.type, staticDereferenceField.id));
         return new ReturnBehavior(staticDereferenceField.field.returnType);
     }
 
-    private ReturnBehavior lexiconizeStaticFunctionInvocation(LocalContext context, StaticFunctionInvocation staticFunctionInvocation)
+    private ReturnBehavior semalysizeStaticFunctionInvocation(LocalContext context, StaticFunctionInvocation staticFunctionInvocation)
     {
-        // lexiconization already done for typeId
-        ReturnBehavior[] argumentSignature = lexiconizeArguments(context, staticFunctionInvocation.functionInvocation.arguments);
+        // semalysization already done for typeId
+        ReturnBehavior[] argumentSignature = semalysizeArguments(context, staticFunctionInvocation.functionInvocation.arguments);
         staticFunctionInvocation.functionInvocation.method = resolveMethod(staticFunctionInvocation.typeId.type, staticFunctionInvocation.functionInvocation, argumentSignature);
         implicitCastArguments(context, staticFunctionInvocation.functionInvocation.arguments, staticFunctionInvocation.functionInvocation.method.argumentSignature);
         Type returnType = staticFunctionInvocation.functionInvocation.method.returnType;
         return new ReturnBehavior(returnType);
     }
 
-    private ReturnBehavior lexiconizeTryCatch(LocalContext context, TryCatch tryCatch)
+    private ReturnBehavior semalysizeTryCatch(LocalContext context, TryCatch tryCatch)
     {
-        ReturnBehavior tryPartReturnBehavior = lexiconizeTryPart(context, tryCatch.tryPart);
+        ReturnBehavior tryPartReturnBehavior = semalysizeTryPart(context, tryCatch.tryPart);
 
-        ReturnBehavior catchPartReturnBehavior = lexiconizeCatchPart(context, tryCatch.catchPart);
+        ReturnBehavior catchPartReturnBehavior = semalysizeCatchPart(context, tryCatch.catchPart);
 
         if (tryPartReturnBehavior.type != catchPartReturnBehavior.type)
-            errors.add(new LexicalException(tryCatch, "return types must match"));
+            errors.add(new SemalyticalException(tryCatch, "return types must match"));
         tryCatch.type = tryPartReturnBehavior.type;
         return new ReturnBehavior(tryPartReturnBehavior.type);
     }
 
-    private ReturnBehavior lexiconizeTryPart(LocalContext context, TryPart tryPart)
+    private ReturnBehavior semalysizeTryPart(LocalContext context, TryPart tryPart)
     {
-        lexiconizeExpression(context, tryPart.expression);
+        semalysizeExpression(context, tryPart.expression);
         return tryPart.expression.returnBehavior;
     }
 
-    private ReturnBehavior lexiconizeCatchPart(LocalContext context, CatchPart catchPart)
+    private ReturnBehavior semalysizeCatchPart(LocalContext context, CatchPart catchPart)
     {
-        return lexiconizeCatchList(context, catchPart.catchList);
+        return semalysizeCatchList(context, catchPart.catchList);
     }
 
-    private ReturnBehavior lexiconizeCatchList(LocalContext context, CatchList catchList)
+    private ReturnBehavior semalysizeCatchList(LocalContext context, CatchList catchList)
     {
         Type returnType = null;
         for (CatchBody catchBody : catchList.elements) {
-            ReturnBehavior returnBehavior = lexiconizeCatchBody(context, catchBody);
+            ReturnBehavior returnBehavior = semalysizeCatchBody(context, catchBody);
             if (returnType == null)
                 returnType = returnBehavior.type;
             else if (returnType != returnBehavior.type)
-                errors.add(new LexicalException(catchList, "return types must match"));
+                errors.add(new SemalyticalException(catchList, "return types must match"));
         }
         if (returnType == null)
-            errors.add(new LexicalException(catchList, "must catch something"));
+            errors.add(new SemalyticalException(catchList, "must catch something"));
         return new ReturnBehavior(returnType);
     }
 
-    private ReturnBehavior lexiconizeCatchBody(LocalContext context, CatchBody catchBody)
+    private ReturnBehavior semalysizeCatchBody(LocalContext context, CatchBody catchBody)
     {
         LocalContext nestedContext = new LocalContext(context);
-        lexiconizeVariableDeclaration(nestedContext, catchBody.variableDeclaration);
+        semalysizeVariableDeclaration(nestedContext, catchBody.variableDeclaration);
         if (!catchBody.variableDeclaration.typeId.type.isInstanceOf(RuntimeType.getType(Throwable.class)))
-            errors.add(new LexicalException(catchBody.variableDeclaration, "Type must descend from Throwable. Can't catch a " + catchBody.variableDeclaration.typeId));
-        ReturnBehavior returnBehavior = lexiconizeExpression(nestedContext, catchBody.expression);
+            errors.add(new SemalyticalException(catchBody.variableDeclaration, "Type must descend from Throwable. Can't catch a " + catchBody.variableDeclaration.typeId));
+        ReturnBehavior returnBehavior = semalysizeExpression(nestedContext, catchBody.expression);
         return new ReturnBehavior(returnBehavior.type);
     }
 
@@ -664,16 +664,16 @@ public class Lexiconizer
             expression.content = new StaticDereferenceField(typeId, dereferenceField.id);
             return StaticDereferenceField.TYPE;
         }
-        errors.add(LexicalException.cantResolveLocalVariable(id));
+        errors.add(SemalyticalException.cantResolveLocalVariable(id));
         return -1;
     }
 
-    private ReturnBehavior lexiconizeDereferenceField(LocalContext context, DereferenceField dereferenceField)
+    private ReturnBehavior semalysizeDereferenceField(LocalContext context, DereferenceField dereferenceField)
     {
-        Type type = lexiconizeExpression(context, dereferenceField.expression).type;
+        Type type = semalysizeExpression(context, dereferenceField.expression).type;
         dereferenceField.field = resolveField(type, dereferenceField.id);
         if (dereferenceField.field == null)
-            errors.add(LexicalException.cantResolveField(type, dereferenceField.id));
+            errors.add(SemalyticalException.cantResolveField(type, dereferenceField.id));
         return new ReturnBehavior(dereferenceField.field.returnType);
     }
 
@@ -692,37 +692,37 @@ public class Lexiconizer
             expression.content = new StaticFunctionInvocation(typeId, dereferenceMethod.functionInvocation);
             return StaticFunctionInvocation.TYPE;
         }
-        errors.add(LexicalException.cantResolveLocalVariable(id));
+        errors.add(SemalyticalException.cantResolveLocalVariable(id));
         return -1;
     }
 
-    private ReturnBehavior lexiconizeDereferenceMethod(LocalContext context, DereferenceMethod dereferenceMethod)
+    private ReturnBehavior semalysizeDereferenceMethod(LocalContext context, DereferenceMethod dereferenceMethod)
     {
-        ReturnBehavior expressionReturnBehavior = lexiconizeExpression(context, dereferenceMethod.expression);
-        ReturnBehavior[] argumentSignature = lexiconizeArguments(context, dereferenceMethod.functionInvocation.arguments);
+        ReturnBehavior expressionReturnBehavior = semalysizeExpression(context, dereferenceMethod.expression);
+        ReturnBehavior[] argumentSignature = semalysizeArguments(context, dereferenceMethod.functionInvocation.arguments);
         dereferenceMethod.functionInvocation.method = resolveMethod(expressionReturnBehavior.type, dereferenceMethod.functionInvocation, argumentSignature);
         implicitCastArguments(context, dereferenceMethod.functionInvocation.arguments, dereferenceMethod.functionInvocation.method.argumentSignature);
         return new ReturnBehavior(dereferenceMethod.functionInvocation.method.returnType);
     }
 
-    private ReturnBehavior lexiconizeFunctionInvocation(LocalContext context, FunctionInvocation functionInvocation)
+    private ReturnBehavior semalysizeFunctionInvocation(LocalContext context, FunctionInvocation functionInvocation)
     {
-        ReturnBehavior[] argumentSignature = lexiconizeArguments(context, functionInvocation.arguments);
+        ReturnBehavior[] argumentSignature = semalysizeArguments(context, functionInvocation.arguments);
         functionInvocation.method = resolveMethod(context.getClassContext(), functionInvocation, argumentSignature);
         implicitCastArguments(context, functionInvocation.arguments, functionInvocation.method.argumentSignature);
         return new ReturnBehavior(functionInvocation.method.returnType);
     }
 
-    private ReturnBehavior[] lexiconizeArguments(LocalContext context, Arguments arguments)
+    private ReturnBehavior[] semalysizeArguments(LocalContext context, Arguments arguments)
     {
         deleteNulls(arguments);
         ReturnBehavior[] rtnArr = new ReturnBehavior[arguments.elements.size()];
         int i = 0;
         for (Expression element : arguments.elements) {
             if (element.returnBehavior == null)
-                rtnArr[i++] = lexiconizeExpression(context, element);
+                rtnArr[i++] = semalysizeExpression(context, element);
             else {
-                // the conversion from addition to string concatenation has already lexiconized some arguments
+                // the conversion from addition to string concatenation has already semalysized some arguments
                 rtnArr[i++] = element.returnBehavior;
             }
         }
@@ -736,42 +736,42 @@ public class Lexiconizer
             implicitCast(context, element, argumentSignature[i++]);
     }
 
-    private ReturnBehavior lexiconizeIfThenElse(LocalContext context, IfThenElse ifThenElse)
+    private ReturnBehavior semalysizeIfThenElse(LocalContext context, IfThenElse ifThenElse)
     {
-        lexiconizeExpression(context, ifThenElse.expression1);
+        semalysizeExpression(context, ifThenElse.expression1);
         if (ifThenElse.expression1.returnBehavior.type != RuntimeType.BOOLEAN)
-            errors.add(LexicalException.mustBeBoolean(ifThenElse.expression1));
+            errors.add(SemalyticalException.mustBeBoolean(ifThenElse.expression1));
 
         ifThenElse.label1 = context.nextLabel();
-        lexiconizeExpression(context, ifThenElse.expression2);
+        semalysizeExpression(context, ifThenElse.expression2);
 
         ifThenElse.label2 = context.nextLabel();
-        lexiconizeExpression(context, ifThenElse.expression3);
+        semalysizeExpression(context, ifThenElse.expression3);
 
         if (ifThenElse.expression2.returnBehavior.type != ifThenElse.expression3.returnBehavior.type)
-            errors.add(new LexicalException(ifThenElse, "return types must match"));
+            errors.add(new SemalyticalException(ifThenElse, "return types must match"));
         return new ReturnBehavior(ifThenElse.expression2.returnBehavior.type);
     }
-    private ReturnBehavior lexiconizeIfThen(LocalContext context, IfThen ifThen)
+    private ReturnBehavior semalysizeIfThen(LocalContext context, IfThen ifThen)
     {
-        lexiconizeExpression(context, ifThen.expression1);
+        semalysizeExpression(context, ifThen.expression1);
         if (ifThen.expression1.returnBehavior.type != RuntimeType.BOOLEAN)
-            errors.add(LexicalException.mustBeBoolean(ifThen.expression1));
+            errors.add(SemalyticalException.mustBeBoolean(ifThen.expression1));
         ifThen.label = context.nextLabel();
 
-        lexiconizeExpression(context, ifThen.expression2);
+        semalysizeExpression(context, ifThen.expression2);
         if (ifThen.expression2.returnBehavior.type != RuntimeType.VOID)
-            errors.add(LexicalException.mustBeVoid(ifThen.expression2));
+            errors.add(SemalyticalException.mustBeVoid(ifThen.expression2));
 
         return ReturnBehavior.VOID;
     }
 
-    private ReturnBehavior lexiconizeAssignment(LocalContext context, Assignment assignment)
+    private ReturnBehavior semalysizeAssignment(LocalContext context, Assignment assignment)
     {
         assignment.id.variable = resolveId(context, assignment.id);
         if (assignment.id.variable == null)
-            errors.add(LexicalException.cantResolveLocalVariable(assignment.id));
-        lexiconizeExpression(context, assignment.expression);
+            errors.add(SemalyticalException.cantResolveLocalVariable(assignment.id));
+        semalysizeExpression(context, assignment.expression);
         if (assignment.id.variable != null)
             implicitCast(context, assignment.expression, assignment.id.variable.type);
         Type returnType = assignment.expression.returnBehavior.type;
@@ -785,17 +785,17 @@ public class Lexiconizer
             return;
         boolean primitive = fromType.isPrimitive();
         if (primitive != toType.isPrimitive()) {
-            errors.add(new LexicalException(expression, "can't cast between primitives and non-primitives"));
+            errors.add(new SemalyticalException(expression, "can't cast between primitives and non-primitives"));
             return;
         }
         if (primitive) {
             if ((fromType == RuntimeType.BOOLEAN) != (toType == RuntimeType.BOOLEAN)) {
-                errors.add(LexicalException.cantConvert(expression, fromType, toType));
+                errors.add(SemalyticalException.cantConvert(expression, fromType, toType));
                 return;
             }
             switch (RuntimeType.getPrimitiveConversionType(fromType, toType)) {
                 case -1:
-                    errors.add(LexicalException.cantConvert(expression, fromType, toType));
+                    errors.add(SemalyticalException.cantConvert(expression, fromType, toType));
                     break;
                 case 0:
                     throw null; // handled earlier
@@ -807,45 +807,45 @@ public class Lexiconizer
             }
         } else {
             if (!fromType.isInstanceOf(toType))
-                errors.add(LexicalException.cantConvert(expression, fromType, toType));
+                errors.add(SemalyticalException.cantConvert(expression, fromType, toType));
         }
         expression.returnBehavior = new ReturnBehavior(toType); // TODO this is overwriting a valid object at least sometimes
     }
 
-    private ReturnBehavior lexiconizeVariableDeclaration(LocalContext context, VariableDeclaration variableDeclaration)
+    private ReturnBehavior semalysizeVariableDeclaration(LocalContext context, VariableDeclaration variableDeclaration)
     {
         resolveType(variableDeclaration.typeId, true);
         if (variableDeclaration.typeId.type == RuntimeType.VOID)
-            errors.add(new LexicalException(variableDeclaration, "You can't have a void variable."));
+            errors.add(new SemalyticalException(variableDeclaration, "You can't have a void variable."));
         context.addLocalVariable(variableDeclaration.id, variableDeclaration.typeId.type, errors);
         return ReturnBehavior.VOID;
     }
 
-    private ReturnBehavior lexiconizeId(LocalContext context, Id id)
+    private ReturnBehavior semalysizeId(LocalContext context, Id id)
     {
         id.variable = resolveId(context, id);
         if (id.variable == null) {
-            errors.add(LexicalException.cantResolveLocalVariable(id));
+            errors.add(SemalyticalException.cantResolveLocalVariable(id));
             return ReturnBehavior.UNKNOWN;
         }
         return new ReturnBehavior(id.variable.type);
     }
 
-    private ReturnBehavior lexiconizeVariableCreation(LocalContext context, VariableCreation variableCreation)
+    private ReturnBehavior semalysizeVariableCreation(LocalContext context, VariableCreation variableCreation)
     {
-        lexiconizeVariableDeclaration(context, variableCreation.variableDeclaration);
-        lexiconizeExpression(context, variableCreation.expression);
+        semalysizeVariableDeclaration(context, variableCreation.variableDeclaration);
+        semalysizeExpression(context, variableCreation.expression);
         implicitCast(context, variableCreation.expression, variableCreation.variableDeclaration.typeId.type);
         return ReturnBehavior.VOID;
     }
 
-    private ReturnBehavior lexiconizeBlock(LocalContext context, Block block)
+    private ReturnBehavior semalysizeBlock(LocalContext context, Block block)
     {
         block.context = new LocalContext(context);
-        return lexiconizeBlockContents(block.context, block.blockContents);
+        return semalysizeBlockContents(block.context, block.blockContents);
     }
 
-    private ReturnBehavior lexiconizeBlockContents(LocalContext context, BlockContents blockContents)
+    private ReturnBehavior semalysizeBlockContents(LocalContext context, BlockContents blockContents)
     {
         blockContents.forceVoid = blockContents.elements.size() == 0 || blockContents.elements.get(blockContents.elements.size() - 1) == null;
 
@@ -853,7 +853,7 @@ public class Lexiconizer
 
         Type returnType = RuntimeType.VOID;
         for (Expression element : blockContents.elements) {
-            ReturnBehavior returnBehavior = lexiconizeExpression(context, element);
+            ReturnBehavior returnBehavior = semalysizeExpression(context, element);
             returnType = returnBehavior.type;
         }
         if (blockContents.forceVoid)
@@ -861,41 +861,41 @@ public class Lexiconizer
         return new ReturnBehavior(returnType);
     }
 
-    private ReturnBehavior lexiconizeQuantity(LocalContext context, Quantity quantity)
+    private ReturnBehavior semalysizeQuantity(LocalContext context, Quantity quantity)
     {
-        return lexiconizeExpression(context, quantity.expression);
+        return semalysizeExpression(context, quantity.expression);
     }
 
-    private ReturnBehavior lexiconizeIntLiteral(LocalContext context, IntLiteral intLiteral)
+    private ReturnBehavior semalysizeIntLiteral(LocalContext context, IntLiteral intLiteral)
     {
         return ReturnBehavior.INT;
     }
-    private ReturnBehavior lexiconizeLongLiteral(LocalContext context, LongLiteral longLiteral)
+    private ReturnBehavior semalysizeLongLiteral(LocalContext context, LongLiteral longLiteral)
     {
         return ReturnBehavior.LONG;
     }
-    private ReturnBehavior lexiconizeFloatLiteral(LocalContext context, FloatLiteral floatLiteral)
+    private ReturnBehavior semalysizeFloatLiteral(LocalContext context, FloatLiteral floatLiteral)
     {
         return ReturnBehavior.FLOAT;
     }
-    private ReturnBehavior lexiconizeDoubleLiteral(LocalContext context, DoubleLiteral doubleLiteral)
+    private ReturnBehavior semalysizeDoubleLiteral(LocalContext context, DoubleLiteral doubleLiteral)
     {
         return ReturnBehavior.DOUBLE;
     }
-    private ReturnBehavior lexiconizeBooleanLiteral(LocalContext context, BooleanLiteral booleanLiteral)
+    private ReturnBehavior semalysizeBooleanLiteral(LocalContext context, BooleanLiteral booleanLiteral)
     {
         return ReturnBehavior.BOOLEAN;
     }
-    private ReturnBehavior lexiconizeStringLiteral(LocalContext context, StringLiteral stringLiteral)
+    private ReturnBehavior semalysizeStringLiteral(LocalContext context, StringLiteral stringLiteral)
     {
         return ReturnBehavior.STRING;
     }
 
-    private ReturnBehavior lexiconizeAddition(LocalContext context, Expression expression)
+    private ReturnBehavior semalysizeAddition(LocalContext context, Expression expression)
     {
         Addition addition = (Addition)expression.content;
-        Type returnType1 = lexiconizeExpression(context, addition.expression1).type;
-        Type returnType2 = lexiconizeExpression(context, addition.expression2).type;
+        Type returnType1 = semalysizeExpression(context, addition.expression1).type;
+        Type returnType2 = semalysizeExpression(context, addition.expression2).type;
         if (returnType1 == RuntimeType.STRING || returnType2 == RuntimeType.STRING) {
             // convert to string concatenation
             // a + b
@@ -904,34 +904,34 @@ public class Lexiconizer
             Expression string1 = stringValueOf(addition.expression1);
             Expression string2 = stringValueOf(addition.expression2);
             expression.content = new DereferenceMethod(string1, new FunctionInvocation(new Id("concat"), new Arguments(Arrays.asList(string2))));
-            return lexiconizeExpression(context, expression);
+            return semalysizeExpression(context, expression);
         } else {
-            return lexiconizeNumericOperator(context, addition);
+            return semalysizeNumericOperator(context, addition);
         }
     }
     private Expression stringValueOf(Expression expression)
     {
         return new Expression(new DereferenceMethod(new Expression(new Id("String")), new FunctionInvocation(new Id("valueOf"), new Arguments(Arrays.asList(expression)))));
     }
-    private ReturnBehavior lexiconizeSubtraction(LocalContext context, Subtraction subtraction)
+    private ReturnBehavior semalysizeSubtraction(LocalContext context, Subtraction subtraction)
     {
-        return lexiconizeNumericOperator(context, subtraction);
+        return semalysizeNumericOperator(context, subtraction);
     }
-    private ReturnBehavior lexiconizeMultiplication(LocalContext context, Multiplication multiplication)
+    private ReturnBehavior semalysizeMultiplication(LocalContext context, Multiplication multiplication)
     {
-        return lexiconizeNumericOperator(context, multiplication);
+        return semalysizeNumericOperator(context, multiplication);
     }
-    private ReturnBehavior lexiconizeDivision(LocalContext context, Division division)
+    private ReturnBehavior semalysizeDivision(LocalContext context, Division division)
     {
-        return lexiconizeNumericOperator(context, division);
+        return semalysizeNumericOperator(context, division);
     }
-    private ReturnBehavior lexiconizeNumericOperator(LocalContext context, BinaryOperatorElement operator)
+    private ReturnBehavior semalysizeNumericOperator(LocalContext context, BinaryOperatorElement operator)
     {
-        Type returnType1 = lazyLexiconizeExpression(context, operator.expression1).type;
-        boolean good = LexicalException.mustBeNumeric(operator.expression1, errors);
+        Type returnType1 = lazySemalysizeExpression(context, operator.expression1).type;
+        boolean good = SemalyticalException.mustBeNumeric(operator.expression1, errors);
 
-        Type returnType2 = lazyLexiconizeExpression(context, operator.expression2).type;
-        good &= LexicalException.mustBeNumeric(operator.expression2, errors);
+        Type returnType2 = lazySemalysizeExpression(context, operator.expression2).type;
+        good &= SemalyticalException.mustBeNumeric(operator.expression2, errors);
 
         if (!good)
             return ReturnBehavior.INT;
@@ -945,54 +945,54 @@ public class Lexiconizer
         operator.type = resultType;
         return new ReturnBehavior(resultType);
     }
-    private ReturnBehavior lazyLexiconizeExpression(LocalContext context, Expression expression)
+    private ReturnBehavior lazySemalysizeExpression(LocalContext context, Expression expression)
     {
         if (expression.returnBehavior != null)
             return expression.returnBehavior;
-        return lexiconizeExpression(context, expression);
+        return semalysizeExpression(context, expression);
     }
-    private ReturnBehavior lexiconizeLessThan(LocalContext context, LessThan lessThan)
+    private ReturnBehavior semalysizeLessThan(LocalContext context, LessThan lessThan)
     {
-        return lexiconizeComparisonOperator(context, lessThan, false);
+        return semalysizeComparisonOperator(context, lessThan, false);
     }
-    private ReturnBehavior lexiconizeGreaterThan(LocalContext context, GreaterThan greaterThan)
+    private ReturnBehavior semalysizeGreaterThan(LocalContext context, GreaterThan greaterThan)
     {
-        return lexiconizeComparisonOperator(context, greaterThan, false);
+        return semalysizeComparisonOperator(context, greaterThan, false);
     }
-    private ReturnBehavior lexiconizeLessThanOrEqual(LocalContext context, LessThanOrEqual lessThanOrEqual)
+    private ReturnBehavior semalysizeLessThanOrEqual(LocalContext context, LessThanOrEqual lessThanOrEqual)
     {
-        return lexiconizeComparisonOperator(context, lessThanOrEqual, false);
+        return semalysizeComparisonOperator(context, lessThanOrEqual, false);
     }
-    private ReturnBehavior lexiconizeGreaterThanOrEqual(LocalContext context, GreaterThanOrEqual greaterThanOrEqual)
+    private ReturnBehavior semalysizeGreaterThanOrEqual(LocalContext context, GreaterThanOrEqual greaterThanOrEqual)
     {
-        return lexiconizeComparisonOperator(context, greaterThanOrEqual, false);
+        return semalysizeComparisonOperator(context, greaterThanOrEqual, false);
     }
-    private ReturnBehavior lexiconizeEquality(LocalContext context, Equality equality)
+    private ReturnBehavior semalysizeEquality(LocalContext context, Equality equality)
     {
-        return lexiconizeComparisonOperator(context, equality, true);
+        return semalysizeComparisonOperator(context, equality, true);
     }
-    private ReturnBehavior lexiconizeInequality(LocalContext context, Inequality inequality)
+    private ReturnBehavior semalysizeInequality(LocalContext context, Inequality inequality)
     {
-        return lexiconizeComparisonOperator(context, inequality, true);
+        return semalysizeComparisonOperator(context, inequality, true);
     }
-    private ReturnBehavior lexiconizeComparisonOperator(LocalContext context, ComparisonOperator operator, boolean allowReferenceOperands)
+    private ReturnBehavior semalysizeComparisonOperator(LocalContext context, ComparisonOperator operator, boolean allowReferenceOperands)
     {
         operator.label1 = context.nextLabel();
         operator.label2 = context.nextLabel();
-        return lexiconizeOperator(context, operator, RuntimeType.BOOLEAN, allowReferenceOperands);
+        return semalysizeOperator(context, operator, RuntimeType.BOOLEAN, allowReferenceOperands);
     }
-    private ReturnBehavior lexiconizeOperator(LocalContext context, BinaryOperatorElement operator, Type returnType, boolean allowReferenceOperands)
+    private ReturnBehavior semalysizeOperator(LocalContext context, BinaryOperatorElement operator, Type returnType, boolean allowReferenceOperands)
     {
-        Type returnType1 = lexiconizeExpression(context, operator.expression1).type;
-        Type returnType2 = lexiconizeExpression(context, operator.expression2).type;
+        Type returnType1 = semalysizeExpression(context, operator.expression1).type;
+        Type returnType2 = semalysizeExpression(context, operator.expression2).type;
         if (allowReferenceOperands) {
             if (!(returnType1.isInstanceOf(returnType2) || returnType2.isInstanceOf(returnType1)))
-                errors.add(new LexicalException(operator, "operand types are incompatible."));
+                errors.add(new SemalyticalException(operator, "operand types are incompatible."));
         } else {
             if (!returnType1.isPrimitive())
-                errors.add(new LexicalException(operator.expression1, "operand can't be a reference type."));
+                errors.add(new SemalyticalException(operator.expression1, "operand can't be a reference type."));
             if (!returnType2.isPrimitive())
-                errors.add(new LexicalException(operator.expression2, "operand can't be a reference type."));
+                errors.add(new SemalyticalException(operator.expression2, "operand can't be a reference type."));
         }
         returnType = returnType != null ? returnType : returnType1;
         return new ReturnBehavior(returnType);
@@ -1011,7 +1011,7 @@ public class Lexiconizer
             Class<?> runtimeType = Class.forName(fullTypeName);
             importedTypes.put(typeName, RuntimeType.getType(runtimeType));
         } catch (ClassNotFoundException e) {
-            errors.add(LexicalException.cantResolveImport(qualifiedName));
+            errors.add(SemalyticalException.cantResolveImport(qualifiedName));
         }
     }
 
@@ -1028,7 +1028,7 @@ public class Lexiconizer
             type = ArrayType.getType(type);
         typeId.type = type;
         if (failure && errorOnFailure)
-            errors.add(LexicalException.cantResolveType(typeId));
+            errors.add(SemalyticalException.cantResolveType(typeId));
         return !failure;
     }
 
@@ -1036,7 +1036,7 @@ public class Lexiconizer
     {
         Method method = type.resolveMethod(functionInvocation.id.name, getArgumentTypes(argumentSignature));
         if (method == null) {
-            errors.add(LexicalException.cantResolveMethod(type, functionInvocation.id, argumentSignature));
+            errors.add(SemalyticalException.cantResolveMethod(type, functionInvocation.id, argumentSignature));
             return Method.UNKNOWN;
         }
         return method;

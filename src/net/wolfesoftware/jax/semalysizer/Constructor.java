@@ -1,4 +1,4 @@
-package net.wolfesoftware.jax.lexiconizer;
+package net.wolfesoftware.jax.semalysizer;
 
 import net.wolfesoftware.jax.codegen.MethodInfo;
 

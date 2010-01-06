@@ -1,6 +1,6 @@
 package net.wolfesoftware.jax.ast;
 
-import net.wolfesoftware.jax.lexiconizer.Method;
+import net.wolfesoftware.jax.semalysizer.Method;
 
 public class FunctionInvocation extends ParseElement
 {

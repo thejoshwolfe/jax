@@ -87,6 +87,7 @@ $VariableDeclaration = TypeId ID
 
     ### variable initialization
     $VariableCreation = VariableDeclaration "=" Expression
+    $InferredVariableCreation = "var" ID "=" Expression
 
     ### constructor
     $ConstructorInvocation = "new" FunctionInvocation

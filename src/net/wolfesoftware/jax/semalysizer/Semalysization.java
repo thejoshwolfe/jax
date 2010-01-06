@@ -1,13 +1,13 @@
-package net.wolfesoftware.jax.lexiconizer;
+package net.wolfesoftware.jax.semalysizer;
 
 import java.util.ArrayList;
 import net.wolfesoftware.jax.ast.Root;
 
-public class Lexiconization
+public class Semalysization
 {
     public final Root root;
-    public final ArrayList<LexicalException> errors;
-    public Lexiconization(Root root, ArrayList<LexicalException> errors)
+    public final ArrayList<SemalyticalException> errors;
+    public Semalysization(Root root, ArrayList<SemalyticalException> errors)
     {
         this.root = root;
         this.errors = errors;

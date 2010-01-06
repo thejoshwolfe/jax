@@ -1,4 +1,4 @@
-package net.wolfesoftware.jax.lexiconizer;
+package net.wolfesoftware.jax.semalysizer;
 
 public class ReturnBehavior
 {

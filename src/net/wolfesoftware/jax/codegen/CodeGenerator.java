@@ -2,14 +2,14 @@ package net.wolfesoftware.jax.codegen;
 
 import java.io.*;
 import net.wolfesoftware.jax.ast.*;
-import net.wolfesoftware.jax.lexiconizer.Lexiconization;
+import net.wolfesoftware.jax.semalysizer.Semalysization;
 import net.wolfesoftware.jax.util.Util;
 
 public class CodeGenerator
 {
-    public static void generate(Lexiconization lexiconization, String sourceFile, String classPath) throws FileNotFoundException, IOException
+    public static void generate(Semalysization semalysization, String sourceFile, String classPath) throws FileNotFoundException, IOException
     {
-        new CodeGenerator(lexiconization.root, sourceFile, classPath).generateCode();
+        new CodeGenerator(semalysization.root, sourceFile, classPath).generateCode();
     }
 
     private final Root root;

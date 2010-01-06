@@ -1,6 +1,6 @@
 package net.wolfesoftware.jax.ast;
 
-import net.wolfesoftware.jax.lexiconizer.Field;
+import net.wolfesoftware.jax.semalysizer.Field;
 
 public class DereferenceField extends ParseElement
 {

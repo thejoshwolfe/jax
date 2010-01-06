@@ -1,7 +1,7 @@
 package net.wolfesoftware.jax.ast;
 
 import java.util.LinkedList;
-import net.wolfesoftware.jax.lexiconizer.LocalContext;
+import net.wolfesoftware.jax.semalysizer.LocalContext;
 
 public class Block extends ParseElement
 {

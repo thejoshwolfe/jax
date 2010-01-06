@@ -1,12 +1,12 @@
-package net.wolfesoftware.jax.lexiconizer;
+package net.wolfesoftware.jax.semalysizer;
 
-import java.util.*;
+import java.util.LinkedList;
 
-public class NullType extends Type
+public class UnknownType extends Type
 {
-    private NullType()
+    private UnknownType()
     {
-        super("null", "null");
+        super("unknown", "unknown");
     }
 
     @Override
@@ -19,7 +19,7 @@ public class NullType extends Type
     {
         return new LinkedList<Constructor>();
     }
-    public static final int TYPE = 0x0e4f033e;
+    public static final int TYPE = 0x1b2a0493;
     public int getType()
     {
         return TYPE;
@@ -28,7 +28,7 @@ public class NullType extends Type
     @Override
     public boolean isInstanceOf(Type type)
     {
-        return !type.isPrimitive();
+        return true;
     }
 
     @Override
@@ -37,5 +37,5 @@ public class NullType extends Type
         return null;
     }
 
-    public static final NullType INSTANCE = new NullType();
+    public static final UnknownType INSTANCE = new UnknownType();
 }

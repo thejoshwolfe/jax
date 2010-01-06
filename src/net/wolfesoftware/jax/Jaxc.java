@@ -3,7 +3,7 @@ package net.wolfesoftware.jax;
 import java.io.*;
 import java.util.List;
 import net.wolfesoftware.jax.codegen.CodeGenerator;
-import net.wolfesoftware.jax.lexiconizer.*;
+import net.wolfesoftware.jax.semalysizer.*;
 import net.wolfesoftware.jax.optimizer.Optimizer;
 import net.wolfesoftware.jax.parser.*;
 import net.wolfesoftware.jax.tokenizer.*;
@@ -44,14 +44,14 @@ public class Jaxc
     public static boolean compile(String jaxFilename, JaxcOptions options)
     {
         try {
-            return comprehend(Util.unixizeFilepath(jaxFilename)) == 0;
+            return comprehend(Util.unixizeFilepath(jaxFilename), options) == 0;
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
     }
 
-    private static int comprehend(String fileName) throws FileNotFoundException, IOException
+    private static int comprehend(String fileName, JaxcOptions options) throws FileNotFoundException, IOException
     {
         Tokenization tokenization = Tokenizer.tokenize(Util.fileToString(fileName));
         if (printErrors(tokenization.errors))
@@ -63,13 +63,13 @@ public class Jaxc
 
         String classPath = fileName.substring(0, fileName.lastIndexOf('/') + 1);
         String relativePath = fileName.substring(classPath.length());
-        Lexiconization lexiconization = Lexiconizer.lexiconize(parsing, relativePath);
-        if (printErrors(lexiconization.errors))
+        Semalysization semalysization = Semalysizer.semalysize(parsing, relativePath);
+        if (printErrors(semalysization.errors))
             return 1;
 
-        Optimizer.optimize(lexiconization.root);
+        Optimizer.optimize(semalysization.root);
 
-        CodeGenerator.generate(lexiconization, Util.platformizeFilepath(fileName), classPath);
+        CodeGenerator.generate(semalysization, Util.platformizeFilepath(fileName), classPath);
 
         return 0;
     }

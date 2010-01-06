@@ -1,6 +1,6 @@
 package net.wolfesoftware.jax.ast;
 
-import net.wolfesoftware.jax.lexiconizer.LocalVariable;
+import net.wolfesoftware.jax.semalysizer.LocalVariable;
 
 public class Id extends ParseElement
 {

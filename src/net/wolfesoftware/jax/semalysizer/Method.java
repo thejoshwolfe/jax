@@ -1,4 +1,4 @@
-package net.wolfesoftware.jax.lexiconizer;
+package net.wolfesoftware.jax.semalysizer;
 
 import java.lang.reflect.Modifier;
 import net.wolfesoftware.jax.codegen.MethodInfo;

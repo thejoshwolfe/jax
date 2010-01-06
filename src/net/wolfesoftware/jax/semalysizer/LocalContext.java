@@ -1,4 +1,4 @@
-package net.wolfesoftware.jax.lexiconizer;
+package net.wolfesoftware.jax.semalysizer;
 
 import java.util.*;
 import net.wolfesoftware.jax.ast.Id;
@@ -24,10 +24,10 @@ public class LocalContext
         }
     }
 
-    public void addLocalVariable(Id id, Type type, ArrayList<LexicalException> errors)
+    public void addLocalVariable(Id id, Type type, ArrayList<SemalyticalException> errors)
     {
         if (localVariables.containsKey(id))
-            errors.add(new LexicalException(id, "Redefinition of local variable"));
+            errors.add(new SemalyticalException(id, "Redefinition of local variable"));
         int number = getVariableCount();
         id.variable = new LocalVariable(id.name, type, number);
         localVariables.put(id.name, id.variable);

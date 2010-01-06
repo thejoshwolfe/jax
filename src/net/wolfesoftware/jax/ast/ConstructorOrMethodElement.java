@@ -1,6 +1,6 @@
 package net.wolfesoftware.jax.ast;
 
-import net.wolfesoftware.jax.lexiconizer.*;
+import net.wolfesoftware.jax.semalysizer.*;
 
 public abstract class ConstructorOrMethodElement extends ParseElement
 {
