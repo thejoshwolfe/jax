@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.List;
 import net.wolfesoftware.jax.codegen.CodeGenerator;
 import net.wolfesoftware.jax.semalysizer.*;
-import net.wolfesoftware.jax.optimizer.Optimizer;
+import net.wolfesoftware.jax.staticalysizer.Staticalysizer;
 import net.wolfesoftware.jax.parser.*;
 import net.wolfesoftware.jax.tokenizer.*;
 import net.wolfesoftware.jax.util.Util;
@@ -67,7 +67,7 @@ public class Jaxc
         if (printErrors(semalysization.errors))
             return 1;
 
-        Optimizer.optimize(semalysization.root);
+        Staticalysizer.staticalysize(semalysization.root);
 
         CodeGenerator.generate(semalysization, Util.platformizeFilepath(fileName), classPath);
 
