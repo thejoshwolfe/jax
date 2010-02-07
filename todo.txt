@@ -2,89 +2,73 @@ This is a roadmap/todo.
 
 Version 1.0:
 
-- use local variables to preserve the operand stack when entering/exiting try-catch blocks.
+broken:
+    use local variables to preserve the operand stack when entering/exiting try-catch blocks.
+    detect ambiguous overload resolution
 
-- checked exceptions
+ast:
+    field declarations
+    static and non-static initializers
+    array store
+    loops with else's
+    continue/break/return
+    non static members
+    access modifiers
+    final fields/methods/classes
+    interfaces
+    abstract classes/methods
+    class literals (ex: String.class)
+    array initializers (new int[] { 1, 2 })
+    do-while loops
+    finally
+    synchronized
+    throw
+    ? :
 
-- uninitialized variable access
-- unreachable code
+staticalysis:
+    uninitialized variable access
+    unreachable code
+    checked exceptions
 
-- understand classfile format version number
-
-- field declarations
-- static and non-static initializers
-
-- array store
-
-- loops with else's
-
-- continue/break/return
-
-- non static members
-
-- access modifiers
-
-- final fields/methods/classes
-
-- interfaces
-- abstract classes/methods
-
-- class literals (ex: String.class)
-
-- line + column lookup in all compile errors
-
-- debug info
-
-- array initializers (new int[] { 1, 2 })
-
-- do-while loops
-
-- finally
-
-- synchronized
-
-- throw
-
-- detect ambiguous overload resolution
-
-- ? :
-
+misc:
+    line + column lookup in all compile errors
+    debug info
 
 
 
 Version 1.1:
 
-- referencing other .jax files
+semalysis:
+    proper String contatentation (using StringBuilder)
+staticalysis:
+    compile-time constant reduction (ex: "a=1+1" => "a=2")
+    static final field (constant) inlining
+misc:
+    referencing other .jax files
 
-- proper String contatentation (using StringBuilder)
 
-- compile-time constant reduction (ex: "a=1+1" => "a=2")
-
-- static final field (constant) inlining
 
 
 Version 2.0:
 
-- local and anonymous types
-- closure-like final variable thing with the above
+ast:
+    local and anonymous types
+    enums
+    variadic functions
+    for each loops
 
-- generic types
-
-- automatic boxing/unboxing
-
-- enums
-
-- Variadic functions
-
-- for each loops
+semalysis:
+    closure-like final variable thing with the above
+    generic types
+    automatic boxing/unboxing
 
 
 
 
 Version 3.0:
 
-- Java compatibility mode:
-    - Semicolon insertion after "}"
-    - Semicolon removal inside if-else and do-while
-    - Abridged array initializers (int[] a = { 1, 2 })
+Java compatibility mode:
+    Semicolon insertion after "}"
+    Semicolon removal inside if-else and do-while
+    Abridged array initializers (int[] a = { 1, 2 })
 
