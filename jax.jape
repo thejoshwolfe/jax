@@ -148,7 +148,9 @@ $FunctionDefinition = TypeId ID "(" ArgumentDeclarations ")" Expression
 ### Class
 |ClassMember = FunctionDefinition    # | FieldDeclaration | FieldCreation
 ~ClassBody = (ClassMember) : ";"
-$ClassDeclaration = "class" ID "{" ClassBody "}"
+|ClassModifier = "public" | "final"
+~ClassModifiers = ClassModifier : ""
+$ClassDeclaration = ClassModifiers "class" ID "{" ClassBody "}"
 
 ### CompilationUnit
 ~QualifiedName = ID : "."

@@ -2,9 +2,9 @@ package net.wolfesoftware.jax.ast;
 
 import java.util.List;
 
-public class Imports extends ListElement<ImportStatement>
+public class ClassModifiers extends ListElement<ClassModifier>
 {
-    public Imports(List<ImportStatement> elements)
+    public ClassModifiers(List<ClassModifier> elements)
     {
         super(elements);
     }
@@ -12,10 +12,10 @@ public class Imports extends ListElement<ImportStatement>
     @Override
     protected String getDelimiter()
     {
-        return "\n";
+        return " ";
     }
 
-    public static final int TYPE = 0x0b3102ef;
+    public static final int TYPE = 0x28b60599;
     public int getElementType()
     {
         return TYPE;

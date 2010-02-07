@@ -29,4 +29,7 @@ public class KeywordElement extends ParseElement
     public static final KeywordElement DOUBLE = new KeywordElement(Lang.KEYWORD_DOUBLE);
     public static final KeywordElement VOID = new KeywordElement(Lang.KEYWORD_VOID);
     public static final KeywordElement BOOLEAN = new KeywordElement(Lang.KEYWORD_BOOLEAN);
+    
+    public static final KeywordElement PUBLIC = new KeywordElement(Lang.KEYWORD_PUBLIC);
+    public static final KeywordElement FINAL = new KeywordElement(Lang.KEYWORD_FINAL);
 }

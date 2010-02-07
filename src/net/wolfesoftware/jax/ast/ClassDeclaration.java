@@ -4,11 +4,14 @@ import net.wolfesoftware.jax.semalysizer.LocalType;
 
 public class ClassDeclaration extends ParseElement
 {
+    public LocalType localType;
+
+    public ClassModifiers classModifiers;
     public Id id;
     public ClassBody classBody;
-    public LocalType localType;
-    public ClassDeclaration(Id id, ClassBody classBody)
+    public ClassDeclaration(ClassModifiers classModifiers, Id id, ClassBody classBody)
     {
+        this.classModifiers = classModifiers;
         this.id = id;
         this.classBody = classBody;
     }

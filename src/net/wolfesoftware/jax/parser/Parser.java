@@ -144,6 +144,11 @@ public final class Parser
 
     private SubParsing<ClassDeclaration> parseClassDeclaration(int offset)
     {
+        SubParsing<ClassModifiers> classModifiers = parseClassModifiers(offset);
+        if (classModifiers == null)
+            return null;
+        offset = classModifiers.end;
+
         if (getToken(offset).text != Lang.KEYWORD_CLASS)
             return null;
         offset++;
@@ -166,7 +171,32 @@ public final class Parser
             return null;
         offset++;
 
-        return new SubParsing<ClassDeclaration>(new ClassDeclaration(id, classBody.element), offset);
+        return new SubParsing<ClassDeclaration>(new ClassDeclaration(classModifiers.element, id, classBody.element), offset);
+    }
+
+    private SubParsing<ClassModifiers> parseClassModifiers(int offset)
+    {
+        ArrayList<ClassModifier> elements = new ArrayList<ClassModifier>();
+        while (true)
+        {
+            ClassModifier classModifier = parseClassModifier(offset);
+            if (classModifier != null) {
+                elements.add(classModifier);
+                offset++;
+            } else
+                break;
+        }
+        return new SubParsing<ClassModifiers>(new ClassModifiers(elements), offset);
+    }
+
+    private ClassModifier parseClassModifier(int offset)
+    {
+        Token token = getToken(offset);
+        if (token.text == Lang.KEYWORD_FINAL)
+            return ClassModifier.FINAL;
+        if (token.text == Lang.KEYWORD_PUBLIC)
+            return ClassModifier.PUBLIC;
+        return null;
     }
 
     private SubParsing<ClassBody> parseClassBody(int offset)

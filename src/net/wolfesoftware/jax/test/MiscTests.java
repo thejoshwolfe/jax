@@ -12,7 +12,7 @@ public class MiscTests
     {
         ArrayList<TestCase> tests = new ArrayList<TestCase>();
         tests.add(new FancyZipTestCase());
-        tests.add(new ScannerTestCase());
+//        tests.add(new ScannerTestCase());
         return tests.toArray(new TestCase[tests.size()]);
     }
     private static class FancyZipTestCase extends TestCase
