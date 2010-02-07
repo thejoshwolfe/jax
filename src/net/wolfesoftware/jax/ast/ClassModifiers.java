@@ -4,6 +4,8 @@ import java.util.List;
 
 public class ClassModifiers extends ListElement<ClassModifier>
 {
+    public short bitmask;
+
     public ClassModifiers(List<ClassModifier> elements)
     {
         super(elements);

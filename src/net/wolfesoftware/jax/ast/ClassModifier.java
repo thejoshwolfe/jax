@@ -1,11 +1,16 @@
 package net.wolfesoftware.jax.ast;
 
+import net.wolfesoftware.jax.codegen.ClassFile;
+
 public class ClassModifier extends ParseElement
 {
+    public final short bitmask;
+
     private final KeywordElement keywordElement;
-    private ClassModifier(KeywordElement keywordElement)
+    private ClassModifier(KeywordElement keywordElement, short bitmask)
     {
         this.keywordElement = keywordElement;
+        this.bitmask = bitmask;
     }
 
     @Override
@@ -20,6 +25,6 @@ public class ClassModifier extends ParseElement
         return TYPE;
     }
 
-    public static final ClassModifier PUBLIC = new ClassModifier(KeywordElement.PUBLIC);
-    public static final ClassModifier FINAL = new ClassModifier(KeywordElement.FINAL);
+    public static final ClassModifier PUBLIC = new ClassModifier(KeywordElement.PUBLIC, ClassFile.ACC_PUBLIC);
+    public static final ClassModifier FINAL = new ClassModifier(KeywordElement.FINAL, ClassFile.ACC_FINAL);
 }

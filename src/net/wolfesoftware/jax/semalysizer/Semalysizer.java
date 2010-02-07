@@ -89,9 +89,22 @@ public class Semalysizer
         if (!classDeclaration.id.name.equals(classNameFromFile))
             errors.add(new SemalyticalException(classDeclaration.id, "Class name does not match file name \"" + classNameFromFile + "\"."));
 
+        semalysizeClassModifiers(classDeclaration.classModifiers);
         classDeclaration.localType = new LocalType(classNameFromFile, classDeclaration.id.name);
         importedTypes.put(classNameFromFile, classDeclaration.localType);
         semalysizeClassBody(classDeclaration.localType, classDeclaration.classBody);
+    }
+
+    private void semalysizeClassModifiers(ClassModifiers classModifiers)
+    {
+        HashSet<ClassModifier> presentModifiers = new HashSet<ClassModifier>();
+        for (ClassModifier classModifier : classModifiers.elements) {
+            if (presentModifiers.contains(classModifier))
+                errors.add(new SemalyticalException(classModifier, "Please say that it's \"" + classModifier + "\" at most once."));
+            presentModifiers.add(classModifier);
+        }
+        for (ClassModifier classModifier : presentModifiers)
+            classModifiers.bitmask |= classModifier.bitmask;
     }
 
     private void semalysizeClassBody(LocalType context, ClassBody classBody)

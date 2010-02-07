@@ -11,7 +11,7 @@ public class TestMain
 {
     private static final boolean RUN = true;
     private static final boolean CLEAN = true;
-    private static final boolean VERBOSE = true;
+    private static final boolean VERBOSE = false;
 
     private static ArrayList<TestCase> getTests()
     {
