@@ -1,0 +1,7 @@
+class Operands {
+    int gimme5()
+        2 + (
+            try Integer.parseInt("a")
+            catch (NumberFormatException e) 1
+        ) + 2;
+}
