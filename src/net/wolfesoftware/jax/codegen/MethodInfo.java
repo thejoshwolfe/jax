@@ -254,8 +254,10 @@ public class MethodInfo
         evalExpression(shortCircuitAnd.expression1);
         int ifOffset = offset;
         writeByte(Instructions.ifne);
+        context.popOperand();
         writeDummyShort();
         writeByte(Instructions.iconst_0);
+        // a boolean goes on the stack here, but we'll let the second expression leave it's boolean on the stack
         int gotoOffset = offset;
         writeByte(Instructions._goto);
         writeDummyShort();
@@ -268,8 +270,10 @@ public class MethodInfo
         evalExpression(shortCircuitOr.expression1);
         int ifOffset = offset;
         writeByte(Instructions.ifeq);
+        context.popOperand();
         writeDummyShort();
         writeByte(Instructions.iconst_1);
+        // a boolean goes on the stack here, but we'll let the second expression leave it's boolean on the stack
         int gotoOffset = offset;
         writeByte(Instructions._goto);
         writeDummyShort();
@@ -292,6 +296,7 @@ public class MethodInfo
     private void evalNullExpression(NullExpression nullExpression)
     {
         writeShort(Instructions.aconst_null);
+        context.pushOperand(NullType.INSTANCE);
     }
 
 
@@ -765,7 +770,7 @@ public class MethodInfo
     private void evalBooleanLiteral(BooleanLiteral booleanLiteral)
     {
         writeByte(booleanLiteral.value ? Instructions.iconst_1 : Instructions.iconst_0);
-        context.pushOperand(RuntimeType.INT);
+        context.pushOperand(RuntimeType.BOOLEAN);
     }
     private void evalStringLiteral(StringLiteral stringLiteral)
     {
@@ -1064,7 +1069,8 @@ public class MethodInfo
             writeByte(Instructions.dreturn);
         else
             throw null;
-        context.popOperand();
+        if (type != RuntimeType.VOID)
+            context.popOperand();
     }
     private void writeByte(byte value)
     {

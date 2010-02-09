@@ -17,7 +17,7 @@ public class CallTests
 {
     private static final String dir = "test/call";
     private static final String[] tests = {
-        "primitive/Arithmetic",
+//        "primitive/Arithmetic",
 //        "primitive/BooleanType",
 //        "primitive/FloatingTypes",
 //        "primitive/ConstReturn",
@@ -29,17 +29,17 @@ public class CallTests
 //        "primitive/VoidFunction",
 //        "controlStructures/IfThenElse",
 //        "controlStructures/ForLoop",
-//        "controlStructures/ShortCircuit",
+        "controlStructures/ShortCircuit",
 //        "controlStructures/WhileLoop",
 //        "oop/FunctionInvocation",
 //        "oop/NewConstructor",
-//        "baseLibraries/Import",
-//        "baseLibraries/ImportStar",
+        "baseLibraries/Import",
+        "baseLibraries/ImportStar",
 //        "baseLibraries/RuntimeType",
-//        "baseLibraries/StringConcatenation",
-//        "arrays/ArrayType",
-//        "arrays/ArrayDereference",
-//        "exceptions/TryCatch",
+        "baseLibraries/StringConcatenation",
+        "arrays/ArrayType",
+        "arrays/ArrayDereference",
+        "exceptions/TryCatch",
 //        "exceptions/Operands",
 //        "Fancy",
     };
