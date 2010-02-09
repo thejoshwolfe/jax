@@ -4,7 +4,7 @@ Version 1.0:
 
 broken:
     use local variables to preserve the operand stack when entering/exiting try-catch blocks.
-    detect ambiguous overload resolution
+    detect ambiguous overload resolution (is this really a problem)
 
 ast:
     field declarations

@@ -242,10 +242,10 @@ public class MethodInfo
     private void evalConstructorRedirect(ConstructorRedirect constructorRedirect)
     {
         aload(0);
-        context.modifyStack(1);
+        context.pushOperand(RuntimeType.OBJECT); // this is a lie, but whatever
         evalArguments(constructorRedirect.arguments);
         writeByte(Instructions.invokespecial);
-        context.modifyStack(-1); // TODO hard-coded for default constructor
+        context.popOperands(1); // TODO hard-coded for default constructor
         short index = constantPool.getMethod(constructorRedirect.constructor);
         writeShort(index);
     }
@@ -312,8 +312,8 @@ public class MethodInfo
     {
         evalExpression(primitiveConversion.expression);
         writeByte(primitiveConversion.instruction);
-        context.modifyStack(-primitiveConversion.expression.returnBehavior.type.getSize());
-        context.modifyStack(primitiveConversion.toType.getSize());
+        context.popOperand();
+        context.pushOperand(primitiveConversion.toType);
     }
 
     private void evalWhileLoop(WhileLoop whileLoop)
@@ -322,7 +322,7 @@ public class MethodInfo
         evalExpression(whileLoop.expression1);
         int ifOffset = offset;
         writeByte(Instructions.ifeq);
-        context.modifyStack(-1);
+        context.popOperand();
         writeDummyShort();
         evalExpression(whileLoop.expression2);
         short continueToDelta = (short)(continueToOffset - offset);
@@ -335,17 +335,13 @@ public class MethodInfo
     {
         writeByte(Instructions._new);
         writeShort(constantPool.getClass(constructorInvocation.constructor.declaringType));
-        context.modifyStack(1);
+        context.pushOperand(constructorInvocation.constructor.declaringType);
         writeByte(Instructions.dup);
-        context.modifyStack(1);
+        context.pushOperand(RuntimeType.OBJECT); // this is a lie, but whatever
         evalArguments(constructorInvocation.functionInvocation.arguments);
         writeByte(Instructions.invokespecial);
         writeShort(constantPool.getMethod(constructorInvocation.constructor));
-        int stackSize = 0;
-        for (Expression expression : constructorInvocation.functionInvocation.arguments.elements)
-            stackSize += expression.returnBehavior.type.getSize();
-        stackSize += 1;
-        context.modifyStack(-stackSize);
+        context.popOperands(1 + constructorInvocation.functionInvocation.arguments.elements.size());
     }
 
     private void evalPreIncrement(PreIncrement preIncrement)
@@ -391,7 +387,7 @@ public class MethodInfo
         evalExpression(forLoop.expression2);
         int breakToOffset = offset;
         writeByte(Instructions.ifeq);
-        context.modifyStack(-1);
+        context.popOperand();
         writeDummyShort();
         evalExpression(forLoop.expression4);
         short continueToDelta = (short)(continueToOffset - offset);
@@ -424,7 +420,8 @@ public class MethodInfo
             writeByte(Instructions.saload);
         else
             throw null;
-        context.modifyStack(-2 + type.getSize());
+        context.popOperands(2);
+        context.pushOperand(type);
     }
 
     private void evalStaticFunctionInvocation(StaticFunctionInvocation staticFunctionInvocation)
@@ -436,7 +433,8 @@ public class MethodInfo
     {
         tryCatch.tryPart.startOffset = offset;
         evalExpression(tryCatch.tryPart.expression);
-        context.modifyStack(-tryCatch.type.getSize()); // take this off for now. it's added as part of the last catch
+        if (tryCatch.tryPart.expression.returnBehavior.type != RuntimeType.VOID)
+            context.popOperand(); // take this off for now. it's added as part of the last catch
         int gotoOffset = offset;
         tryCatch.tryPart.endOffset = offset;
         writeByte(Instructions._goto);
@@ -470,12 +468,13 @@ public class MethodInfo
 
     private void evalCatchBody(CatchBody catchBody, boolean addGoto)
     {
-        context.modifyStack(1); // exception object
+        context.pushOperand(RuntimeType.OBJECT); // exception object
         catchBody.startOffset = offset;
         astore(catchBody.variableDeclaration.id.variable.number);
         evalExpression(catchBody.expression);
         if (addGoto) {
-            context.modifyStack(-catchBody.expression.returnBehavior.type.getSize()); // take this off for now
+            if (catchBody.expression.returnBehavior.type != RuntimeType.VOID)
+                context.popOperand(); // take this off for now
             catchBody.endGotoOffset = offset;
             writeByte(Instructions._goto);
             writeDummyShort();
@@ -486,7 +485,7 @@ public class MethodInfo
     {
         writeByte(Instructions.getstatic);
         writeShort(constantPool.getField(staticDereferenceField.field));
-        context.modifyStack(staticDereferenceField.field.returnType.getSize());
+        context.pushOperand(staticDereferenceField.field.returnType);
     }
 
     private void evalDereferenceMethod(DereferenceMethod dereferenceMethod)
@@ -504,7 +503,8 @@ public class MethodInfo
             writeByte(Instructions.getfield);
             writeShort(constantPool.getField(dereferenceField.field));
         }
-        context.modifyStack(-1 + dereferenceField.field.returnType.getSize());
+        context.popOperand();
+        context.pushOperand(dereferenceField.field.returnType);
     }
 
     private void evalFunctionInvocation(FunctionInvocation functionInvocation)
@@ -535,8 +535,8 @@ public class MethodInfo
             writeByte(invokeInstruction);
             writeShort(constantPool.getMethod(functionInvocation.method));
         }
-        context.modifyStack(-stackSize);
-        context.modifyStack(method.returnType.getSize());
+        context.popOperands(1 + functionInvocation.arguments.elements.size());
+        context.pushOperand(method.returnType);
     }
 
     private void evalArguments(Arguments arguments)
@@ -550,10 +550,11 @@ public class MethodInfo
         evalExpression(ifThenElse.expression1);
         int ifOffset = offset;
         writeByte(Instructions.ifeq);
-        context.modifyStack(-1);
+        context.popOperand();
         writeDummyShort();
         evalExpression(ifThenElse.expression2);
-        context.modifyStack(-ifThenElse.expression2.returnBehavior.type.getSize()); // take this off for now
+        if (ifThenElse.expression2.returnBehavior.type != RuntimeType.VOID)
+            context.popOperand(); // take this off for now
         int gotoOffset = offset;
         writeByte(Instructions._goto);
         writeDummyShort();
@@ -566,7 +567,7 @@ public class MethodInfo
         evalExpression(ifThen.expression1);
         int ifOffset = offset;
         writeByte(Instructions.ifeq);
-        context.modifyStack(-1);
+        context.popOperand();
         writeDummyShort();
         evalExpression(ifThen.expression2);
         fillins.add(new Fillin(ifOffset));
@@ -600,7 +601,7 @@ public class MethodInfo
             dload(id.variable.number);
         else
             throw null;
-        context.modifyStack(type.getSize());
+        context.pushOperand(type);
     }
 
     private void evalBlock(Block block)
@@ -733,42 +734,43 @@ public class MethodInfo
     }
     private void modifyOperatorStack(BinaryOperatorElement operator)
     {
-        int size1 = operator.expression1.returnBehavior.type.getSize(), size2 = operator.expression2.returnBehavior.type.getSize();
-        context.modifyStack(-size1 + -size2 + operator.type.getSize());
+        context.popOperand();
+        context.popOperand();
+        context.pushOperand(operator.type);
     }
 
     private void evalIntLiteral(IntLiteral intLiteral)
     {
         // TODO use iconst_<n> sometimes
         ldc(constantPool.getInteger(intLiteral.value));
-        context.modifyStack(1);
+        context.pushOperand(RuntimeType.INT);
     }
     private void evalLongLiteral(LongLiteral longLiteral)
     {
         writeByte(Instructions.ldc2_w);
         writeShort(constantPool.getLong(longLiteral.value));
-        context.modifyStack(2);
+        context.pushOperand(RuntimeType.LONG);
     }
     private void evalFloatLiteral(FloatLiteral floatLiteral)
     {
         ldc(constantPool.getFloat(floatLiteral.value));
-        context.modifyStack(1);
+        context.pushOperand(RuntimeType.FLOAT);
     }
     private void evalDoubleLiteral(DoubleLiteral doubleLiteral)
     {
         writeByte(Instructions.ldc2_w);
         writeShort(constantPool.getDouble(doubleLiteral.value));
-        context.modifyStack(2);
+        context.pushOperand(RuntimeType.DOUBLE);
     }
     private void evalBooleanLiteral(BooleanLiteral booleanLiteral)
     {
         writeByte(booleanLiteral.value ? Instructions.iconst_1 : Instructions.iconst_0);
-        context.modifyStack(1);
+        context.pushOperand(RuntimeType.INT);
     }
     private void evalStringLiteral(StringLiteral stringLiteral)
     {
         ldc(constantPool.getString(stringLiteral.value));
-        context.modifyStack(1);
+        context.pushOperand(RuntimeType.STRING);
     }
 
     private Type translateTypeForInstructions(Type type)
@@ -799,7 +801,7 @@ public class MethodInfo
             default:
                 throw null;
         }
-        context.modifyStack(-type.getSize());
+        context.popOperand();
     }
     private void dup(Type type)
     {
@@ -813,7 +815,7 @@ public class MethodInfo
             default:
                 throw null;
         }
-        context.modifyStack(type.getSize());
+        context.pushOperand(type);
     }
     private void store(Type type, int number)
     {
@@ -851,7 +853,7 @@ public class MethodInfo
                 writeByte((byte)number);
                 break;
         }
-        context.modifyStack(-1);
+        context.popOperand();
     }
     private void istore(int number)
     {
@@ -873,7 +875,7 @@ public class MethodInfo
                 writeByte((byte)number);
                 break;
         }
-        context.modifyStack(-1);
+        context.popOperand();
     }
     private void lstore(int number)
     {
@@ -895,7 +897,7 @@ public class MethodInfo
                 writeByte((byte)number);
                 break;
         }
-        context.modifyStack(-2);
+        context.popOperand();
     }
     private void fstore(int number)
     {
@@ -917,7 +919,7 @@ public class MethodInfo
                 writeByte((byte)number);
                 break;
         }
-        context.modifyStack(-1);
+        context.popOperand();
     }
     private void dstore(int number)
     {
@@ -939,7 +941,7 @@ public class MethodInfo
                 writeByte((byte)number);
                 break;
         }
-        context.modifyStack(-2);
+        context.popOperand();
     }
     private void aload(int index)
     {
@@ -1062,7 +1064,7 @@ public class MethodInfo
             writeByte(Instructions.dreturn);
         else
             throw null;
-        context.modifyStack(-type.getSize());
+        context.popOperand();
     }
     private void writeByte(byte value)
     {

@@ -51,17 +51,22 @@ public class LocalContext
     {
         return rootContext.nextLabel();
     }
-
     public LocalType getClassContext()
     {
         return rootContext.getClassContext();
     }
-
-    public void modifyStack(int delta)
+    public void pushOperand(Type operandType)
     {
-        rootContext.modifyStack(delta);
+        rootContext.pushOperand(operandType);
     }
-
+    public void popOperands(int n)
+    {
+        rootContext.popOperands(n);
+    }
+    public Type popOperand()
+    {
+        return rootContext.popOperand();
+    }
     public String toString()
     {
         return rootContext.toString();

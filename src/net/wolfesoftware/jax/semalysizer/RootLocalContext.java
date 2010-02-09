@@ -1,11 +1,13 @@
 package net.wolfesoftware.jax.semalysizer;
 
+import java.util.ArrayList;
 import net.wolfesoftware.jax.ast.Id;
 import net.wolfesoftware.jax.tokenizer.Lang;
 
 public class RootLocalContext extends LocalContext
 {
     public int variableCapacity = 0;
+    private ArrayList<Type> operandStack = new ArrayList<Type>();
     public int stackSize = 0;
     public int stackCapacity = 0;
     private int nextLabelNumber = 0;
@@ -41,10 +43,27 @@ public class RootLocalContext extends LocalContext
     }
 
     @Override
-    public void modifyStack(int delta)
+    public void pushOperand(Type operandType)
     {
-        stackSize += delta;
-        stackCapacity = Math.max(stackCapacity, stackSize);
+        operandStack.add(operandType);
+        stackSize += operandType.getSize();
+        if (stackCapacity < stackSize)
+            stackCapacity = stackSize;
+    }
+
+    @Override
+    public void popOperands(int n)
+    {
+        for (int i = 0; i < n; i++)
+            popOperand();
+    }
+
+    @Override
+    public Type popOperand()
+    {
+        Type operandType = operandStack.remove(operandStack.size() - 1);
+        stackSize -= operandType.getSize();
+        return operandType;
     }
 
     public String toString()
