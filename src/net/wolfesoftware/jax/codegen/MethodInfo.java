@@ -540,7 +540,9 @@ public class MethodInfo
             writeByte(invokeInstruction);
             writeShort(constantPool.getMethod(functionInvocation.method));
         }
-        context.popOperands(1 + functionInvocation.arguments.elements.size());
+        context.popOperands(functionInvocation.arguments.elements.size());
+        if (!method.isStatic)
+            context.popOperand();
         context.pushOperand(method.returnType);
     }
 

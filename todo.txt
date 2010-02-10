@@ -5,6 +5,7 @@ Version 1.0:
 broken:
     use local variables to preserve the operand stack when entering/exiting try-catch blocks.
     detect ambiguous overload resolution (is this really a problem)
+    "special handling for superclass, private, and instance initialization method invocations" ( http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc6.html#invokespecial )
 
 ast:
     field declarations
