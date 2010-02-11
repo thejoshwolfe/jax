@@ -436,21 +436,36 @@ public class MethodInfo
 
     private void evalTryCatch(TryCatch tryCatch)
     {
-        LocalContext localContext = tryCatch.context;
-        context.addSecretLocalVariable();
+        // preserve operand stack
+        for (int i = tryCatch.preserveTheseOperands.size() - 1; i >= 0; i--) {
+            SecretLocalVariable secretLocalVariable = tryCatch.preserveTheseOperands.get(i);
+            store(secretLocalVariable.type, secretLocalVariable.number);
+        }
+
         tryCatch.tryPart.startOffset = offset;
         evalExpression(tryCatch.tryPart.expression);
         if (tryCatch.tryPart.expression.returnBehavior.type != RuntimeType.VOID)
             context.popOperand(); // take this off for now. it's added as part of the last catch
-        int gotoOffset = offset;
+        int successfulTryEndOffset = offset;
         tryCatch.tryPart.endOffset = offset;
         writeByte(Instructions._goto);
         writeDummyShort();
         evalCatchPart(tryCatch.catchPart);
-        fillins.add(new Fillin(gotoOffset));
+        fillins.add(new Fillin(successfulTryEndOffset));
         List<CatchBody> catchElements = tryCatch.catchPart.catchList.elements;
         for (int i = 0; i < catchElements.size() - 1; i++)
             fillins.add(new Fillin(catchElements.get(i).endGotoOffset));
+
+        // restore operand stack
+        if (tryCatch.valueStashVariable != null)
+            store(tryCatch.valueStashVariable.type, tryCatch.valueStashVariable.number);
+        for (int i = 0; i < tryCatch.preserveTheseOperands.size(); i++) {
+            SecretLocalVariable secretLocalVariable = tryCatch.preserveTheseOperands.get(i);
+            load(secretLocalVariable.type, secretLocalVariable.number);
+        }
+        if (tryCatch.valueStashVariable != null)
+            load(tryCatch.valueStashVariable.type, tryCatch.valueStashVariable.number);
+
         for (CatchBody catchBody : catchElements) {
             Type type = catchBody.variableDeclaration.typeId.type;
             short start_pc = (short)tryCatch.tryPart.startOffset;
@@ -951,6 +966,23 @@ public class MethodInfo
                 break;
         }
         context.popOperand();
+    }
+
+    private void load(Type type, int index)
+    {
+        type = translateTypeForInstructions(type);
+        if (!type.isPrimitive())
+            aload(index);
+        else if (type == RuntimeType.INT)
+            iload(index);
+        else if (type == RuntimeType.LONG)
+            lload(index);
+        else if (type == RuntimeType.FLOAT)
+            fload(index);
+        else if (type == RuntimeType.DOUBLE)
+            dload(index);
+        else
+            throw null;
     }
     private void aload(int index)
     {

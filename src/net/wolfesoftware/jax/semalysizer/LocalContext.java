@@ -7,7 +7,8 @@ public class LocalContext
 {
     public final LocalContext parentContext;
     private final RootLocalContext rootContext;
-    public final HashMap<String, LocalVariable> localVariables = new HashMap<String, LocalVariable>();
+    protected final HashMap<String, LocalVariable> localVariables = new HashMap<String, LocalVariable>();
+    private final ArrayList<SecretLocalVariable> secretLocalVariables = new ArrayList<SecretLocalVariable>();
     private int wideVariableCount = 0;
 
     private final int parentVariableCount;
@@ -36,9 +37,17 @@ public class LocalContext
         rootContext.ensureVariableCapacity(getVariableCount());
     }
 
+    public SecretLocalVariable addSecretLocalVariable(Type type)
+    {
+        int number = getVariableCount();
+        SecretLocalVariable secretLocalVariable = new SecretLocalVariable(type, number);
+        secretLocalVariables.add(secretLocalVariable);
+        return secretLocalVariable;
+    }
+
     private int getVariableCount()
     {
-        return parentVariableCount + localVariables.size() + wideVariableCount;
+        return parentVariableCount + localVariables.size() + secretLocalVariables.size() + wideVariableCount;
     }
 
     public LocalVariable getLocalVariable(String name)
@@ -67,8 +76,13 @@ public class LocalContext
     {
         return rootContext.popOperand();
     }
+    public boolean isOperandStackEmpty()
+    {
+        return rootContext.isOperandStackEmpty();
+    }
     public String toString()
     {
         return rootContext.toString();
     }
+
 }

@@ -7,7 +7,7 @@ import net.wolfesoftware.jax.tokenizer.Lang;
 public class RootLocalContext extends LocalContext
 {
     public int variableCapacity = 0;
-    private ArrayList<Type> operandStack = new ArrayList<Type>();
+    private final ArrayList<Type> operandStack = new ArrayList<Type>();
     public int stackSize = 0;
     public int stackCapacity = 0;
     private int nextLabelNumber = 0;
@@ -64,6 +64,12 @@ public class RootLocalContext extends LocalContext
         Type operandType = operandStack.remove(operandStack.size() - 1);
         stackSize -= operandType.getSize();
         return operandType;
+    }
+
+    @Override
+    public boolean isOperandStackEmpty()
+    {
+        return operandStack.isEmpty();
     }
 
     public String toString()

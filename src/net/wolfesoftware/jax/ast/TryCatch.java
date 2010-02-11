@@ -1,11 +1,13 @@
 package net.wolfesoftware.jax.ast;
 
+import java.util.ArrayList;
 import net.wolfesoftware.jax.semalysizer.*;
 
 public class TryCatch extends ParseElement
 {
-    public LocalContext context;
+    public ArrayList<SecretLocalVariable> preserveTheseOperands = new ArrayList<SecretLocalVariable>(0);
     public Type type;
+    public SecretLocalVariable valueStashVariable = null;
 
     public TryPart tryPart;
     public CatchPart catchPart;

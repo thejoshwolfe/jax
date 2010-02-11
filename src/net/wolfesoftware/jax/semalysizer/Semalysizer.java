@@ -616,7 +616,10 @@ public class Semalysizer
 
     private ReturnBehavior semalysizeTryCatch(LocalContext context, TryCatch tryCatch)
     {
-        tryCatch.context = context;
+        while (context.isOperandStackEmpty()) {
+            SecretLocalVariable secretLocalVariable = context.addSecretLocalVariable(context.popOperand());
+            tryCatch.preserveTheseOperands.add(secretLocalVariable);
+        }
         ReturnBehavior tryPartReturnBehavior = semalysizeTryPart(context, tryCatch.tryPart);
 
         ReturnBehavior catchPartReturnBehavior = semalysizeCatchPart(context, tryCatch.catchPart);
