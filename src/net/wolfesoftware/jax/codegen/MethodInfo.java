@@ -436,6 +436,8 @@ public class MethodInfo
 
     private void evalTryCatch(TryCatch tryCatch)
     {
+        LocalContext localContext = tryCatch.context;
+        context.addSecretLocalVariable();
         tryCatch.tryPart.startOffset = offset;
         evalExpression(tryCatch.tryPart.expression);
         if (tryCatch.tryPart.expression.returnBehavior.type != RuntimeType.VOID)
@@ -517,16 +519,16 @@ public class MethodInfo
         evalArguments(functionInvocation.arguments);
 
         Method method = functionInvocation.method;
-        int stackSize = 0;
-        for (Expression expression : functionInvocation.arguments.elements)
-            stackSize += expression.returnBehavior.type.getSize();
-        if (!method.isStatic)
-            stackSize += 1;
         if (method.declaringType.isInterface()) {
             // interface method
             writeByte(Instructions.invokeinterface);
             writeShort(constantPool.getInterfaceMethod(functionInvocation.method));
             // this is dumb. "The redundancy is historical."
+            int stackSize = 0;
+            for (Expression expression : functionInvocation.arguments.elements)
+                stackSize += expression.returnBehavior.type.getSize();
+            if (!method.isStatic)
+                stackSize += 1;
             writeByte((byte)stackSize);
             writeByte((byte)0);
         } else {

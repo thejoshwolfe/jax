@@ -1,13 +1,15 @@
 package net.wolfesoftware.jax.ast;
 
-import net.wolfesoftware.jax.semalysizer.Type;
+import net.wolfesoftware.jax.semalysizer.*;
 
 public class TryCatch extends ParseElement
 {
+    public LocalContext context;
     public Type type;
 
     public TryPart tryPart;
     public CatchPart catchPart;
+
     public TryCatch(TryPart tryPart, CatchPart catchPart)
     {
         this.tryPart = tryPart;
