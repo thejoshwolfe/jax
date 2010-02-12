@@ -47,13 +47,23 @@ Benefits of macros:
       of a macro can use the original variables themselves instead of the value of them at 
       invocation time.
     - cross-scoped control statements. A macro can return from the enclosing function.
+Drawbacks of macros:
+    - currntly, all macros must be private, because it is non-trivial to store them in .class files.
+      In order for macros to be really useful, this limitation will have to be overcome.
+
+see ideas.txt for examples of proposed macro functionality
 
 
 
 Current state of Jax:
 
-Since we are in an early state of development, there are many restrictions on the language,
-but they are gradually being overcome as the project expands.
+There is a suite of test cases in the test/ directory. All of them work (excluding "goal" test 
+cases), so you can get an idea of the current state of the feature set from them. Test cases with
+"fancy" in their names are good demonstrations of currently supported features.
+
+
+
+How the Jax compiler works:
 
 See README_dev.txt for development info.
 
