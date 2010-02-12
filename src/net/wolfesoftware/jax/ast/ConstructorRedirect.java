@@ -6,6 +6,10 @@ public class ConstructorRedirect extends ParseElement
 {
     public Constructor constructor;
 
+    /** 
+     * either {@link net.wolfesoftware.jax.tokenizer.Lang#KEYWORD_THIS Lang.KEYWORD_THIS} or 
+     * {@link net.wolfesoftware.jax.tokenizer.Lang#KEYWORD_SUPER Lang.KEYWORD_SUPER} 
+     */
     public String thisOrSuper;
     public Arguments arguments;
     public ConstructorRedirect(String thisOrSuper, Arguments arguments)

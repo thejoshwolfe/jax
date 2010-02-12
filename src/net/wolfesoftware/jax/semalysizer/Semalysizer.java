@@ -114,6 +114,7 @@ public class Semalysizer
         for (ClassMember classMember : classBody.elements)
             preSemalysizeClassMemeber(context, classMember);
 
+        // add default constructor if needed
         if (context.constructors.isEmpty()) {
             ClassMember classMember = context.makeDefaultConstructor(classBody);
             classBody.elements.add(classMember);
@@ -176,21 +177,24 @@ public class Semalysizer
     {
         ParseElement content = classMember.content;
         switch (content.getElementType()) {
-            case FunctionDefinition.TYPE:
-                semalysizeFunctionDefinition(context, (FunctionDefinition)content);
-                break;
             case ConstructorDefinition.TYPE:
                 semalysizeConstructorDefinition(context, (ConstructorDefinition)content);
+                break;
+            case FunctionDefinition.TYPE:
+                semalysizeFunctionDefinition(context, (FunctionDefinition)content);
                 break;
             default:
                 throw new RuntimeException("TODO: implement " + content.getClass());
         }
     }
 
-    private void semalysizeConstructorDefinition(Type context, ConstructorDefinition constructorDefinition)
+    private void semalysizeConstructorDefinition(Type typeContext, ConstructorDefinition constructorDefinition)
     {
+        constructorDefinition.context.pushOperand(typeContext);
+        // for now, hard-code implicit super() with no arguments
         ConstructorRedirect constructorRedirect = new ConstructorRedirect(Lang.KEYWORD_SUPER, new Arguments(new LinkedList<Expression>()));
         constructorDefinition.expression = new Expression(new Block(new BlockContents(Arrays.asList(new Expression(constructorRedirect), constructorDefinition.expression))));
+        constructorDefinition.context.popOperand();
         constructorDefinition.returnBehavior = semalysizeExpression(constructorDefinition.context, constructorDefinition.expression);
         if (constructorDefinition.returnBehavior.type != RuntimeType.VOID)
             errors.add(SemalyticalException.mustBeVoid(constructorDefinition.expression));
