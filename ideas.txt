@@ -20,6 +20,7 @@ Something thing =
     };
 
 
+
 switches returning values:
 
 String letterName =
@@ -29,3 +30,32 @@ String letterName =
         case GAMMA: break("Gamma");
         default: throw new RuntimeException();
     }
+
+
+
+macros:
+
+public class MacroExample {
+    /** simple inline function */
+    private macro int max(int a, int b) a < b ? b : a;
+
+    /**
+     * returns the object but only if it isn't null. if it is null, this macro
+     * jumps to the given label. type parameters would be ideal, but i'll hard-
+     * code it to String for now.
+     */
+    private macro String checkNull(String object, label void returnLabel) {
+        object != null ? object : break returnLabel;
+    }
+
+    /** 
+     * dereferences the key into the map 3 times, (like ***pointer in C). Returns 
+     * null at any point if the key is not found or if the argument is null.
+     */
+    public void findLevel3(Map<String, String> map, String startingKey) {
+        String level1 = map.get(checkNull(startingKey, return.label));
+        String level2 = map.get(checkNull(level1, return.label));
+        return map.get(checkNull(level2, return.label));
+    }
+}
+

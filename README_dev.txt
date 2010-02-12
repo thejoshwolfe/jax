@@ -32,15 +32,12 @@ Phases of compiling (see also Jaxc.comprehend()):
     * unused/unread variables(, parameters?)
     * unused/unread private members
     * reflexive assignment
-  - standard optimizations:
+    * pointless code (such as {5;})
+  - possible optimizations:
     * constant propagation
     * constant folding
     * dead code removal
-  - bonus optimizations:
-    * method inlining
-    * local variable reuse
 5. Code Generation: Takes a staticalysized ast and writes 1 or more .class files.
-  - determine stack requirement
   - no language errors or warnings
   - possible file write errors
 
