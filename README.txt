@@ -1,10 +1,11 @@
 Jax (JAva-like eXpression language)
-started 2009 January by Josh Wolfe (thejoshwolfe at gmail)
+started 2009 January by Josh Wolfe (thejoshwolfe@gmail.com)
 
 Currently in development (meaning the example code below might not compile yet).
 
 Jax is a programming language which compiles into Java Bytecode. It is a modified version of Java 
 that treats everything inside a method body as an expression.
+
 
 
 Example Java/Jax comparison:
@@ -34,9 +35,35 @@ try...catch, if...else, and all other "statements" in Java evaluate as expressio
 The return type of an expression can be "void", meaning you can't assign or use the value anywhere.
 
 
+
+Macros:
+
+One serious selling point of Jax is its ability to support macros. Macros are (or rather will be) 
+implemented as inline functions. 
+
+Benefits of macros:
+    - efficiency. of course.
+    - pass-by-reference parameters. There is no real invocation of a macro, which means the body 
+      of a macro can use the original variables themselves instead of the value of them at 
+      invocation time.
+    - cross-scoped control statements. A macro can return from the enclosing function.
+Drawbacks of macros:
+    - currntly, all macros must be private, because it is non-trivial to store them in .class files.
+      In order for macros to be really useful, this limitation will have to be overcome.
+
+see ideas.txt for examples of proposed macro functionality
+
+
+
 Current state of Jax:
 
-Since we are in a very early state of development, there are many restrictions on the language,
-but they are gradually being overcome as the project expands.
+There is a suite of test cases in the test/ directory. All of them work (excluding "goal" test 
+cases), so you can get an idea of the current state of the feature set from them. Test cases with
+"fancy" in their names are good demonstrations of currently supported features.
+
+
+
+How the Jax compiler works:
 
 See README_dev.txt for development info.
+
