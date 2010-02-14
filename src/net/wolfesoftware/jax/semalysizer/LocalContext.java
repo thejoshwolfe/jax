@@ -76,6 +76,10 @@ public class LocalContext
     {
         return rootContext.popOperand();
     }
+    public void pushAndPopOperand(Type operandType)
+    {
+        rootContext.pushAndPopOperand(operandType);
+    }
     public boolean isOperandStackEmpty()
     {
         return rootContext.isOperandStackEmpty();
@@ -84,5 +88,6 @@ public class LocalContext
     {
         return rootContext.toString();
     }
+
 
 }

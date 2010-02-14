@@ -47,8 +47,7 @@ public class RootLocalContext extends LocalContext
     {
         operandStack.add(operandType);
         stackSize += operandType.getSize();
-        if (stackCapacity < stackSize)
-            stackCapacity = stackSize;
+        ensureStackCapacity(stackSize);
     }
 
     @Override
@@ -67,9 +66,22 @@ public class RootLocalContext extends LocalContext
     }
 
     @Override
+    public void pushAndPopOperand(Type operandType)
+    {
+        int intermediateStackSize = stackSize + operandType.getSize();
+        ensureStackCapacity(intermediateStackSize);
+    }
+
+    @Override
     public boolean isOperandStackEmpty()
     {
         return operandStack.isEmpty();
+    }
+
+    private void ensureStackCapacity(int size)
+    {
+        if (stackCapacity < size)
+            stackCapacity = size;
     }
 
     public String toString()
