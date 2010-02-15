@@ -4,7 +4,15 @@ started 2009 January by Josh Wolfe (thejoshwolfe@gmail.com)
 Currently in development (meaning the example code below might not compile yet).
 
 Jax is a programming language which compiles into Java Bytecode. It is a modified version of Java 
-that treats everything inside a method body as an expression.
+that combines Ruby-like block semantics and powerful C- and Lisp-like macros. The fundamental
+difference between Java and Jax is that Jax treats blocks and statements as expressions. Just as
+the ?: operator is the expression equivalent of the if-else statement, all Java statements are Jax
+expression constructs. For example, a try-catch could be the source of an assignment (see example).
+With the arbitrary nestability of these semantics, inlining functions becomes nearly trivial, and
+the ability to use macros become feasible. Macros are inlined and so are able to modify their 
+parameters (resembling pass-by-reference parameters) and are able to return from their containing
+function. This yields a good portion of the power of C macros and yet keeps namespaces cleanly 
+separated like Lisp macros.
 
 
 
