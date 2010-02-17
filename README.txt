@@ -1,19 +1,34 @@
 Jax (JAva-like eXpression language)
 started 2009 January by Josh Wolfe (thejoshwolfe@gmail.com)
 
-Currently in development (meaning the example code below might not compile yet).
+Currently in development (meaning example code might not compile yet).
 
 Jax is a programming language which compiles into Java Bytecode. It is a modified version of Java 
-that combines Ruby-like block semantics and powerful C- and Lisp-like macros. The fundamental
-difference between Java and Jax is that Jax treats blocks and statements as expressions. Just as
-the ?: operator is the expression equivalent of the if-else statement, all Java statements are Jax
-expression constructs. For example, a try-catch could be the source of an assignment (see example).
-With the arbitrary nestability of these semantics, inlining functions becomes nearly trivial, and
-the ability to use macros become feasible. Macros are inlined and so are able to modify their 
-parameters (resembling pass-by-reference parameters) and are able to return from their containing
-function. This yields a good portion of the power of C macros and yet keeps namespaces cleanly 
-separated like Lisp macros.
+that combines Ruby-like block semantics and powerful C- and Lisp-like macros. 
 
+
+Motivation for Jax:
+
+The Java programming language lacks pass-by-reference parameter semantics that other programming
+languages offer. These semantics are important for when multiple values need to be communicated
+back to the calling method context. It is not possible to run code in the JVM that has pass-by-
+reference semantics because the JVM specification does not support it. Currently, the only way to
+return multiple values is to define a class that contains the values as fields, and instantiate an
+object of this class to return from every method call. This procedure is inefficient as it
+allocates memory and instantiates an object only to overcome a limitation in the JVM specification.
+There is a way to simulate pass-by-reference parameter semantics by using compiler macros.
+
+
+What Jax can do:
+
+The fundamental difference between Java and Jax is that Jax treats blocks and statements as
+expressions. Just as the ?: operator is the expression equivalent of the if-else statement, all
+Java statements are Jax expression constructs. For example, a try-catch could be the source of an
+assignment (see example). With the arbitrary nestability of these semantics, inlining functions
+becomes nearly trivial, and the ability to use macros becomes possible. Macros are inlined and so
+are able to modify their parameters (resembling pass-by-reference parameters) and are able to
+return from their containing function. This yields a good portion of the power of C macros and yet
+keeps namespaces cleanly separated like Lisp macros.
 
 
 Example Java/Jax comparison:
