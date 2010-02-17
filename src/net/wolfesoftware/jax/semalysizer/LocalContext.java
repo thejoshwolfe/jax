@@ -9,11 +9,13 @@ public class LocalContext
     private final RootLocalContext rootContext;
     protected final HashMap<String, LocalVariable> localVariables = new HashMap<String, LocalVariable>();
     private final ArrayList<SecretLocalVariable> secretLocalVariables = new ArrayList<SecretLocalVariable>();
+    private final ArrayList<LocalContext> subContexts = new ArrayList<LocalContext>();
+    
     private int wideVariableCount = 0;
 
     private final int parentVariableCount;
 
-    public LocalContext(LocalContext parentContext)
+    protected LocalContext(LocalContext parentContext)
     {
         this.parentContext = parentContext;
         if (parentContext == null) {
