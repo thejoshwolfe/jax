@@ -566,7 +566,7 @@ public class Semalysizer
 
     private ReturnBehavior semalysizeForLoop(LocalContext context, ForLoop forLoop)
     {
-        LocalContext innerContext = new LocalContext(context);
+        LocalContext innerContext = context.makeSubContext();
         ReturnBehavior returnBehavior1 = semalysizeExpression(innerContext, forLoop.expression1);
         if (returnBehavior1.type != RuntimeType.VOID)
             errors.add(SemalyticalException.mustBeVoid(forLoop.expression1));
@@ -671,7 +671,7 @@ public class Semalysizer
 
     private ReturnBehavior semalysizeCatchBody(LocalContext context, CatchBody catchBody)
     {
-        LocalContext nestedContext = new LocalContext(context);
+        LocalContext nestedContext = context.makeSubContext();
         semalysizeVariableDeclaration(nestedContext, catchBody.variableDeclaration);
         if (!catchBody.variableDeclaration.typeId.type.isInstanceOf(RuntimeType.getType(Throwable.class)))
             errors.add(new SemalyticalException(catchBody.variableDeclaration, "Type must descend from Throwable. Can't catch a " + catchBody.variableDeclaration.typeId));
@@ -872,8 +872,8 @@ public class Semalysizer
 
     private ReturnBehavior semalysizeBlock(LocalContext context, Block block)
     {
-        block.context = new LocalContext(context);
-        return semalysizeBlockContents(block.context, block.blockContents);
+        LocalContext localContext = context.makeSubContext();
+        return semalysizeBlockContents(localContext, block.blockContents);
     }
 
     private ReturnBehavior semalysizeBlockContents(LocalContext context, BlockContents blockContents)

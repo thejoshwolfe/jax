@@ -1,12 +1,9 @@
 package net.wolfesoftware.jax.ast;
 
 import java.util.LinkedList;
-import net.wolfesoftware.jax.semalysizer.LocalContext;
 
 public class Block extends ParseElement
 {
-    public LocalContext context;
-
     public BlockContents blockContents;
     public Block(BlockContents blockContents)
     {

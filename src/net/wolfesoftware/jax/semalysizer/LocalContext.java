@@ -10,7 +10,7 @@ public class LocalContext
     protected final HashMap<String, LocalVariable> localVariables = new HashMap<String, LocalVariable>();
     private final ArrayList<SecretLocalVariable> secretLocalVariables = new ArrayList<SecretLocalVariable>();
     private final ArrayList<LocalContext> subContexts = new ArrayList<LocalContext>();
-    
+
     private int wideVariableCount = 0;
 
     private final int parentVariableCount;
@@ -58,6 +58,13 @@ public class LocalContext
         return rtnValue != null ? rtnValue : parentContext.getLocalVariable(name);
     }
 
+    public LocalContext makeSubContext()
+    {
+        LocalContext subContext = new LocalContext(this);
+        subContexts.add(subContext);
+        return subContext;
+    }
+
     public String nextLabel()
     {
         return rootContext.nextLabel();
@@ -90,6 +97,4 @@ public class LocalContext
     {
         return rootContext.toString();
     }
-
-
 }
