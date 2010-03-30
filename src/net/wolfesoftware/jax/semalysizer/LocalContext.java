@@ -13,16 +13,13 @@ public class LocalContext
 
     private int wideVariableCount = 0;
 
-    private final int parentVariableCount;
 
     protected LocalContext(LocalContext parentContext)
     {
         this.parentContext = parentContext;
         if (parentContext == null) {
-            parentVariableCount = 0;
             rootContext = (RootLocalContext)this;
         } else {
-            parentVariableCount = parentContext.getVariableCount();
             rootContext = parentContext.rootContext;
         }
     }
@@ -31,25 +28,17 @@ public class LocalContext
     {
         if (localVariables.containsKey(id))
             errors.add(new SemalyticalException(id, "Redefinition of local variable"));
-        int number = getVariableCount();
-        id.variable = new LocalVariable(id.name, type, number);
+        id.variable = new LocalVariable(id.name, type);
         localVariables.put(id.name, id.variable);
         if (type.getSize() == 2)
             wideVariableCount++;
-        rootContext.ensureVariableCapacity(getVariableCount());
     }
 
     public SecretLocalVariable addSecretLocalVariable(Type type)
     {
-        int number = getVariableCount();
-        SecretLocalVariable secretLocalVariable = new SecretLocalVariable(type, number);
+        SecretLocalVariable secretLocalVariable = new SecretLocalVariable(type);
         secretLocalVariables.add(secretLocalVariable);
         return secretLocalVariable;
-    }
-
-    private int getVariableCount()
-    {
-        return parentVariableCount + localVariables.size() + secretLocalVariables.size() + wideVariableCount;
     }
 
     public LocalVariable getLocalVariable(String name)

@@ -14,8 +14,10 @@ public class Semalysizer
         return new Semalysizer(parsing, filePath).semalysizeRoot();
     }
 
+    
     private final HashMap<String, Type> importedTypes = new HashMap<String, Type>();
     {
+        // import built-in types
         RuntimeType.initPrimitives(importedTypes);
         RuntimeType.initJavaLang(importedTypes);
     }
@@ -190,7 +192,6 @@ public class Semalysizer
 
     private void semalysizeConstructorDefinition(Type typeContext, ConstructorDefinition constructorDefinition)
     {
-        constructorDefinition.context.pushOperand(typeContext);
         // for now, hard-code implicit super() with no arguments
         ConstructorRedirect constructorRedirect = new ConstructorRedirect(Lang.KEYWORD_SUPER, new Arguments(new LinkedList<Expression>()));
         constructorDefinition.expression = new Expression(new Block(new BlockContents(Arrays.asList(new Expression(constructorRedirect), constructorDefinition.expression))));
@@ -616,29 +617,18 @@ public class Semalysizer
         ReturnBehavior[] argumentSignature = semalysizeArguments(context, staticFunctionInvocation.functionInvocation.arguments);
         staticFunctionInvocation.functionInvocation.method = resolveMethod(staticFunctionInvocation.typeId.type, staticFunctionInvocation.functionInvocation, argumentSignature);
         implicitCastArguments(context, staticFunctionInvocation.functionInvocation.arguments, staticFunctionInvocation.functionInvocation.method.argumentSignature);
-        context.popOperands(staticFunctionInvocation.functionInvocation.arguments.elements.size());
         Type returnType = staticFunctionInvocation.functionInvocation.method.returnType;
-        pushIfNonVoid(context, returnType);
         return new ReturnBehavior(returnType);
     }
 
     private ReturnBehavior semalysizeTryCatch(LocalContext context, TryCatch tryCatch)
     {
-        while (!context.isOperandStackEmpty()) {
-            SecretLocalVariable secretLocalVariable = context.addSecretLocalVariable(context.popOperand());
-            tryCatch.preserveTheseOperands.add(secretLocalVariable);
-        }
-
         ReturnBehavior tryPartReturnBehavior = semalysizeTryPart(context, tryCatch.tryPart);
         ReturnBehavior catchPartReturnBehavior = semalysizeCatchPart(context, tryCatch.catchPart);
         if (tryPartReturnBehavior.type != catchPartReturnBehavior.type)
             errors.add(new SemalyticalException(tryCatch, "return types must match"));
         tryCatch.type = tryPartReturnBehavior.type;
         
-        for (SecretLocalVariable secretLocalVariable : tryCatch.preserveTheseOperands)
-            context.pushOperand(secretLocalVariable.type);
-        pushIfNonVoid(context, tryPartReturnBehavior.type);
-
         return new ReturnBehavior(tryPartReturnBehavior.type);
     }
 
@@ -662,7 +652,6 @@ public class Semalysizer
                 returnType = returnBehavior.type;
             else if (returnType != returnBehavior.type)
                 errors.add(new SemalyticalException(catchList, "return types must match"));
-            popIfNonVoid(context, returnBehavior.type);
         }
         if (returnType == null)
             errors.add(new SemalyticalException(catchList, "must catch something"));
@@ -899,32 +888,26 @@ public class Semalysizer
 
     private ReturnBehavior semalysizeIntLiteral(LocalContext context, IntLiteral intLiteral)
     {
-        context.pushOperand(RuntimeType.INT);
         return ReturnBehavior.INT;
     }
     private ReturnBehavior semalysizeLongLiteral(LocalContext context, LongLiteral longLiteral)
     {
-        context.pushOperand(RuntimeType.LONG);
         return ReturnBehavior.LONG;
     }
     private ReturnBehavior semalysizeFloatLiteral(LocalContext context, FloatLiteral floatLiteral)
     {
-        context.pushOperand(RuntimeType.FLOAT);
         return ReturnBehavior.FLOAT;
     }
     private ReturnBehavior semalysizeDoubleLiteral(LocalContext context, DoubleLiteral doubleLiteral)
     {
-        context.pushOperand(RuntimeType.DOUBLE);
         return ReturnBehavior.DOUBLE;
     }
     private ReturnBehavior semalysizeBooleanLiteral(LocalContext context, BooleanLiteral booleanLiteral)
     {
-        context.pushOperand(RuntimeType.BOOLEAN);
         return ReturnBehavior.BOOLEAN;
     }
     private ReturnBehavior semalysizeStringLiteral(LocalContext context, StringLiteral stringLiteral)
     {
-        context.pushOperand(RuntimeType.STRING);
         return ReturnBehavior.STRING;
     }
 
@@ -1180,17 +1163,5 @@ public class Semalysizer
         while (iterator.hasNext())
             if (iterator.next() == null)
                 iterator.remove();
-    }
-
-    private void pushIfNonVoid(LocalContext context, Type type)
-    {
-        if (type != RuntimeType.VOID)
-            context.pushOperand(type);
-    }
-
-    private void popIfNonVoid(LocalContext context, Type type)
-    {
-        if (type != RuntimeType.VOID)
-            context.popOperand();
     }
 }

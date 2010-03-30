@@ -121,25 +121,14 @@ public class RuntimeType extends Type
     public static final RuntimeType FLOAT = new NumericPrimitiveType(float.class, "F", 1);
     public static final RuntimeType DOUBLE = new NumericPrimitiveType(double.class, "D", 2);
     public static final RuntimeType CHAR = new NumericPrimitiveType(char.class, "C", 1);
+    private static final RuntimeType[] allPrimitiveTypes = { VOID, BOOLEAN, BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, CHAR };
     public static void initPrimitives(HashMap<String, Type> types)
     {
-        types.put(VOID.id, VOID);
-        types.put(BOOLEAN.id, BOOLEAN);
-        types.put(BYTE.id, BYTE);
-        types.put(SHORT.id, SHORT);
-        types.put(INT.id, INT);
-        types.put(LONG.id, LONG);
-        types.put(FLOAT.id, FLOAT);
-        types.put(DOUBLE.id, DOUBLE);
-        types.put(CHAR.id, CHAR);
+        for (RuntimeType primitiveType : allPrimitiveTypes)
+            types.put(primitiveType.id, primitiveType);
     }
 
-    public static void initJavaLang(HashMap<String, Type> types)
-    {
-        for (Class<?> type : javaLangClasses)
-            types.put(type.getSimpleName(), cache.get(type));
-    }
-    private static final Class<?>[] javaLangClasses = { AbstractMethodError.class, ArithmeticException.class, ArrayIndexOutOfBoundsException.class, ArrayStoreException.class, AssertionError.class,
+    private static final Class<?>[] javaLangTypes = { AbstractMethodError.class, ArithmeticException.class, ArrayIndexOutOfBoundsException.class, ArrayStoreException.class, AssertionError.class,
             Boolean.class, Byte.class, Character.class, CharSequence.class, Class.class, ClassCastException.class, ClassCircularityError.class, ClassFormatError.class, ClassLoader.class,
             ClassNotFoundException.class, Cloneable.class, CloneNotSupportedException.class, Comparable.class, Compiler.class, Double.class, Error.class, Exception.class,
             ExceptionInInitializerError.class, Float.class, IllegalAccessError.class, IllegalAccessException.class, IllegalArgumentException.class, IllegalMonitorStateException.class,
@@ -150,20 +139,17 @@ public class RuntimeType extends Type
             RuntimeException.class, RuntimePermission.class, SecurityException.class, SecurityManager.class, Short.class, StackOverflowError.class, StackTraceElement.class, StrictMath.class,
             String.class, StringBuffer.class, StringIndexOutOfBoundsException.class, System.class, Thread.class, ThreadDeath.class, ThreadGroup.class, ThreadLocal.class, Throwable.class,
             UnknownError.class, UnsatisfiedLinkError.class, UnsupportedClassVersionError.class, UnsupportedOperationException.class, VerifyError.class, VirtualMachineError.class, Void.class, };
-    private static final HashMap<Class<?>, RuntimeType> cache = new HashMap<Class<?>, RuntimeType>();
-    static
+    public static void initJavaLang(HashMap<String, Type> types)
     {
-        for (Class<?> type : javaLangClasses)
+        for (Class<?> type : javaLangTypes)
+            types.put(type.getSimpleName(), cache.get(type));
+    }
+    private static final HashMap<Class<?>, RuntimeType> cache = new HashMap<Class<?>, RuntimeType>();
+    static {
+        for (Class<?> type : javaLangTypes)
             cache.put(type, new RuntimeType(type));
-        cache.put(VOID.underlyingType, VOID);
-        cache.put(BOOLEAN.underlyingType, BOOLEAN);
-        cache.put(BYTE.underlyingType, BYTE);
-        cache.put(SHORT.underlyingType, SHORT);
-        cache.put(INT.underlyingType, INT);
-        cache.put(LONG.underlyingType, LONG);
-        cache.put(FLOAT.underlyingType, FLOAT);
-        cache.put(DOUBLE.underlyingType, DOUBLE);
-        cache.put(CHAR.underlyingType, CHAR);
+        for (RuntimeType primitiveType : allPrimitiveTypes)
+            cache.put(primitiveType.underlyingType, primitiveType);
     }
     public static final RuntimeType STRING = cache.get(String.class);
     public static final RuntimeType OBJECT = cache.get(Object.class);

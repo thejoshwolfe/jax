@@ -41,6 +41,9 @@ public class Jaxc
         return compile(jaxFilename, null);
     }
 
+    /**
+     * TODO: change the api or something so that libraries can catch exceptions.
+     */
     public static boolean compile(String jaxFilename, JaxcOptions options)
     {
         try {
@@ -67,12 +70,13 @@ public class Jaxc
         if (printErrors(semalysization.errors))
             return 1;
 
-        Staticalysizer.staticalysize(semalysization.root);
+        Staticalysizer.staticalysize(semalysization.root, options);
 
         CodeGenerator.generate(semalysization, Util.platformizeFilepath(fileName), classPath);
 
         return 0;
     }
+
     private static boolean printErrors(List<? extends CompileError> errors)
     {
         for (CompileError error : errors)

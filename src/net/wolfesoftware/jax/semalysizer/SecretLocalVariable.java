@@ -3,11 +3,10 @@ package net.wolfesoftware.jax.semalysizer;
 public class SecretLocalVariable
 {
     public final Type type;
-    public int number;
+    public int number = -1;
 
-    public SecretLocalVariable(Type type, int number)
+    public SecretLocalVariable(Type type)
     {
         this.type = type;
-        this.number = number;
     }
 }

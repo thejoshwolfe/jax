@@ -1,41 +1,51 @@
 package net.wolfesoftware.jax.staticalysizer;
 
+import net.wolfesoftware.jax.JaxcOptions;
 import net.wolfesoftware.jax.ast.*;
 
 public class Staticalysizer
 {
-    private Staticalysizer()
+    public static void staticalysize(Root root, JaxcOptions options)
     {
+        new Staticalysizer(root, options).staticalysize();
     }
 
-    public static void staticalysize(Root root)
+    private final Root root;
+    private final JaxcOptions options;
+    private Staticalysizer(Root root, JaxcOptions options)
+    {
+        this.root = root;
+        this.options = options;
+    }
+
+    private void staticalysize()
     {
         staticalysizeCompilationUnit(root.content);
     }
 
-    private static void staticalysizeCompilationUnit(CompilationUnit program)
+    private void staticalysizeCompilationUnit(CompilationUnit program)
     {
         staticalysizeImports(program.imports);
         staticalysizeClassDeclaration(program.classDeclaration);
     }
 
-    private static void staticalysizeImports(Imports imports)
+    private void staticalysizeImports(Imports imports)
     {
     }
 
-    private static void staticalysizeClassDeclaration(ClassDeclaration classDeclaration)
+    private void staticalysizeClassDeclaration(ClassDeclaration classDeclaration)
     {
         staticalysizeId(classDeclaration.id);
         staticalysizeClassBody(classDeclaration.classBody);
     }
 
-    private static void staticalysizeClassBody(ClassBody program)
+    private void staticalysizeClassBody(ClassBody program)
     {
         for (ClassMember classMember : program.elements)
             staticalysizeClassMember(classMember);
     }
 
-    private static void staticalysizeClassMember(ClassMember classMember)
+    private void staticalysizeClassMember(ClassMember classMember)
     {
         ParseElement content = classMember.content;
         switch (content.getElementType())
@@ -51,17 +61,17 @@ public class Staticalysizer
         }
     }
 
-    private static void staticalysizeConstructorDefinition(ConstructorDefinition constructorDefinition)
+    private void staticalysizeConstructorDefinition(ConstructorDefinition constructorDefinition)
     {
         staticalysizeExpression(constructorDefinition.expression);
     }
 
-    private static void staticalysizeFunctionDefinition(FunctionDefinition functionDefinition)
+    private void staticalysizeFunctionDefinition(FunctionDefinition functionDefinition)
     {
         staticalysizeExpression(functionDefinition.expression);
     }
 
-    private static void staticalysizeExpression(Expression expression)
+    private void staticalysizeExpression(Expression expression)
     {
         ParseElement content = expression.content;
         switch (content.getElementType())
@@ -209,81 +219,81 @@ public class Staticalysizer
         }
     }
 
-    private static void staticalysizeConstructorRedirect(ConstructorRedirect constructorRedirect)
+    private void staticalysizeConstructorRedirect(ConstructorRedirect constructorRedirect)
     {
         staticalysizeArguments(constructorRedirect.arguments);
     }
 
-    private static void staticalysizeNullExpression(NullExpression nullExpression)
+    private void staticalysizeNullExpression(NullExpression nullExpression)
     {
         // do nothing
     }
 
-    private static void staticalysizeShortCircuitAnd(ShortCircuitAnd shortCircuitAnd)
+    private void staticalysizeShortCircuitAnd(ShortCircuitAnd shortCircuitAnd)
     {
         staticalysizeExpression(shortCircuitAnd.expression1);
         staticalysizeExpression(shortCircuitAnd.expression2);
     }
 
-    private static void staticalysizeShortCircuitOr(ShortCircuitOr shortCircuitOr)
+    private void staticalysizeShortCircuitOr(ShortCircuitOr shortCircuitOr)
     {
         staticalysizeExpression(shortCircuitOr.expression1);
         staticalysizeExpression(shortCircuitOr.expression2);
     }
 
-    private static void staticalysizeBooleanNot(BooleanNot booleanNot)
+    private void staticalysizeBooleanNot(BooleanNot booleanNot)
     {
         staticalysizeExpression(booleanNot.expression);
     }
 
-    private static void staticalysizeNegation(Negation negation)
+    private void staticalysizeNegation(Negation negation)
     {
         staticalysizeExpression(negation.expression);
     }
 
-    private static void staticalysizeReferenceConversion(ReferenceConversion referenceConversion)
+    private void staticalysizeReferenceConversion(ReferenceConversion referenceConversion)
     {
         staticalysizeExpression(referenceConversion.expression);
     }
 
-    private static void staticalysizePrimitiveConversion(PrimitiveConversion primitiveConversion)
+    private void staticalysizePrimitiveConversion(PrimitiveConversion primitiveConversion)
     {
         staticalysizeExpression(primitiveConversion.expression);
     }
 
-    private static void staticalysizeWhileLoop(WhileLoop whileLoop)
+    private void staticalysizeWhileLoop(WhileLoop whileLoop)
     {
         staticalysizeExpression(whileLoop.expression1);
         staticalysizeExpression(whileLoop.expression2);
     }
 
-    private static void staticalysizeConstructorInvocation(ConstructorInvocation constructorInvocation)
+    private void staticalysizeConstructorInvocation(ConstructorInvocation constructorInvocation)
     {
         staticalysizeArguments(constructorInvocation.functionInvocation.arguments);
     }
 
-    private static void staticalysizePreDecrement(PreDecrement preDecrement)
+    private void staticalysizePreDecrement(PreDecrement preDecrement)
     {
         staticalysizeIncrementDecrement(preDecrement);
     }
-    private static void staticalysizePostDecrement(PostDecrement postDecrement)
+    private void staticalysizePostDecrement(PostDecrement postDecrement)
     {
         staticalysizeIncrementDecrement(postDecrement);
     }
-    private static void staticalysizePreIncrement(PreIncrement preDecrement)
+    private void staticalysizePreIncrement(PreIncrement preDecrement)
     {
         staticalysizeIncrementDecrement(preDecrement);
     }
-    private static void staticalysizePostIncrement(PostIncrement postIncrement)
+    private void staticalysizePostIncrement(PostIncrement postIncrement)
     {
         staticalysizeIncrementDecrement(postIncrement);
     }
-    private static void staticalysizeIncrementDecrement(IncrementDecrement incrementDecrement)
+    private void staticalysizeIncrementDecrement(IncrementDecrement incrementDecrement)
     {
         staticalysizeId(incrementDecrement.id);
     }
 
-    private static void staticalysizeForLoop(ForLoop forLoop)
+    private void staticalysizeForLoop(ForLoop forLoop)
     {
         staticalysizeExpression(forLoop.expression1);
         staticalysizeExpression(forLoop.expression2);
@@ -291,187 +301,187 @@ public class Staticalysizer
         staticalysizeExpression(forLoop.expression4);
     }
 
-    private static void staticalysizeArrayDereference(ArrayDereference arrayDereference)
+    private void staticalysizeArrayDereference(ArrayDereference arrayDereference)
     {
         staticalysizeExpression(arrayDereference.expression1);
         staticalysizeExpression(arrayDereference.expression2);
     }
 
-    private static void staticalysizeStaticFunctionInvocation(StaticFunctionInvocation staticFunctionInvocation)
+    private void staticalysizeStaticFunctionInvocation(StaticFunctionInvocation staticFunctionInvocation)
     {
         staticalysizeFunctionInvocation(staticFunctionInvocation.functionInvocation);
     }
 
-    private static void staticalysizeTryCatch(TryCatch tryCatch)
+    private void staticalysizeTryCatch(TryCatch tryCatch)
     {
         staticalysizeTryPart(tryCatch.tryPart);
         staticalysizeCatchPart(tryCatch.catchPart);
     }
 
-    private static void staticalysizeCatchPart(CatchPart catchPart)
+    private void staticalysizeCatchPart(CatchPart catchPart)
     {
         staticalysizeCatchList(catchPart.catchList);
     }
 
-    private static void staticalysizeCatchList(CatchList catchList)
+    private void staticalysizeCatchList(CatchList catchList)
     {
         for (CatchBody catchBody : catchList.elements)
             staticalysizeCatchBody(catchBody);
     }
 
-    private static void staticalysizeCatchBody(CatchBody catchBody)
+    private void staticalysizeCatchBody(CatchBody catchBody)
     {
         staticalysizeVariableDeclaration(catchBody.variableDeclaration);
         staticalysizeExpression(catchBody.expression);
     }
 
-    private static void staticalysizeTryPart(TryPart tryPart)
+    private void staticalysizeTryPart(TryPart tryPart)
     {
         staticalysizeExpression(tryPart.expression);
     }
 
-    private static void staticalysizeStaticDereferenceField(StaticDereferenceField staticDereferenceField)
+    private void staticalysizeStaticDereferenceField(StaticDereferenceField staticDereferenceField)
     {
         // do nothing
     }
 
-    private static void staticalysizeDereferenceMethod(DereferenceMethod dereferenceMethod)
+    private void staticalysizeDereferenceMethod(DereferenceMethod dereferenceMethod)
     {
         staticalysizeExpression(dereferenceMethod.expression);
         staticalysizeFunctionInvocation(dereferenceMethod.functionInvocation);
     }
 
-    private static void staticalysizeDereferenceField(DereferenceField dereferenceField)
+    private void staticalysizeDereferenceField(DereferenceField dereferenceField)
     {
         staticalysizeExpression(dereferenceField.expression);
     }
 
-    private static void staticalysizeFunctionInvocation(FunctionInvocation functionInvocation)
+    private void staticalysizeFunctionInvocation(FunctionInvocation functionInvocation)
     {
         staticalysizeId(functionInvocation.id);
         staticalysizeArguments(functionInvocation.arguments);
     }
 
-    private static void staticalysizeArguments(Arguments arguments)
+    private void staticalysizeArguments(Arguments arguments)
     {
         for (Expression element : arguments.elements)
             staticalysizeExpression(element);
     }
 
-    private static void staticalysizeIfThenElse(IfThenElse ifThenElse)
+    private void staticalysizeIfThenElse(IfThenElse ifThenElse)
     {
         staticalysizeExpression(ifThenElse.expression1);
         staticalysizeExpression(ifThenElse.expression2);
         staticalysizeExpression(ifThenElse.expression3);
     }
-    private static void staticalysizeIfThen(IfThen ifThen)
+    private void staticalysizeIfThen(IfThen ifThen)
     {
         staticalysizeExpression(ifThen.expression1);
         staticalysizeExpression(ifThen.expression2);
     }
 
-    private static void staticalysizeAssignment(Assignment assignment)
+    private void staticalysizeAssignment(Assignment assignment)
     {
         staticalysizeId(assignment.id);
         staticalysizeExpression(assignment.expression);
     }
 
 
-    private static void staticalysizeVariableDeclaration(VariableDeclaration variableDeclaration)
+    private void staticalysizeVariableDeclaration(VariableDeclaration variableDeclaration)
     {
     }
 
-    private static void staticalysizeVariableCreation(VariableCreation variableCreation)
+    private void staticalysizeVariableCreation(VariableCreation variableCreation)
     {
         staticalysizeExpression(variableCreation.expression);
     }
 
-    private static void staticalysizeId(Id id)
+    private void staticalysizeId(Id id)
     {
     }
 
-    private static void staticalysizeQuantity(Quantity quantity)
+    private void staticalysizeQuantity(Quantity quantity)
     {
         staticalysizeExpression(quantity.expression);
     }
 
-    private static void staticalysizeIntLiteral(IntLiteral intLiteral)
+    private void staticalysizeIntLiteral(IntLiteral intLiteral)
     {
         // do nothing
     }
-    private static void staticalysizeLongLiteral(LongLiteral content)
+    private void staticalysizeLongLiteral(LongLiteral content)
     {
         // do nothing
     }
-    private static void staticalysizeFloatLiteral(FloatLiteral floatLiteral)
+    private void staticalysizeFloatLiteral(FloatLiteral floatLiteral)
     {
         // do nothing
     }
-    private static void staticalysizeDoubleLiteral(DoubleLiteral doubleLiteral)
+    private void staticalysizeDoubleLiteral(DoubleLiteral doubleLiteral)
     {
         // do nothing
     }
-    private static void staticalysizeBooleanLiteral(BooleanLiteral intLiteral)
+    private void staticalysizeBooleanLiteral(BooleanLiteral intLiteral)
     {
         // do nothing
     }
-    private static void staticalysizeStringLiteral(StringLiteral intLiteral)
+    private void staticalysizeStringLiteral(StringLiteral intLiteral)
     {
         // do nothing
     }
 
-    private static void staticalysizeBlock(Block block)
+    private void staticalysizeBlock(Block block)
     {
         staticalysizeBlockContents(block.blockContents);
     }
 
-    private static void staticalysizeBlockContents(BlockContents blockContents)
+    private void staticalysizeBlockContents(BlockContents blockContents)
     {
         for (Expression element : blockContents.elements)
             staticalysizeExpression(element);
     }
 
-    private static void staticalysizeAddition(Addition addition)
+    private void staticalysizeAddition(Addition addition)
     {
         staticalysizeBinaryOperator(addition);
     }
-    private static void staticalysizeSubtraction(Subtraction subtraction)
+    private void staticalysizeSubtraction(Subtraction subtraction)
     {
         staticalysizeBinaryOperator(subtraction);
     }
-    private static void staticalysizeMultiplication(Multiplication multiplication)
+    private void staticalysizeMultiplication(Multiplication multiplication)
     {
         staticalysizeBinaryOperator(multiplication);
     }
-    private static void staticalysizeDivision(Division division)
+    private void staticalysizeDivision(Division division)
     {
         staticalysizeBinaryOperator(division);
     }
-    private static void staticalysizeLessThan(LessThan lessThan)
+    private void staticalysizeLessThan(LessThan lessThan)
     {
         staticalysizeBinaryOperator(lessThan);
     }
-    private static void staticalysizeGreaterThan(GreaterThan greaterThan)
+    private void staticalysizeGreaterThan(GreaterThan greaterThan)
     {
         staticalysizeBinaryOperator(greaterThan);
     }
-    private static void staticalysizeLessThanOrEqual(LessThanOrEqual lessThanOrEqual)
+    private void staticalysizeLessThanOrEqual(LessThanOrEqual lessThanOrEqual)
     {
         staticalysizeBinaryOperator(lessThanOrEqual);
     }
-    private static void staticalysizeGreaterThanOrEqual(GreaterThanOrEqual greaterThanOrEqual)
+    private void staticalysizeGreaterThanOrEqual(GreaterThanOrEqual greaterThanOrEqual)
     {
         staticalysizeBinaryOperator(greaterThanOrEqual);
     }
-    private static void staticalysizeEquality(Equality equality)
+    private void staticalysizeEquality(Equality equality)
     {
         staticalysizeBinaryOperator(equality);
     }
-    private static void staticalysizeInequality(Inequality inequality)
+    private void staticalysizeInequality(Inequality inequality)
     {
         staticalysizeBinaryOperator(inequality);
     }
-    private static void staticalysizeBinaryOperator(BinaryOperatorElement operator)
+    private void staticalysizeBinaryOperator(BinaryOperatorElement operator)
     {
         staticalysizeExpression(operator.expression1);
         staticalysizeExpression(operator.expression2);
