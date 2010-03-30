@@ -1,0 +1,58 @@
+The Java programming language lacks pass-by-reference parameter semantics that other programming
+languages offer. These semantics are important for when multiple values need to be communicated
+back to the calling method context. It is not possible to run code in the JVM that has pass-by-
+reference semantics because the JVM specification does not support it. 
+
+Chris Smith gives examples of ways to avoid the need for pass-by-reference semantics, but the proposed workarounds are inefficient.
+[ http://www.yoda.arachsys.com/java/passing.html ]
+
+<blockquote>
+Pass by reference mixes inputs and outputs of code. 
+This is the fundamental problem with the technique. 
+In Java, a programmer can assume that variables will not change their value when passed as parameters to a method. 
+In languages with pass by reference semantics, this basic assumption cannot be made.
+</blockquote>
+
+Here Smith argues that mixing inputs and outputs is misleading.
+I argue that the API of a method should be understood by the programmer, and languages like C# facilitate a standardized way of communicating that API.
+Furthermore, it is a detriment to a programming language to remove irreplaceable functionality simply for the sake of simplicity.
+Another fault Smith makes here is that he claims that parameters can be assumed to stay the same when passed to a method.
+This is only true at a very shallow level.
+Only object references themselves and primitives can be assumed to remain unchanged before and after a method call.
+Some objects are meaningless at the reference level and if their fields change during a method call, any sense of identity is lost.
+An example of this is a container class that can be emptied during a method call.
+
+Smith gives four workarounds to using pass-by-reference semantics to solve the issue of multiple return values.
+Each of these workarounds has flaws.
+
+<blockquote>1. If any of your return values are status codes that indicate success or failure of the method, eliminate them immediately. Replace them with exception handling that throws an exception if the method does not complete successfully. The exception is a more standard way of handling error conditions, can be more expressive, and eliminates one of your return values.</blockquote>
+
+While I agree for the most part that exception handling is more elegant that error return values, there is significant runtime overhead involved with throwing and catching exceptions in the JVM.
+In the case where many consecutive calls to a method must be made, and error cases are expected and handled gracefully, it is a serious slow-down to use exception handling rather than uninterrupted program flow.
+An example of this is a graphing calculator that attempts to graph the logarithm of many negative values.
+Unofficial tests show that there is a 1500% efficiency hit by using exception handling in the place of a simple if.
+[ http://www.velocityreviews.com/forums/t144820-java-exceptions-cause-performance-hit.html ]
+
+<blockquote>2. Find related groups of return values, and encapsulate them into objects that contain each piece of information as fields. The classes for these objects can be expanded to encapsulate their behavior later, to further improve the design of the code. Each set of related return values that you encapsulate into an object removes return values from the method by increasing the level of abstraction of the method's interface. For instance, instead of passing co-ordinates X and Y by reference to allow them to be returned, create a mutable Point class, pass an object reference by value, and update the object's values within the method.</blockquote>
+
+Here Smith describes a situation that contradicts his previously mentioned assumptions about parameters changing their values in pass-by-value languages.
+A Point class with x and y properties is nothing by a pair of values.
+Smith suggests to construct an object whose sole purpose is to be a modified parameter.
+This is the same level of confusion as traditional pass-by-reference semantics with the added overhead of constructing an object.
+This solution is far less elegant than traditional pass-by-reference mechanisms because it is accomplishing the same thing in a less efficient way.
+
+<blockquote>3. If you find yourself passing in an object and then returning a new version of that object, and the object is mutable, then consider moving the method to be a member of the class of the object that you were passing. This can improve the encapsulation of the design and simplify the interface.</blockquote>
+
+Using the graphing calculator example again, this solution is completely inapplicable.
+It seems as though Smith is proposing changing immutable object copy semantics to mutable object modification.
+I fail to see how this eliminates the need for pass-by-reference semantics. 
+
+<blockquote>4. If, after all steps above, you are still left with multiple returns to a method, split the method into several different methods that each return a part of the answer. Using this set of methods from client code will be much clearer than one mega-method. </blockquote>
+
+This solution is only reasonable if the multiple return values are calculated independently.
+This would work if you first needed to check if an input was active, then you read from it as two function calls.
+This doesn't work if there is common computation needed to calculate multiple return values, for example calculating a vector cross product.
+
+While removing pass-by-reference semantics from the Java language and virtual machine does make the language simpler, there are still cases where pass-by-reference semantics are the best solution.
+Java's lack of pass-by-reference semantics make it inferior in some cases to languages that do support them. 
+

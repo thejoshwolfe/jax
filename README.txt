@@ -4,19 +4,12 @@ started 2009 January by Josh Wolfe (thejoshwolfe@gmail.com)
 Currently in development (meaning example code might not compile yet).
 
 Jax is a programming language which compiles into Java Bytecode. It is a modified version of Java 
-that combines Ruby-like block semantics and powerful C- and Lisp-like macros. 
+that combines Ruby-like semantics and powerful C- and Lisp-like macros.
 
 
 Motivation for Jax:
 
-The Java programming language lacks pass-by-reference parameter semantics that other programming
-languages offer. These semantics are important for when multiple values need to be communicated
-back to the calling method context. It is not possible to run code in the JVM that has pass-by-
-reference semantics because the JVM specification does not support it. Currently, the only way to
-return multiple values is to define a class that contains the values as fields, and instantiate an
-object of this class to return from every method call. This procedure is inefficient as it
-allocates memory and instantiates an object only to overcome a limitation in the JVM specification.
-There is a way to simulate pass-by-reference parameter semantics by using compiler macros.
+see essay.txt.
 
 
 What Jax can do:
@@ -52,9 +45,9 @@ Jax:
         return if (number < 0) -number else number;
     }
 
-The whole point of the try...catch statement in the Java code was to get a value for "number".
-In the Jax code, the try...catch expression evaluates to an int, and is then stored in "number".
-try...catch, if...else, and all other "statements" in Java evaluate as expressions in Jax.
+The whole point of the try-catch statement in the Java code was to get a value for "number". 
+In the Jax code, the try-catch expression evaluates to an int, and is then stored in "number".
+try-catch, if-else, and all other "statements" in Java evaluate as expressions in Jax.
 The return type of an expression can be "void", meaning you can't assign or use the value anywhere.
 
 
