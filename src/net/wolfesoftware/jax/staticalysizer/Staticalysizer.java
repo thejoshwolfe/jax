@@ -48,8 +48,7 @@ public class Staticalysizer
     private void staticalysizeClassMember(ClassMember classMember)
     {
         ParseElement content = classMember.content;
-        switch (content.getElementType())
-        {
+        switch (content.getElementType()) {
             case FunctionDefinition.TYPE:
                 staticalysizeFunctionDefinition((FunctionDefinition)content);
                 break;

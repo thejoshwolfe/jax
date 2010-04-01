@@ -26,6 +26,7 @@ public class LocalContext
 
     public void addLocalVariable(Id id, Type type, ArrayList<SemalyticalException> errors)
     {
+        // redefinition is not a fatal error (it's even allowed in C)
         if (localVariables.containsKey(id))
             errors.add(new SemalyticalException(id, "Redefinition of local variable"));
         id.variable = new LocalVariable(id.name, type);
@@ -73,10 +74,6 @@ public class LocalContext
     public Type popOperand()
     {
         return rootContext.popOperand();
-    }
-    public void pushAndPopOperand(Type operandType)
-    {
-        rootContext.pushAndPopOperand(operandType);
     }
     public boolean isOperandStackEmpty()
     {

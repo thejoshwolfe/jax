@@ -5,7 +5,6 @@ import net.wolfesoftware.jax.ast.*;
 import net.wolfesoftware.jax.codegen.Instructions;
 import net.wolfesoftware.jax.parser.Parsing;
 import net.wolfesoftware.jax.tokenizer.Lang;
-import net.wolfesoftware.jax.util.Util;
 
 public class Semalysizer
 {
@@ -195,13 +194,9 @@ public class Semalysizer
         // for now, hard-code implicit super() with no arguments
         ConstructorRedirect constructorRedirect = new ConstructorRedirect(Lang.KEYWORD_SUPER, new Arguments(new LinkedList<Expression>()));
         constructorDefinition.expression = new Expression(new Block(new BlockContents(Arrays.asList(new Expression(constructorRedirect), constructorDefinition.expression))));
-        constructorDefinition.context.popOperand();
         constructorDefinition.returnBehavior = semalysizeExpression(constructorDefinition.context, constructorDefinition.expression);
-        if (constructorDefinition.returnBehavior.type != RuntimeType.VOID) {
+        if (constructorDefinition.returnBehavior.type != RuntimeType.VOID)
             errors.add(SemalyticalException.mustBeVoid(constructorDefinition.expression));
-            constructorDefinition.context.popOperand();
-        }
-        Util._assert(constructorDefinition.context.isOperandStackEmpty());
     }
 
     private void semalysizeFunctionDefinition(Type context, FunctionDefinition functionDefinition)
@@ -209,9 +204,6 @@ public class Semalysizer
         semalysizeExpression(functionDefinition.context, functionDefinition.expression);
         implicitCast(functionDefinition.context, functionDefinition.expression, functionDefinition.method.returnType);
         functionDefinition.returnBehavior = functionDefinition.expression.returnBehavior;
-        if (functionDefinition.expression.returnBehavior.type != RuntimeType.VOID)
-            functionDefinition.context.popOperand();
-        Util._assert(functionDefinition.context.isOperandStackEmpty());
     }
 
     private ReturnBehavior semalysizeExpression(LocalContext context, Expression expression)
@@ -626,7 +618,7 @@ public class Semalysizer
         ReturnBehavior tryPartReturnBehavior = semalysizeTryPart(context, tryCatch.tryPart);
         ReturnBehavior catchPartReturnBehavior = semalysizeCatchPart(context, tryCatch.catchPart);
         if (tryPartReturnBehavior.type != catchPartReturnBehavior.type)
-            errors.add(new SemalyticalException(tryCatch, "return types must match"));
+            errors.add(new SemalyticalException(tryCatch, "return types must match")); // TODO code duplication
         tryCatch.type = tryPartReturnBehavior.type;
         
         return new ReturnBehavior(tryPartReturnBehavior.type);
@@ -662,9 +654,10 @@ public class Semalysizer
     {
         LocalContext nestedContext = context.makeSubContext();
         semalysizeVariableDeclaration(nestedContext, catchBody.variableDeclaration);
-        if (!catchBody.variableDeclaration.typeId.type.isInstanceOf(RuntimeType.getType(Throwable.class)))
+        if (!catchBody.variableDeclaration.typeId.type.isInstanceOf(RuntimeType.getType(Throwable.class))) {
             errors.add(new SemalyticalException(catchBody.variableDeclaration, "Type must descend from Throwable. Can't catch a " + catchBody.variableDeclaration.typeId));
-        context.pushAndPopOperand(catchBody.variableDeclaration.typeId.type);
+            catchBody.variableDeclaration.typeId.type = UnknownType.INSTANCE;
+        }
         ReturnBehavior returnBehavior = semalysizeExpression(nestedContext, catchBody.expression);
         return new ReturnBehavior(returnBehavior.type);
     }
@@ -802,7 +795,7 @@ public class Semalysizer
     {
         Type fromType = expression.returnBehavior.type;
         if (fromType == toType)
-            return;
+            return; // no need to cast
         boolean primitive = fromType.isPrimitive();
         if (primitive != toType.isPrimitive()) {
             errors.add(new SemalyticalException(expression, "can't cast between primitives and non-primitives"));
@@ -834,8 +827,7 @@ public class Semalysizer
 
     private ReturnBehavior semalysizeVariableDeclaration(LocalContext context, VariableDeclaration variableDeclaration)
     {
-        resolveType(variableDeclaration.typeId, true);
-        if (variableDeclaration.typeId.type == RuntimeType.VOID)
+        if (!resolveType(variableDeclaration.typeId, true))
             errors.add(new SemalyticalException(variableDeclaration, "You can't have a void variable."));
         context.addLocalVariable(variableDeclaration.id, variableDeclaration.typeId.type, errors);
         return ReturnBehavior.VOID;
