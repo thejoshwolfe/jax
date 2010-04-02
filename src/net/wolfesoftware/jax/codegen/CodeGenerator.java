@@ -2,7 +2,7 @@ package net.wolfesoftware.jax.codegen;
 
 import java.io.*;
 import net.wolfesoftware.jax.ast.*;
-import net.wolfesoftware.jax.semalysizer.Semalysization;
+import net.wolfesoftware.jax.semalysis.Semalysization;
 import net.wolfesoftware.jax.util.Util;
 
 public class CodeGenerator

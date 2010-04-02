@@ -1,6 +1,6 @@
 package net.wolfesoftware.jax.ast;
 
-import net.wolfesoftware.jax.semalysizer.Constructor;
+import net.wolfesoftware.jax.semalysis.Constructor;
 
 public class ConstructorDefinition extends ConstructorOrMethodElement
 {

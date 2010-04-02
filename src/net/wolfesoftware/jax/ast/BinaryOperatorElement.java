@@ -1,6 +1,6 @@
 package net.wolfesoftware.jax.ast;
 
-import net.wolfesoftware.jax.semalysizer.Type;
+import net.wolfesoftware.jax.semalysis.Type;
 
 public abstract class BinaryOperatorElement extends ParseElement
 {

@@ -3,7 +3,7 @@ package net.wolfesoftware.jax.codegen;
 import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
-import net.wolfesoftware.jax.semalysizer.*;
+import net.wolfesoftware.jax.semalysis.*;
 
 /**
  * http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html#20080

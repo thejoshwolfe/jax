@@ -1,7 +1,7 @@
 package net.wolfesoftware.jax.ast;
 
 import java.util.ArrayList;
-import net.wolfesoftware.jax.semalysizer.*;
+import net.wolfesoftware.jax.semalysis.*;
 
 public class TryCatch extends ParseElement
 {

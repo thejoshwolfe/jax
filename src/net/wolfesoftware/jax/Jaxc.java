@@ -3,10 +3,10 @@ package net.wolfesoftware.jax;
 import java.io.*;
 import java.util.List;
 import net.wolfesoftware.jax.codegen.CodeGenerator;
-import net.wolfesoftware.jax.semalysizer.*;
-import net.wolfesoftware.jax.staticalysizer.Staticalysizer;
-import net.wolfesoftware.jax.parser.*;
-import net.wolfesoftware.jax.tokenizer.*;
+import net.wolfesoftware.jax.semalysis.*;
+import net.wolfesoftware.jax.staticalysis.Staticalysizer;
+import net.wolfesoftware.jax.parsing.*;
+import net.wolfesoftware.jax.tokenization.*;
 import net.wolfesoftware.jax.util.Util;
 
 public class Jaxc

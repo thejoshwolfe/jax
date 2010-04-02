@@ -1,14 +1,14 @@
 package net.wolfesoftware.jax.ast;
 
-import net.wolfesoftware.jax.semalysizer.Constructor;
+import net.wolfesoftware.jax.semalysis.Constructor;
 
 public class ConstructorRedirect extends ParseElement
 {
     public Constructor constructor;
 
     /** 
-     * either {@link net.wolfesoftware.jax.tokenizer.Lang#KEYWORD_THIS Lang.KEYWORD_THIS} or 
-     * {@link net.wolfesoftware.jax.tokenizer.Lang#KEYWORD_SUPER Lang.KEYWORD_SUPER} 
+     * either {@link net.wolfesoftware.jax.tokenization.Lang#KEYWORD_THIS Lang.KEYWORD_THIS} or 
+     * {@link net.wolfesoftware.jax.tokenization.Lang#KEYWORD_SUPER Lang.KEYWORD_SUPER} 
      */
     public String thisOrSuper;
     public Arguments arguments;

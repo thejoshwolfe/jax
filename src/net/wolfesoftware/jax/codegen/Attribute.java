@@ -2,7 +2,7 @@ package net.wolfesoftware.jax.codegen;
 
 import java.io.*;
 import java.util.LinkedList;
-import net.wolfesoftware.jax.semalysizer.RootLocalContext;
+import net.wolfesoftware.jax.semalysis.RootLocalContext;
 
 /**
  * http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html#43817

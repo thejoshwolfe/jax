@@ -3,7 +3,7 @@ package net.wolfesoftware.jax.codegen;
 import java.io.*;
 import java.util.LinkedList;
 import net.wolfesoftware.jax.ast.*;
-import net.wolfesoftware.jax.semalysizer.*;
+import net.wolfesoftware.jax.semalysis.*;
 
 /**
  * http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html

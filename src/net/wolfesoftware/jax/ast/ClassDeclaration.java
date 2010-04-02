@@ -1,6 +1,6 @@
 package net.wolfesoftware.jax.ast;
 
-import net.wolfesoftware.jax.semalysizer.LocalType;
+import net.wolfesoftware.jax.semalysis.LocalType;
 
 public class ClassDeclaration extends ParseElement
 {

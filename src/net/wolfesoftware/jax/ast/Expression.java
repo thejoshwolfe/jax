@@ -1,6 +1,6 @@
 package net.wolfesoftware.jax.ast;
 
-import net.wolfesoftware.jax.semalysizer.ReturnBehavior;
+import net.wolfesoftware.jax.semalysis.ReturnBehavior;
 
 public class Expression extends SwitchElement
 {
