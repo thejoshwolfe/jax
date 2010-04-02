@@ -12,7 +12,7 @@ public final class Tokenizer
 
     private final String source;
     private int start;
-    private ArrayList<TokenizingException> errors = new ArrayList<TokenizingException>();
+    private ArrayList<TokenizingError> errors = new ArrayList<TokenizingError>();
     private final ArrayList<Token> tokens = new ArrayList<Token>();
 
     private Tokenizer(String source)
@@ -53,7 +53,7 @@ public final class Tokenizer
         }
 
         if (!tokenMatcher.hitEnd())
-            errors.add(new TokenizingException(end, source.substring(end), "Invalid Token."));
+            errors.add(new TokenizingError(end, source.substring(end), "Invalid Token."));
 
         return new Tokenization(source, tokens, errors);
     }
@@ -85,13 +85,13 @@ public final class Tokenizer
                         return new IntToken(start, text, Integer.parseInt(text));
                 }
             } catch (NumberFormatException e) {
-                errors.add(new TokenizingException(start, text, "number format is wrong."));
+                errors.add(new TokenizingError(start, text, "number format is wrong."));
                 return null;
             }
         }
         if (Character.isWhitespace(c) || text.startsWith("//") || text.startsWith("/*"))
             return null;
-        errors.add(new TokenizingException(start, text, "Unknown Token."));
+        errors.add(new TokenizingError(start, text, "Unknown Token."));
         return null;
     }
 
@@ -136,7 +136,7 @@ public final class Tokenizer
                         stringBuilder.append('\\');
                         break;
                     default:
-                        errors.add(new TokenizingException(i - 1, source.substring(i - 1, i + 1), "Invalid escape"));
+                        errors.add(new TokenizingError(i - 1, source.substring(i - 1, i + 1), "Invalid escape"));
                         break;
                 }
             } else {
@@ -151,7 +151,7 @@ public final class Tokenizer
                 stringBuilder.append(c);
             }
         }
-        errors.add(new TokenizingException(start, "\"", "Stray quote mark"));
+        errors.add(new TokenizingError(start, "\"", "Stray quote mark"));
         return start + 1;
     }
 }

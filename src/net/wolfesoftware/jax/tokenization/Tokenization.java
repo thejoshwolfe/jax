@@ -7,9 +7,9 @@ public class Tokenization
     public final String source;
     public final LineColumnLookup lineColumnLookup;
     public final ArrayList<Token> tokens;
-    public final ArrayList<TokenizingException> errors;
+    public final ArrayList<TokenizingError> errors;
 
-    public Tokenization(String source, ArrayList<Token> tokens, ArrayList<TokenizingException> errors)
+    public Tokenization(String source, ArrayList<Token> tokens, ArrayList<TokenizingError> errors)
     {
         this.source = source;
         this.lineColumnLookup = new LineColumnLookup(source);

@@ -15,7 +15,7 @@ public final class Parser
     private final Token[] tokens;
     private final LineColumnLookup lineColumnLookup;
     private int maxIndex = 0;
-    private final ArrayList<ParsingException> errors = new ArrayList<ParsingException>();
+    private final ArrayList<ParsingError> errors = new ArrayList<ParsingError>();
 
     private Parser(Tokenization tokenization)
     {
@@ -28,11 +28,11 @@ public final class Parser
         SubParsing<CompilationUnit> compilationUnit = parseCompilationUnit(0);
         if (compilationUnit == null)
         {
-            errors.add(new ParsingException(tokens[maxIndex], lineColumnLookup));
+            errors.add(new ParsingError(tokens[maxIndex], lineColumnLookup));
             return new Parsing(null, errors);
         }
         if (compilationUnit.end != tokens.length)
-            errors.add(new ParsingException(tokens[compilationUnit.end], lineColumnLookup));
+            errors.add(new ParsingError(tokens[compilationUnit.end], lineColumnLookup));
         return new Parsing(new Root(compilationUnit.element), errors);
     }
 

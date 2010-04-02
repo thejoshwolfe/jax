@@ -24,11 +24,11 @@ public class LocalContext
         }
     }
 
-    public void addLocalVariable(Id id, Type type, ArrayList<SemalyticalException> errors)
+    public void addLocalVariable(Id id, Type type, ArrayList<SemalyticalError> errors)
     {
         // redefinition is not a fatal error (it's even allowed in C)
         if (localVariables.containsKey(id))
-            errors.add(new SemalyticalException(id, "Redefinition of local variable"));
+            errors.add(new SemalyticalError(id, "Redefinition of local variable"));
         id.variable = new LocalVariable(id.name, type);
         localVariables.put(id.name, id.variable);
         if (type.getSize() == 2)

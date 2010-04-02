@@ -4,9 +4,9 @@ import net.wolfesoftware.jax.CompileError;
 import net.wolfesoftware.jax.tokenization.*;
 import net.wolfesoftware.jax.tokenization.LineColumnLookup.LineAndColumn;
 
-public class ParsingException extends CompileError
+public class ParsingError extends CompileError
 {
-    public ParsingException(Token token, LineColumnLookup lineColumnLookup)
+    public ParsingError(Token token, LineColumnLookup lineColumnLookup)
     {
         super(getMessage(token, lineColumnLookup));
     }

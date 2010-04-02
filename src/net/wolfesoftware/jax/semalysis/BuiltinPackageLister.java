@@ -432,12 +432,12 @@ public class BuiltinPackageLister
         packages.put("sunw.util", new String[] { "EventListener", "EventObject" });
     }
 
-    public static void importPackageStar(QualifiedName qualifiedName, HashMap<String, Type> importedTypes, ArrayList<SemalyticalException> errors)
+    public static void importPackageStar(QualifiedName qualifiedName, HashMap<String, Type> importedTypes, ArrayList<SemalyticalError> errors)
     {
         String packageName = Util.join(qualifiedName.elements, ".");
         String[] classNames = packages.get(packageName);
         if (classNames == null) {
-            errors.add(SemalyticalException.cantResolveImport(qualifiedName));
+            errors.add(SemalyticalError.cantResolveImport(qualifiedName));
             return;
         }
         try {

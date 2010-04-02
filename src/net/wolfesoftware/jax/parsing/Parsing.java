@@ -6,8 +6,8 @@ import net.wolfesoftware.jax.ast.Root;
 public class Parsing
 {
     public final Root root;
-    public final ArrayList<ParsingException> errors;
-    public Parsing(Root root, ArrayList<ParsingException> errors)
+    public final ArrayList<ParsingError> errors;
+    public Parsing(Root root, ArrayList<ParsingError> errors)
     {
         this.root = root;
         this.errors = errors;

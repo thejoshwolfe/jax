@@ -6,8 +6,8 @@ import net.wolfesoftware.jax.ast.Root;
 public class Semalysization
 {
     public final Root root;
-    public final ArrayList<SemalyticalException> errors;
-    public Semalysization(Root root, ArrayList<SemalyticalException> errors)
+    public final ArrayList<SemalyticalError> errors;
+    public Semalysization(Root root, ArrayList<SemalyticalError> errors)
     {
         this.root = root;
         this.errors = errors;
