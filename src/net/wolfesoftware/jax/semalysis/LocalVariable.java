@@ -9,4 +9,9 @@ public class LocalVariable extends SecretLocalVariable
         super(type);
         this.name = name;
     }
+
+    public String toString()
+    {
+        return type + " " + name;
+    }
 }

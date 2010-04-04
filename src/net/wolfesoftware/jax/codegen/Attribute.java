@@ -41,7 +41,7 @@ public abstract class Attribute
         final short attribute_name_index = constantPool.getUtf8("Code");
         final int attribute_length;
         final short max_stack = (short)context.stackCapacity;
-        final short max_locals = (short)context.variableCapacity;
+        final short max_locals = (short)context.getLocalVariableCapacity();
         final int code_length = codeBytes.length;
         final byte[] code = codeBytes;
         final short exception_table_length = (short)exceptionTable.size();

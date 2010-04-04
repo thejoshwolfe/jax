@@ -9,9 +9,7 @@ public class LocalContext
     private final RootLocalContext rootContext;
     protected final HashMap<String, LocalVariable> localVariables = new HashMap<String, LocalVariable>();
     private final ArrayList<SecretLocalVariable> secretLocalVariables = new ArrayList<SecretLocalVariable>();
-    private final ArrayList<LocalContext> subContexts = new ArrayList<LocalContext>();
-
-    private int wideVariableCount = 0;
+    protected final ArrayList<LocalContext> subContexts = new ArrayList<LocalContext>();
 
 
     protected LocalContext(LocalContext parentContext)
@@ -31,8 +29,6 @@ public class LocalContext
             errors.add(new SemalyticalError(id, "Redefinition of local variable"));
         id.variable = new LocalVariable(id.name, type);
         localVariables.put(id.name, id.variable);
-        if (type.getSize() == 2)
-            wideVariableCount++;
     }
 
     public SecretLocalVariable addSecretLocalVariable(Type type)
@@ -46,6 +42,27 @@ public class LocalContext
     {
         LocalVariable rtnValue = localVariables.get(name);
         return rtnValue != null ? rtnValue : parentContext.getLocalVariable(name);
+    }
+
+    protected final int internalGetLocalVariableCapacity()
+    {
+        int max = 0;
+        for (LocalContext subContext : subContexts) {
+            int subMax = subContext.internalGetLocalVariableCapacity();
+            if (max < subMax)
+                max = subMax;
+        }
+        for (LocalVariable localVariable : localVariables.values())
+            max += localVariable.type.getSize();
+        return max;
+    }
+
+    protected final void internalNumberLocalVariables(int counter)
+    {
+        for (LocalVariable localVariable : localVariables.values())
+            localVariable.number = counter++;
+        for (LocalContext subContext : subContexts)
+            subContext.internalNumberLocalVariables(counter);
     }
 
     public LocalContext makeSubContext()

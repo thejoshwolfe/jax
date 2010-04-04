@@ -6,10 +6,10 @@ import net.wolfesoftware.jax.tokenization.Lang;
 
 public class RootLocalContext extends LocalContext
 {
-    public int variableCapacity = 0;
     private final ArrayList<Type> operandStack = new ArrayList<Type>();
     public int stackSize = 0;
     public int stackCapacity = 0;
+    private int localVariableCapacity = -1; // needs to be calculated
     private int nextLabelNumber = 0;
     private LocalType classContext;
 
@@ -21,16 +21,24 @@ public class RootLocalContext extends LocalContext
             addLocalVariable(new Id(Lang.KEYWORD_THIS), classContext, null);
     }
 
-    public void ensureVariableCapacity(int capacity)
+    public int getLocalVariableCapacity()
     {
-        this.variableCapacity = Math.max(this.variableCapacity, capacity);
+        if (localVariableCapacity == -1)
+            localVariableCapacity = internalGetLocalVariableCapacity();
+        return localVariableCapacity;
     }
 
+    @Override
     public LocalVariable getLocalVariable(String name)
     {
         return localVariables.get(name);
     }
 
+    public void numberLocalVariables()
+    {
+        internalNumberLocalVariables(0);
+    }
+    @Override
     public String nextLabel()
     {
         return "label" + nextLabelNumber++;

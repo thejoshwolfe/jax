@@ -22,7 +22,7 @@ public class CodeGenerator
         this.classPath = classPath;
     }
 
-    protected void generateCode() throws FileNotFoundException, IOException
+    private void generateCode() throws FileNotFoundException, IOException
     {
         genCompilationUnit(root.content);
     }

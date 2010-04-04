@@ -2,6 +2,9 @@ package net.wolfesoftware.jax.ast;
 
 import net.wolfesoftware.jax.semalysis.*;
 
+/**
+ * TODO: rename to MethodDefinition
+ */
 public class FunctionDefinition extends ConstructorOrMethodElement
 {
     public Id id;

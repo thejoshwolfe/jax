@@ -2,6 +2,9 @@ package net.wolfesoftware.jax.ast;
 
 import net.wolfesoftware.jax.semalysis.*;
 
+/**
+ * TODO: rename to ConstructorOrMethodDefinition
+ */
 public abstract class ConstructorOrMethodElement extends ParseElement
 {
     public ReturnBehavior returnBehavior;
