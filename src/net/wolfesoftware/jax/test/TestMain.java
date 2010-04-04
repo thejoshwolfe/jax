@@ -10,15 +10,15 @@ import java.util.ArrayList;
 public class TestMain
 {
     private static final boolean RUN = true;
-    private static final boolean CLEAN = false;
+    private static final boolean CLEAN = true;
     private static final boolean VERBOSE = false;
 
     private static ArrayList<TestCase> getTests()
     {
         ArrayList<TestCase> tests = new ArrayList<TestCase>();
-//        addAll(tests, JaxcOptionsTests.getTests());
+        addAll(tests, JaxcOptionsTests.getTests());
         addAll(tests, CallTests.getTests());
-//        addAll(tests, MiscTests.getTests());
+        addAll(tests, MiscTests.getTests());
         return tests;
     }
 
