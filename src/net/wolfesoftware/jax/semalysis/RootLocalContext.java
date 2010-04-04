@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import net.wolfesoftware.jax.ast.Id;
 import net.wolfesoftware.jax.tokenization.Lang;
 
-public class RootLocalContext extends LocalContext
+public final class RootLocalContext extends LocalContext
 {
     private final ArrayList<Type> operandStack = new ArrayList<Type>();
     public int stackSize = 0;
@@ -31,7 +31,7 @@ public class RootLocalContext extends LocalContext
     @Override
     public LocalVariable getLocalVariable(String name)
     {
-        return localVariables.get(name);
+        return localVariableMap.get(name);
     }
 
     public void numberLocalVariables()

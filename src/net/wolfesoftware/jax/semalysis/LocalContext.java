@@ -7,7 +7,8 @@ public class LocalContext
 {
     public final LocalContext parentContext;
     private final RootLocalContext rootContext;
-    protected final HashMap<String, LocalVariable> localVariables = new HashMap<String, LocalVariable>();
+    private final ArrayList<LocalVariable> localVariableList = new ArrayList<LocalVariable>();
+    protected final HashMap<String, LocalVariable> localVariableMap = new HashMap<String, LocalVariable>();
     private final ArrayList<SecretLocalVariable> secretLocalVariables = new ArrayList<SecretLocalVariable>();
     protected final ArrayList<LocalContext> subContexts = new ArrayList<LocalContext>();
 
@@ -22,26 +23,21 @@ public class LocalContext
         }
     }
 
-    public void addLocalVariable(Id id, Type type, ArrayList<SemalyticalError> errors)
+    public final void addLocalVariable(Id id, Type type, ArrayList<SemalyticalError> errors)
     {
         // redefinition is not a fatal error (it's even allowed in C)
-        if (localVariables.containsKey(id))
+        if (getLocalVariable(id.name) != null)
             errors.add(new SemalyticalError(id, "Redefinition of local variable"));
         id.variable = new LocalVariable(id.name, type);
-        localVariables.put(id.name, id.variable);
+        localVariableList.add(id.variable);
+        localVariableMap.put(id.name, id.variable);
     }
 
-    public SecretLocalVariable addSecretLocalVariable(Type type)
+    public final SecretLocalVariable addSecretLocalVariable(Type type)
     {
         SecretLocalVariable secretLocalVariable = new SecretLocalVariable(type);
         secretLocalVariables.add(secretLocalVariable);
         return secretLocalVariable;
-    }
-
-    public LocalVariable getLocalVariable(String name)
-    {
-        LocalVariable rtnValue = localVariables.get(name);
-        return rtnValue != null ? rtnValue : parentContext.getLocalVariable(name);
     }
 
     protected final int internalGetLocalVariableCapacity()
@@ -52,24 +48,34 @@ public class LocalContext
             if (max < subMax)
                 max = subMax;
         }
-        for (LocalVariable localVariable : localVariables.values())
+        for (LocalVariable localVariable : localVariableList)
             max += localVariable.type.getSize();
         return max;
     }
 
     protected final void internalNumberLocalVariables(int counter)
     {
-        for (LocalVariable localVariable : localVariables.values())
-            localVariable.number = counter++;
+        for (LocalVariable localVariable : localVariableList) {
+            if (localVariable.number == -1) {
+                localVariable.number = counter;
+                counter += localVariable.type.getSize();
+            }
+        }
         for (LocalContext subContext : subContexts)
             subContext.internalNumberLocalVariables(counter);
     }
 
-    public LocalContext makeSubContext()
+    public final LocalContext makeSubContext()
     {
         LocalContext subContext = new LocalContext(this);
         subContexts.add(subContext);
         return subContext;
+    }
+
+    public LocalVariable getLocalVariable(String name)
+    {
+        LocalVariable rtnValue = localVariableMap.get(name);
+        return rtnValue != null ? rtnValue : parentContext.getLocalVariable(name);
     }
 
     public String nextLabel()
