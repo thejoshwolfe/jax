@@ -80,9 +80,9 @@ public class LocalContext
     {
         rootContext.popOperands(n);
     }
-    public Type popOperand()
+    public void popOperand()
     {
-        return rootContext.popOperand();
+        rootContext.popOperand();
     }
     public boolean isOperandStackEmpty()
     {

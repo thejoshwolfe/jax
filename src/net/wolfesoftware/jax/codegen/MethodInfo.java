@@ -442,9 +442,8 @@ public class MethodInfo
         // preserve operand stack
         ArrayList<SecretLocalVariable> preservedOperands = new ArrayList<SecretLocalVariable>();
         while (!context.isOperandStackEmpty()) {
-            Type operandType = context.popOperand();
-            SecretLocalVariable secretLocalVariable = context.addSecretLocalVariable(operandType);
-            store(secretLocalVariable.type, secretLocalVariable.getNumber());
+            SecretLocalVariable secretLocalVariable = context.addSecretLocalVariable(context.peekOperandType());
+            store(secretLocalVariable);
             preservedOperands.add(secretLocalVariable);
         }
 
@@ -463,10 +462,17 @@ public class MethodInfo
             fillins.add(new Fillin(catchElements.get(i).endGotoOffset));
 
         // restore operand stack
+        SecretLocalVariable valueStash = null;
+        if (!context.isOperandStackEmpty()) {
+            valueStash = context.addSecretLocalVariable(context.peekOperandType());
+            store(valueStash);
+        }
         for (int i = preservedOperands.size() - 1; i >= 0; i--) {
             SecretLocalVariable secretLocalVariable = preservedOperands.get(i);
-            load(secretLocalVariable.type, secretLocalVariable.getNumber());
+            load(secretLocalVariable);
         }
+        if (valueStash != null)
+            load(valueStash);
 
         for (CatchBody catchBody : catchElements) {
             Type type = catchBody.variableDeclaration.typeId.type;
@@ -603,14 +609,14 @@ public class MethodInfo
     {
         evalExpression(assignment.expression);
         dup(assignment.expression.returnBehavior.type);
-        store(assignment.id.variable.type, assignment.id.variable.getNumber());
+        store(assignment.id.variable);
     }
 
     private void evalVariableCreation(VariableCreation variableCreation)
     {
         evalExpression(variableCreation.expression);
         LocalVariable variable = variableCreation.variableDeclaration.id.variable;
-        store(variable.type, variable.getNumber());
+        store(variable);
     }
     private void evalId(Id id)
     {
@@ -843,8 +849,10 @@ public class MethodInfo
         }
         context.pushOperand(type);
     }
-    private void store(Type type, int number)
+    private void store(SecretLocalVariable variable)
     {
+        Type type = variable.type;
+        int number = variable.getNumber();
         type = translateTypeForInstructions(type);
         if (!type.isPrimitive())
             astore(number);
@@ -970,8 +978,10 @@ public class MethodInfo
         context.popOperand();
     }
 
-    private void load(Type type, int index)
+    private void load(SecretLocalVariable variable)
     {
+        Type type = variable.type;
+        int index = variable.getNumber();
         type = translateTypeForInstructions(type);
         if (!type.isPrimitive())
             aload(index);
@@ -985,6 +995,7 @@ public class MethodInfo
             dload(index);
         else
             throw null;
+        context.pushOperand(type);
     }
     private void aload(int index)
     {

@@ -54,12 +54,15 @@ public final class RootLocalContext extends LocalContext
             popOperand();
     }
 
-    @Override
-    public Type popOperand()
+    public Type peekOperandType()
     {
-        Type operandType = operandStack.remove(operandStack.size() - 1);
-        stackSize -= operandType.getSize();
-        return operandType;
+        return operandStack.get(operandStack.size() - 1);
+    }
+
+    @Override
+    public void popOperand()
+    {
+        stackSize -= operandStack.remove(operandStack.size() - 1).getSize();
     }
 
     @Override

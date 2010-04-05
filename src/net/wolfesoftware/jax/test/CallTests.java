@@ -40,7 +40,7 @@ public class CallTests
         "arrays/ArrayType",
         "arrays/ArrayDereference",
         "exceptions/TryCatch",
-//        "exceptions/Operands",
+        "exceptions/Operands",
         "Fancy",
     };
 
