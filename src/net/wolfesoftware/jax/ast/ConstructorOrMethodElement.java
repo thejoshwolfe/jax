@@ -20,4 +20,6 @@ public abstract class ConstructorOrMethodElement extends ParseElement
         this.argumentDeclarations = argumentDeclarations;
         this.expression = expression;
     }
+
+    public abstract boolean isStatic();
 }

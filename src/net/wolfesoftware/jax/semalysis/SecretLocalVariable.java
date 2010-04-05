@@ -3,10 +3,19 @@ package net.wolfesoftware.jax.semalysis;
 public class SecretLocalVariable
 {
     public final Type type;
-    public int number = -1;
+    private final LocalContext context;
+    private int number = -1;
 
-    public SecretLocalVariable(Type type)
+    public SecretLocalVariable(LocalContext context, Type type)
     {
+        this.context = context;
         this.type = type;
+    }
+
+    public int getNumber()
+    {
+        if (number == -1)
+            number = context.getNextLocalVariableNumber(type.getSize());
+        return number;
     }
 }

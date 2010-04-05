@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 import net.wolfesoftware.jax.ast.*;
 import net.wolfesoftware.jax.semalysis.*;
+import net.wolfesoftware.jax.tokenization.Lang;
 import net.wolfesoftware.jax.util.Util;
 
 /**
@@ -80,6 +81,11 @@ public class MethodInfo
     private void internalGenerate(ConstructorOrMethodElement functionDefinition)
     {
         context = functionDefinition.context;
+        // ensure parameters have proper numbers
+        if (!functionDefinition.isStatic())
+            context.getLocalVariable(Lang.KEYWORD_THIS).getNumber();
+        for (VariableDeclaration variableDeclaration : functionDefinition.argumentDeclarations.elements)
+            variableDeclaration.id.variable.getNumber();
         evalExpression(functionDefinition.expression);
         _return(functionDefinition.returnBehavior.type);
         Util._assert(context.stackSize == 0);
@@ -94,8 +100,7 @@ public class MethodInfo
     private void evalExpression(Expression expression)
     {
         ParseElement content = expression.content;
-        switch (content.getElementType())
-        {
+        switch (content.getElementType()) {
             case IntLiteral.TYPE:
                 evalIntLiteral((IntLiteral)content);
                 break;
@@ -299,7 +304,6 @@ public class MethodInfo
         context.pushOperand(NullType.INSTANCE);
     }
 
-
     private void evalNegation(Negation negation)
     {
         evalExpression(negation.expression);
@@ -352,14 +356,14 @@ public class MethodInfo
     private void evalPreIncrement(PreIncrement preIncrement)
     {
         writeByte(Instructions.iinc);
-        writeByte((byte)preIncrement.id.variable.number);
+        writeByte((byte)preIncrement.id.variable.getNumber());
         writeByte((byte)1);
         evalId(preIncrement.id);
     }
     private void evalPreDecrement(PreDecrement preDecrement)
     {
         writeByte(Instructions.iinc);
-        writeByte((byte)preDecrement.id.variable.number);
+        writeByte((byte)preDecrement.id.variable.getNumber());
         writeByte((byte)-1);
         evalId(preDecrement.id);
     }
@@ -367,14 +371,14 @@ public class MethodInfo
     {
         evalId(postIncrement.id);
         writeByte(Instructions.iinc);
-        writeByte((byte)postIncrement.id.variable.number);
+        writeByte((byte)postIncrement.id.variable.getNumber());
         writeByte((byte)1);
     }
     private void evalPostDecrement(PostDecrement postDecrement)
     {
         evalId(postDecrement.id);
         writeByte(Instructions.iinc);
-        writeByte((byte)postDecrement.id.variable.number);
+        writeByte((byte)postDecrement.id.variable.getNumber());
         writeByte((byte)-1);
     }
 
@@ -400,7 +404,6 @@ public class MethodInfo
         writeShort(continueToDelta);
         fillins.add(new Fillin(breakToOffset));
     }
-
 
     private void evalArrayDereference(ArrayDereference arrayDereference)
     {
@@ -437,9 +440,12 @@ public class MethodInfo
     private void evalTryCatch(TryCatch tryCatch)
     {
         // preserve operand stack
-        for (int i = tryCatch.preserveTheseOperands.size() - 1; i >= 0; i--) {
-            SecretLocalVariable secretLocalVariable = tryCatch.preserveTheseOperands.get(i);
-            store(secretLocalVariable.type, secretLocalVariable.number);
+        ArrayList<SecretLocalVariable> preservedOperands = new ArrayList<SecretLocalVariable>();
+        while (!context.isOperandStackEmpty()) {
+            Type operandType = context.popOperand();
+            SecretLocalVariable secretLocalVariable = context.addSecretLocalVariable(operandType);
+            store(secretLocalVariable.type, secretLocalVariable.getNumber());
+            preservedOperands.add(secretLocalVariable);
         }
 
         tryCatch.tryPart.startOffset = offset;
@@ -457,14 +463,10 @@ public class MethodInfo
             fillins.add(new Fillin(catchElements.get(i).endGotoOffset));
 
         // restore operand stack
-        if (tryCatch.valueStashVariable != null)
-            store(tryCatch.valueStashVariable.type, tryCatch.valueStashVariable.number);
-        for (int i = 0; i < tryCatch.preserveTheseOperands.size(); i++) {
-            SecretLocalVariable secretLocalVariable = tryCatch.preserveTheseOperands.get(i);
-            load(secretLocalVariable.type, secretLocalVariable.number);
+        for (int i = preservedOperands.size() - 1; i >= 0; i--) {
+            SecretLocalVariable secretLocalVariable = preservedOperands.get(i);
+            load(secretLocalVariable.type, secretLocalVariable.getNumber());
         }
-        if (tryCatch.valueStashVariable != null)
-            load(tryCatch.valueStashVariable.type, tryCatch.valueStashVariable.number);
 
         for (CatchBody catchBody : catchElements) {
             Type type = catchBody.variableDeclaration.typeId.type;
@@ -492,7 +494,7 @@ public class MethodInfo
     {
         context.pushOperand(RuntimeType.OBJECT); // exception object
         catchBody.startOffset = offset;
-        astore(catchBody.variableDeclaration.id.variable.number);
+        astore(catchBody.variableDeclaration.id.variable.getNumber());
         evalExpression(catchBody.expression);
         if (addGoto) {
             if (catchBody.expression.returnBehavior.type != RuntimeType.VOID)
@@ -601,28 +603,28 @@ public class MethodInfo
     {
         evalExpression(assignment.expression);
         dup(assignment.expression.returnBehavior.type);
-        store(assignment.id.variable.type, assignment.id.variable.number);
+        store(assignment.id.variable.type, assignment.id.variable.getNumber());
     }
 
     private void evalVariableCreation(VariableCreation variableCreation)
     {
         evalExpression(variableCreation.expression);
         LocalVariable variable = variableCreation.variableDeclaration.id.variable;
-        store(variable.type, variable.number);
+        store(variable.type, variable.getNumber());
     }
     private void evalId(Id id)
     {
         Type type = translateTypeForInstructions(id.variable.type);
         if (!type.isPrimitive())
-            aload(id.variable.number);
+            aload(id.variable.getNumber());
         else if (type == RuntimeType.INT)
-            iload(id.variable.number);
+            iload(id.variable.getNumber());
         else if (type == RuntimeType.LONG)
-            lload(id.variable.number);
+            lload(id.variable.getNumber());
         else if (type == RuntimeType.FLOAT)
-            fload(id.variable.number);
+            fload(id.variable.getNumber());
         else if (type == RuntimeType.DOUBLE)
-            dload(id.variable.number);
+            dload(id.variable.getNumber());
         else
             throw null;
         context.pushOperand(type);

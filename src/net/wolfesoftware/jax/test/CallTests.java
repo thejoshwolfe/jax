@@ -41,7 +41,7 @@ public class CallTests
         "arrays/ArrayDereference",
         "exceptions/TryCatch",
 //        "exceptions/Operands",
-//        "Fancy",
+        "Fancy",
     };
 
     public static TestCase[] getTests()

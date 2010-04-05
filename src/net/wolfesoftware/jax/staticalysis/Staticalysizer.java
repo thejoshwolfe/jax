@@ -63,13 +63,11 @@ public class Staticalysizer
     private void staticalysizeConstructorDefinition(ConstructorDefinition constructorDefinition)
     {
         staticalysizeExpression(constructorDefinition.expression);
-        constructorDefinition.context.numberLocalVariables();
     }
 
     private void staticalysizeFunctionDefinition(FunctionDefinition functionDefinition)
     {
         staticalysizeExpression(functionDefinition.expression);
-        functionDefinition.context.numberLocalVariables();
     }
 
     private void staticalysizeExpression(Expression expression)

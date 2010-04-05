@@ -13,7 +13,6 @@ public class Semalysizer
         return new Semalysizer(parsing, filePath).semalysizeRoot();
     }
 
-    
     private final HashMap<String, Type> importedTypes = new HashMap<String, Type>();
     {
         // import built-in types

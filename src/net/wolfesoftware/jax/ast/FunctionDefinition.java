@@ -17,6 +17,13 @@ public class FunctionDefinition extends ConstructorOrMethodElement
     }
 
     @Override
+    public boolean isStatic()
+    {
+        // hard code for now
+        return true;
+    }
+
+    @Override
     protected void decompile(String indentation, StringBuilder out)
     {
         typeId.decompile(indentation, out);
@@ -33,5 +40,4 @@ public class FunctionDefinition extends ConstructorOrMethodElement
     {
         return TYPE;
     }
-
 }

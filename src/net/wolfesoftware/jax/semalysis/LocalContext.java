@@ -7,19 +7,20 @@ public class LocalContext
 {
     public final LocalContext parentContext;
     private final RootLocalContext rootContext;
-    private final ArrayList<LocalVariable> localVariableList = new ArrayList<LocalVariable>();
     protected final HashMap<String, LocalVariable> localVariableMap = new HashMap<String, LocalVariable>();
-    private final ArrayList<SecretLocalVariable> secretLocalVariables = new ArrayList<SecretLocalVariable>();
-    protected final ArrayList<LocalContext> subContexts = new ArrayList<LocalContext>();
-
+    private int nextLocalVariableNumber;
 
     protected LocalContext(LocalContext parentContext)
     {
         this.parentContext = parentContext;
         if (parentContext == null) {
+            // I am the root
             rootContext = (RootLocalContext)this;
+            nextLocalVariableNumber = 0;
         } else {
+            // I am not the root
             rootContext = parentContext.rootContext;
+            nextLocalVariableNumber = -1;
         }
     }
 
@@ -28,47 +29,32 @@ public class LocalContext
         // redefinition is not a fatal error (it's even allowed in C)
         if (getLocalVariable(id.name) != null)
             errors.add(new SemalyticalError(id, "Redefinition of local variable"));
-        id.variable = new LocalVariable(id.name, type);
-        localVariableList.add(id.variable);
+        id.variable = new LocalVariable(this, id.name, type);
         localVariableMap.put(id.name, id.variable);
     }
-
     public final SecretLocalVariable addSecretLocalVariable(Type type)
     {
-        SecretLocalVariable secretLocalVariable = new SecretLocalVariable(type);
-        secretLocalVariables.add(secretLocalVariable);
-        return secretLocalVariable;
+        return new SecretLocalVariable(this, type);
     }
 
-    protected final int internalGetLocalVariableCapacity()
+    public final int getNextLocalVariableNumber(int typeSize)
     {
-        int max = 0;
-        for (LocalContext subContext : subContexts) {
-            int subMax = subContext.internalGetLocalVariableCapacity();
-            if (max < subMax)
-                max = subMax;
-        }
-        for (LocalVariable localVariable : localVariableList)
-            max += localVariable.type.getSize();
-        return max;
+        int number = getCurrentLocalVariableNumber();
+        nextLocalVariableNumber += typeSize;
+        rootContext.ensureLocalVariableCapacity(nextLocalVariableNumber);
+        return number;
     }
 
-    protected final void internalNumberLocalVariables(int counter)
+    private int getCurrentLocalVariableNumber()
     {
-        for (LocalVariable localVariable : localVariableList) {
-            if (localVariable.number == -1) {
-                localVariable.number = counter;
-                counter += localVariable.type.getSize();
-            }
-        }
-        for (LocalContext subContext : subContexts)
-            subContext.internalNumberLocalVariables(counter);
+        if (nextLocalVariableNumber == -1)
+            nextLocalVariableNumber = parentContext.getCurrentLocalVariableNumber();
+        return nextLocalVariableNumber;
     }
 
     public final LocalContext makeSubContext()
     {
         LocalContext subContext = new LocalContext(this);
-        subContexts.add(subContext);
         return subContext;
     }
 

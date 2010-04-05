@@ -28,7 +28,7 @@ public final class Lang
     KEYWORD_NEW = "new",
     KEYWORD_NULL = "null",
     KEYWORD_PUBLIC = "public",
-    KEYWORD_SUPER = "supre",
+    KEYWORD_SUPER = "super",
     KEYWORD_THIS = "this",
     KEYWORD_TRUE = "true",
     KEYWORD_TRY = "try",

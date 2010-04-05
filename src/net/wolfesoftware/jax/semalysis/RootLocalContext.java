@@ -9,7 +9,7 @@ public final class RootLocalContext extends LocalContext
     private final ArrayList<Type> operandStack = new ArrayList<Type>();
     public int stackSize = 0;
     public int stackCapacity = 0;
-    private int localVariableCapacity = -1; // needs to be calculated
+    public int localVariableCapacity = 0;
     private int nextLabelNumber = 0;
     private LocalType classContext;
 
@@ -21,23 +21,12 @@ public final class RootLocalContext extends LocalContext
             addLocalVariable(new Id(Lang.KEYWORD_THIS), classContext, null);
     }
 
-    public int getLocalVariableCapacity()
-    {
-        if (localVariableCapacity == -1)
-            localVariableCapacity = internalGetLocalVariableCapacity();
-        return localVariableCapacity;
-    }
-
     @Override
     public LocalVariable getLocalVariable(String name)
     {
         return localVariableMap.get(name);
     }
 
-    public void numberLocalVariables()
-    {
-        internalNumberLocalVariables(0);
-    }
     @Override
     public String nextLabel()
     {
@@ -83,6 +72,12 @@ public final class RootLocalContext extends LocalContext
     {
         if (stackCapacity < size)
             stackCapacity = size;
+    }
+
+    public void ensureLocalVariableCapacity(int size)
+    {
+        if (localVariableCapacity < size)
+            localVariableCapacity = size;
     }
 
     public String toString()

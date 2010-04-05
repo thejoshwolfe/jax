@@ -12,6 +12,13 @@ public class ConstructorDefinition extends ConstructorOrMethodElement
     }
 
     @Override
+    public boolean isStatic()
+    {
+        // all constructors are non-static
+        return false;
+    }
+
+    @Override
     protected void decompile(String indentation, StringBuilder out)
     {
         typeId.decompile(indentation, out);

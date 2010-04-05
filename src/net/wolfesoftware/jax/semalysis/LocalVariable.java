@@ -4,9 +4,9 @@ public class LocalVariable extends SecretLocalVariable
 {
     public final String name;
 
-    public LocalVariable(String name, Type type)
+    public LocalVariable(LocalContext context, String name, Type type)
     {
-        super(type);
+        super(context, type);
         this.name = name;
     }
 
