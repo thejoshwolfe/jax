@@ -463,7 +463,7 @@ public class MethodInfo
 
         // restore operand stack
         SecretLocalVariable valueStash = null;
-        if (!context.isOperandStackEmpty()) {
+        if (!context.isOperandStackEmpty() && !preservedOperands.isEmpty()) {
             valueStash = context.addSecretLocalVariable(context.peekOperandType());
             store(valueStash);
         }
@@ -568,7 +568,8 @@ public class MethodInfo
         context.popOperands(functionInvocation.arguments.elements.size());
         if (!method.isStatic)
             context.popOperand();
-        context.pushOperand(method.returnType);
+        if (method.returnType != RuntimeType.VOID)
+            context.pushOperand(method.returnType);
     }
 
     private void evalArguments(Arguments arguments)
