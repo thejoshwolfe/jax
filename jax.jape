@@ -154,11 +154,13 @@ $ClassDeclaration = ClassModifiers "class" ID "{" ClassBody "}"
 
 ### CompilationUnit
 ~QualifiedName = ID : "."
+$PackageStatement = "package" QualifiedName ";"
+~PackageStatements = PackageStatement : ""    # we really only want 0 or 1
 $ImportClass = "import" QualifiedName "." "*" ";"
 $ImportStar = "import" QualifiedName ";"
 |ImportStatement = ImportStar | ImportClass
 ~Imports = ImportStatement : ""
-$CompilationUnit = Imports ClassDeclaration
+$CompilationUnit = PackageStatements Imports ClassDeclaration
 
 !Root = CompilationUnit
 

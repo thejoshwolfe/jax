@@ -26,8 +26,7 @@ public final class Parser
     private Parsing parseRoot()
     {
         SubParsing<CompilationUnit> compilationUnit = parseCompilationUnit(0);
-        if (compilationUnit == null)
-        {
+        if (compilationUnit == null) {
             errors.add(new ParsingError(tokens[maxIndex], lineColumnLookup));
             return new Parsing(null, errors);
         }
@@ -38,6 +37,11 @@ public final class Parser
 
     private SubParsing<CompilationUnit> parseCompilationUnit(int offset)
     {
+        SubParsing<PackageStatements> packageStatements = parsePackageStatements(offset);
+        if (packageStatements == null)
+            return null;
+        offset = packageStatements.end;
+
         SubParsing<Imports> imports = parseImports(offset);
         if (imports == null)
             return null;
@@ -48,14 +52,45 @@ public final class Parser
             return null;
         offset = classDeclaration.end;
 
-        return new SubParsing<CompilationUnit>(new CompilationUnit(imports.element, classDeclaration.element), offset);
+        return new SubParsing<CompilationUnit>(new CompilationUnit(packageStatements.element, imports.element, classDeclaration.element), offset);
+    }
+
+    private SubParsing<PackageStatements> parsePackageStatements(int offset)
+    {
+        ArrayList<PackageStatement> elements = new ArrayList<PackageStatement>();
+        while (true) {
+            SubParsing<PackageStatement> packageStatement = parsePackageStatement(offset);
+            if (packageStatement != null) {
+                elements.add(packageStatement.element);
+                offset = packageStatement.end;
+            } else
+                break;
+        }
+        return new SubParsing<PackageStatements>(new PackageStatements(elements), offset);
+    }
+
+    private SubParsing<PackageStatement> parsePackageStatement(int offset)
+    {
+        if (getToken(offset).text != Lang.KEYWORD_PACKAGE)
+            return null;
+        offset++;
+
+        SubParsing<QualifiedName> qualifiedName = parseQualifiedName(offset);
+        if (qualifiedName == null)
+            return null;
+        offset = qualifiedName.end;
+
+        if (getToken(offset).text != Lang.SYMBOL_SEMICOLON)
+            return null;
+        offset++;
+
+        return new SubParsing<PackageStatement>(new PackageStatement(qualifiedName.element), offset);
     }
 
     private SubParsing<Imports> parseImports(int offset)
     {
         ArrayList<ImportStatement> elements = new ArrayList<ImportStatement>();
-        while (true)
-        {
+        while (true) {
             SubParsing<ImportStatement> importStatement = parseImportStatement(offset);
             if (importStatement != null) {
                 elements.add(importStatement.element);
@@ -119,15 +154,14 @@ public final class Parser
         if (getToken(offset).text != Lang.SYMBOL_SEMICOLON)
             return null;
         offset++;
-        
+
         return new SubParsing<ImportClass>(new ImportClass(qualifiedName.element), offset);
     }
 
     private SubParsing<QualifiedName> parseQualifiedName(int offset)
     {
         ArrayList<Id> elements = new ArrayList<Id>();
-        while (true)
-        {
+        while (true) {
             Id classMember = parseId(offset);
             if (classMember != null) {
                 elements.add(classMember);
@@ -177,8 +211,7 @@ public final class Parser
     private SubParsing<ClassModifiers> parseClassModifiers(int offset)
     {
         ArrayList<ClassModifier> elements = new ArrayList<ClassModifier>();
-        while (true)
-        {
+        while (true) {
             ClassModifier classModifier = parseClassModifier(offset);
             if (classModifier != null) {
                 elements.add(classModifier);
@@ -202,8 +235,7 @@ public final class Parser
     private SubParsing<ClassBody> parseClassBody(int offset)
     {
         ArrayList<ClassMember> elements = new ArrayList<ClassMember>();
-        while (true)
-        {
+        while (true) {
             SubParsing<ClassMember> classMember = parseClassMember(offset);
             if (classMember != null) {
                 elements.add(classMember.element);
@@ -221,12 +253,12 @@ public final class Parser
     private SubParsing<ClassMember> parseClassMember(int offset)
     {
         SubParsing<?> content;
-        
+
         content = parseFunctionDefinition(offset);
         if (content == null)
             return null;
         offset = content.end;
-        
+
         return new SubParsing<ClassMember>(new ClassMember(content.element), offset);
     }
 
@@ -266,11 +298,9 @@ public final class Parser
     private SubParsing<ArgumentDeclarations> parseArgumentDeclarations(int offset)
     {
         ArrayList<VariableDeclaration> variableDeclarations = new ArrayList<VariableDeclaration>();
-        while (true)
-        {
+        while (true) {
             SubParsing<VariableDeclaration> variableDeclaration = parseVariableDeclaration(offset);
-            if (variableDeclaration == null)
-            {
+            if (variableDeclaration == null) {
                 if (variableDeclarations.size() == 0)
                     break;
                 else
@@ -319,8 +349,7 @@ public final class Parser
     private SubParsing<ArrayDimensions> parseArrayDimensions(int offset)
     {
         ArrayList<ArrayDimension> elements = new ArrayList<ArrayDimension>();
-        while (true)
-        {
+        while (true) {
             ArrayDimension arrayDimension = parseArrayDimension(offset);
             if (arrayDimension != null) {
                 elements.add(arrayDimension);
@@ -371,7 +400,7 @@ public final class Parser
             return null;
         return new Id(token.text);
     }
-    
+
     private SubParsing<Expression> parseExpression(int offset)
     {
         return new ExpressionParser().parseExpression(offset);
@@ -380,8 +409,7 @@ public final class Parser
     private SubParsing<BlockContents> parseBlockContents(int offset)
     {
         ArrayList<Expression> declarations = new ArrayList<Expression>();
-        while (true)
-        {
+        while (true) {
             SubParsing<Expression> expression = parseExpression(offset);
             if (expression != null) {
                 declarations.add(expression.element);
@@ -419,11 +447,11 @@ public final class Parser
         if (id == null)
             return null;
         offset++;
-        
+
         if (getToken(offset).text != Lang.SYMBOL_EQUALS)
             return null;
         offset++;
-        
+
         SubParsing<Expression> expression = parseExpression(offset);
         if (expression == null)
             return null;
@@ -478,11 +506,9 @@ public final class Parser
     private SubParsing<CatchList> parseCatchList(int offset)
     {
         ArrayList<CatchBody> catchBodies = new ArrayList<CatchBody>();
-        while (true)
-        {
+        while (true) {
             SubParsing<CatchBody> catchBody = parseCatchBody(offset);
-            if (catchBody == null)
-            {
+            if (catchBody == null) {
                 if (catchBodies.size() == 0)
                     break;
                 else
@@ -524,8 +550,7 @@ public final class Parser
     private SubParsing<Arguments> parseArguments(int offset)
     {
         ArrayList<Expression> elements = new ArrayList<Expression>();
-        while (true)
-        {
+        while (true) {
             SubParsing<Expression> expression = parseExpression(offset);
             if (expression != null) {
                 elements.add(expression.element);
@@ -543,63 +568,53 @@ public final class Parser
         private final Stack<StackElement> stack = new Stack<StackElement>();
         public SubParsing<Expression> parseExpression(int offset)
         {
-            while (offset < tokens.length)
-            {
+            while (offset < tokens.length) {
                 HashMap<String, List<ExpressionOperator>> operators;
-                if (hasOpenTop())
-                {
+                if (hasOpenTop()) {
                     SubParsing<VariableCreation> variableCreation = parseVariableCreation(offset);
-                    if (variableCreation != null)
-                    {
+                    if (variableCreation != null) {
                         pushUnit(variableCreation.element);
                         offset = variableCreation.end;
                         continue;
                     }
                     SubParsing<VariableDeclaration> variableDeclaration = parseVariableDeclaration(offset);
-                    if (variableDeclaration != null)
-                    {
+                    if (variableDeclaration != null) {
                         pushUnit(variableDeclaration.element);
                         offset = variableDeclaration.end;
                         continue;
                     }
                     LiteralElement literal = parseLiteral(offset);
-                    if (literal != null)
-                    {
+                    if (literal != null) {
                         pushUnit(literal);
                         offset++;
                         continue;
                     }
                     SubParsing<FunctionInvocation> functionInvocation = parseFunctionInvocation(offset);
-                    if (functionInvocation != null)
-                    {
+                    if (functionInvocation != null) {
                         pushUnit(functionInvocation.element);
                         offset = functionInvocation.end;
                         continue;
                     }
                     SubParsing<Assignment> assigment = parseAssignment(offset);
-                    if (assigment != null)
-                    {
+                    if (assigment != null) {
                         pushUnit(assigment.element);
                         offset = assigment.end;
                         continue;
                     }
                     Id id = parseId(offset);
-                    if (id != null)
-                    {
+                    if (id != null) {
                         pushUnit(id);
                         offset++;
                         continue;
                     }
                     EnclosedSubParsing typeIdCast = parseTypeIdCast(offset);
-                    if (typeIdCast != null)
-                    {
+                    if (typeIdCast != null) {
                         pushClosedLeftOperator(ExpressionOperator.typeIdCast, typeIdCast.expressions);
                         offset = typeIdCast.end;
                         continue;
                     }
                     operators = ExpressionOperator.CLOSED_LEFT;
-                }
-                else
+                } else
                     operators = ExpressionOperator.OPEN_LEFT;
 
                 List<ExpressionOperator> ops = operators.get(getToken(offset).text);
@@ -618,11 +633,9 @@ public final class Parser
         }
         private int consumeOperators(int offset, List<ExpressionOperator> ops)
         {
-            for (ExpressionOperator op : ops)
-            {
+            for (ExpressionOperator op : ops) {
                 ArrayList<ParseElement> innerExpressions = null;
-                if (op instanceof ExpressionEnclosingOperator)
-                {
+                if (op instanceof ExpressionEnclosingOperator) {
                     EnclosedSubParsing innerExpressionParsing = parseEnclosed(offset, ((ExpressionEnclosingOperator)op).elements);
                     if (innerExpressionParsing == null)
                         continue;
@@ -641,13 +654,10 @@ public final class Parser
         private EnclosedSubParsing parseEnclosed(int offset, Object[] elements)
         {
             ArrayList<ParseElement> innerElements = new ArrayList<ParseElement>();
-            for (int i = 0; i < elements.length; i++)
-            {
+            for (int i = 0; i < elements.length; i++) {
                 Object expectcedElement = elements[i];
-                if (expectcedElement.getClass() == String.class)
-                {
-                    if (!(i < partialSubParsings.size() && partialSubParsings.get(i) == null))
-                    {
+                if (expectcedElement.getClass() == String.class) {
+                    if (!(i < partialSubParsings.size() && partialSubParsings.get(i) == null)) {
                         // history was missing/wrong
                         Util.removeAfter(partialSubParsings, i);
                         Token token = getToken(offset);
@@ -656,17 +666,13 @@ public final class Parser
                         partialSubParsings.add(null);
                     }
                     offset++;
-                }
-                else
-                {
+                } else {
                     SubParsing<?> innerParsing = null;
                     if (i < partialSubParsings.size())
                         innerParsing = partialSubParsings.get(i);
-                    switch ((Integer)expectcedElement)
-                    {
+                    switch ((Integer)expectcedElement) {
                         case Expression.TYPE:
-                            if (innerParsing == null || innerParsing.element.getElementType() != Expression.TYPE)
-                            {
+                            if (innerParsing == null || innerParsing.element.getElementType() != Expression.TYPE) {
                                 // history was missing/wrong
                                 Util.removeAfter(partialSubParsings, i);
                                 innerParsing = new ExpressionParser().parseExpression(offset);
@@ -678,8 +684,7 @@ public final class Parser
                             innerElements.add(innerParsing.element);
                             break;
                         case BlockContents.TYPE:
-                            if (innerParsing == null || innerParsing.element.getElementType() != BlockContents.TYPE)
-                            {
+                            if (innerParsing == null || innerParsing.element.getElementType() != BlockContents.TYPE) {
                                 // history was missing/wrong
                                 Util.removeAfter(partialSubParsings, i);
                                 innerParsing = parseBlockContents(offset);
@@ -691,8 +696,7 @@ public final class Parser
                             innerElements.add(innerParsing.element);
                             break;
                         case FunctionInvocation.TYPE:
-                            if (innerParsing == null || innerParsing.element.getElementType() != FunctionInvocation.TYPE)
-                            {
+                            if (innerParsing == null || innerParsing.element.getElementType() != FunctionInvocation.TYPE) {
                                 // history was missing/wrong
                                 Util.removeAfter(partialSubParsings, i);
                                 innerParsing = parseFunctionInvocation(offset);
@@ -704,8 +708,7 @@ public final class Parser
                             innerElements.add(innerParsing.element);
                             break;
                         case Id.TYPE:
-                            if (innerParsing == null || innerParsing.element.getElementType() != Id.TYPE)
-                            {
+                            if (innerParsing == null || innerParsing.element.getElementType() != Id.TYPE) {
                                 // history was missing/wrong
                                 Util.removeAfter(partialSubParsings, i);
                                 // TODO streamline this a little
@@ -718,8 +721,7 @@ public final class Parser
                             innerElements.add(innerParsing.element);
                             break;
                         case TryPart.TYPE:
-                            if (innerParsing == null || innerParsing.element.getElementType() != TryPart.TYPE)
-                            {
+                            if (innerParsing == null || innerParsing.element.getElementType() != TryPart.TYPE) {
                                 // history was missing/wrong
                                 Util.removeAfter(partialSubParsings, i);
                                 innerParsing = parseTryPart(offset);
@@ -731,8 +733,7 @@ public final class Parser
                             innerElements.add(innerParsing.element);
                             break;
                         case CatchPart.TYPE:
-                            if (innerParsing == null || innerParsing.element.getElementType() != CatchPart.TYPE)
-                            {
+                            if (innerParsing == null || innerParsing.element.getElementType() != CatchPart.TYPE) {
                                 // history was missing/wrong
                                 Util.removeAfter(partialSubParsings, i);
                                 innerParsing = parseCatchPart(offset);
@@ -744,8 +745,7 @@ public final class Parser
                             innerElements.add(innerParsing.element);
                             break;
                         case PrimitiveType.TYPE:
-                            if (innerParsing == null || innerParsing.element.getElementType() != PrimitiveType.TYPE)
-                            {
+                            if (innerParsing == null || innerParsing.element.getElementType() != PrimitiveType.TYPE) {
                                 // history was missing/wrong
                                 Util.removeAfter(partialSubParsings, i);
                                 innerParsing = parseTypeId(offset);
@@ -784,13 +784,11 @@ public final class Parser
         private void pushOpenLeftOperator(ExpressionOperator op, ArrayList<ParseElement> innerElements)
         {
             groupStack(op.leftPrecedence);
-            if (op.rightPrecedence == -1)
-            {
+            if (op.rightPrecedence == -1) {
                 // immediately group postfix operators
                 Expression leftExpression = ((ExpressionStackElement)stack.pop()).expression;
                 stack.push(new ExpressionStackElement(new Expression(op.makeExpressionContent(leftExpression, innerElements, null)), getTopPrecedence()));
-            }
-            else
+            } else
                 stack.push(new InfixOperatorStackElement(op, innerElements));
         }
         private void pushClosedLeftOperator(ExpressionOperator op, ArrayList<ParseElement> innerElements)
@@ -802,8 +800,7 @@ public final class Parser
         }
         private void groupStack(int precedence)
         {
-            while (precedence < getTopPrecedence())
-            {
+            while (precedence < getTopPrecedence()) {
                 Expression rightExpression = ((ExpressionStackElement)stack.pop()).expression;
                 OperatorStackElement operatorElement = (OperatorStackElement)stack.pop();
                 Expression leftExpression = operatorElement.op.leftPrecedence == -1 ? null : ((ExpressionStackElement)stack.pop()).expression;

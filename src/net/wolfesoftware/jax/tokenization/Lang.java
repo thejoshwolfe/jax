@@ -27,6 +27,7 @@ public final class Lang
     KEYWORD_INT = "int",
     KEYWORD_NEW = "new",
     KEYWORD_NULL = "null",
+    KEYWORD_PACKAGE = "package",
     KEYWORD_PUBLIC = "public",
     KEYWORD_SUPER = "super",
     KEYWORD_THIS = "this",
