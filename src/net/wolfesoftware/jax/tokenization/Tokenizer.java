@@ -135,6 +135,28 @@ public final class Tokenizer
                     case '\\':
                         stringBuilder.append('\\');
                         break;
+                    case 'u':
+                        // i'm going to go ahead and scan the rest of the unicode escape from here.
+                        if (source.length() < i + 5) {
+                            errors.add(new TokenizingError(i - 1, source.substring(i - 1), "You're going to need more characters than that for a unicode escape"));
+                        } else {
+                            for (int j = i + 1; j < i + 5; j++) {
+                                if (source.charAt(j) == '"') {
+                                    errors.add(new TokenizingError(i - 1, source.substring(i - 1, j), "Unicode escapes need 4 hex digits"));
+                                    i = j - 1;
+                                    break;
+                                }
+                            }
+                            String hexDigits = source.substring(i + 1, i + 5);
+                            try {
+                                c = (char)Integer.parseInt(hexDigits, 16);
+                                stringBuilder.append(c);
+                            } catch (NumberFormatException e) {
+                                errors.add(new TokenizingError(i - 1, source.substring(i - 1, i + 5), "Invalid unicode escape code. Needs to be 4 digits of hex"));
+                            }
+                            i += 4;
+                        }
+                        break;
                     default:
                         errors.add(new TokenizingError(i - 1, source.substring(i - 1, i + 1), "Invalid escape"));
                         break;
