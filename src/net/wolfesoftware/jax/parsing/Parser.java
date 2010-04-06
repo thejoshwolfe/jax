@@ -161,9 +161,9 @@ public final class Parser
     {
         ArrayList<Id> elements = new ArrayList<Id>();
         while (true) {
-            Id classMember = parseId(offset);
-            if (classMember != null) {
-                elements.add(classMember);
+            Id id = parseId(offset);
+            if (id != null) {
+                elements.add(id);
                 offset++;
             } else
                 elements.add(null);
@@ -300,14 +300,103 @@ public final class Parser
 
     private SubParsing<ClassMember> parseClassMember(int offset)
     {
-        SubParsing<?> content;
+        SubParsing<?> content = null;
 
-        content = parseFunctionDefinition(offset);
+        if (content == null)
+            content = parseFunctionDefinition(offset);
+        // abstract method parsing goes here
+        if (content == null)
+            content = parseFieldCreation(offset);
+        if (content == null)
+            content = parseFieldDeclaration(offset);
         if (content == null)
             return null;
         offset = content.end;
 
         return new SubParsing<ClassMember>(new ClassMember(content.element), offset);
+    }
+
+    private SubParsing<FieldDeclaration> parseFieldDeclaration(int offset)
+    {
+        SubParsing<FieldModifiers> fieldModifiers = parseFieldModifiers(offset);
+        if (fieldModifiers == null)
+            return null;
+        offset = fieldModifiers.end;
+
+        SubParsing<TypeId> typeId = parseTypeId(offset);
+        if (typeId == null)
+            return null;
+        offset = typeId.end;
+
+        Id id = parseId(offset);
+        if (id == null)
+            return null;
+        offset++;
+
+        return new SubParsing<FieldDeclaration>(new FieldDeclaration(fieldModifiers.element, typeId.element, id), offset);
+    }
+
+    private SubParsing<FieldCreation> parseFieldCreation(int offset)
+    {
+        SubParsing<FieldModifiers> fieldModifiers = parseFieldModifiers(offset);
+        if (fieldModifiers == null)
+            return null;
+        offset = fieldModifiers.end;
+
+        SubParsing<TypeId> typeId = parseTypeId(offset);
+        if (typeId == null)
+            return null;
+        offset = typeId.end;
+
+        Id id = parseId(offset);
+        if (id == null)
+            return null;
+        offset++;
+
+        if (getToken(offset).text != Lang.SYMBOL_EQUALS)
+            return null;
+        offset++;
+
+        SubParsing<Expression> expression = parseExpression(offset);
+        if (expression == null)
+            return null;
+        offset = expression.end;
+
+        return new SubParsing<FieldCreation>(new FieldCreation(fieldModifiers.element, typeId.element, id, expression.element), offset);
+    }
+
+    private SubParsing<FieldModifiers> parseFieldModifiers(int offset)
+    {
+        ArrayList<FieldModifier> elements = new ArrayList<FieldModifier>();
+        while (true) {
+            FieldModifier classModifier = parseFieldModifier(offset);
+            if (classModifier != null) {
+                elements.add(classModifier);
+                offset++;
+            } else
+                break;
+        }
+        return new SubParsing<FieldModifiers>(new FieldModifiers(elements), offset);
+    }
+
+    private FieldModifier parseFieldModifier(int offset)
+    {
+        Token token = getToken(offset);
+        if (token.text == Lang.KEYWORD_PUBLIC)
+            return FieldModifier.PUBLIC;
+        if (token.text == Lang.KEYWORD_PRIVATE)
+            return FieldModifier.PRIVATE;
+        if (token.text == Lang.KEYWORD_PROTECTED)
+            return FieldModifier.PROTECTED;
+        if (token.text == Lang.KEYWORD_STATIC)
+            return FieldModifier.STATIC;
+        if (token.text == Lang.KEYWORD_FINAL)
+            return FieldModifier.FINAL;
+        if (token.text == Lang.KEYWORD_VOLATILE)
+            return FieldModifier.VOLATILE;
+        if (token.text == Lang.KEYWORD_TRANSIENT)
+            return FieldModifier.TRANSIENT;
+        return null;
     }
 
     private SubParsing<FunctionDefinition> parseFunctionDefinition(int offset)

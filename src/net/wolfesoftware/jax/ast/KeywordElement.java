@@ -31,5 +31,10 @@ public class KeywordElement extends ParseElement
     public static final KeywordElement BOOLEAN = new KeywordElement(Lang.KEYWORD_BOOLEAN);
     
     public static final KeywordElement PUBLIC = new KeywordElement(Lang.KEYWORD_PUBLIC);
+    public static final KeywordElement PRIVATE = new KeywordElement(Lang.KEYWORD_PRIVATE);
+    public static final KeywordElement PROTECTED = new KeywordElement(Lang.KEYWORD_PROTECTED);
+    public static final KeywordElement STATIC = new KeywordElement(Lang.KEYWORD_STATIC);
     public static final KeywordElement FINAL = new KeywordElement(Lang.KEYWORD_FINAL);
+    public static final KeywordElement VOLATILE = new KeywordElement(Lang.KEYWORD_VOLATILE);
+    public static final KeywordElement TRANSIENT = new KeywordElement(Lang.KEYWORD_TRANSIENT);
 }

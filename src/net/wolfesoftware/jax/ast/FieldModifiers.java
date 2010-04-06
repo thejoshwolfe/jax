@@ -2,11 +2,11 @@ package net.wolfesoftware.jax.ast;
 
 import java.util.List;
 
-public class ClassModifiers extends ListElement<ClassModifier>
+public class FieldModifiers extends ListElement<FieldModifier>
 {
     public short bitmask = 0;
 
-    public ClassModifiers(List<ClassModifier> elements)
+    public FieldModifiers(List<FieldModifier> elements)
     {
         super(elements);
     }
@@ -17,7 +17,7 @@ public class ClassModifiers extends ListElement<ClassModifier>
         return " ";
     }
 
-    public static final int TYPE = 0x28b60599;
+    public static final int TYPE = 0x28060587;
     public int getElementType()
     {
         return TYPE;

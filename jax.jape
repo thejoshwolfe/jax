@@ -141,12 +141,20 @@ $VariableDeclaration = TypeId ID
 
 # | ControlStatement
 
-### function definition
+### fields
+|FieldModifier = "public" | "private" | "protected" | "static" | "final" | "volatile" | "transient"
+~FieldModifiers = FieldModifier : ""
+$FieldDeclaration = FieldModifiers TypeId ID
+$FieldCreation = FieldModifiers TypeId ID "=" Expression
+
+### methods
 ~ArgumentDeclarations = VariableDeclaration : ","
+# TODO: rename to method something
+$AbstractMethodDefinition = TypeId ID "(" ArgumentDeclarations ")"
 $FunctionDefinition = TypeId ID "(" ArgumentDeclarations ")" Expression
 
 ### Class
-|ClassMember = FunctionDefinition    # | FieldDeclaration | FieldCreation
+|ClassMember = FunctionDefinition | AbstractMethodDefinition | FieldDeclaration | FieldCreation
 ~ClassBody = (ClassMember) : ";"
 |ClassModifier = "public" | "final"
 ~ClassModifiers = ClassModifier : ""

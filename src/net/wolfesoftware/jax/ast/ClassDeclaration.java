@@ -21,6 +21,9 @@ public class ClassDeclaration extends ParseElement
     @Override
     protected void decompile(String indentation, StringBuilder out)
     {
+        classModifiers.decompile(indentation, out);
+        if (!classModifiers.elements.isEmpty())
+            out.append(' ');
         out.append("class ");
         id.decompile(indentation, out);
         out.append("{");

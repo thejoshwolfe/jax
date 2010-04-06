@@ -29,12 +29,17 @@ public final class Lang
     KEYWORD_NEW = "new",
     KEYWORD_NULL = "null",
     KEYWORD_PACKAGE = "package",
+    KEYWORD_PRIVATE = "private",
+    KEYWORD_PROTECTED = "protected",
     KEYWORD_PUBLIC = "public",
+    KEYWORD_STATIC = "static",
     KEYWORD_SUPER = "super",
     KEYWORD_THIS = "this",
+    KEYWORD_TRANSIENT = "transient",
     KEYWORD_TRUE = "true",
     KEYWORD_TRY = "try",
     KEYWORD_VOID = "void",
+    KEYWORD_VOLATILE = "volatile",
     KEYWORD_WHILE = "while";
 
     public static final String 
