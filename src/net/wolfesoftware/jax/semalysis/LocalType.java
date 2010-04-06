@@ -3,6 +3,7 @@ package net.wolfesoftware.jax.semalysis;
 import java.util.*;
 import net.wolfesoftware.jax.ast.*;
 import net.wolfesoftware.jax.codegen.ClassFile;
+import net.wolfesoftware.jax.util.Util;
 
 public class LocalType extends Type
 {
@@ -68,6 +69,6 @@ public class LocalType extends Type
 
     public ClassMember makeDefaultConstructor(ClassBody classBody)
     {
-        return new ClassMember(new ConstructorDeclaration(TypeId.fromId(new Id(id)), new ArgumentDeclarations(new LinkedList<VariableDeclaration>()), new Expression(Block.EMPTY)));
+        return new ClassMember(new ConstructorDeclaration(new MethodModifiers(Util.arrayToList(MethodModifier.PUBLIC)), TypeId.fromId(new Id(id)), new ArgumentDeclarations(new LinkedList<VariableDeclaration>()), new Expression(Block.EMPTY)));
     }
 }

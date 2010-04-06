@@ -6,21 +6,17 @@ public class ConstructorDeclaration extends ConstructorOrMethodDeclaration
 {
     public Constructor constructor;
 
-    public ConstructorDeclaration(TypeId typeId, ArgumentDeclarations argumentDeclarations, Expression expression)
+    public ConstructorDeclaration(MethodModifiers methodModifiers, TypeId typeId, ArgumentDeclarations argumentDeclarations, Expression expression)
     {
-        super(typeId, argumentDeclarations, expression);
-    }
-
-    @Override
-    public boolean isStatic()
-    {
-        // all constructors are non-static
-        return false;
+        super(methodModifiers, typeId, argumentDeclarations, expression);
     }
 
     @Override
     protected void decompile(String indentation, StringBuilder out)
     {
+        methodModifiers.decompile(indentation, out);
+        if (!methodModifiers.elements.isEmpty())
+            out.append(' ');
         typeId.decompile(indentation, out);
         out.append('(');
         argumentDeclarations.decompile(indentation, out);

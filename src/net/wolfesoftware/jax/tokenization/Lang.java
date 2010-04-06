@@ -11,6 +11,7 @@ public final class Lang
     }
 
     public static final String 
+    KEYWORD_ABSTRACT = "abstract",
     KEYWORD_BOOLEAN = "boolean",
     KEYWORD_BYTE = "byte",
     KEYWORD_CATCH = "catch",
@@ -33,7 +34,9 @@ public final class Lang
     KEYWORD_PROTECTED = "protected",
     KEYWORD_PUBLIC = "public",
     KEYWORD_STATIC = "static",
+    KEYWORD_STRICTFP = "strictfp",
     KEYWORD_SUPER = "super",
+    KEYWORD_SYNCHRONIZED = "synchronized",
     KEYWORD_THIS = "this",
     KEYWORD_TRANSIENT = "transient",
     KEYWORD_TRUE = "true",

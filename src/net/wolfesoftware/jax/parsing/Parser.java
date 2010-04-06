@@ -401,6 +401,11 @@ public final class Parser
 
     private SubParsing<MethodDeclaration> parseMethodDeclaration(int offset)
     {
+        SubParsing<MethodModifiers> methodModifiers = parseMethodModifiers(offset);
+        if (methodModifiers == null)
+            return null;
+        offset = methodModifiers.end;
+
         SubParsing<TypeId> typeId = parseTypeId(offset);
         if (typeId == null)
             return null;
@@ -429,7 +434,43 @@ public final class Parser
             return null;
         offset = expression.end;
 
-        return new SubParsing<MethodDeclaration>(new MethodDeclaration(typeId.element, id, argumentDeclarations.element, expression.element), offset);
+        return new SubParsing<MethodDeclaration>(new MethodDeclaration(methodModifiers.element, typeId.element, id, argumentDeclarations.element, expression.element), offset);
+    }
+
+    private SubParsing<MethodModifiers> parseMethodModifiers(int offset)
+    {
+        ArrayList<MethodModifier> elements = new ArrayList<MethodModifier>();
+        while (true) {
+            MethodModifier classModifier = parseMethodModifier(offset);
+            if (classModifier != null) {
+                elements.add(classModifier);
+                offset++;
+            } else
+                break;
+        }
+        return new SubParsing<MethodModifiers>(new MethodModifiers(elements), offset);
+    }
+
+    private MethodModifier parseMethodModifier(int offset)
+    {
+        Token token = getToken(offset);
+        if (token.text == Lang.KEYWORD_PUBLIC)
+            return MethodModifier.PUBLIC;
+        if (token.text == Lang.KEYWORD_PRIVATE)
+            return MethodModifier.PRIVATE;
+        if (token.text == Lang.KEYWORD_PROTECTED)
+            return MethodModifier.PROTECTED;
+        if (token.text == Lang.KEYWORD_STATIC)
+            return MethodModifier.STATIC;
+        if (token.text == Lang.KEYWORD_FINAL)
+            return MethodModifier.FINAL;
+        if (token.text == Lang.KEYWORD_SYNCHRONIZED)
+            return MethodModifier.SYNCHRONIZED;
+        if (token.text == Lang.KEYWORD_ABSTRACT)
+            return MethodModifier.ABSTRACT;
+        if (token.text == Lang.KEYWORD_STRICTFP)
+            return MethodModifier.STRICTFP;
+        return null;
     }
 
     private SubParsing<ArgumentDeclarations> parseArgumentDeclarations(int offset)

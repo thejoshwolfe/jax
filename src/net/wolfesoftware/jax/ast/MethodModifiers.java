@@ -2,15 +2,15 @@ package net.wolfesoftware.jax.ast;
 
 import java.util.List;
 
-public class ClassModifiers extends ListElement<ClassModifier>
+public class MethodModifiers extends ListElement<MethodModifier>
 {
     public short bitmask = 0;
 
-    public ClassModifiers(List<ClassModifier> elements)
+    public MethodModifiers(List<MethodModifier> elements)
     {
         super(elements);
-        for (ClassModifier classModifier : elements)
-            bitmask |= classModifier.bitmask;
+        for (MethodModifier methodModifier : elements)
+            bitmask |= methodModifier.bitmask;
     }
 
     @Override
@@ -19,7 +19,7 @@ public class ClassModifiers extends ListElement<ClassModifier>
         return " ";
     }
 
-    public static final int TYPE = 0x28b60599;
+    public static final int TYPE = 0x2f100604;
     public int getElementType()
     {
         return TYPE;
