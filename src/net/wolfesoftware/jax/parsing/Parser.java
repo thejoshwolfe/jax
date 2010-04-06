@@ -105,7 +105,6 @@ public final class Parser
     {
         SubParsing<? extends ParseElement> content = null;
 
-        // TODO: this is not O(n)
         if (content == null)
             content = parseImportStar(offset);
         if (content == null)
@@ -192,6 +191,11 @@ public final class Parser
             return null;
         offset++;
 
+        SubParsing<MaybeImplements> maybeImplements = parseMaybeImplements(offset);
+        if (maybeImplements == null)
+            return null;
+        offset = maybeImplements.end;
+
         if (getToken(offset).text != Lang.SYMBOL_OPEN_BRACE)
             return null;
         offset++;
@@ -205,7 +209,7 @@ public final class Parser
             return null;
         offset++;
 
-        return new SubParsing<ClassDeclaration>(new ClassDeclaration(classModifiers.element, id, classBody.element), offset);
+        return new SubParsing<ClassDeclaration>(new ClassDeclaration(classModifiers.element, id, maybeImplements.element, classBody.element), offset);
     }
 
     private SubParsing<ClassModifiers> parseClassModifiers(int offset)
@@ -230,6 +234,50 @@ public final class Parser
         if (token.text == Lang.KEYWORD_PUBLIC)
             return ClassModifier.PUBLIC;
         return null;
+    }
+
+    private SubParsing<MaybeImplements> parseMaybeImplements(int offset)
+    {
+        SubParsing<? extends ParseElement> content = null;
+
+        if (content == null)
+            content = parseImplementsPart(offset);
+        if (content == null)
+            content = new SubParsing<MaybeImplements>(new MaybeImplements(EmptyElement.INSTANCE), offset);
+
+        return new SubParsing<MaybeImplements>(new MaybeImplements(content.element), content.end);
+    }
+
+    private SubParsing<ImplementsPart> parseImplementsPart(int offset)
+    {
+        if (getToken(offset).text != Lang.KEYWORD_IMPLEMENTS)
+            return null;
+        offset++;
+
+        SubParsing<InterfaceList> interfaceList = parseInterfaceList(offset);
+        if (interfaceList == null)
+            return null;
+        offset = interfaceList.end;
+
+        return new SubParsing<ImplementsPart>(new ImplementsPart(interfaceList.element), offset);
+    }
+
+    private SubParsing<InterfaceList> parseInterfaceList(int offset)
+    {
+        ArrayList<TypeId> elements = new ArrayList<TypeId>();
+        while (true) {
+            SubParsing<TypeId> typeId = parseTypeId(offset);
+            if (typeId != null) {
+                elements.add(typeId.element);
+                offset = typeId.end;
+            } else
+                break;
+            Token semicolon = getToken(offset);
+            if (semicolon.text != Lang.SYMBOL_COMMA)
+                break;
+            offset++;
+        }
+        return new SubParsing<InterfaceList>(new InterfaceList(elements), offset);
     }
 
     private SubParsing<ClassBody> parseClassBody(int offset)

@@ -23,6 +23,7 @@ public final class Lang
     KEYWORD_FINALLY = "finally",
     KEYWORD_FOR = "for",
     KEYWORD_IF = "if",
+    KEYWORD_IMPLEMENTS = "implements",
     KEYWORD_IMPORT = "import",
     KEYWORD_INT = "int",
     KEYWORD_NEW = "new",

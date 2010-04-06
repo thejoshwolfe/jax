@@ -8,11 +8,13 @@ public class ClassDeclaration extends ParseElement
 
     public ClassModifiers classModifiers;
     public Id id;
+    public MaybeImplements maybeImplements;
     public ClassBody classBody;
-    public ClassDeclaration(ClassModifiers classModifiers, Id id, ClassBody classBody)
+    public ClassDeclaration(ClassModifiers classModifiers, Id id, MaybeImplements maybeImplements, ClassBody classBody)
     {
         this.classModifiers = classModifiers;
         this.id = id;
+        this.maybeImplements = maybeImplements;
         this.classBody = classBody;
     }
 

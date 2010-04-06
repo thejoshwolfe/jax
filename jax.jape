@@ -150,7 +150,10 @@ $FunctionDefinition = TypeId ID "(" ArgumentDeclarations ")" Expression
 ~ClassBody = (ClassMember) : ";"
 |ClassModifier = "public" | "final"
 ~ClassModifiers = ClassModifier : ""
-$ClassDeclaration = ClassModifiers "class" ID "{" ClassBody "}"
+~InterfaceList = TypeId : ","
+$ImplementsPart = "implements" InterfaceList
+|MaybeImplements = ImplementsPart | ""
+$ClassDeclaration = ClassModifiers "class" ID MaybeImplements "{" ClassBody "}"
 
 ### CompilationUnit
 ~QualifiedName = ID : "."
