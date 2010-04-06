@@ -303,7 +303,7 @@ public final class Parser
         SubParsing<?> content = null;
 
         if (content == null)
-            content = parseFunctionDefinition(offset);
+            content = parseMethodDeclaration(offset);
         // abstract method parsing goes here
         if (content == null)
             content = parseFieldCreation(offset);
@@ -399,7 +399,7 @@ public final class Parser
         return null;
     }
 
-    private SubParsing<FunctionDefinition> parseFunctionDefinition(int offset)
+    private SubParsing<MethodDeclaration> parseMethodDeclaration(int offset)
     {
         SubParsing<TypeId> typeId = parseTypeId(offset);
         if (typeId == null)
@@ -429,7 +429,7 @@ public final class Parser
             return null;
         offset = expression.end;
 
-        return new SubParsing<FunctionDefinition>(new FunctionDefinition(typeId.element, id, argumentDeclarations.element, expression.element), offset);
+        return new SubParsing<MethodDeclaration>(new MethodDeclaration(typeId.element, id, argumentDeclarations.element, expression.element), offset);
     }
 
     private SubParsing<ArgumentDeclarations> parseArgumentDeclarations(int offset)
@@ -596,7 +596,7 @@ public final class Parser
 
         return new SubParsing<Assignment>(new Assignment(id, expression.element), offset);
     }
-    private SubParsing<FunctionInvocation> parseFunctionInvocation(int offset)
+    private SubParsing<MethodInvocation> parseMethodInvocation(int offset)
     {
         Id id = parseId(offset);
         if (id == null)
@@ -616,7 +616,7 @@ public final class Parser
             return null;
         offset++;
 
-        return new SubParsing<FunctionInvocation>(new FunctionInvocation(id, arguments.element), offset);
+        return new SubParsing<MethodInvocation>(new MethodInvocation(id, arguments.element), offset);
     }
     private SubParsing<TryPart> parseTryPart(int offset)
     {
@@ -726,10 +726,10 @@ public final class Parser
                         offset++;
                         continue;
                     }
-                    SubParsing<FunctionInvocation> functionInvocation = parseFunctionInvocation(offset);
-                    if (functionInvocation != null) {
-                        pushUnit(functionInvocation.element);
-                        offset = functionInvocation.end;
+                    SubParsing<MethodInvocation> methodInvocation = parseMethodInvocation(offset);
+                    if (methodInvocation != null) {
+                        pushUnit(methodInvocation.element);
+                        offset = methodInvocation.end;
                         continue;
                     }
                     SubParsing<Assignment> assigment = parseAssignment(offset);
@@ -832,11 +832,11 @@ public final class Parser
                             offset = innerParsing.end;
                             innerElements.add(innerParsing.element);
                             break;
-                        case FunctionInvocation.TYPE:
-                            if (innerParsing == null || innerParsing.element.getElementType() != FunctionInvocation.TYPE) {
+                        case MethodInvocation.TYPE:
+                            if (innerParsing == null || innerParsing.element.getElementType() != MethodInvocation.TYPE) {
                                 // history was missing/wrong
                                 Util.removeAfter(partialSubParsings, i);
-                                innerParsing = parseFunctionInvocation(offset);
+                                innerParsing = parseMethodInvocation(offset);
                                 if (innerParsing == null)
                                     return null;
                                 partialSubParsings.add(innerParsing);

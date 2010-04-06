@@ -49,25 +49,25 @@ public class Staticalysizer
     {
         ParseElement content = classMember.content;
         switch (content.getElementType()) {
-            case FunctionDefinition.TYPE:
-                staticalysizeFunctionDefinition((FunctionDefinition)content);
+            case MethodDeclaration.TYPE:
+                staticalysizeMethodDeclaration((MethodDeclaration)content);
                 break;
-            case ConstructorDefinition.TYPE:
-                staticalysizeConstructorDefinition((ConstructorDefinition)content);
+            case ConstructorDeclaration.TYPE:
+                staticalysizeConstructorDeclaration((ConstructorDeclaration)content);
                 break;
             default:
                 throw new RuntimeException();
         }
     }
 
-    private void staticalysizeConstructorDefinition(ConstructorDefinition constructorDefinition)
+    private void staticalysizeConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
     {
-        staticalysizeExpression(constructorDefinition.expression);
+        staticalysizeExpression(constructorDeclaration.expression);
     }
 
-    private void staticalysizeFunctionDefinition(FunctionDefinition functionDefinition)
+    private void staticalysizeMethodDeclaration(MethodDeclaration methodDeclaration)
     {
-        staticalysizeExpression(functionDefinition.expression);
+        staticalysizeExpression(methodDeclaration.expression);
     }
 
     private void staticalysizeExpression(Expression expression)
@@ -177,8 +177,8 @@ public class Staticalysizer
             case WhileLoop.TYPE:
                 staticalysizeWhileLoop((WhileLoop)content);
                 break;
-            case FunctionInvocation.TYPE:
-                staticalysizeFunctionInvocation((FunctionInvocation)content);
+            case MethodInvocation.TYPE:
+                staticalysizeMethodInvocation((MethodInvocation)content);
                 break;
             case ConstructorInvocation.TYPE:
                 staticalysizeConstructorInvocation((ConstructorInvocation)content);
@@ -201,8 +201,8 @@ public class Staticalysizer
             case TryCatch.TYPE:
                 staticalysizeTryCatch((TryCatch)content);
                 break;
-            case StaticFunctionInvocation.TYPE:
-                staticalysizeStaticFunctionInvocation((StaticFunctionInvocation)content);
+            case StaticMethodInvocation.TYPE:
+                staticalysizeStaticMethodInvocation((StaticMethodInvocation)content);
                 break;
             case PrimitiveConversion.TYPE:
                 staticalysizePrimitiveConversion((PrimitiveConversion)content);
@@ -268,7 +268,7 @@ public class Staticalysizer
 
     private void staticalysizeConstructorInvocation(ConstructorInvocation constructorInvocation)
     {
-        staticalysizeArguments(constructorInvocation.functionInvocation.arguments);
+        staticalysizeArguments(constructorInvocation.methodInvocation.arguments);
     }
 
     private void staticalysizePreDecrement(PreDecrement preDecrement)
@@ -306,9 +306,9 @@ public class Staticalysizer
         staticalysizeExpression(arrayDereference.expression2);
     }
 
-    private void staticalysizeStaticFunctionInvocation(StaticFunctionInvocation staticFunctionInvocation)
+    private void staticalysizeStaticMethodInvocation(StaticMethodInvocation staticMethodInvocation)
     {
-        staticalysizeFunctionInvocation(staticFunctionInvocation.functionInvocation);
+        staticalysizeMethodInvocation(staticMethodInvocation.methodInvocation);
     }
 
     private void staticalysizeTryCatch(TryCatch tryCatch)
@@ -347,7 +347,7 @@ public class Staticalysizer
     private void staticalysizeDereferenceMethod(DereferenceMethod dereferenceMethod)
     {
         staticalysizeExpression(dereferenceMethod.expression);
-        staticalysizeFunctionInvocation(dereferenceMethod.functionInvocation);
+        staticalysizeMethodInvocation(dereferenceMethod.methodInvocation);
     }
 
     private void staticalysizeDereferenceField(DereferenceField dereferenceField)
@@ -355,10 +355,10 @@ public class Staticalysizer
         staticalysizeExpression(dereferenceField.expression);
     }
 
-    private void staticalysizeFunctionInvocation(FunctionInvocation functionInvocation)
+    private void staticalysizeMethodInvocation(MethodInvocation methodInvocation)
     {
-        staticalysizeId(functionInvocation.id);
-        staticalysizeArguments(functionInvocation.arguments);
+        staticalysizeId(methodInvocation.id);
+        staticalysizeArguments(methodInvocation.arguments);
     }
 
     private void staticalysizeArguments(Arguments arguments)

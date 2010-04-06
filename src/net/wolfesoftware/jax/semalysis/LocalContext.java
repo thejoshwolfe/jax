@@ -26,9 +26,9 @@ public class LocalContext
 
     public final void addLocalVariable(Id id, Type type, ArrayList<SemalyticalError> errors)
     {
-        // redefinition is not a fatal error (it's even allowed in C)
+        // redeclaration is not a fatal error (it's even allowed in C)
         if (getLocalVariable(id.name) != null)
-            errors.add(new SemalyticalError(id, "Redefinition of local variable"));
+            errors.add(new SemalyticalError(id, "Redeclaration of local variable"));
         id.variable = new LocalVariable(this, id.name, type);
         localVariableMap.put(id.name, id.variable);
     }

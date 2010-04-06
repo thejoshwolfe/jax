@@ -1,13 +1,13 @@
 package net.wolfesoftware.jax.ast;
 
-public class StaticFunctionInvocation extends ParseElement
+public class StaticMethodInvocation extends ParseElement
 {
     public TypeId typeId;
-    public FunctionInvocation functionInvocation;
-    public StaticFunctionInvocation(TypeId typeId, FunctionInvocation functionInvocation)
+    public MethodInvocation methodInvocation;
+    public StaticMethodInvocation(TypeId typeId, MethodInvocation methodInvocation)
     {
         this.typeId = typeId;
-        this.functionInvocation = functionInvocation;
+        this.methodInvocation = methodInvocation;
     }
 
     @Override
@@ -15,7 +15,7 @@ public class StaticFunctionInvocation extends ParseElement
     {
         typeId.decompile(indentation, out);
         out.append('.');
-        functionInvocation.decompile(indentation, out);
+        methodInvocation.decompile(indentation, out);
     }
 
     public static final int TYPE = 0x78ab09c9;

@@ -22,16 +22,16 @@ import net.wolfesoftware.jax.util.Util;
  */
 public class MethodInfo
 {
-    public static MethodInfo generate(FunctionDefinition functionDefinition, ConstantPool constantPool)
+    public static MethodInfo generate(MethodDeclaration methodDeclaration, ConstantPool constantPool)
     {
-        MethodInfo methodInfo = new MethodInfo(functionDefinition.method, constantPool);
-        methodInfo.internalGenerate(functionDefinition);
+        MethodInfo methodInfo = new MethodInfo(methodDeclaration.method, constantPool);
+        methodInfo.internalGenerate(methodDeclaration);
         return methodInfo;
     }
-    public static MethodInfo generate(ConstructorDefinition constructorDefinition, ConstantPool constantPool)
+    public static MethodInfo generate(ConstructorDeclaration constructorDeclaration, ConstantPool constantPool)
     {
-        MethodInfo methodInfo = new MethodInfo(constructorDefinition.constructor, constantPool);
-        methodInfo.internalGenerate(constructorDefinition);
+        MethodInfo methodInfo = new MethodInfo(constructorDeclaration.constructor, constantPool);
+        methodInfo.internalGenerate(constructorDeclaration);
         return methodInfo;
     }
 
@@ -78,16 +78,16 @@ public class MethodInfo
             attribute.write(out);
     }
 
-    private void internalGenerate(ConstructorOrMethodElement functionDefinition)
+    private void internalGenerate(ConstructorOrMethodDeclaration methodDeclaration)
     {
-        context = functionDefinition.context;
+        context = methodDeclaration.context;
         // ensure parameters have proper numbers
-        if (!functionDefinition.isStatic())
+        if (!methodDeclaration.isStatic())
             context.getLocalVariable(Lang.KEYWORD_THIS).getNumber();
-        for (VariableDeclaration variableDeclaration : functionDefinition.argumentDeclarations.elements)
+        for (VariableDeclaration variableDeclaration : methodDeclaration.argumentDeclarations.elements)
             variableDeclaration.id.variable.getNumber();
-        evalExpression(functionDefinition.expression);
-        _return(functionDefinition.returnBehavior.type);
+        evalExpression(methodDeclaration.expression);
+        _return(methodDeclaration.returnBehavior.type);
         Util._assert(context.stackSize == 0);
         byte[] codeBytes = codeBufferArray.toByteArray();
         for (Fillin fillin : fillins) {
@@ -203,8 +203,8 @@ public class MethodInfo
             case WhileLoop.TYPE:
                 evalWhileLoop((WhileLoop)content);
                 break;
-            case FunctionInvocation.TYPE:
-                evalFunctionInvocation((FunctionInvocation)content);
+            case MethodInvocation.TYPE:
+                evalMethodInvocation((MethodInvocation)content);
                 break;
             case ConstructorInvocation.TYPE:
                 evalConstructorInvocation((ConstructorInvocation)content);
@@ -221,8 +221,8 @@ public class MethodInfo
             case StaticDereferenceField.TYPE:
                 evalStaticDereferenceField((StaticDereferenceField)content);
                 break;
-            case StaticFunctionInvocation.TYPE:
-                evalStaticFunctionInvocation((StaticFunctionInvocation)content);
+            case StaticMethodInvocation.TYPE:
+                evalStaticMethodInvocation((StaticMethodInvocation)content);
                 break;
             case ArrayDereference.TYPE:
                 evalArrayDereference((ArrayDereference)content);
@@ -347,10 +347,10 @@ public class MethodInfo
         context.pushOperand(constructorInvocation.constructor.declaringType);
         writeByte(Instructions.dup);
         context.pushOperand(RuntimeType.OBJECT); // this is a lie, but whatever
-        evalArguments(constructorInvocation.functionInvocation.arguments);
+        evalArguments(constructorInvocation.methodInvocation.arguments);
         writeByte(Instructions.invokespecial);
         writeShort(constantPool.getMethod(constructorInvocation.constructor));
-        context.popOperands(1 + constructorInvocation.functionInvocation.arguments.elements.size());
+        context.popOperands(1 + constructorInvocation.methodInvocation.arguments.elements.size());
     }
 
     private void evalPreIncrement(PreIncrement preIncrement)
@@ -432,9 +432,9 @@ public class MethodInfo
         context.pushOperand(type);
     }
 
-    private void evalStaticFunctionInvocation(StaticFunctionInvocation staticFunctionInvocation)
+    private void evalStaticMethodInvocation(StaticMethodInvocation staticMethodInvocation)
     {
-        evalFunctionInvocation(staticFunctionInvocation.functionInvocation);
+        evalMethodInvocation(staticMethodInvocation.methodInvocation);
     }
 
     private void evalTryCatch(TryCatch tryCatch)
@@ -521,7 +521,7 @@ public class MethodInfo
     private void evalDereferenceMethod(DereferenceMethod dereferenceMethod)
     {
         evalExpression(dereferenceMethod.expression);
-        evalFunctionInvocation(dereferenceMethod.functionInvocation);
+        evalMethodInvocation(dereferenceMethod.methodInvocation);
     }
 
     private void evalDereferenceField(DereferenceField dereferenceField)
@@ -537,18 +537,18 @@ public class MethodInfo
         context.pushOperand(dereferenceField.field.returnType);
     }
 
-    private void evalFunctionInvocation(FunctionInvocation functionInvocation)
+    private void evalMethodInvocation(MethodInvocation methodInvocation)
     {
-        evalArguments(functionInvocation.arguments);
+        evalArguments(methodInvocation.arguments);
 
-        Method method = functionInvocation.method;
+        Method method = methodInvocation.method;
         if (method.declaringType.isInterface()) {
             // interface method
             writeByte(Instructions.invokeinterface);
-            writeShort(constantPool.getInterfaceMethod(functionInvocation.method));
+            writeShort(constantPool.getInterfaceMethod(methodInvocation.method));
             // this is dumb. "The redundancy is historical."
             int stackSize = 0;
-            for (Expression expression : functionInvocation.arguments.elements)
+            for (Expression expression : methodInvocation.arguments.elements)
                 stackSize += expression.returnBehavior.type.getSize();
             if (!method.isStatic)
                 stackSize += 1;
@@ -563,9 +563,9 @@ public class MethodInfo
             else
                 invokeInstruction = Instructions.invokevirtual;
             writeByte(invokeInstruction);
-            writeShort(constantPool.getMethod(functionInvocation.method));
+            writeShort(constantPool.getMethod(methodInvocation.method));
         }
-        context.popOperands(functionInvocation.arguments.elements.size());
+        context.popOperands(methodInvocation.arguments.elements.size());
         if (!method.isStatic)
             context.popOperand();
         if (method.returnType != RuntimeType.VOID)

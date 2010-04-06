@@ -208,10 +208,10 @@ public abstract class ExpressionOperator
         }
     };
     public static final ExpressionOperator constructorInvocation = new ExpressionEnclosingOperator(-1, Lang.KEYWORD_NEW, -1,
-            FunctionInvocation.TYPE) {
+            MethodInvocation.TYPE) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
-            return new ConstructorInvocation((FunctionInvocation)innerElements.get(0));
+            return new ConstructorInvocation((MethodInvocation)innerElements.get(0));
         }
     };
 
@@ -223,10 +223,10 @@ public abstract class ExpressionOperator
         }
     };
     public static final ExpressionOperator dereferenceMethod = new ExpressionEnclosingOperator(PRECEDENCE_DEREFERENCE, Lang.SYMBOL_PERIOD, -1,
-            FunctionInvocation.TYPE, -1) { // insert this extra term so that the Parser looks for methods before fields
+            MethodInvocation.TYPE, -1) { // insert this extra term so that the Parser looks for methods before fields
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
-            return new DereferenceMethod(leftExpression, (FunctionInvocation)innerElements.get(0));
+            return new DereferenceMethod(leftExpression, (MethodInvocation)innerElements.get(0));
         }
     };
     public static final ExpressionOperator arrayDereference = new ExpressionEnclosingOperator(PRECEDENCE_DEREFERENCE, Lang.SYMBOL_OPEN_BRACKET, -1,

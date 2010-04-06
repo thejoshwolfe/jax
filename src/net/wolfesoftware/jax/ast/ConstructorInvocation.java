@@ -4,17 +4,17 @@ import net.wolfesoftware.jax.semalysis.*;
 
 public class ConstructorInvocation extends ParseElement
 {
-    public FunctionInvocation functionInvocation;
+    public MethodInvocation methodInvocation;
     public Constructor constructor;
-    public ConstructorInvocation(FunctionInvocation functionInvocation)
+    public ConstructorInvocation(MethodInvocation methodInvocation)
     {
-        this.functionInvocation = functionInvocation;
+        this.methodInvocation = methodInvocation;
     }
 
     protected void decompile(String indentation, StringBuilder out)
     {
         out.append("new ");
-        functionInvocation.decompile(indentation, out);
+        methodInvocation.decompile(indentation, out);
     }
 
     public static final int TYPE = 0x1b1104a7;

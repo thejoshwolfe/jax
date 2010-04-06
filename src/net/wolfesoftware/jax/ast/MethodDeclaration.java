@@ -1,34 +1,38 @@
 package net.wolfesoftware.jax.ast;
 
-import net.wolfesoftware.jax.semalysis.Constructor;
+import net.wolfesoftware.jax.semalysis.*;
 
-public class ConstructorDefinition extends ConstructorOrMethodElement
+public class MethodDeclaration extends ConstructorOrMethodDeclaration
 {
-    public Constructor constructor;
+    public Id id;
+    public Method method;
 
-    public ConstructorDefinition(TypeId typeId, ArgumentDeclarations argumentDeclarations, Expression expression)
+    public MethodDeclaration(TypeId typeId, Id id, ArgumentDeclarations argumentDeclarations, Expression expression)
     {
         super(typeId, argumentDeclarations, expression);
+        this.id = id;
     }
 
     @Override
     public boolean isStatic()
     {
-        // all constructors are non-static
-        return false;
+        // hard code for now
+        return true;
     }
 
     @Override
     protected void decompile(String indentation, StringBuilder out)
     {
         typeId.decompile(indentation, out);
+        out.append(' ');
+        id.decompile(indentation, out);
         out.append('(');
         argumentDeclarations.decompile(indentation, out);
         out.append(") ");
         expression.decompile(indentation, out);
     }
 
-    public static final int TYPE = 0x5ed308b0;
+    public static final int TYPE = 0x44470750;
     public int getElementType()
     {
         return TYPE;

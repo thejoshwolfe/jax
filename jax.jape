@@ -151,7 +151,7 @@ $FieldCreation = FieldModifiers TypeId ID "=" Expression
 ~ArgumentDeclarations = VariableDeclaration : ","
 # TODO: rename to method something
 $AbstractMethodDefinition = TypeId ID "(" ArgumentDeclarations ")"
-$FunctionDefinition = TypeId ID "(" ArgumentDeclarations ")" Expression
+$MethodDeclaration = TypeId ID "(" ArgumentDeclarations ")" Expression
 
 ### Class
 |ClassMember = FunctionDefinition | AbstractMethodDefinition | FieldDeclaration | FieldCreation

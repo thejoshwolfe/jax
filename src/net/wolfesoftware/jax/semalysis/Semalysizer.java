@@ -131,35 +131,35 @@ public class Semalysizer
             return;
         ParseElement content = classMember.content;
         switch (content.getElementType()) {
-            case FunctionDefinition.TYPE:
-                preSemalysizeFunctionDefinition(context, (FunctionDefinition)content);
+            case MethodDeclaration.TYPE:
+                preSemalysizeMethodDeclaration(context, (MethodDeclaration)content);
                 break;
-            case ConstructorDefinition.TYPE:
-                preSemalysizeConstructorDefinition(context, (ConstructorDefinition)content);
+            case ConstructorDeclaration.TYPE:
+                preSemalysizeConstructorDeclaration(context, (ConstructorDeclaration)content);
                 break;
             default:
                 throw new RuntimeException("TODO: implement " + content.getClass().getName());
         }
     }
 
-    private void preSemalysizeConstructorDefinition(LocalType context, ConstructorDefinition constructorDefinition)
+    private void preSemalysizeConstructorDeclaration(LocalType context, ConstructorDeclaration constructorDeclaration)
     {
-        resolveType(constructorDefinition.typeId, true);
-        if (constructorDefinition.typeId.type != context)
-            errors.add(new SemalyticalError(constructorDefinition.typeId, "you can't have a constructor for type \"" + constructorDefinition.typeId.type + "\" in this class."));
-        constructorDefinition.context = new RootLocalContext(context, false);
-        Type[] arguemntSignature = semalysizeArgumentDeclarations(constructorDefinition.context, constructorDefinition.argumentDeclarations);
-        constructorDefinition.constructor = new Constructor(context, arguemntSignature);
-        context.addConstructor(constructorDefinition.constructor);
+        resolveType(constructorDeclaration.typeId, true);
+        if (constructorDeclaration.typeId.type != context)
+            errors.add(new SemalyticalError(constructorDeclaration.typeId, "you can't have a constructor for type \"" + constructorDeclaration.typeId.type + "\" in this class."));
+        constructorDeclaration.context = new RootLocalContext(context, false);
+        Type[] arguemntSignature = semalysizeArgumentDeclarations(constructorDeclaration.context, constructorDeclaration.argumentDeclarations);
+        constructorDeclaration.constructor = new Constructor(context, arguemntSignature);
+        context.addConstructor(constructorDeclaration.constructor);
     }
 
-    private void preSemalysizeFunctionDefinition(LocalType context, FunctionDefinition functionDefinition)
+    private void preSemalysizeMethodDeclaration(LocalType context, MethodDeclaration methodDeclaration)
     {
-        resolveType(functionDefinition.typeId, true);
-        functionDefinition.context = new RootLocalContext(context, true);
-        Type[] arguemntSignature = semalysizeArgumentDeclarations(functionDefinition.context, functionDefinition.argumentDeclarations);
-        functionDefinition.method = new Method(context, functionDefinition.typeId.type, functionDefinition.id.name, arguemntSignature, true);
-        context.addMethod(functionDefinition.method);
+        resolveType(methodDeclaration.typeId, true);
+        methodDeclaration.context = new RootLocalContext(context, true);
+        Type[] arguemntSignature = semalysizeArgumentDeclarations(methodDeclaration.context, methodDeclaration.argumentDeclarations);
+        methodDeclaration.method = new Method(context, methodDeclaration.typeId.type, methodDeclaration.id.name, arguemntSignature, true);
+        context.addMethod(methodDeclaration.method);
     }
 
     private Type[] semalysizeArgumentDeclarations(LocalContext context, ArgumentDeclarations argumentDeclarations)
@@ -177,32 +177,32 @@ public class Semalysizer
     {
         ParseElement content = classMember.content;
         switch (content.getElementType()) {
-            case ConstructorDefinition.TYPE:
-                semalysizeConstructorDefinition(context, (ConstructorDefinition)content);
+            case ConstructorDeclaration.TYPE:
+                semalysizeConstructorDeclaration(context, (ConstructorDeclaration)content);
                 break;
-            case FunctionDefinition.TYPE:
-                semalysizeFunctionDefinition(context, (FunctionDefinition)content);
+            case MethodDeclaration.TYPE:
+                semalysizeMethodDeclaration(context, (MethodDeclaration)content);
                 break;
             default:
                 throw new RuntimeException("TODO: implement " + content.getClass());
         }
     }
 
-    private void semalysizeConstructorDefinition(Type typeContext, ConstructorDefinition constructorDefinition)
+    private void semalysizeConstructorDeclaration(Type typeContext, ConstructorDeclaration constructorDeclaration)
     {
         // for now, hard-code implicit super() with no arguments
         ConstructorRedirect constructorRedirect = new ConstructorRedirect(Lang.KEYWORD_SUPER, new Arguments(new LinkedList<Expression>()));
-        constructorDefinition.expression = new Expression(new Block(new BlockContents(Arrays.asList(new Expression(constructorRedirect), constructorDefinition.expression))));
-        constructorDefinition.returnBehavior = semalysizeExpression(constructorDefinition.context, constructorDefinition.expression);
-        if (constructorDefinition.returnBehavior.type != RuntimeType.VOID)
-            errors.add(SemalyticalError.mustBeVoid(constructorDefinition.expression));
+        constructorDeclaration.expression = new Expression(new Block(new BlockContents(Arrays.asList(new Expression(constructorRedirect), constructorDeclaration.expression))));
+        constructorDeclaration.returnBehavior = semalysizeExpression(constructorDeclaration.context, constructorDeclaration.expression);
+        if (constructorDeclaration.returnBehavior.type != RuntimeType.VOID)
+            errors.add(SemalyticalError.mustBeVoid(constructorDeclaration.expression));
     }
 
-    private void semalysizeFunctionDefinition(Type context, FunctionDefinition functionDefinition)
+    private void semalysizeMethodDeclaration(Type context, MethodDeclaration methodDeclaration)
     {
-        semalysizeExpression(functionDefinition.context, functionDefinition.expression);
-        implicitCast(functionDefinition.context, functionDefinition.expression, functionDefinition.method.returnType);
-        functionDefinition.returnBehavior = functionDefinition.expression.returnBehavior;
+        semalysizeExpression(methodDeclaration.context, methodDeclaration.expression);
+        implicitCast(methodDeclaration.context, methodDeclaration.expression, methodDeclaration.method.returnType);
+        methodDeclaration.returnBehavior = methodDeclaration.expression.returnBehavior;
     }
 
     private ReturnBehavior semalysizeExpression(LocalContext context, Expression expression)
@@ -314,8 +314,8 @@ public class Semalysizer
             case WhileLoop.TYPE:
                 returnBehavior = semalysizeWhileLoop(context, (WhileLoop)content);
                 break;
-            case FunctionInvocation.TYPE:
-                returnBehavior = semalysizeFunctionInvocation(context, (FunctionInvocation)content);
+            case MethodInvocation.TYPE:
+                returnBehavior = semalysizeMethodInvocation(context, (MethodInvocation)content);
                 break;
             case ConstructorInvocation.TYPE:
                 returnBehavior = semalysizeConstructorInvocation(context, (ConstructorInvocation)content);
@@ -328,8 +328,8 @@ public class Semalysizer
                     case DereferenceMethod.TYPE:
                         returnBehavior = semalysizeDereferenceMethod(context, (DereferenceMethod)content);
                         break;
-                    case StaticFunctionInvocation.TYPE:
-                        returnBehavior = semalysizeStaticFunctionInvocation(context, (StaticFunctionInvocation)expression.content);
+                    case StaticMethodInvocation.TYPE:
+                        returnBehavior = semalysizeStaticMethodInvocation(context, (StaticMethodInvocation)expression.content);
                         break;
                     case -1:
                         returnBehavior = ReturnBehavior.UNKNOWN;
@@ -517,11 +517,11 @@ public class Semalysizer
 
     private ReturnBehavior semalysizeConstructorInvocation(LocalContext context, ConstructorInvocation constructorInvocation)
     {
-        TypeId typeId = TypeId.fromId(constructorInvocation.functionInvocation.id);
+        TypeId typeId = TypeId.fromId(constructorInvocation.methodInvocation.id);
         resolveType(typeId, true);
-        ReturnBehavior[] argumentSignature = semalysizeArguments(context, constructorInvocation.functionInvocation.arguments);
+        ReturnBehavior[] argumentSignature = semalysizeArguments(context, constructorInvocation.methodInvocation.arguments);
         constructorInvocation.constructor = resolveConstructor(typeId.type, argumentSignature);
-        implicitCastArguments(context, constructorInvocation.functionInvocation.arguments, constructorInvocation.constructor.argumentSignature);
+        implicitCastArguments(context, constructorInvocation.methodInvocation.arguments, constructorInvocation.constructor.argumentSignature);
         if (constructorInvocation.constructor == null)
             errors.add(new SemalyticalError(constructorInvocation, "can't resolve this constructor"));
         return new ReturnBehavior(typeId.type);
@@ -602,13 +602,13 @@ public class Semalysizer
         return new ReturnBehavior(staticDereferenceField.field.returnType);
     }
 
-    private ReturnBehavior semalysizeStaticFunctionInvocation(LocalContext context, StaticFunctionInvocation staticFunctionInvocation)
+    private ReturnBehavior semalysizeStaticMethodInvocation(LocalContext context, StaticMethodInvocation staticMethodInvocation)
     {
         // semalysization already done for typeId
-        ReturnBehavior[] argumentSignature = semalysizeArguments(context, staticFunctionInvocation.functionInvocation.arguments);
-        staticFunctionInvocation.functionInvocation.method = resolveMethod(staticFunctionInvocation.typeId.type, staticFunctionInvocation.functionInvocation, argumentSignature);
-        implicitCastArguments(context, staticFunctionInvocation.functionInvocation.arguments, staticFunctionInvocation.functionInvocation.method.argumentSignature);
-        Type returnType = staticFunctionInvocation.functionInvocation.method.returnType;
+        ReturnBehavior[] argumentSignature = semalysizeArguments(context, staticMethodInvocation.methodInvocation.arguments);
+        staticMethodInvocation.methodInvocation.method = resolveMethod(staticMethodInvocation.typeId.type, staticMethodInvocation.methodInvocation, argumentSignature);
+        implicitCastArguments(context, staticMethodInvocation.methodInvocation.arguments, staticMethodInvocation.methodInvocation.method.argumentSignature);
+        Type returnType = staticMethodInvocation.methodInvocation.method.returnType;
         return new ReturnBehavior(returnType);
     }
 
@@ -700,9 +700,9 @@ public class Semalysizer
             return DereferenceMethod.TYPE;
         TypeId typeId = TypeId.fromId(id);
         if (resolveType(typeId, false)) {
-            // convert to StaticFunctionInvocation
-            expression.content = new StaticFunctionInvocation(typeId, dereferenceMethod.functionInvocation);
-            return StaticFunctionInvocation.TYPE;
+            // convert to StaticMethodInvocation
+            expression.content = new StaticMethodInvocation(typeId, dereferenceMethod.methodInvocation);
+            return StaticMethodInvocation.TYPE;
         }
         errors.add(SemalyticalError.cantResolveLocalVariable(id));
         return -1;
@@ -711,18 +711,18 @@ public class Semalysizer
     private ReturnBehavior semalysizeDereferenceMethod(LocalContext context, DereferenceMethod dereferenceMethod)
     {
         ReturnBehavior expressionReturnBehavior = semalysizeExpression(context, dereferenceMethod.expression);
-        ReturnBehavior[] argumentSignature = semalysizeArguments(context, dereferenceMethod.functionInvocation.arguments);
-        dereferenceMethod.functionInvocation.method = resolveMethod(expressionReturnBehavior.type, dereferenceMethod.functionInvocation, argumentSignature);
-        implicitCastArguments(context, dereferenceMethod.functionInvocation.arguments, dereferenceMethod.functionInvocation.method.argumentSignature);
-        return new ReturnBehavior(dereferenceMethod.functionInvocation.method.returnType);
+        ReturnBehavior[] argumentSignature = semalysizeArguments(context, dereferenceMethod.methodInvocation.arguments);
+        dereferenceMethod.methodInvocation.method = resolveMethod(expressionReturnBehavior.type, dereferenceMethod.methodInvocation, argumentSignature);
+        implicitCastArguments(context, dereferenceMethod.methodInvocation.arguments, dereferenceMethod.methodInvocation.method.argumentSignature);
+        return new ReturnBehavior(dereferenceMethod.methodInvocation.method.returnType);
     }
 
-    private ReturnBehavior semalysizeFunctionInvocation(LocalContext context, FunctionInvocation functionInvocation)
+    private ReturnBehavior semalysizeMethodInvocation(LocalContext context, MethodInvocation methodInvocation)
     {
-        ReturnBehavior[] argumentSignature = semalysizeArguments(context, functionInvocation.arguments);
-        functionInvocation.method = resolveMethod(context.getClassContext(), functionInvocation, argumentSignature);
-        implicitCastArguments(context, functionInvocation.arguments, functionInvocation.method.argumentSignature);
-        return new ReturnBehavior(functionInvocation.method.returnType);
+        ReturnBehavior[] argumentSignature = semalysizeArguments(context, methodInvocation.arguments);
+        methodInvocation.method = resolveMethod(context.getClassContext(), methodInvocation, argumentSignature);
+        implicitCastArguments(context, methodInvocation.arguments, methodInvocation.method.argumentSignature);
+        return new ReturnBehavior(methodInvocation.method.returnType);
     }
 
     private ReturnBehavior[] semalysizeArguments(LocalContext context, Arguments arguments)
@@ -914,7 +914,7 @@ public class Semalysizer
             // String.valueOf(a).concat(String.valueOf(b))
             Expression string1 = stringValueOf(addition.expression1);
             Expression string2 = stringValueOf(addition.expression2);
-            expression.content = new DereferenceMethod(string1, new FunctionInvocation(new Id("concat"), new Arguments(Arrays.asList(string2))));
+            expression.content = new DereferenceMethod(string1, new MethodInvocation(new Id("concat"), new Arguments(Arrays.asList(string2))));
             return semalysizeExpression(context, expression);
         } else {
             return semalysizeNumericOperator(context, addition);
@@ -922,7 +922,7 @@ public class Semalysizer
     }
     private Expression stringValueOf(Expression expression)
     {
-        return new Expression(new DereferenceMethod(new Expression(new Id("String")), new FunctionInvocation(new Id("valueOf"), new Arguments(Arrays.asList(expression)))));
+        return new Expression(new DereferenceMethod(new Expression(new Id("String")), new MethodInvocation(new Id("valueOf"), new Arguments(Arrays.asList(expression)))));
     }
     private ReturnBehavior semalysizeSubtraction(LocalContext context, Subtraction subtraction)
     {
@@ -1043,11 +1043,11 @@ public class Semalysizer
         return !failure;
     }
 
-    private Method resolveMethod(Type type, FunctionInvocation functionInvocation, ReturnBehavior[] argumentSignature)
+    private Method resolveMethod(Type type, MethodInvocation methodInvocation, ReturnBehavior[] argumentSignature)
     {
-        Method method = type.resolveMethod(functionInvocation.id.name, getArgumentTypes(argumentSignature));
+        Method method = type.resolveMethod(methodInvocation.id.name, getArgumentTypes(argumentSignature));
         if (method == null) {
-            errors.add(SemalyticalError.cantResolveMethod(type, functionInvocation.id, argumentSignature));
+            errors.add(SemalyticalError.cantResolveMethod(type, methodInvocation.id, argumentSignature));
             return Method.UNKNOWN;
         }
         return method;

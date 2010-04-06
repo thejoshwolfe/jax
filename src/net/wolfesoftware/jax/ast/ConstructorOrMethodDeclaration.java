@@ -2,10 +2,7 @@ package net.wolfesoftware.jax.ast;
 
 import net.wolfesoftware.jax.semalysis.*;
 
-/**
- * TODO: rename to ConstructorOrMethodDefinition
- */
-public abstract class ConstructorOrMethodElement extends ParseElement
+public abstract class ConstructorOrMethodDeclaration extends ParseElement
 {
     public ReturnBehavior returnBehavior;
     public RootLocalContext context;
@@ -14,7 +11,7 @@ public abstract class ConstructorOrMethodElement extends ParseElement
     public ArgumentDeclarations argumentDeclarations;
     public Expression expression;
 
-    protected ConstructorOrMethodElement(TypeId typeId, ArgumentDeclarations argumentDeclarations, Expression expression)
+    protected ConstructorOrMethodDeclaration(TypeId typeId, ArgumentDeclarations argumentDeclarations, Expression expression)
     {
         this.typeId = typeId;
         this.argumentDeclarations = argumentDeclarations;

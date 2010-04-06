@@ -2,13 +2,13 @@ package net.wolfesoftware.jax.ast;
 
 import net.wolfesoftware.jax.semalysis.Method;
 
-public class FunctionInvocation extends ParseElement
+public class MethodInvocation extends ParseElement
 {
     public Method method;
     
     public Id id;
     public Arguments arguments;
-    public FunctionInvocation(Id id, Arguments arguments)
+    public MethodInvocation(Id id, Arguments arguments)
     {
         this.id = id;
         this.arguments = arguments;

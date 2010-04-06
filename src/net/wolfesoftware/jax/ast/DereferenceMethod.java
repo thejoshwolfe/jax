@@ -3,11 +3,11 @@ package net.wolfesoftware.jax.ast;
 public class DereferenceMethod extends ParseElement
 {
     public Expression expression;
-    public FunctionInvocation functionInvocation;
-    public DereferenceMethod(Expression expression, FunctionInvocation functionInvocation)
+    public MethodInvocation methodInvocation;
+    public DereferenceMethod(Expression expression, MethodInvocation methodInvocation)
     {
         this.expression = expression;
-        this.functionInvocation = functionInvocation;
+        this.methodInvocation = methodInvocation;
     }
 
     @Override
@@ -15,7 +15,7 @@ public class DereferenceMethod extends ParseElement
     {
         expression.decompile(indentation, out);
         out.append('.');
-        functionInvocation.decompile(indentation, out);
+        methodInvocation.decompile(indentation, out);
     }
 
     public static final int TYPE = 0x3ba506ba;

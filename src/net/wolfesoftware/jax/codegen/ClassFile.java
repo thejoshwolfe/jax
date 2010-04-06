@@ -101,11 +101,11 @@ public class ClassFile
         ParseElement content = classMember.content;
         switch (content.getElementType())
         {
-            case FunctionDefinition.TYPE:
-                methods.add(MethodInfo.generate((FunctionDefinition)content, constant_pool));
+            case MethodDeclaration.TYPE:
+                methods.add(MethodInfo.generate((MethodDeclaration)content, constant_pool));
                 break;
-            case ConstructorDefinition.TYPE:
-                methods.add(MethodInfo.generate((ConstructorDefinition)content, constant_pool));
+            case ConstructorDeclaration.TYPE:
+                methods.add(MethodInfo.generate((ConstructorDeclaration)content, constant_pool));
                 break;
             default:
                 throw new RuntimeException();
