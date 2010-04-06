@@ -186,7 +186,7 @@ public class MethodInfo
                 evalVariableCreation((VariableCreation)content);
                 break;
             case VariableDeclaration.TYPE:
-                // do nothing
+                evalVariableDeclaration((VariableDeclaration)content);
                 break;
             case Assignment.TYPE:
                 evalAssignment((Assignment)content);
@@ -611,6 +611,12 @@ public class MethodInfo
         evalExpression(assignment.expression);
         dup(assignment.expression.returnBehavior.type);
         store(assignment.id.variable);
+    }
+
+    private void evalVariableDeclaration(VariableDeclaration variableDeclaration)
+    {
+        // we have to do this so that nested scopes done step on us
+        variableDeclaration.id.variable.getNumber();
     }
 
     private void evalVariableCreation(VariableCreation variableCreation)
