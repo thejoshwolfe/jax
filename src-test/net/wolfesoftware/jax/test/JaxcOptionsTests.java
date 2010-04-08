@@ -34,6 +34,9 @@ public class JaxcOptionsTests
         tests.add(new JaxcOptionsTestCase(Util.arrayToList("def", "ghi", "-cp", "abc"), "-classPath=abc", Util.arrayToList("def", "ghi")));
         tests.add(new JaxcOptionsTestCase(Util.arrayToList("-cp", "abc", "-cp", "def", "ghi"), "-classPath=abc -classPath=def", Util.arrayToList("ghi")));
 
+        // java mode
+        tests.add(new JaxcOptionsTestCase(Util.arrayToList("-javaMode"), "-javaCompatabilityMode", new ArrayList<String>()));
+
         return tests.toArray(new TestCase[tests.size()]);
     }
 
