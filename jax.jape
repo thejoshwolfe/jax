@@ -81,16 +81,16 @@ $VariableDeclaration = TypeId ID
 
     |Operation = -InfixOperation | -PrefixOperation
 
-    #### function invocation
+    #### method invocation
     ~Arguments = Expression : ","
-    $FunctionInvocation = ID "(" Arguments ")"
+    $MethodInvocation = ID "(" Arguments ")"
 
     ### variable initialization
     $VariableCreation = VariableDeclaration "=" Expression
     $InferredVariableCreation = "var" ID "=" Expression
 
     ### constructor
-    $ConstructorInvocation = "new" FunctionInvocation
+    $ConstructorInvocation = "new" MethodInvocation
 
     ### Control Structures
     $IfThen = "if" Expression "then" Expression
@@ -99,10 +99,11 @@ $VariableDeclaration = TypeId ID
     $WhileLoop = "while" "(" Expression ")" Expression
     |ControlStructure = IfThen | IfThenElse | ForLoop
 
-    ### controlStatement (continue, return, etc.)
+    ### Control Statements
     $ReturnExpression = "return" Expression
     $ReturnVoid = "return"
-    |ControlStatement = ReturnExpression | ReturnVoid
+    $Throw = "throw" Expression
+    |ControlStatement = ReturnExpression | ReturnVoid | Throw
 
     ### grouping
     $Quantity = "(" Expression ")"
@@ -122,11 +123,11 @@ $VariableDeclaration = TypeId ID
 
     # dereferencing
     $DereferenceField = Expression(150) "." ID
-    $DereferenceMethod = Expression(150) "." FunctionInvocation
+    $DereferenceMethod = Expression(150) "." MethodInvocation
     $StaticDereferenceField = TypeId "." ID                       # These two are impossible to distinguish from the above two at the
-    $StaticFunctionInvocation = TypeId "." FunctionInvocation     # Parsing stage. The Lexiconizer has to swap in these when appropriate.
+    $StaticMethodInvocation = TypeId "." MethodInvocation     # Parsing stage. The Lexiconizer has to swap in these when appropriate.
     $ArrayDereference = Expression(150) "[" Expression "]"
-    |Dereferencing = DereferenceField | DereferenceMethod | StaticDereferenceField | StaticFunctionInvocation | ArrayDereference
+    |Dereferencing = DereferenceField | DereferenceMethod | StaticDereferenceField | StaticMethodInvocation | ArrayDereference
 
     ### try-catch-finally
     $TryPart = "try" Expression
@@ -139,7 +140,7 @@ $VariableDeclaration = TypeId ID
     $TryCatchFinally = TryPart CatchPart FinallyPart
     |TryGroup = TryCatch | TryFinally | TryCatchFinally
 
-|Expression = LITERAL | FunctionInvocation | ID | "null" | -Operation | Block | -ControlStucture | VariableCreation | VariableDeclaration | -Dereferencing | -TryGroup | ControlStatement
+|Expression = LITERAL | MethodInvocation | ID | "null" | -Operation | Block | -ControlStucture | VariableCreation | VariableDeclaration | -Dereferencing | -TryGroup | ControlStatement
 
 ### fields
 |FieldModifier = "public" | "private" | "protected" | "static" | "final" | "volatile" | "transient"
@@ -149,12 +150,12 @@ $FieldCreation = FieldModifiers TypeId ID "=" Expression
 
 ### methods
 ~ArgumentDeclarations = VariableDeclaration : ","
-# TODO: rename to method something
-$AbstractMethodDefinition = TypeId ID "(" ArgumentDeclarations ")"
+$ConstructorDeclaration = ID "(" ArgumentDeclarations ")" Expression
+$AbstractMethodDeclaration = TypeId ID "(" ArgumentDeclarations ")"
 $MethodDeclaration = TypeId ID "(" ArgumentDeclarations ")" Expression
 
 ### Class
-|ClassMember = FunctionDefinition | AbstractMethodDefinition | FieldDeclaration | FieldCreation
+|ClassMember = MethodDeclaration | AbstractMethodDeclaration | FieldDeclaration | FieldCreation | ConstructorDeclaration
 ~ClassBody = (ClassMember) : ";"
 |ClassModifier = "public" | "final"
 ~ClassModifiers = ClassModifier : ""

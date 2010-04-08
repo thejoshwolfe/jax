@@ -312,6 +312,8 @@ public final class Parser
         SubParsing<?> content = null;
 
         if (content == null)
+            content = parseConstructorDeclaration(offset);
+        if (content == null)
             content = parseMethodDeclaration(offset);
         // abstract method parsing goes here
         if (content == null)
@@ -406,6 +408,39 @@ public final class Parser
         if (token.text == Lang.KEYWORD_TRANSIENT)
             return FieldModifier.TRANSIENT;
         return null;
+    }
+
+    private SubParsing<ConstructorDeclaration> parseConstructorDeclaration(int offset)
+    {
+        SubParsing<MethodModifiers> methodModifiers = parseMethodModifiers(offset);
+        if (methodModifiers == null)
+            return null;
+        offset = methodModifiers.end;
+
+        SubParsing<TypeId> typeId = parseTypeId(offset);
+        if (typeId == null)
+            return null;
+        offset = typeId.end;
+
+        if (getToken(offset).text != Lang.SYMBOL_OPEN_PARENS)
+            return null;
+        offset++;
+
+        SubParsing<ArgumentDeclarations> argumentDeclarations = parseArgumentDeclarations(offset);
+        if (argumentDeclarations == null)
+            return null;
+        offset = argumentDeclarations.end;
+
+        if (getToken(offset).text != Lang.SYMBOL_CLOSE_PARENS)
+            return null;
+        offset++;
+
+        SubParsing<Expression> expression = parseExpression(offset);
+        if (expression == null)
+            return null;
+        offset = expression.end;
+
+        return new SubParsing<ConstructorDeclaration>(new ConstructorDeclaration(methodModifiers.element, typeId.element, argumentDeclarations.element, expression.element), offset);
     }
 
     private SubParsing<MethodDeclaration> parseMethodDeclaration(int offset)

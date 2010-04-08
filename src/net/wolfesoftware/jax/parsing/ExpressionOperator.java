@@ -159,6 +159,12 @@ public abstract class ExpressionOperator
             return ReturnVoid.INSTANCE;
         }
     };
+    public static final ExpressionOperator _throw = new ExpressionOperator(-1, Lang.KEYWORD_THROW, PRECEDENCE_LOWEST) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return new Throw(rightExpression);
+        }
+    };
 
     public static final ExpressionOperator quantity = new ExpressionEnclosingOperator(-1, Lang.SYMBOL_OPEN_PARENS, -1, 
             Expression.TYPE, Lang.SYMBOL_CLOSE_PARENS) {
