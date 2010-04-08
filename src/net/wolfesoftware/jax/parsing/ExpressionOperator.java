@@ -233,6 +233,20 @@ public abstract class ExpressionOperator
             return new ConstructorInvocation((MethodInvocation)innerElements.get(0));
         }
     };
+    public static final ExpressionOperator constructorRedirectThis = new ExpressionEnclosingOperator(-1, Lang.KEYWORD_THIS, -1,
+            Lang.SYMBOL_OPEN_PARENS, Arguments.TYPE, Lang.SYMBOL_CLOSE_PARENS) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return new ConstructorRedirectThis((Arguments)innerElements.get(0));
+        }
+    };
+    public static final ExpressionOperator constructorRedirectSuper = new ExpressionEnclosingOperator(-1, Lang.KEYWORD_SUPER, -1,
+            Lang.SYMBOL_OPEN_PARENS, Arguments.TYPE, Lang.SYMBOL_CLOSE_PARENS) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return new ConstructorRedirectSuper((Arguments)innerElements.get(0));
+        }
+    };
 
     public static final ExpressionOperator dereferenceField = new ExpressionEnclosingOperator(PRECEDENCE_DEREFERENCE, Lang.SYMBOL_PERIOD, -1,
             Id.TYPE) {

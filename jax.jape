@@ -84,13 +84,14 @@ $VariableDeclaration = TypeId ID
     #### method invocation
     ~Arguments = Expression : ","
     $MethodInvocation = ID "(" Arguments ")"
+    $ConstructorInvocation = "new" MethodInvocation
+    $ConstructorRedirectThis = "this" "(" Arguments ")"
+    $ConstructorRedirectSuper = "this" "(" Arguments ")"
 
     ### variable initialization
     $VariableCreation = VariableDeclaration "=" Expression
     $InferredVariableCreation = "var" ID "=" Expression
 
-    ### constructor
-    $ConstructorInvocation = "new" MethodInvocation
 
     ### Control Structures
     $IfThen = "if" Expression "then" Expression

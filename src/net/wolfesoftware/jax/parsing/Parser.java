@@ -986,6 +986,18 @@ public final class Parser
                             offset = innerParsing.end;
                             innerElements.add(innerParsing.element);
                             break;
+                        case Arguments.TYPE:
+                            if (innerParsing == null || innerParsing.element.getElementType() != Arguments.TYPE) {
+                                // history was missing/wrong
+                                Util.removeAfter(partialSubParsings, i);
+                                innerParsing = parseArguments(offset);
+                                if (innerParsing == null)
+                                    return null;
+                                partialSubParsings.add(innerParsing);
+                            }
+                            offset = innerParsing.end;
+                            innerElements.add(innerParsing.element);
+                            break;
                         case -1:
                             break;
                         default:

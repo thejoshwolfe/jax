@@ -209,8 +209,8 @@ public class MethodInfo
             case ConstructorInvocation.TYPE:
                 evalConstructorInvocation((ConstructorInvocation)content);
                 break;
-            case ConstructorRedirect.TYPE:
-                evalConstructorRedirect((ConstructorRedirect)content);
+            case ConstructorRedirectThis.TYPE:
+                evalConstructorRedirect((ConstructorRedirectThis)content);
                 break;
             case DereferenceMethod.TYPE:
                 evalDereferenceMethod((DereferenceMethod)content);
@@ -244,7 +244,7 @@ public class MethodInfo
         }
     }
 
-    private void evalConstructorRedirect(ConstructorRedirect constructorRedirect)
+    private void evalConstructorRedirect(ConstructorRedirectThis constructorRedirect)
     {
         aload(0);
         context.pushOperand(RuntimeType.OBJECT); // this is a lie, but whatever

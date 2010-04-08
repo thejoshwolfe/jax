@@ -4,7 +4,6 @@ import java.util.*;
 import net.wolfesoftware.jax.ast.*;
 import net.wolfesoftware.jax.codegen.Instructions;
 import net.wolfesoftware.jax.parsing.Parsing;
-import net.wolfesoftware.jax.tokenization.Lang;
 
 public class Semalysizer
 {
@@ -191,7 +190,7 @@ public class Semalysizer
     private void semalysizeConstructorDeclaration(Type typeContext, ConstructorDeclaration constructorDeclaration)
     {
         // for now, hard-code implicit super() with no arguments
-        ConstructorRedirect constructorRedirect = new ConstructorRedirect(Lang.KEYWORD_SUPER, new Arguments(new LinkedList<Expression>()));
+        ConstructorRedirectSuper constructorRedirect = new ConstructorRedirectSuper(new Arguments(new LinkedList<Expression>()));
         constructorDeclaration.expression = new Expression(new Block(new BlockContents(Arrays.asList(new Expression(constructorRedirect), constructorDeclaration.expression))));
         constructorDeclaration.returnBehavior = semalysizeExpression(constructorDeclaration.context, constructorDeclaration.expression);
         if (constructorDeclaration.returnBehavior.type != RuntimeType.VOID)
@@ -320,8 +319,11 @@ public class Semalysizer
             case ConstructorInvocation.TYPE:
                 returnBehavior = semalysizeConstructorInvocation(context, (ConstructorInvocation)content);
                 break;
-            case ConstructorRedirect.TYPE:
-                returnBehavior = semalysizeConstructorRedirect(context, (ConstructorRedirect)content);
+            case ConstructorRedirectThis.TYPE:
+                returnBehavior = semalysizeConstructorRedirectThis(context, (ConstructorRedirectThis)content);
+                break;
+            case ConstructorRedirectSuper.TYPE:
+                returnBehavior = semalysizeConstructorRedirectSuper(context, (ConstructorRedirectSuper)content);
                 break;
             case DereferenceMethod.TYPE:
                 switch (disambuateDereferenceMethod(context, expression)) {
@@ -372,16 +374,20 @@ public class Semalysizer
         return returnBehavior;
     }
 
-    private ReturnBehavior semalysizeConstructorRedirect(LocalContext context, ConstructorRedirect constructorRedirect)
+    private ReturnBehavior semalysizeConstructorRedirectThis(LocalContext context, ConstructorRedirectThis constructorRedirect)
     {
         ReturnBehavior[] argumentSignature = semalysizeArguments(context, constructorRedirect.arguments);
-        Type type;
-        if (constructorRedirect.thisOrSuper == Lang.KEYWORD_THIS)
-            type = context.getClassContext();
-        else if (constructorRedirect.thisOrSuper == Lang.KEYWORD_SUPER)
-            type = context.getClassContext().getParent();
-        else
-            throw null;
+        Type type = context.getClassContext();
+        constructorRedirect.constructor = resolveConstructor(type, argumentSignature);
+        implicitCastArguments(context, constructorRedirect.arguments, constructorRedirect.constructor.argumentSignature);
+        if (constructorRedirect.constructor == null)
+            errors.add(new SemalyticalError(constructorRedirect, "can't resolve this constructor"));
+        return ReturnBehavior.VOID;
+    }
+    private ReturnBehavior semalysizeConstructorRedirectSuper(LocalContext context, ConstructorRedirectSuper constructorRedirect)
+    {
+        ReturnBehavior[] argumentSignature = semalysizeArguments(context, constructorRedirect.arguments);
+        Type type = context.getClassContext().getParent();
         constructorRedirect.constructor = resolveConstructor(type, argumentSignature);
         implicitCastArguments(context, constructorRedirect.arguments, constructorRedirect.constructor.argumentSignature);
         if (constructorRedirect.constructor == null)

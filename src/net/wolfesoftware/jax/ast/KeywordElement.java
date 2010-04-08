@@ -40,4 +40,7 @@ public class KeywordElement extends ParseElement
     public static final KeywordElement SYNCHRONIZED = new KeywordElement(Lang.KEYWORD_SYNCHRONIZED);
     public static final KeywordElement ABSTRACT = new KeywordElement(Lang.KEYWORD_ABSTRACT);
     public static final KeywordElement STRICTFP = new KeywordElement(Lang.KEYWORD_STRICTFP);
+
+    public static final KeywordElement THIS = new KeywordElement(Lang.KEYWORD_THIS);
+    public static final KeywordElement SUPER = new KeywordElement(Lang.KEYWORD_SUPER);
 }

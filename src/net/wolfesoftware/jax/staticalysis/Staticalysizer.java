@@ -183,8 +183,8 @@ public class Staticalysizer
             case ConstructorInvocation.TYPE:
                 staticalysizeConstructorInvocation((ConstructorInvocation)content);
                 break;
-            case ConstructorRedirect.TYPE:
-                staticalysizeConstructorRedirect((ConstructorRedirect)content);
+            case ConstructorRedirectThis.TYPE:
+                staticalysizeConstructorRedirect((ConstructorRedirectThis)content);
                 break;
             case DereferenceMethod.TYPE:
                 staticalysizeDereferenceMethod((DereferenceMethod)content);
@@ -218,7 +218,7 @@ public class Staticalysizer
         }
     }
 
-    private void staticalysizeConstructorRedirect(ConstructorRedirect constructorRedirect)
+    private void staticalysizeConstructorRedirect(ConstructorRedirectThis constructorRedirect)
     {
         staticalysizeArguments(constructorRedirect.arguments);
     }
