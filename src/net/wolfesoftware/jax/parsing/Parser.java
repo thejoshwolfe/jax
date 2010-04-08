@@ -299,7 +299,7 @@ public final class Parser
                 continue;
             }
             if (options.javaCompatabilityMode) {
-                if (classMember.element.decompile().endsWith("}"))
+                if (classMember != null && classMember.element.decompile().endsWith("}"))
                     continue;
             }
             break;
@@ -595,20 +595,26 @@ public final class Parser
 
     private SubParsing<BlockContents> parseBlockContents(int offset)
     {
-        ArrayList<Expression> declarations = new ArrayList<Expression>();
+        ArrayList<Expression> elements = new ArrayList<Expression>();
         while (true) {
             SubParsing<Expression> expression = parseExpression(offset);
             if (expression != null) {
-                declarations.add(expression.element);
+                elements.add(expression.element);
                 offset = expression.end;
             } else
-                declarations.add(null);
+                elements.add(null);
             Token semicolon = getToken(offset);
-            if (semicolon.text != Lang.SYMBOL_SEMICOLON)
-                break;
-            offset++;
+            if (semicolon.text == Lang.SYMBOL_SEMICOLON) {
+                offset++;
+                continue;
+            }
+            if (options.javaCompatabilityMode) {
+                if (expression != null && expression.element.decompile().endsWith("}"))
+                    continue;
+            }
+            break;
         }
-        return new SubParsing<BlockContents>(new BlockContents(declarations), offset);
+        return new SubParsing<BlockContents>(new BlockContents(elements), offset);
     }
     private SubParsing<VariableCreation> parseVariableCreation(int offset)
     {

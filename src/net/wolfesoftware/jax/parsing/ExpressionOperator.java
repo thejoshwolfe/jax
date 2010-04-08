@@ -31,7 +31,8 @@ public abstract class ExpressionOperator
     PRECEDENCE_RELATIONAL = 90,
     PRECEDENCE_EQUALITY = 80,
     PRECEDENCE_LOGICAL_AND = 40,
-    PRECEDENCE_LOGICAL_OR = 30;
+    PRECEDENCE_LOGICAL_OR = 30,
+    PRECEDENCE_LOWEST = 10;
 
     /* Operation */
     public static final ExpressionOperator addition = new ExpressionOperator(PRECEDENCE_ADDITIVE, Lang.SYMBOL_PLUS, PRECEDENCE_ADDITIVE + 1) {
@@ -146,6 +147,18 @@ public abstract class ExpressionOperator
         }
     };
 
+    public static final ExpressionOperator returnExpression = new ExpressionOperator(-1, Lang.KEYWORD_RETURN, PRECEDENCE_LOWEST) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return new ReturnExpression(rightExpression);
+        }
+    };
+    public static final ExpressionOperator returnVoid = new ExpressionOperator(-1, Lang.KEYWORD_RETURN, -1) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return ReturnVoid.INSTANCE;
+        }
+    };
 
     public static final ExpressionOperator quantity = new ExpressionEnclosingOperator(-1, Lang.SYMBOL_OPEN_PARENS, -1, 
             Expression.TYPE, Lang.SYMBOL_CLOSE_PARENS) {

@@ -33,6 +33,7 @@ public final class Lang
     KEYWORD_PRIVATE = "private",
     KEYWORD_PROTECTED = "protected",
     KEYWORD_PUBLIC = "public",
+    KEYWORD_RETURN = "return",
     KEYWORD_STATIC = "static",
     KEYWORD_STRICTFP = "strictfp",
     KEYWORD_SUPER = "super",

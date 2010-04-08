@@ -100,7 +100,9 @@ $VariableDeclaration = TypeId ID
     |ControlStructure = IfThen | IfThenElse | ForLoop
 
     ### controlStatement (continue, return, etc.)
-    #|ControlStatement = 
+    $ReturnExpression = "return" Expression
+    $ReturnVoid = "return"
+    |ControlStatement = ReturnExpression | ReturnVoid
 
     ### grouping
     $Quantity = "(" Expression ")"
@@ -137,9 +139,7 @@ $VariableDeclaration = TypeId ID
     $TryCatchFinally = TryPart CatchPart FinallyPart
     |TryGroup = TryCatch | TryFinally | TryCatchFinally
 
-|Expression = LITERAL | FunctionInvocation | ID | "null" | -Operation | Block | -ControlStucture | VariableCreation | VariableDeclaration | -Dereferencing | -TryGroup
-
-# | ControlStatement
+|Expression = LITERAL | FunctionInvocation | ID | "null" | -Operation | Block | -ControlStucture | VariableCreation | VariableDeclaration | -Dereferencing | -TryGroup | ControlStatement
 
 ### fields
 |FieldModifier = "public" | "private" | "protected" | "static" | "final" | "volatile" | "transient"
