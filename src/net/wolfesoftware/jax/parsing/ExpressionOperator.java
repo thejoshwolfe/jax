@@ -32,6 +32,7 @@ public abstract class ExpressionOperator
     PRECEDENCE_EQUALITY = 80,
     PRECEDENCE_LOGICAL_AND = 40,
     PRECEDENCE_LOGICAL_OR = 30,
+    PRECEDENCE_TERNARY = 20,
     PRECEDENCE_LOWEST = 10;
 
     /* Operation */
@@ -96,13 +97,13 @@ public abstract class ExpressionOperator
             return new GreaterThan(leftExpression, rightExpression);
         }
     };
-    public static final ExpressionOperator lessThanOrEqual = new ExpressionOperator(PRECEDENCE_RELATIONAL, Lang.SYMBOL_LESS_THAN_OR_EQUAL, PRECEDENCE_RELATIONAL + 1) {
+    public static final ExpressionOperator lessThanOrEqual = new ExpressionOperator(PRECEDENCE_RELATIONAL, Lang.SYMBOL_LESS_THAN_EQUALS, PRECEDENCE_RELATIONAL + 1) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
             return new LessThanOrEqual(leftExpression, rightExpression);
         }
     };
-    public static final ExpressionOperator greaterThanOrEqual = new ExpressionOperator(PRECEDENCE_RELATIONAL, Lang.SYMBOL_GREATER_THAN_OR_EQUAL, PRECEDENCE_RELATIONAL + 1) {
+    public static final ExpressionOperator greaterThanOrEqual = new ExpressionOperator(PRECEDENCE_RELATIONAL, Lang.SYMBOL_GREATER_THAN_EQUALS, PRECEDENCE_RELATIONAL + 1) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
             return new GreaterThanOrEqual(leftExpression, rightExpression);
@@ -201,6 +202,13 @@ public abstract class ExpressionOperator
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
             return new IfThenElse((Expression)innerElements.get(0), (Expression)innerElements.get(1), (Expression)innerElements.get(2));
+        }
+    };
+    public static final ExpressionOperator questionColon = new ExpressionEnclosingOperator(PRECEDENCE_TERNARY, Lang.SYMBOL_QUESTION, PRECEDENCE_TERNARY, 
+            Expression.TYPE, Lang.SYMBOL_COLON) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return new QuestionColon(leftExpression, (Expression)innerElements.get(0), rightExpression);
         }
     };
     public static final ExpressionOperator forLoop = new ExpressionEnclosingOperator(-1, Lang.KEYWORD_FOR, -1, 
