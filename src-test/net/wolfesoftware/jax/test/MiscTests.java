@@ -69,6 +69,7 @@ public class MiscTests
         {
             JaxcOptions options = new JaxcOptions();
             options.classPath = new String[] { classpath };
+            options.javaCompatabilityMode = true;
             if (!compileJax(filepath, verboseStream, options))
                 return false;
             // TODO, do something with the class file once it works

@@ -60,7 +60,7 @@ public class Jaxc
         if (printErrors(tokenization.errors))
             return 1;
 
-        Parsing parsing = Parser.parse(tokenization);
+        Parsing parsing = Parser.parse(tokenization, options);
         if (printErrors(parsing.errors))
             return 1;
 

@@ -1,26 +1,29 @@
 package net.wolfesoftware.jax.parsing;
 
 import java.util.*;
+import net.wolfesoftware.jax.JaxcOptions;
 import net.wolfesoftware.jax.ast.*;
 import net.wolfesoftware.jax.tokenization.*;
 import net.wolfesoftware.jax.util.Util;
 
 public final class Parser
 {
-    public static Parsing parse(Tokenization tokenization)
+    public static Parsing parse(Tokenization tokenization, JaxcOptions options)
     {
-        return new Parser(tokenization).parseRoot();
+        return new Parser(tokenization, options).parseRoot();
     }
 
     private final Token[] tokens;
     private final LineColumnLookup lineColumnLookup;
     private int maxIndex = 0;
     private final ArrayList<ParsingError> errors = new ArrayList<ParsingError>();
+    private final JaxcOptions options;
 
-    private Parser(Tokenization tokenization)
+    private Parser(Tokenization tokenization, JaxcOptions options)
     {
         tokens = tokenization.tokens.toArray(new Token[tokenization.tokens.size()]);
         lineColumnLookup = tokenization.lineColumnLookup;
+        this.options = options;
     }
 
     private Parsing parseRoot()
@@ -291,9 +294,15 @@ public final class Parser
             } else
                 elements.add(null);
             Token semicolon = getToken(offset);
-            if (semicolon.text != Lang.SYMBOL_SEMICOLON)
-                break;
-            offset++;
+            if (semicolon.text == Lang.SYMBOL_SEMICOLON) {
+                offset++;
+                continue;
+            }
+            if (options.javaCompatabilityMode) {
+                if (classMember.element.decompile().endsWith("}"))
+                    continue;
+            }
+            break;
         }
         return new SubParsing<ClassBody>(new ClassBody(elements), offset);
     }
