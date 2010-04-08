@@ -271,6 +271,12 @@ public abstract class ExpressionOperator
             return NullExpression.INSTANCE;
         }
     };
+    public static final ExpressionOperator _this = new ExpressionOperator(-1, Lang.KEYWORD_THIS, -1) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return ThisExpression.INSTANCE;
+        }
+    };
     
     public static final HashMap<String, List<ExpressionOperator>> OPEN_LEFT = new HashMap<String, List<ExpressionOperator>>();
     public static final HashMap<String, List<ExpressionOperator>> CLOSED_LEFT = new HashMap<String, List<ExpressionOperator>>();

@@ -123,6 +123,7 @@ $VariableDeclaration = TypeId ID
 
     # dereferencing
     $DereferenceField = Expression(150) "." ID
+    $DereferenceFieldAssignment = DereferenceField "=" Expression
     $DereferenceMethod = Expression(150) "." MethodInvocation
     $StaticDereferenceField = TypeId "." ID                       # These two are impossible to distinguish from the above two at the
     $StaticMethodInvocation = TypeId "." MethodInvocation     # Parsing stage. The Lexiconizer has to swap in these when appropriate.
@@ -140,7 +141,7 @@ $VariableDeclaration = TypeId ID
     $TryCatchFinally = TryPart CatchPart FinallyPart
     |TryGroup = TryCatch | TryFinally | TryCatchFinally
 
-|Expression = LITERAL | MethodInvocation | ID | "null" | -Operation | Block | -ControlStucture | VariableCreation | VariableDeclaration | -Dereferencing | -TryGroup | ControlStatement
+|Expression = LITERAL | MethodInvocation | ID | "null" | "this" | -Operation | Block | -ControlStucture | VariableCreation | VariableDeclaration | -Dereferencing | -TryGroup | ControlStatement
 
 ### fields
 |FieldModifier = "public" | "private" | "protected" | "static" | "final" | "volatile" | "transient"
