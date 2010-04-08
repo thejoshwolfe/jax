@@ -123,7 +123,7 @@ $VariableDeclaration = TypeId ID
 
     # dereferencing
     $DereferenceField = Expression(150) "." ID
-    $DereferenceFieldAssignment = DereferenceField "=" Expression
+    $DereferenceFieldAssignment = Expression(150) "." ID "=" Expression
     $DereferenceMethod = Expression(150) "." MethodInvocation
     $StaticDereferenceField = TypeId "." ID                       # These two are impossible to distinguish from the above two at the
     $StaticMethodInvocation = TypeId "." MethodInvocation     # Parsing stage. The Lexiconizer has to swap in these when appropriate.

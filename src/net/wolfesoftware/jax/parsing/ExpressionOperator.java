@@ -241,6 +241,13 @@ public abstract class ExpressionOperator
             return new DereferenceField(leftExpression, (Id)innerElements.get(0));
         }
     };
+    public static final ExpressionOperator dereferenceFieldAssignment = new ExpressionEnclosingOperator(PRECEDENCE_DEREFERENCE, Lang.SYMBOL_PERIOD, PRECEDENCE_LOWEST,
+            Id.TYPE, Lang.SYMBOL_EQUALS) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return new DereferenceFieldAssignment(leftExpression, (Id)innerElements.get(0), rightExpression);
+        }
+    };
     public static final ExpressionOperator dereferenceMethod = new ExpressionEnclosingOperator(PRECEDENCE_DEREFERENCE, Lang.SYMBOL_PERIOD, -1,
             MethodInvocation.TYPE, -1) { // insert this extra term so that the Parser looks for methods before fields
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
