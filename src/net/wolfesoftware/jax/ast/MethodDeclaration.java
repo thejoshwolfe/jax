@@ -7,9 +7,9 @@ public class MethodDeclaration extends ConstructorOrMethodDeclaration
     public Id id;
     public Method method;
 
-    public MethodDeclaration(MethodModifiers methodModifiers, TypeId typeId, Id id, ArgumentDeclarations argumentDeclarations, Expression expression)
+    public MethodDeclaration(MethodModifiers methodModifiers, TypeId typeId, Id id, ArgumentDeclarations argumentDeclarations, MaybeThrows maybeThrows, Expression expression)
     {
-        super(methodModifiers, typeId, argumentDeclarations, expression);
+        super(methodModifiers, typeId, argumentDeclarations, maybeThrows, expression);
         this.id = id;
     }
 

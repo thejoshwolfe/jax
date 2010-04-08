@@ -152,9 +152,12 @@ $FieldCreation = FieldModifiers TypeId ID "=" Expression
 
 ### methods
 ~ArgumentDeclarations = VariableDeclaration : ","
-$ConstructorDeclaration = ID "(" ArgumentDeclarations ")" Expression
-$AbstractMethodDeclaration = TypeId ID "(" ArgumentDeclarations ")"
-$MethodDeclaration = TypeId ID "(" ArgumentDeclarations ")" Expression
+~ThrowsList = TypeId : ","
+$ThrowsDeclaration = "throws" ThrowsList
+|MaybeThrows = ThrowsDeclaration | ""
+$ConstructorDeclaration = ID "(" ArgumentDeclarations ")" MaybeThrows Expression
+$AbstractMethodDeclaration = TypeId ID "(" ArgumentDeclarations ")" MaybeThrows
+$MethodDeclaration = TypeId ID "(" ArgumentDeclarations ")" MaybeThrows Expression
 
 ### Class
 |ClassMember = MethodDeclaration | AbstractMethodDeclaration | FieldDeclaration | FieldCreation | ConstructorDeclaration

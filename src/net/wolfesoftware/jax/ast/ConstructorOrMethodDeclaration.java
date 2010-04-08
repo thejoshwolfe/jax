@@ -11,13 +11,15 @@ public abstract class ConstructorOrMethodDeclaration extends ParseElement
     public MethodModifiers methodModifiers;
     public TypeId typeId;
     public ArgumentDeclarations argumentDeclarations;
+    public MaybeThrows maybeThrows;
     public Expression expression;
 
-    protected ConstructorOrMethodDeclaration(MethodModifiers methodModifiers, TypeId typeId, ArgumentDeclarations argumentDeclarations, Expression expression)
+    protected ConstructorOrMethodDeclaration(MethodModifiers methodModifiers, TypeId typeId, ArgumentDeclarations argumentDeclarations, MaybeThrows maybeThrows, Expression expression)
     {
         this.methodModifiers = methodModifiers;
         this.typeId = typeId;
         this.argumentDeclarations = argumentDeclarations;
+        this.maybeThrows = maybeThrows;
         this.expression = expression;
     }
 

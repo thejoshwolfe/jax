@@ -435,12 +435,17 @@ public final class Parser
             return null;
         offset++;
 
+        SubParsing<MaybeThrows> maybeThrows = parseMaybeThrows(offset);
+        if (maybeThrows == null)
+            return null;
+        offset = maybeThrows.end;
+
         SubParsing<Expression> expression = parseExpression(offset);
         if (expression == null)
             return null;
         offset = expression.end;
 
-        return new SubParsing<ConstructorDeclaration>(new ConstructorDeclaration(methodModifiers.element, typeId.element, argumentDeclarations.element, expression.element), offset);
+        return new SubParsing<ConstructorDeclaration>(new ConstructorDeclaration(methodModifiers.element, typeId.element, argumentDeclarations.element, maybeThrows.element, expression.element), offset);
     }
 
     private SubParsing<MethodDeclaration> parseMethodDeclaration(int offset)
@@ -473,12 +478,61 @@ public final class Parser
             return null;
         offset++;
 
+        SubParsing<MaybeThrows> maybeThrows = parseMaybeThrows(offset);
+        if (maybeThrows == null)
+            return null;
+        offset = maybeThrows.end;
+
         SubParsing<Expression> expression = parseExpression(offset);
         if (expression == null)
             return null;
         offset = expression.end;
 
-        return new SubParsing<MethodDeclaration>(new MethodDeclaration(methodModifiers.element, typeId.element, id, argumentDeclarations.element, expression.element), offset);
+        return new SubParsing<MethodDeclaration>(new MethodDeclaration(methodModifiers.element, typeId.element, id, argumentDeclarations.element, maybeThrows.element, expression.element), offset);
+    }
+
+    private SubParsing<MaybeThrows> parseMaybeThrows(int offset)
+    {
+        SubParsing<? extends ParseElement> content = null;
+
+        if (content == null)
+            content = parseThrowsDeclaration(offset);
+        if (content == null)
+            content = new SubParsing<MaybeThrows>(new MaybeThrows(EmptyElement.INSTANCE), offset);
+
+        return new SubParsing<MaybeThrows>(new MaybeThrows(content.element), content.end);
+    }
+
+    private SubParsing<ThrowsDeclaration> parseThrowsDeclaration(int offset)
+    {
+        if (getToken(offset).text != Lang.KEYWORD_THROWS)
+            return null;
+        offset++;
+
+        SubParsing<ThrowsList> throwsList = parseThrowsList(offset);
+        if (throwsList == null)
+            return null;
+        offset = throwsList.end;
+
+        return new SubParsing<ThrowsDeclaration>(new ThrowsDeclaration(throwsList.element), offset);
+    }
+
+    private SubParsing<ThrowsList> parseThrowsList(int offset)
+    {
+        ArrayList<TypeId> elements = new ArrayList<TypeId>();
+        while (true) {
+            SubParsing<TypeId> typeId = parseTypeId(offset);
+            if (typeId != null) {
+                elements.add(typeId.element);
+                offset = typeId.end;
+            } else
+                break;
+            Token semicolon = getToken(offset);
+            if (semicolon.text != Lang.SYMBOL_COMMA)
+                break;
+            offset++;
+        }
+        return new SubParsing<ThrowsList>(new ThrowsList(elements), offset);
     }
 
     private SubParsing<MethodModifiers> parseMethodModifiers(int offset)

@@ -6,9 +6,9 @@ public class ConstructorDeclaration extends ConstructorOrMethodDeclaration
 {
     public Constructor constructor;
 
-    public ConstructorDeclaration(MethodModifiers methodModifiers, TypeId typeId, ArgumentDeclarations argumentDeclarations, Expression expression)
+    public ConstructorDeclaration(MethodModifiers methodModifiers, TypeId typeId, ArgumentDeclarations argumentDeclarations, MaybeThrows maybeThrows, Expression expression)
     {
-        super(methodModifiers, typeId, argumentDeclarations, expression);
+        super(methodModifiers, typeId, argumentDeclarations, maybeThrows, expression);
     }
 
     @Override

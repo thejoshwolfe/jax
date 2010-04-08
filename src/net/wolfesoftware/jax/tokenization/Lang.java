@@ -40,6 +40,7 @@ public final class Lang
     KEYWORD_SYNCHRONIZED = "synchronized",
     KEYWORD_THIS = "this",
     KEYWORD_THROW = "throw",
+    KEYWORD_THROWS = "throws",
     KEYWORD_TRANSIENT = "transient",
     KEYWORD_TRUE = "true",
     KEYWORD_TRY = "try",
