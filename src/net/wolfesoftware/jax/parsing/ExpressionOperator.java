@@ -149,10 +149,11 @@ public abstract class ExpressionOperator
         }
     };
 
-    public static final ExpressionOperator returnExpression = new ExpressionOperator(-1, Lang.KEYWORD_RETURN, PRECEDENCE_LOWEST) {
+    public static final ExpressionOperator returnExpression = new ExpressionEnclosingOperator(-1, Lang.KEYWORD_RETURN, -1,
+            Expression.TYPE) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
-            return new ReturnExpression(rightExpression);
+            return new ReturnExpression((Expression)innerElements.get(0));
         }
     };
     public static final ExpressionOperator returnVoid = new ExpressionOperator(-1, Lang.KEYWORD_RETURN, -1) {
