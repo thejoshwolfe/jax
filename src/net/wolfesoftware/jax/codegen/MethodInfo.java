@@ -615,8 +615,8 @@ public class MethodInfo
 
     private void evalAssignment(IdAssignment assignment)
     {
-        evalExpression(assignment.expression2);
-        dup(assignment.expression2.returnBehavior.type);
+        evalExpression(assignment.expression);
+        dup(assignment.expression.returnBehavior.type);
         store(assignment.id.variable);
     }
 

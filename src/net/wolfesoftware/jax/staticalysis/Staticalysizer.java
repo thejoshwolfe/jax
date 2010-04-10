@@ -386,7 +386,7 @@ public class Staticalysizer
     private void staticalysizeAssignment(IdAssignment assignment)
     {
         staticalysizeId(assignment.id);
-        staticalysizeExpression(assignment.expression2);
+        staticalysizeExpression(assignment.expression);
     }
 
 

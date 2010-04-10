@@ -1,5 +1,5 @@
 
-class public Promotion {
+public class Promotion {
     public static int returnCharToInt() (char)4;
     public static int returnByteToInt() (byte)4;
     public static int returnShortToInt() (short)4;

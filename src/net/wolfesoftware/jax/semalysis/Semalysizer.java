@@ -4,6 +4,7 @@ import java.util.*;
 import net.wolfesoftware.jax.ast.*;
 import net.wolfesoftware.jax.codegen.Instructions;
 import net.wolfesoftware.jax.parsing.Parsing;
+import net.wolfesoftware.jax.tokenization.Lang;
 
 public class Semalysizer
 {
@@ -306,8 +307,8 @@ public class Semalysizer
             case VariableDeclaration.TYPE:
                 returnBehavior = semalysizeVariableDeclaration(context, (VariableDeclaration)content);
                 break;
-            case IdAssignment.TYPE:
-                returnBehavior = semalysizeAssignment(context, (IdAssignment)content);
+            case Assignment.TYPE:
+                returnBehavior = semalysizeAssignment(context, expression);
                 break;
             case IfThenElse.TYPE:
                 returnBehavior = semalysizeIfThenElse(context, (IfThenElse)content);
@@ -792,15 +793,30 @@ public class Semalysizer
         return ReturnBehavior.VOID;
     }
 
-    private ReturnBehavior semalysizeAssignment(LocalContext context, IdAssignment assignment)
+    private ReturnBehavior semalysizeAssignment(LocalContext context, Expression expression)
     {
-        assignment.id.variable = resolveId(context, assignment.id);
-        if (assignment.id.variable == null)
-            errors.add(SemalyticalError.cantResolveLocalVariable(assignment.id));
-        semalysizeExpression(context, assignment.expression2);
-        if (assignment.id.variable != null)
-            implicitCast(context, assignment.expression2, assignment.id.variable.type);
-        Type returnType = assignment.expression2.returnBehavior.type;
+        Assignment assignment = (Assignment)expression.content;
+        switch (assignment.expression1.content.getElementType()) {
+            case Id.TYPE:
+                IdAssignment idAssignment = new IdAssignment((Id)assignment.expression1.content, assignment.operator, assignment.expression2);
+                expression.content = idAssignment;
+                return semalysizeIdAssignment(context, idAssignment);
+            default:
+                errors.add(new SemalyticalError(assignment.expression1, "This expression is too complex to assign to"));
+                return semalysizeExpression(context, assignment.expression2);
+        }
+    }
+    private ReturnBehavior semalysizeIdAssignment(LocalContext context, IdAssignment idAssignment)
+    {
+        if (idAssignment.operator != Lang.SYMBOL_EQUALS)
+            throw null;
+        idAssignment.id.variable = resolveId(context, idAssignment.id);
+        if (idAssignment.id.variable == null)
+            errors.add(SemalyticalError.cantResolveLocalVariable(idAssignment.id));
+        semalysizeExpression(context, idAssignment.expression);
+        if (idAssignment.id.variable != null)
+            implicitCast(context, idAssignment.expression, idAssignment.id.variable.type);
+        Type returnType = idAssignment.expression.returnBehavior.type;
         return new ReturnBehavior(returnType);
     }
 
