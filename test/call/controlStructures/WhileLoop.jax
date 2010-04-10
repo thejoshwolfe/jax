@@ -1,8 +1,8 @@
 import java.util.ArrayList;
 import java.util.Scanner;
 
-class WhileLoop {
-    ArrayList splitLines(String multiline) {
+public class WhileLoop {
+    public static ArrayList splitLines(String multiline) {
         ArrayList lines = new ArrayList();
         Scanner scanner = new Scanner(multiline);
         while (scanner.hasNextLine()) {

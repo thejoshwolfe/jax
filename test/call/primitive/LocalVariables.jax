@@ -1,17 +1,17 @@
 
-class LocalVariables {
-	int assignAndReturn() {
+public class LocalVariables {
+	public static int assignAndReturn() {
 		int value = 5;
 		value
 	};
 
-	int assignLater() {
+	public static int assignLater() {
 		int var;
 		var = 6;
 		var
 	};
 
-	int doubleAssignment() {
+	public static int doubleAssignment() {
 		int x;
 		int y;
 		x = y = 3;

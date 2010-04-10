@@ -17,6 +17,6 @@ public class LongLiteral extends LiteralElement
     @Override
     protected void decompile(String indentation, StringBuilder out)
     {
-        out.append(value).append("L");
+        out.append(value).append('L');
     }
 }

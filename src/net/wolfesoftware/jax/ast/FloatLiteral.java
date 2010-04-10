@@ -17,6 +17,6 @@ public class FloatLiteral extends LiteralElement
     @Override
     protected void decompile(String indentation, StringBuilder out)
     {
-        out.append(value);
+        out.append(value).append('f');
     }
 }

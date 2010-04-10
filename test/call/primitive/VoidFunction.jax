@@ -1,9 +1,9 @@
 
-class VoidFunction {
-	void doNothing() {
+public class VoidFunction {
+	public static void doNothing() {
 	};
 
-	void doNothing2() {
+	public static void doNothing2() {
 		;
 		;
 		{

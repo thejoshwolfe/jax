@@ -29,6 +29,5 @@ public abstract class TakesArguments
         return getMethodCode();
     }
 
-    public abstract short getFlags();
     public abstract String getName();
 }

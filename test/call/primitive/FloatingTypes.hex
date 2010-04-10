@@ -1,0 +1,239 @@
+ca fe ba be 
+
+; classfile version 50.0 - JRE version 6
+00 00 
+00 32 
+
+; constant pool; size=23
+00 17 
+	; 1 - Utf8 = "FloatingTypes"
+	01 
+	00 0d 
+	46 6c 6f 61 74 69 6e 67 54 79 70 65 73 
+	
+	; 2 - Class = FloatingTypes
+	07 
+	00 01 
+	
+	; 3 - Utf8 = "java/lang/Object"
+	01 
+	00 10 
+	6a 61 76 61 2f 6c 61 6e 67 2f 4f 62 6a 65 63 74 
+	
+	; 4 - Class = java/lang/Object
+	07 
+	00 03 
+	
+	; 5 - Utf8 = "SourceFile"
+	01 
+	00 0a 
+	53 6f 75 72 63 65 46 69 6c 65 
+	
+	; 6 - Utf8 = "test\call\primitive\FloatingTypes.jax"
+	01 
+	00 25 
+	74 65 73 74 5c 63 61 6c 6c 5c 70 72 69 6d 69 74 69 76 65 5c 46 6c 6f 61 74 69 6e 67 54 79 70 65 73 2e 6a 61 78 
+	
+	; 7 - Utf8 = "_3_14f"
+	01 
+	00 06 
+	5f 33 5f 31 34 66 
+	
+	; 8 - Utf8 = "()F"
+	01 
+	00 03 
+	28 29 46 
+	
+	; 9 - Float = 3.1400001049
+	04 
+	40 48 f5 c3 
+	
+	; 10 - Utf8 = "Code"
+	01 
+	00 04 
+	43 6f 64 65 
+	
+	; 11 - Utf8 = "_2_718"
+	01 
+	00 06 
+	5f 32 5f 37 31 38 
+	
+	; 12 - Utf8 = "()D"
+	01 
+	00 03 
+	28 29 44 
+	
+	; 13 - Double = 2.718
+	06 
+	40 05 be 76 c8 b4 39 58 
+	
+	; 15 - Utf8 = "gimmeThatFloat"
+	01 
+	00 0e 
+	67 69 6d 6d 65 54 68 61 74 46 6c 6f 61 74 
+	
+	; 16 - Utf8 = "(F)F"
+	01 
+	00 04 
+	28 46 29 46 
+	
+	; 17 - Utf8 = "gimmeThatDouble"
+	01 
+	00 0f 
+	67 69 6d 6d 65 54 68 61 74 44 6f 75 62 6c 65 
+	
+	; 18 - Utf8 = "(D)D"
+	01 
+	00 04 
+	28 44 29 44 
+	
+	; 19 - Utf8 = "<init>"
+	01 
+	00 06 
+	3c 69 6e 69 74 3e 
+	
+	; 20 - Utf8 = "()V"
+	01 
+	00 03 
+	28 29 56 
+	
+	; 21 - NameAndType = <init>:()V
+	0c 
+	00 13 
+	00 14 
+	
+	; 22 - Methodref = java/lang/Object.<init>:()V
+	0a 
+	00 04 
+	00 15 
+	
+; public class FloatingTypes extends java/lang/Object
+00 21 
+00 02 
+00 04 
+00 00 
+
+; fields; size=0
+00 00 
+; methods; size=5
+00 05 
+	; public static _3_14f:()F
+	00 09 
+	00 07 
+	00 08 
+	; attributes; size=1
+	00 01 
+		; attribute "Code"; size=15
+		00 0a 
+		00 00 00 0f 
+		; max_stack=1, max_locals=1
+		00 01 
+		00 01 
+		; code_length=3
+		00 00 00 03 
+			12 09    ; 0:  ldc Float = 3.1400001049
+			ae       ; 2:  freturn
+		; exception table; size=0
+		00 00 
+		; attributes; size=0
+		00 00 
+		
+	
+	; public static _2_718:()D
+	00 09 
+	00 0b 
+	00 0c 
+	; attributes; size=1
+	00 01 
+		; attribute "Code"; size=16
+		00 0a 
+		00 00 00 10 
+		; max_stack=2, max_locals=1
+		00 02 
+		00 01 
+		; code_length=4
+		00 00 00 04 
+			14 00 0d ; 0:  ldc2_w Double = 2.718
+			af       ; 3:  dreturn
+		; exception table; size=0
+		00 00 
+		; attributes; size=0
+		00 00 
+		
+	
+	; public static gimmeThatFloat:(F)F
+	00 09 
+	00 0f 
+	00 10 
+	; attributes; size=1
+	00 01 
+		; attribute "Code"; size=14
+		00 0a 
+		00 00 00 0e 
+		; max_stack=1, max_locals=2
+		00 01 
+		00 02 
+		; code_length=2
+		00 00 00 02 
+			23       ; 0:  fload_1
+			ae       ; 1:  freturn
+		; exception table; size=0
+		00 00 
+		; attributes; size=0
+		00 00 
+		
+	
+	; public static gimmeThatDouble:(D)D
+	00 09 
+	00 11 
+	00 12 
+	; attributes; size=1
+	00 01 
+		; attribute "Code"; size=14
+		00 0a 
+		00 00 00 0e 
+		; max_stack=2, max_locals=3
+		00 02 
+		00 03 
+		; code_length=2
+		00 00 00 02 
+			27       ; 0:  dload_1
+			af       ; 1:  dreturn
+		; exception table; size=0
+		00 00 
+		; attributes; size=0
+		00 00 
+		
+	
+	; public <init>:()V
+	00 01 
+	00 13 
+	00 14 
+	; attributes; size=1
+	00 01 
+		; attribute "Code"; size=17
+		00 0a 
+		00 00 00 11 
+		; max_stack=1, max_locals=1
+		00 01 
+		00 01 
+		; code_length=5
+		00 00 00 05 
+			2a       ; 0:  aload_0
+			b7 00 16 ; 1:  invokespecial java/lang/Object.<init>:()V
+			b1       ; 4:  return
+		; exception table; size=0
+		00 00 
+		; attributes; size=0
+		00 00 
+		
+	
+; attributes; size=1
+00 01 
+	; attribute "SourceFile"; size=2
+	00 05 
+	00 00 00 02 
+	; value = "test\call\primitive\FloatingTypes.jax"
+	00 06 
+	
+

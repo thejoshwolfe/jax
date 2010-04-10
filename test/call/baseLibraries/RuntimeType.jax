@@ -1,5 +1,5 @@
-class RuntimeType {
-	void printPass() {
+public class RuntimeType {
+	public static void printPass() {
 		System.out.println("+++ PASS");
 	}
 }

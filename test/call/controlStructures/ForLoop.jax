@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 
-class ForLoop {
-    void loadArrayList(ArrayList list, int number) {
+public class ForLoop {
+    public static void loadArrayList(ArrayList list, int number) {
         for (int i = 0; i < number; i = i + 1) {
             list.add(String.valueOf(i));
         }

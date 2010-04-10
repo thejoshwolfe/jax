@@ -1,8 +1,8 @@
-class BooleanType {
-	boolean thisIsTrue() true;
-	boolean thisIsFalse() false;
+public class BooleanType {
+	public static boolean thisIsTrue() true;
+	public static boolean thisIsFalse() false;
 
-	boolean equality() 15 == 15;
+	public static boolean equality() 15 == 15;
 
-	boolean inequality() 7 != 8;
+	public static boolean inequality() 7 != 8;
 }

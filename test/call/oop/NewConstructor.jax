@@ -1,5 +1,5 @@
-class NewConstructor {
-    Object gimmeAThing() new Object();
-    NewConstructor gimmeAMe() new NewConstructor();
-    Exception withArguments() new Exception("teh message", new Exception());
+public class NewConstructor {
+    public static Object gimmeAThing() new Object();
+    public static NewConstructor gimmeAMe() new NewConstructor();
+    public static Exception withArguments() new Exception("teh message", new Exception());
 }

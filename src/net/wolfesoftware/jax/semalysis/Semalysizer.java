@@ -4,7 +4,6 @@ import java.util.*;
 import net.wolfesoftware.jax.ast.*;
 import net.wolfesoftware.jax.codegen.Instructions;
 import net.wolfesoftware.jax.parsing.Parsing;
-import net.wolfesoftware.jax.tokenization.Lang;
 
 public class Semalysizer
 {
@@ -144,6 +143,7 @@ public class Semalysizer
 
     private void preSemalysizeConstructorDeclaration(LocalType context, ConstructorDeclaration constructorDeclaration)
     {
+        semalysizeMethodModifiers(constructorDeclaration.methodModifiers);
         resolveType(constructorDeclaration.typeId, true);
         if (constructorDeclaration.typeId.type != context)
             errors.add(new SemalyticalError(constructorDeclaration.typeId, "you can't have a constructor for type \"" + constructorDeclaration.typeId.type + "\" in this class."));
@@ -153,8 +153,15 @@ public class Semalysizer
         context.addConstructor(constructorDeclaration.constructor);
     }
 
+    private void semalysizeMethodModifiers(MethodModifiers methodModifiers)
+    {
+        for (MethodModifier methodModifier : methodModifiers.elements)
+            methodModifiers.bitmask |= methodModifier.bitmask;
+    }
+
     private void preSemalysizeMethodDeclaration(LocalType context, MethodDeclaration methodDeclaration)
     {
+        semalysizeMethodModifiers(methodDeclaration.methodModifiers);
         resolveType(methodDeclaration.typeId, true);
         methodDeclaration.context = new RootLocalContext(context, methodDeclaration.isStatic());
         Type[] arguemntSignature = semalysizeArgumentDeclarations(methodDeclaration.context, methodDeclaration.argumentDeclarations);

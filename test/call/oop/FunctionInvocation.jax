@@ -1,14 +1,14 @@
 
-class FunctionInvocation {
-	int gimme5() {
+public class FunctionInvocation {
+	public static int gimme5() {
 		5
 	};
 
-	boolean isFunctionWorks() {
+	public static boolean isFunctionWorks() {
 		gimme5() == 5
 	};
 
-	String pass() internalPass();
+	public static String pass() internalPass();
 
-	String internalPass() "+++ PASS";
+	public static String internalPass() "+++ PASS";
 }

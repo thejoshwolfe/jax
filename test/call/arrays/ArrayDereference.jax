@@ -1,5 +1,5 @@
 
-class ArrayDereference {
-    String secondOne(String[] arr) arr[1];
-    int[] fifthThird(int[][][] arr) arr[4][2];
+public class ArrayDereference {
+    public static String secondOne(String[] arr) arr[1];
+    public static int[] fifthThird(int[][][] arr) arr[4][2];
 }

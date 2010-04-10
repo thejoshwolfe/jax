@@ -1,12 +1,12 @@
-class StringLiteral {
-	String helloWorld1() {
+public class StringLiteral {
+	public static String helloWorld1() {
 		"Hello World!"
 	};
 
-	String helloWorld2() {
+	public static String helloWorld2() {
 		String value = "Hello World!";
 		value
 	};
 
-	String pass() "+++ PASS";
+	public static String pass() "+++ PASS";
 }

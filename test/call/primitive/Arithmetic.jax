@@ -1,36 +1,36 @@
-class Arithmetic {
-    int addition3() 1 + 2;
+public class Arithmetic {
+    public static int addition3() 1 + 2;
 
-    int addition15() 1 + 2 + 3 + 4 + 5;
+    public static int addition15() 1 + 2 + 3 + 4 + 5;
 
-    int addition21() 1 + (2 + (3 + (4 + (5 + 6))));
+    public static int addition21() 1 + (2 + (3 + (4 + (5 + 6))));
 
-    int subtraction9() 21 - 12;
+    public static int subtraction9() 21 - 12;
 
-    int multiplication24() 1 * 2 * 3 * 4;
+    public static int multiplication24() 1 * 2 * 3 * 4;
 
-    int division5() 100 / 2 / 10;
+    public static int division5() 100 / 2 / 10;
 
-    int mixed42() (2 + 3) * 8 + (7 - 1) / 3;
+    public static int mixed42() (2 + 3) * 8 + (7 - 1) / 3;
 
-    int negative3() -3;
+    public static int negative3() -3;
 
-    int inc3() {
+    public static int inc3() {
         int a = 1;
         int b = a++;
         a + b
     };
-    int inc4() {
+    public static int inc4() {
         int a = 1;
         int b = ++a;
         a + b
     };
-    int decr1() {
+    public static int decr1() {
         int a = 5;
         int b = a--;
         b - a
     };
-    int decr8() {
+    public static int decr8() {
         int a = 5;
         int b = --a;
         b + a

@@ -1,5 +1,5 @@
-class Operands {
-    int gimme5()
+public class Operands {
+    public static int gimme5()
         2 + (
             try Integer.parseInt("a")
             catch (NumberFormatException e) 1

@@ -1,12 +1,12 @@
 
-class IfThenElse {
-	boolean test1() if (true) true else false;
+public class IfThenElse {
+	public static boolean test1() if (true) true else false;
 
-	boolean test2() if (false) false else true;
+	public static boolean test2() if (false) false else true;
 
-	boolean test3()	if (900 == 900) true else false;
+	public static boolean test3()	if (900 == 900) true else false;
 
-	boolean test4() {
+	public static boolean test4() {
 		boolean value = true;
 		if (123!=123) {
 			value = false; {}

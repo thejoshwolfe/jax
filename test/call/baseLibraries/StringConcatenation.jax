@@ -1,10 +1,10 @@
 
-class StringConcatenation {
-    String addThese(String s1, String s2) s1 + s2;
+public class StringConcatenation {
+    public static String addThese(String s1, String s2) s1 + s2;
 
-    String addThese(boolean z, String string, byte b, short s, int i, long l, float f, double d, char c, Object o) {
+    public static String addThese(boolean z, String string, byte b, short s, int i, long l, float f, double d, char c, Object o) {
         z + string + b + s + i + l + f + d + c + o
     };
 
-    String pass() "+++" + " " + "PASS";
+    public static String pass() "+++" + " " + "PASS";
 }

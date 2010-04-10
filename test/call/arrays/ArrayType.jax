@@ -1,6 +1,6 @@
 
-class ArrayType {
-    int[] gimmeThat(int[] that) that;
+public class ArrayType {
+    public static int[] gimmeThat(int[] that) that;
 
-    String[][][] gimmeThatToo(String[][][] that) that;
+    public static String[][][] gimmeThatToo(String[][][] that) that;
 }

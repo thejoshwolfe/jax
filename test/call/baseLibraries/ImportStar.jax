@@ -1,7 +1,7 @@
 import java.util.regex.*;
 
-class ImportStar {
-    int gimme42() {
+public class ImportStar {
+    public static int gimme42() {
         Pattern p = Pattern.compile("\\d+");
         Matcher m = p.matcher("abc42efg");
         m.find();

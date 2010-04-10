@@ -1,5 +1,5 @@
-class TypeCasting {
-    byte negativeThree() (byte)-3;
+public class TypeCasting {
+    public static byte negativeThree() (byte)-3;
 
-    String castToString(Object string) (String)string;
+    public static String castToString(Object string) (String)string;
 }

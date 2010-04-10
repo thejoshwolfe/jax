@@ -1,7 +1,6 @@
 package net.wolfesoftware.jax.semalysis;
 
 import java.lang.reflect.Modifier;
-import net.wolfesoftware.jax.codegen.MethodInfo;
 
 public class Method extends TakesArguments
 {
@@ -18,11 +17,6 @@ public class Method extends TakesArguments
     public String getMethodCode()
     {
         return declaringType.getTypeName() + '/' + id + getDescriptor();
-    }
-    @Override
-    public short getFlags()
-    {
-        return MethodInfo.ACC_PUBLIC | MethodInfo.ACC_STATIC;
     }
     @Override
     public String getName()

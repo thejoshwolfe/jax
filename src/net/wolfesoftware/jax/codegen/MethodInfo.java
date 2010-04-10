@@ -24,13 +24,13 @@ public class MethodInfo
 {
     public static MethodInfo generate(MethodDeclaration methodDeclaration, ConstantPool constantPool)
     {
-        MethodInfo methodInfo = new MethodInfo(methodDeclaration.method, constantPool);
+        MethodInfo methodInfo = new MethodInfo(methodDeclaration.method, methodDeclaration.methodModifiers.bitmask, constantPool);
         methodInfo.internalGenerate(methodDeclaration);
         return methodInfo;
     }
     public static MethodInfo generate(ConstructorDeclaration constructorDeclaration, ConstantPool constantPool)
     {
-        MethodInfo methodInfo = new MethodInfo(constructorDeclaration.constructor, constantPool);
+        MethodInfo methodInfo = new MethodInfo(constructorDeclaration.constructor, constructorDeclaration.methodModifiers.bitmask, constantPool);
         methodInfo.internalGenerate(constructorDeclaration);
         return methodInfo;
     }
@@ -58,9 +58,9 @@ public class MethodInfo
     private int offset = 0;
     private RootLocalContext context;
     private final ArrayList<Fillin> fillins = new ArrayList<Fillin>();
-    private MethodInfo(TakesArguments method, ConstantPool constantPool)
+    private MethodInfo(TakesArguments method, short flags, ConstantPool constantPool)
     {
-        access_flags = method.getFlags();
+        access_flags = flags;
         name_index = constantPool.getUtf8(method.getName());
         descriptor_index = constantPool.getUtf8(method.getDescriptor());
         this.constantPool = constantPool;
