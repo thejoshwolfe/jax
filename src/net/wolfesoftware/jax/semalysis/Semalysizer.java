@@ -4,6 +4,7 @@ import java.util.*;
 import net.wolfesoftware.jax.ast.*;
 import net.wolfesoftware.jax.codegen.Instructions;
 import net.wolfesoftware.jax.parsing.Parsing;
+import net.wolfesoftware.jax.tokenization.Lang;
 
 public class Semalysizer
 {
@@ -155,7 +156,7 @@ public class Semalysizer
     private void preSemalysizeMethodDeclaration(LocalType context, MethodDeclaration methodDeclaration)
     {
         resolveType(methodDeclaration.typeId, true);
-        methodDeclaration.context = new RootLocalContext(context, true);
+        methodDeclaration.context = new RootLocalContext(context, methodDeclaration.isStatic());
         Type[] arguemntSignature = semalysizeArgumentDeclarations(methodDeclaration.context, methodDeclaration.argumentDeclarations);
         methodDeclaration.method = new Method(context, methodDeclaration.typeId.type, methodDeclaration.id.name, arguemntSignature, true);
         context.addMethod(methodDeclaration.method);

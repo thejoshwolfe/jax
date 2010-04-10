@@ -56,6 +56,9 @@ public class Jaxc
 
     private static int comprehend(String fileName, JaxcOptions options) throws FileNotFoundException, IOException
     {
+        if (options == null)
+            options = new JaxcOptions();
+
         Tokenization tokenization = Tokenizer.tokenize(Util.fileToString(fileName));
         if (printErrors(tokenization.errors))
             return 1;
@@ -70,7 +73,7 @@ public class Jaxc
         if (printErrors(semalysization.errors))
             return 1;
 
-        Staticalysizer.staticalysize(semalysization.root, options);
+        Staticalysizer.staticalysize(semalysization.root);
 
         CodeGenerator.generate(semalysization, Util.platformizeFilepath(fileName), classPath);
 

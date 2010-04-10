@@ -1,21 +1,18 @@
 package net.wolfesoftware.jax.staticalysis;
 
-import net.wolfesoftware.jax.JaxcOptions;
 import net.wolfesoftware.jax.ast.*;
 
 public class Staticalysizer
 {
-    public static void staticalysize(Root root, JaxcOptions options)
+    public static void staticalysize(Root root)
     {
-        new Staticalysizer(root, options).staticalysize();
+        new Staticalysizer(root).staticalysize();
     }
 
     private final Root root;
-    private final JaxcOptions options;
-    private Staticalysizer(Root root, JaxcOptions options)
+    private Staticalysizer(Root root)
     {
         this.root = root;
-        this.options = options;
     }
 
     private void staticalysize()
@@ -184,7 +181,10 @@ public class Staticalysizer
                 staticalysizeConstructorInvocation((ConstructorInvocation)content);
                 break;
             case ConstructorRedirectThis.TYPE:
-                staticalysizeConstructorRedirect((ConstructorRedirectThis)content);
+                staticalysizeConstructorRedirectThis((ConstructorRedirectThis)content);
+                break;
+            case ConstructorRedirectSuper.TYPE:
+                staticalysizeConstructorRedirectSuper((ConstructorRedirectSuper)content);
                 break;
             case DereferenceMethod.TYPE:
                 staticalysizeDereferenceMethod((DereferenceMethod)content);
@@ -218,9 +218,13 @@ public class Staticalysizer
         }
     }
 
-    private void staticalysizeConstructorRedirect(ConstructorRedirectThis constructorRedirect)
+    private void staticalysizeConstructorRedirectThis(ConstructorRedirectThis constructorRedirectThis)
     {
-        staticalysizeArguments(constructorRedirect.arguments);
+        staticalysizeArguments(constructorRedirectThis.arguments);
+    }
+    private void staticalysizeConstructorRedirectSuper(ConstructorRedirectSuper constructorRedirectSuper)
+    {
+        staticalysizeArguments(constructorRedirectSuper.arguments);
     }
 
     private void staticalysizeNullExpression(NullExpression nullExpression)

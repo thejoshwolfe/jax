@@ -210,7 +210,10 @@ public class MethodInfo
                 evalConstructorInvocation((ConstructorInvocation)content);
                 break;
             case ConstructorRedirectThis.TYPE:
-                evalConstructorRedirect((ConstructorRedirectThis)content);
+                evalConstructorRedirectThis((ConstructorRedirectThis)content);
+                break;
+            case ConstructorRedirectSuper.TYPE:
+                evalConstructorRedirectSuper((ConstructorRedirectSuper)content);
                 break;
             case DereferenceMethod.TYPE:
                 evalDereferenceMethod((DereferenceMethod)content);
@@ -244,14 +247,18 @@ public class MethodInfo
         }
     }
 
-    private void evalConstructorRedirect(ConstructorRedirectThis constructorRedirect)
+    private void evalConstructorRedirectThis(ConstructorRedirectThis constructorRedirectThis)
+    {
+        throw null;
+    }
+    private void evalConstructorRedirectSuper(ConstructorRedirectSuper constructorRedirectSuper)
     {
         aload(0);
         context.pushOperand(RuntimeType.OBJECT); // this is a lie, but whatever
-        evalArguments(constructorRedirect.arguments);
+        evalArguments(constructorRedirectSuper.arguments);
         writeByte(Instructions.invokespecial);
         context.popOperands(1); // TODO hard-coded for default constructor
-        short index = constantPool.getMethod(constructorRedirect.constructor);
+        short index = constantPool.getMethod(constructorRedirectSuper.constructor);
         writeShort(index);
     }
     private void evalShortCircuitAnd(ShortCircuitAnd shortCircuitAnd)
