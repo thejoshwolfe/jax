@@ -3,12 +3,15 @@ This is a roadmap/todo.
 Version 1.0:
 
 broken:
-    use local variables to preserve the operand stack when entering/exiting try-catch blocks.
-    detect ambiguous overload resolution (is this really a problem)
+    detect ambiguous overload resolution (is this really a problem?)
     "special handling for superclass, private, and instance initialization method invocations" ( http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc6.html#invokespecial )
 
-ast:
+semalysis:
     field declarations
+    throw
+    ? :
+
+ast:
     static and non-static initializers
     array store
     loops with else's
@@ -16,15 +19,14 @@ ast:
     non static members
     access modifiers
     final fields/methods/classes
-    interfaces
+    interface declaration
+    extends and implements
     abstract classes/methods
     class literals (ex: String.class)
     array initializers (new int[] { 1, 2 })
     do-while loops
     finally
     synchronized
-    throw
-    ? :
 
 staticalysis:
     uninitialized variable access
@@ -70,7 +72,5 @@ semalysis:
 Version 3.0:
 
 Java compatibility mode:
-    Semicolon insertion after "}"
-    Semicolon removal inside if-else and do-while
     Abridged array initializers (int[] a = { 1, 2 })
 
