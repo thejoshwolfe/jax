@@ -291,6 +291,14 @@ public abstract class ExpressionOperator
     assignmentShiftRightEquals = new ExpressionAssignmentOperator(Lang.SYMBOL_GREATER_THAN_GREATER_THAN_EQUALS),
     assignmentShiftRightUnsignedEquals = new ExpressionAssignmentOperator(Lang.SYMBOL_GREATER_THAN_GREATER_THAN_GREATER_THAN_EQUALS);
 
+    public static final ExpressionOperator instanceOf = new ExpressionEnclosingOperator(PRECEDENCE_DEREFERENCE, Lang.KEYWORD_INSTANCEOF, -1,
+            TypeId.TYPE) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return new InstanceOf(leftExpression, (TypeId)innerElements.get(0));
+        }
+    };
+
     public static final ExpressionOperator dereferenceMethod = new ExpressionEnclosingOperator(PRECEDENCE_DEREFERENCE, Lang.SYMBOL_PERIOD, -1,
             MethodInvocation.TYPE, -1) { // insert this extra term so that the Parser looks for methods before fields
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)

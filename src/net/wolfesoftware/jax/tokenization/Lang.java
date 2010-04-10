@@ -26,6 +26,7 @@ public final class Lang
     KEYWORD_IF = "if",
     KEYWORD_IMPLEMENTS = "implements",
     KEYWORD_IMPORT = "import",
+    KEYWORD_INSTANCEOF = "instanceof",
     KEYWORD_INT = "int",
     KEYWORD_NEW = "new",
     KEYWORD_NULL = "null",

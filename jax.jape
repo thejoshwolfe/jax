@@ -122,6 +122,7 @@ $VariableDeclaration = TypeId ID
     |TypeCast = PrimitiveCast | TypeIdCast     # not actually a switch element. Just is one of the two options
 
     $Assignment = Expression ("=" | "+=" | "-=" | "*=" | "/=" | "%=" | "&=" | "^=" | "|=" | "<<=" | ">>=" | ">>>=") Expression
+    $InstanceOf = Expression "instanceof" TypeId
 
     # dereferencing
     $DereferenceField = Expression(150) "." ID
