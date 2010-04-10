@@ -33,7 +33,8 @@ public abstract class ExpressionOperator
     PRECEDENCE_LOGICAL_AND = 40,
     PRECEDENCE_LOGICAL_OR = 30,
     PRECEDENCE_TERNARY = 20,
-    PRECEDENCE_LOWEST = 10;
+    PRECEDENCE_ASSIGNMENT = 10,
+    PRECEDENCE_LOWEST = 1;
 
     /* Operation */
     public static final ExpressionOperator addition = new ExpressionOperator(PRECEDENCE_ADDITIVE, Lang.SYMBOL_PLUS, PRECEDENCE_ADDITIVE + 1) {
@@ -263,13 +264,32 @@ public abstract class ExpressionOperator
             return new DereferenceField(leftExpression, (Id)innerElements.get(0));
         }
     };
-    public static final ExpressionOperator dereferenceFieldAssignment = new ExpressionEnclosingOperator(PRECEDENCE_DEREFERENCE, Lang.SYMBOL_PERIOD, PRECEDENCE_LOWEST,
-            Id.TYPE, Lang.SYMBOL_EQUALS) {
+    private static class ExpressionAssignmentOperator extends ExpressionOperator
+    {
+        public ExpressionAssignmentOperator(String text)
+        {
+            super(PRECEDENCE_ASSIGNMENT, text, PRECEDENCE_ASSIGNMENT);
+        }
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
-            return new DereferenceFieldAssignment(leftExpression, (Id)innerElements.get(0), rightExpression);
+            return new Assignment(leftExpression, text, rightExpression);
         }
-    };
+    }
+    // = += -= *= /= %= &= ^= |= <<= >>= >>>=
+    public static final ExpressionOperator 
+    assignmentEquals = new ExpressionAssignmentOperator(Lang.SYMBOL_EQUALS),
+    assignmentPlusEquals = new ExpressionAssignmentOperator(Lang.SYMBOL_PLUS_EQUALS),
+    assignmentMinusEquals = new ExpressionAssignmentOperator(Lang.SYMBOL_MINUS_EQUALS),
+    assignmentTimesEquals = new ExpressionAssignmentOperator(Lang.SYMBOL_ASTERISK_EQUALS),
+    assignmentDivideEquals = new ExpressionAssignmentOperator(Lang.SYMBOL_SLASH_EQUALS),
+    assignmentModEquals = new ExpressionAssignmentOperator(Lang.SYMBOL_PERCENT_EQUALS),
+    assignmentAndEquals = new ExpressionAssignmentOperator(Lang.SYMBOL_AMPERSAND_EQUALS),
+    assignmentXorEquals = new ExpressionAssignmentOperator(Lang.SYMBOL_CARET_EQUALS),
+    assignmentOrEquals = new ExpressionAssignmentOperator(Lang.SYMBOL_PIPE_EQUALS),
+    assignmentShiftLeftEquals = new ExpressionAssignmentOperator(Lang.SYMBOL_LESS_THAN_LESS_THAN_EQUALS),
+    assignmentShiftRightEquals = new ExpressionAssignmentOperator(Lang.SYMBOL_GREATER_THAN_GREATER_THAN_EQUALS),
+    assignmentShiftRightUnsignedEquals = new ExpressionAssignmentOperator(Lang.SYMBOL_GREATER_THAN_GREATER_THAN_GREATER_THAN_EQUALS);
+
     public static final ExpressionOperator dereferenceMethod = new ExpressionEnclosingOperator(PRECEDENCE_DEREFERENCE, Lang.SYMBOL_PERIOD, -1,
             MethodInvocation.TYPE, -1) { // insert this extra term so that the Parser looks for methods before fields
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)

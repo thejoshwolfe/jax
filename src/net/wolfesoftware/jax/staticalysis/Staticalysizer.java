@@ -162,8 +162,8 @@ public class Staticalysizer
             case VariableDeclaration.TYPE:
                 staticalysizeVariableDeclaration((VariableDeclaration)content);
                 break;
-            case Assignment.TYPE:
-                staticalysizeAssignment((Assignment)content);
+            case IdAssignment.TYPE:
+                staticalysizeAssignment((IdAssignment)content);
                 break;
             case IfThenElse.TYPE:
                 staticalysizeIfThenElse((IfThenElse)content);
@@ -379,10 +379,10 @@ public class Staticalysizer
         staticalysizeExpression(ifThen.expression2);
     }
 
-    private void staticalysizeAssignment(Assignment assignment)
+    private void staticalysizeAssignment(IdAssignment assignment)
     {
         staticalysizeId(assignment.id);
-        staticalysizeExpression(assignment.expression);
+        staticalysizeExpression(assignment.expression2);
     }
 
 

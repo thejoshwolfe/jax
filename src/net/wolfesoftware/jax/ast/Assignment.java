@@ -2,20 +2,22 @@ package net.wolfesoftware.jax.ast;
 
 public class Assignment extends ParseElement
 {
-    public Id id;
-    public Expression expression;
-    public Assignment(Id id, Expression expression)
+    public Expression expression1;
+    public String operator;
+    public Expression expression2;
+    public Assignment(Expression expression1, String operator, Expression expression2)
     {
-        this.id = id;
-        this.expression = expression;
+        this.expression1 = expression1;
+        this.operator = operator;
+        this.expression2 = expression2;
     }
 
     @Override
-    protected void decompile(String indentation, StringBuilder out)
+    protected final void decompile(String indentation, StringBuilder out)
     {
-        id.decompile(indentation, out);
-        out.append(" = ");
-        expression.decompile(indentation, out);
+        expression1.decompile(indentation, out);
+        out.append(' ').append(operator).append(' ');
+        expression2.decompile(indentation, out);
     }
 
     public static final int TYPE = 0x15d9041a;

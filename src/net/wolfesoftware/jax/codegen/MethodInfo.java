@@ -188,8 +188,8 @@ public class MethodInfo
             case VariableDeclaration.TYPE:
                 evalVariableDeclaration((VariableDeclaration)content);
                 break;
-            case Assignment.TYPE:
-                evalAssignment((Assignment)content);
+            case IdAssignment.TYPE:
+                evalAssignment((IdAssignment)content);
                 break;
             case IfThenElse.TYPE:
                 evalIfThenElse((IfThenElse)content);
@@ -606,10 +606,10 @@ public class MethodInfo
         fillins.add(new Fillin(ifOffset));
     }
 
-    private void evalAssignment(Assignment assignment)
+    private void evalAssignment(IdAssignment assignment)
     {
-        evalExpression(assignment.expression);
-        dup(assignment.expression.returnBehavior.type);
+        evalExpression(assignment.expression2);
+        dup(assignment.expression2.returnBehavior.type);
         store(assignment.id.variable);
     }
 

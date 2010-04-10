@@ -298,8 +298,8 @@ public class Semalysizer
             case VariableDeclaration.TYPE:
                 returnBehavior = semalysizeVariableDeclaration(context, (VariableDeclaration)content);
                 break;
-            case Assignment.TYPE:
-                returnBehavior = semalysizeAssignment(context, (Assignment)content);
+            case IdAssignment.TYPE:
+                returnBehavior = semalysizeAssignment(context, (IdAssignment)content);
                 break;
             case IfThenElse.TYPE:
                 returnBehavior = semalysizeIfThenElse(context, (IfThenElse)content);
@@ -784,15 +784,15 @@ public class Semalysizer
         return ReturnBehavior.VOID;
     }
 
-    private ReturnBehavior semalysizeAssignment(LocalContext context, Assignment assignment)
+    private ReturnBehavior semalysizeAssignment(LocalContext context, IdAssignment assignment)
     {
         assignment.id.variable = resolveId(context, assignment.id);
         if (assignment.id.variable == null)
             errors.add(SemalyticalError.cantResolveLocalVariable(assignment.id));
-        semalysizeExpression(context, assignment.expression);
+        semalysizeExpression(context, assignment.expression2);
         if (assignment.id.variable != null)
-            implicitCast(context, assignment.expression, assignment.id.variable.type);
-        Type returnType = assignment.expression.returnBehavior.type;
+            implicitCast(context, assignment.expression2, assignment.id.variable.type);
+        Type returnType = assignment.expression2.returnBehavior.type;
         return new ReturnBehavior(returnType);
     }
 

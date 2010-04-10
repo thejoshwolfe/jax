@@ -723,24 +723,6 @@ public final class Parser
 
         return new SubParsing<VariableCreation>(new VariableCreation(variableDeclaration.element, expression.element), offset);
     }
-    private SubParsing<Assignment> parseAssignment(int offset)
-    {
-        Id id = parseId(offset);
-        if (id == null)
-            return null;
-        offset++;
-
-        if (getToken(offset).text != Lang.SYMBOL_EQUALS)
-            return null;
-        offset++;
-
-        SubParsing<Expression> expression = parseExpression(offset);
-        if (expression == null)
-            return null;
-        offset = expression.end;
-
-        return new SubParsing<Assignment>(new Assignment(id, expression.element), offset);
-    }
     private SubParsing<MethodInvocation> parseMethodInvocation(int offset)
     {
         Id id = parseId(offset);
@@ -877,12 +859,6 @@ public final class Parser
                         offset = methodInvocation.end;
                         continue;
                     }
-                    SubParsing<Assignment> assigment = parseAssignment(offset);
-                    if (assigment != null) {
-                        pushUnit(assigment.element);
-                        offset = assigment.end;
-                        continue;
-                    }
                     Id id = parseId(offset);
                     if (id != null) {
                         pushUnit(id);
@@ -943,8 +919,20 @@ public final class Parser
                         // history was missing/wrong
                         Util.removeAfter(partialSubParsings, i);
                         Token token = getToken(offset);
-                        if (token.text != expectcedElement)
+                        if (token.text != expectcedElement) {
+                            if (options.javaCompatabilityMode && token.text == Lang.SYMBOL_SEMICOLON) {
+                                // could be in the middle of if-else or do-while
+                                if (expectcedElement == Lang.KEYWORD_ELSE || expectcedElement == Lang.KEYWORD_WHILE) {
+                                    if (getToken(offset + 1).text == expectcedElement) {
+                                        // skip this semicolon. we'll get back on track next iteration
+                                        i--;
+                                        offset++;
+                                        continue;
+                                    }
+                                }
+                            }
                             return null;
+                        }
                         partialSubParsings.add(null);
                     }
                     offset++;
@@ -1108,6 +1096,7 @@ public final class Parser
                 return null;
             offset++;
 
+            Token firstTypeIdToken = getToken(offset);
             SubParsing<TypeId> typeId = parseTypeId(offset);
             if (typeId == null)
                 return null;
@@ -1117,9 +1106,23 @@ public final class Parser
                 return null;
             offset++;
 
-            String betterNotBeAPlusOrMinus = getToken(offset).text;
-            if (betterNotBeAPlusOrMinus == Lang.SYMBOL_PLUS || betterNotBeAPlusOrMinus == Lang.SYMBOL_MINUS)
-                return null;
+            // make sure the next token can start an expression
+            Token nextToken = getToken(offset);
+            if (nextToken.getType() == KeywordToken.TYPE) {
+                // not a literal, not an identifier. This token better be a closed-left operator.
+                String nextTokenText = nextToken.text;
+                if (!ExpressionOperator.CLOSED_LEFT.containsKey(nextTokenText))
+                    return null; // next token surely can't start a new expression
+                // If the next token is a '+' or '-', don't let it try to start an
+                // expression unless the type we're casting to is primitive.
+                // Don't believe me? Read these (especially the second one):
+                //     http://thejoshwolfe.blogspot.com/2009/05/its-all-cs-fault.html
+                //     http://thejoshwolfe.blogspot.com/2009/10/its-all-cs-fault-part-ii.html
+                if (nextTokenText == Lang.SYMBOL_PLUS || nextTokenText == Lang.SYMBOL_MINUS) {
+                    if (firstTypeIdToken.getType() != KeywordToken.TYPE)
+                        return null;
+                }
+            }
 
             ArrayList<ParseElement> elements = new ArrayList<ParseElement>();
             elements.add(typeId.element);
