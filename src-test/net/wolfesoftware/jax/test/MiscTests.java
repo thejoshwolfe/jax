@@ -11,7 +11,7 @@ public class MiscTests
     public static TestCase[] getTests()
     {
         ArrayList<TestCase> tests = new ArrayList<TestCase>();
-//        tests.add(new FancyZipTestCase());
+        tests.add(new FancyZipTestCase());
 //        tests.add(new ScannerTestCase());
         tests.add(new PackageTestCase());
         return tests.toArray(new TestCase[tests.size()]);
@@ -35,7 +35,9 @@ public class MiscTests
         @Override
         public boolean run(PrintStream verboseStream, PrintStream stderrStream)
         {
-            if (!compileJax(jaxFilePath, null, verboseStream, stderrStream))
+            JaxcOptions options = new JaxcOptions();
+            options.classPath = new String[] { rootDir };
+            if (!compileJax(jaxFilePath, options, verboseStream, stderrStream))
                 return false;
             ByteArrayOutputStream stdoutBuffer = new ByteArrayOutputStream();
             PrintStream stdoutStream = new PrintStream(stdoutBuffer);
@@ -108,11 +110,11 @@ public class MiscTests
                 return false;
             if (!compileJava(classPath, mainCallFileBase + ".java", verboseStream, stderrStream))
                 return false;
-            if (!execJava(classPath, mainCallClass, verboseStream, stderrStream))
+            if (!execJava(classPath, mainCallClass, verboseStream, stderrStream, null))
                 return false;
             if (!compileJava(classPath, otherCallFileBase + ".java", verboseStream, stderrStream))
                 return false;
-            if (!execJava(classPath, otherCallClass, verboseStream, stderrStream))
+            if (!execJava(classPath, otherCallClass, verboseStream, stderrStream, null))
                 return false;
             return true;
         }

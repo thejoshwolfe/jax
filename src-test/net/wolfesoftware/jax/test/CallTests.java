@@ -2,6 +2,7 @@ package net.wolfesoftware.jax.test;
 
 import java.io.*;
 import java.util.ArrayList;
+import net.wolfesoftware.jax.JaxcOptions;
 import net.wolfesoftware.jax.util.Util;
 
 /**
@@ -16,33 +17,10 @@ import net.wolfesoftware.jax.util.Util;
 public class CallTests
 {
     private static final String dir = "test/call";
-    private static final String[] tests = {
-        "primitive/Arithmetic",
-        "primitive/BooleanType",
-        "primitive/FloatingTypes",
-        "primitive/ConstReturn",
-        "primitive/Empty",
-        "primitive/LocalVariables",
-        "primitive/Promotion",
-        "primitive/StringLiteral",
-        "primitive/TypeCasting",
-        "primitive/VoidFunction",
-        "controlStructures/IfThenElse",
-        "controlStructures/ForLoop",
-        "controlStructures/ShortCircuit",
-        "controlStructures/WhileLoop",
-        "oop/FunctionInvocation",
-        "oop/NewConstructor",
-        "baseLibraries/Import",
-        "baseLibraries/ImportStar",
-        "baseLibraries/RuntimeType",
-        "baseLibraries/StringConcatenation",
-        "arrays/ArrayType",
-        "arrays/ArrayDereference",
-        "exceptions/TryCatch",
-        "exceptions/Operands",
-        "Fancy",
-    };
+    private static final String[] tests = { "primitive/Arithmetic", "primitive/BooleanType", "primitive/FloatingTypes", "primitive/ConstReturn", "primitive/Empty", "primitive/LocalVariables",
+            "primitive/Promotion", "primitive/StringLiteral", "primitive/TypeCasting", "primitive/VoidFunction", "controlStructures/IfThenElse", "controlStructures/ForLoop",
+            "controlStructures/ShortCircuit", "controlStructures/WhileLoop", "oop/FunctionInvocation", "oop/NewConstructor", "baseLibraries/Import", "baseLibraries/ImportStar",
+            "baseLibraries/RuntimeType", "baseLibraries/StringConcatenation", "arrays/ArrayType", "arrays/ArrayDereference", "exceptions/TryCatch", "exceptions/Operands", "Fancy", };
 
     public static TestCase[] getTests()
     {
@@ -59,12 +37,20 @@ public class CallTests
                 @Override
                 public boolean run(PrintStream verboseStream, PrintStream stderrStream)
                 {
-                    if (!compileJax(dirAndTest + ".jax", null, verboseStream, stderrStream))
+                    String[] dirAndFile = TestUtil.splitDirAndFile(dirAndTest);
+                    String classPath = dirAndFile[0];
+                    String fileName = dirAndFile[1];
+                    JaxcOptions options = new JaxcOptions();
+                    options.classPath = new String[] { classPath };
+                    if (!compileJax(dirAndTest + ".jax", options, verboseStream, stderrStream))
                         return false;
-                    if (!compileJava(TestUtil.splitDirAndFile(dirAndTest)[0], dirAndTest + "Call.java", verboseStream, stderrStream))
+                    if (!compileJava(classPath, dirAndTest + "Call.java", verboseStream, stderrStream))
                         return false;
-                    String output = runJavaMain(dirAndTest + "Call", verboseStream, stderrStream);
-                    if (!output.trim().equals("+++ PASS"))
+                    ByteArrayOutputStream stdoutBuffer = new ByteArrayOutputStream();
+                    PrintStream stdoutStream = new PrintStream(stdoutBuffer);
+                    if (!execJava(classPath, fileName + "Call", verboseStream, stderrStream, stdoutStream))
+                        return false;
+                    if (!stdoutBuffer.toString().trim().equals("+++ PASS"))
                         return false;
                     return true;
                 }
@@ -76,18 +62,5 @@ public class CallTests
             });
         }
         return testCases.toArray(new TestCase[testCases.size()]);
-    }
-
-    private static String runJavaMain(String javaFilepath, PrintStream verboseStream, PrintStream stderrStream)
-    {
-        String[] dirAndFile = TestUtil.splitDirAndFile(javaFilepath);
-        String className = dirAndFile[1];
-        String[] cmd = { "java", "-cp", dirAndFile[0], className };
-        ByteArrayOutputStream stdoutBuffer = new ByteArrayOutputStream();
-        PrintStream stdoutStream = new PrintStream(stdoutBuffer);
-        verboseStream.println(Util.join(cmd, " "));
-        TestUtil.exec(cmd, stdoutStream, stderrStream);
-        stdoutStream.flush();
-        return stdoutBuffer.toString();
     }
 }

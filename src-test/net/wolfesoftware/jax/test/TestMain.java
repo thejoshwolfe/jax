@@ -16,8 +16,8 @@ public class TestMain
     private static ArrayList<TestCase> getTests()
     {
         ArrayList<TestCase> tests = new ArrayList<TestCase>();
-//        addAll(tests, JaxcOptionsTests.getTests());
-//        addAll(tests, CallTests.getTests());
+        addAll(tests, JaxcOptionsTests.getTests());
+        addAll(tests, CallTests.getTests());
         addAll(tests, MiscTests.getTests());
         return tests;
     }

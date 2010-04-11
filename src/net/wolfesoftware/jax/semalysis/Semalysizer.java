@@ -29,7 +29,7 @@ public class Semalysizer
     {
         root = parsing.root;
         int lastSlash = filePathRelativeToClassPath.lastIndexOf('/');
-        expectedQualifiedPackageName = filePathRelativeToClassPath.substring(0, lastSlash).replace('/', '.');
+        expectedQualifiedPackageName = lastSlash != -1 ? filePathRelativeToClassPath.substring(0, lastSlash).replace('/', '.') : "";
         expectedClassName = filePathRelativeToClassPath.substring(lastSlash + 1, filePathRelativeToClassPath.length() - ".jax".length());
     }
 
@@ -65,12 +65,15 @@ public class Semalysizer
             }
             qualifiedPackageName = semalysizePackageStatement(packageStatement);
         }
+        // no package statement means default package
+        if (qualifiedPackageName == null)
+            qualifiedPackageName = "";
     }
 
     private String semalysizePackageStatement(PackageStatement packageStatement)
     {
-        if (packageStatement.qualifiedName.elements.isEmpty()) {
-            errors.add(new SemalyticalError(packageStatement, "package name required"));
+        if (expectedQualifiedPackageName.equals("")) {
+            errors.add(new SemalyticalError(packageStatement, "no package statement allowed in default package."));
             return expectedQualifiedPackageName;
         }
 
@@ -122,9 +125,9 @@ public class Semalysizer
 
         semalysizeClassModifiers(classDeclaration.classModifiers);
         String qualifiedClassName = expectedClassName;
-        if (qualifiedPackageName != null)
+        if (!qualifiedPackageName.equals(""))
             qualifiedClassName = qualifiedPackageName + "." + expectedClassName;
-            
+
         classDeclaration.localType = new LocalType(qualifiedClassName, classDeclaration.id.name);
         importedTypes.put(expectedClassName, classDeclaration.localType);
         semalysizeClassBody(classDeclaration.localType, classDeclaration.classBody);

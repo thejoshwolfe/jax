@@ -33,16 +33,16 @@ public abstract class TestCase
     }
     protected static boolean compileJava(String classPath, String filepath, PrintStream verboseStream, PrintStream stderrStream)
     {
-        return execSomething(new String[] { "javac", "-cp", classPath, filepath }, verboseStream, stderrStream);
+        return execSomething(new String[] { "javac", "-cp", classPath, filepath }, verboseStream, stderrStream, null);
     }
-    protected static boolean execJava(String classPath, String mainClass, PrintStream verboseStream, PrintStream stderrStream)
+    protected static boolean execJava(String classPath, String mainClass, PrintStream verboseStream, PrintStream stderrStream, PrintStream stdoutStream)
     {
-        return execSomething(new String[] { "java", "-cp", classPath, mainClass}, verboseStream, stderrStream);
+        return execSomething(new String[] { "java", "-cp", classPath, mainClass}, verboseStream, stderrStream, stdoutStream);
     }
-    private static boolean execSomething(String[] cmd, PrintStream verboseStream, PrintStream stderrStream)
+    private static boolean execSomething(String[] cmd, PrintStream verboseStream, PrintStream stderrStream, PrintStream stdoutStream)
     {
         verboseStream.println(Util.join(cmd, " "));
-        if (TestUtil.exec(cmd, null, stderrStream) != 0)
+        if (TestUtil.exec(cmd, stdoutStream, stderrStream) != 0)
             return false;
         return true;
     }
