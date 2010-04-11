@@ -1,0 +1,20 @@
+
+public class Fields {
+    private static int five = 5;
+    public static int getFive() five;
+
+    public static int ten = 10;
+
+    private Object object = new Object();
+    public Object getObject() object;
+
+    private String thing;
+    public void setThing(String value) {
+        thing = value;
+    };
+    public String getThing() thing;
+    public void setThisThing(String thing) {
+        this.thing = thing;
+    };
+    public String getThisThing() this.thing;
+}
