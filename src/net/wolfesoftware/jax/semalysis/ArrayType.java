@@ -11,7 +11,7 @@ public class ArrayType extends Type
     private final Field lengthField;
     private ArrayType(Type scalarType)
     {
-        super(scalarType.fullName + "[]", scalarType.id + "[]");
+        super(scalarType.qualifiedName + "[]", scalarType.id + "[]");
         this.scalarType = scalarType;
         lengthField = new Field(this, RuntimeType.INT, "length") {
             @Override

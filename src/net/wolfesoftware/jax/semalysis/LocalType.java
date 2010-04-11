@@ -10,9 +10,9 @@ public class LocalType extends Type
     public final LinkedList<Constructor> constructors = new LinkedList<Constructor>();
     private final LinkedList<Method> methods = new LinkedList<Method>();
     private final HashMap<String, Field> fields = new HashMap<String, Field>();
-    public LocalType(String fullName, String id)
+    public LocalType(String qualifiedName, String id)
     {
-        super(fullName, id);
+        super(qualifiedName, id);
     }
 
     public void addConstructor(Constructor constructor)

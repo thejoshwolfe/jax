@@ -4,12 +4,12 @@ import java.util.*;
 
 public abstract class Type
 {
-    public final String fullName;
+    public final String qualifiedName;
     public final String id;
 
-    public Type(String fullName, String id)
+    public Type(String qualifiedName, String id)
     {
-        this.fullName = fullName;
+        this.qualifiedName = qualifiedName;
         this.id = id;
     }
 
@@ -64,7 +64,7 @@ public abstract class Type
     /** example: java/lang/String */
     public String getTypeName()
     {
-        return fullName.replace('.', '/');
+        return qualifiedName.replace('.', '/');
     }
     /** example: Ljava/lang/String; 
      * <p/>
@@ -79,7 +79,7 @@ public abstract class Type
 
     public String toString()
     {
-        return fullName;
+        return qualifiedName;
     }
 
     public boolean isInterface()

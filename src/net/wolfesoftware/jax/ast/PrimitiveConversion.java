@@ -17,7 +17,7 @@ public class PrimitiveConversion extends ParseElement
     @Override
     protected void decompile(String indentation, StringBuilder out)
     {
-        out.append('(').append(toType.fullName).append(')');
+        out.append('(').append(toType.qualifiedName).append(')');
         expression.decompile(indentation, out);
     }
 

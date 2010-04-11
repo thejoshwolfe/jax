@@ -1,7 +1,6 @@
 package net.wolfesoftware.jax.semalysis;
 
 import java.util.*;
-import net.wolfesoftware.jax.JaxcOptions;
 import net.wolfesoftware.jax.ast.*;
 import net.wolfesoftware.jax.codegen.Instructions;
 import net.wolfesoftware.jax.parsing.Parsing;
@@ -9,9 +8,9 @@ import net.wolfesoftware.jax.tokenization.Lang;
 
 public class Semalysizer
 {
-    public static Semalysization semalysize(Parsing parsing, String filePathRelativeToClassPath, JaxcOptions options)
+    public static Semalysization semalysize(Parsing parsing, String filePathRelativeToClassPath)
     {
-        return new Semalysizer(parsing, filePathRelativeToClassPath, options).semalysizeRoot();
+        return new Semalysizer(parsing, filePathRelativeToClassPath).semalysizeRoot();
     }
 
     private final HashMap<String, Type> importedTypes = new HashMap<String, Type>();
@@ -21,16 +20,17 @@ public class Semalysizer
         RuntimeType.initJavaLang(importedTypes);
     }
     private final Root root;
-    private final JaxcOptions options;
-    private final String filePathRelativeToClassPath;
+    private final String expectedQualifiedPackageName;
+    private final String expectedClassName;
     private String qualifiedPackageName = null;
     private final ArrayList<SemalyticalError> errors = new ArrayList<SemalyticalError>();
 
-    private Semalysizer(Parsing parsing, String filePathRelativeToClassPath, JaxcOptions options)
+    private Semalysizer(Parsing parsing, String filePathRelativeToClassPath)
     {
         root = parsing.root;
-        this.filePathRelativeToClassPath = filePathRelativeToClassPath;
-        this.options = options;
+        int lastSlash = filePathRelativeToClassPath.lastIndexOf('/');
+        expectedQualifiedPackageName = filePathRelativeToClassPath.substring(0, lastSlash).replace('/', '.');
+        expectedClassName = filePathRelativeToClassPath.substring(lastSlash + 1, filePathRelativeToClassPath.length() - ".jax".length());
     }
 
     private Semalysization semalysizeRoot()
@@ -63,18 +63,24 @@ public class Semalysizer
                 errors.add(new SemalyticalError(packageStatement, "only one package statement is allowed"));
                 continue;
             }
-            semalysizePackageStatement(packageStatement);
+            qualifiedPackageName = semalysizePackageStatement(packageStatement);
         }
     }
 
-    private void semalysizePackageStatement(PackageStatement packageStatement)
+    private String semalysizePackageStatement(PackageStatement packageStatement)
     {
         if (packageStatement.qualifiedName.elements.isEmpty()) {
             errors.add(new SemalyticalError(packageStatement, "package name required"));
-            return;
+            return expectedQualifiedPackageName;
         }
-        
-        qualifiedPackageName = packageStatement.qualifiedName.decompile();
+
+        String actualQualifiedPackageName = packageStatement.qualifiedName.decompile();
+        if (!actualQualifiedPackageName.equals(expectedQualifiedPackageName)) {
+            errors.add(new SemalyticalError(packageStatement.qualifiedName, "package name must be \"" + expectedQualifiedPackageName + "\"."));
+            return expectedQualifiedPackageName;
+        }
+
+        return actualQualifiedPackageName;
     }
 
     private void semalysizeImports(Imports imports)
@@ -111,13 +117,16 @@ public class Semalysizer
 
     private void semalysizeClassDeclaration(ClassDeclaration classDeclaration)
     {
-        String classNameFromFile = filePathRelativeToClassPath.substring(filePathRelativeToClassPath.lastIndexOf('/') + 1, filePathRelativeToClassPath.lastIndexOf('.'));
-        if (!classDeclaration.id.name.equals(classNameFromFile))
-            errors.add(new SemalyticalError(classDeclaration.id, "Class name does not match file name \"" + classNameFromFile + "\"."));
+        if (!classDeclaration.id.name.equals(expectedClassName))
+            errors.add(new SemalyticalError(classDeclaration.id, "Class name does not match file name \"" + expectedClassName + "\"."));
 
         semalysizeClassModifiers(classDeclaration.classModifiers);
-        classDeclaration.localType = new LocalType(classNameFromFile, classDeclaration.id.name);
-        importedTypes.put(classNameFromFile, classDeclaration.localType);
+        String qualifiedClassName = expectedClassName;
+        if (qualifiedPackageName != null)
+            qualifiedClassName = qualifiedPackageName + "." + expectedClassName;
+            
+        classDeclaration.localType = new LocalType(qualifiedClassName, classDeclaration.id.name);
+        importedTypes.put(expectedClassName, classDeclaration.localType);
         semalysizeClassBody(classDeclaration.localType, classDeclaration.classBody);
     }
 
@@ -660,7 +669,7 @@ public class Semalysizer
         if (tryPartReturnBehavior.type != catchPartReturnBehavior.type)
             errors.add(new SemalyticalError(tryCatch, "return types must match")); // TODO code duplication
         tryCatch.type = tryPartReturnBehavior.type;
-        
+
         return new ReturnBehavior(tryPartReturnBehavior.type);
     }
 

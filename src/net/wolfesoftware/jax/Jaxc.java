@@ -17,14 +17,29 @@ public final class Jaxc
     }
 
     /**
-     * don't ever call this from code. This method calls {@link System#exit(int)}.
+     * Don't ever call this from code. This method calls {@link System#exit(int)}.
      */
     public static void main(String[] args)
     {
         if (args.length == 0)
             throw new IllegalArgumentException();
         List<String> argsList = Util.arrayToList(args);
-        JaxcOptions options = JaxcOptions.parse(argsList);
+        JaxcOptions options;
+        try {
+            options = JaxcOptions.parse(argsList);
+        } catch (IllegalArgumentException e) {
+            // option parse error
+            System.err.println(e.getMessage());
+            System.exit(1);
+            return; // compiler needs this
+        }
+
+        if (argsList.isEmpty()) {
+            // no source files
+            System.err.println("no input files");
+            System.exit(1);
+        }
+
         String[] jaxFilePaths = argsList.toArray(new String[argsList.size()]);
         try {
             compile(jaxFilePaths, options);
@@ -73,11 +88,15 @@ public final class Jaxc
 
         ArrayList<CompileError> errors = new ArrayList<CompileError>();
 
+        String jaxFileName = jaxFilePath.substring(jaxFilePath.lastIndexOf('/') + 1);
+        if (!jaxFileName.endsWith(".jax"))
+            errors.add(new CompileError("Source file \"" + jaxFilePath + "\" must end with \".jax\"."));
+        else if (jaxFileName.equals(".jax"))
+            errors.add(new CompileError("Source file \"" + jaxFilePath + "\" needs a name."));
+
         String filePathRelativeToClassPath = getFilePathRelativeToClassPath(jaxFilePath, options.classPath);
-        if (filePathRelativeToClassPath == null) {
+        if (filePathRelativeToClassPath == null)
             errors.add(new CompileError("Source file \"" + jaxFilePath + "\" is not in classPath [" + Util.join(options.classPath, ", ") + "]."));
-            // not quite terminal. we'll see how tokenization and parsing goes.
-        }
 
         Tokenization tokenization;
         try {
@@ -95,7 +114,8 @@ public final class Jaxc
         // don't try to semalysize if there are errors.
         if (!errors.isEmpty())
             return errors;
-        Semalysization semalysization = Semalysizer.semalysize(parsing, filePathRelativeToClassPath, options);
+        Semalysization semalysization = Semalysizer.semalysize(parsing, filePathRelativeToClassPath);
+        errors.addAll(semalysization.errors);
 
         // don't try to generate code if there are errors.
         if (!errors.isEmpty())
