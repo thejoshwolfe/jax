@@ -48,7 +48,7 @@ public class CallTests
     {
         ArrayList<TestCase> testCases = new ArrayList<TestCase>();
         for (String test : tests) {
-            final String dirAndTest = Util.unixizeFilepath(dir + "/" + test);
+            final String dirAndTest = dir + "/" + test;
             testCases.add(new TestCase() {
                 @Override
                 public void clean()
@@ -61,7 +61,7 @@ public class CallTests
                 {
                     if (!compileJax(dirAndTest + ".jax", null, verboseStream, stderrStream))
                         return false;
-                    if (!compileJava(Util.splitDirAndFile(dirAndTest)[0], dirAndTest + "Call.java", verboseStream, stderrStream))
+                    if (!compileJava(TestUtil.splitDirAndFile(dirAndTest)[0], dirAndTest + "Call.java", verboseStream, stderrStream))
                         return false;
                     String output = runJavaMain(dirAndTest + "Call", verboseStream, stderrStream);
                     if (!output.trim().equals("+++ PASS"))
@@ -80,13 +80,13 @@ public class CallTests
 
     private static String runJavaMain(String javaFilepath, PrintStream verboseStream, PrintStream stderrStream)
     {
-        String[] dirAndFile = Util.splitDirAndFile(javaFilepath);
+        String[] dirAndFile = TestUtil.splitDirAndFile(javaFilepath);
         String className = dirAndFile[1];
-        String[] cmd = { "java", "-cp", Util.platformizeFilepath(dirAndFile[0]), className };
+        String[] cmd = { "java", "-cp", dirAndFile[0], className };
         ByteArrayOutputStream stdoutBuffer = new ByteArrayOutputStream();
         PrintStream stdoutStream = new PrintStream(stdoutBuffer);
         verboseStream.println(Util.join(cmd, " "));
-        Util.exec(cmd, stdoutStream, stderrStream);
+        TestUtil.exec(cmd, stdoutStream, stderrStream);
         stdoutStream.flush();
         return stdoutBuffer.toString();
     }

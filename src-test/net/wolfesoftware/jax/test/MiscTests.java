@@ -41,7 +41,7 @@ public class MiscTests
             PrintStream stdoutStream = new PrintStream(stdoutBuffer);
             String[] cmd = { "java", "-cp", rootDir, className, zipFilePath };
             verboseStream.println(Util.join(cmd, " "));
-            if (Util.exec(cmd, stdoutStream, stderrStream) != 0)
+            if (TestUtil.exec(cmd, stdoutStream, stderrStream) != 0)
                 return false;
             stdoutStream.flush();
             if (!stdoutBuffer.toString().contains("was deflated at"))

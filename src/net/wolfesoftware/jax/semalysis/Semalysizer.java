@@ -9,9 +9,9 @@ import net.wolfesoftware.jax.tokenization.Lang;
 
 public class Semalysizer
 {
-    public static Semalysization semalysize(Parsing parsing, String filePath, JaxcOptions options)
+    public static Semalysization semalysize(Parsing parsing, String filePathRelativeToClassPath, JaxcOptions options)
     {
-        return new Semalysizer(parsing, filePath, options).semalysizeRoot();
+        return new Semalysizer(parsing, filePathRelativeToClassPath, options).semalysizeRoot();
     }
 
     private final HashMap<String, Type> importedTypes = new HashMap<String, Type>();
@@ -22,14 +22,14 @@ public class Semalysizer
     }
     private final Root root;
     private final JaxcOptions options;
-    private final String filePath;
+    private final String filePathRelativeToClassPath;
     private String qualifiedPackageName = null;
     private final ArrayList<SemalyticalError> errors = new ArrayList<SemalyticalError>();
 
-    private Semalysizer(Parsing parsing, String filePath, JaxcOptions options)
+    private Semalysizer(Parsing parsing, String filePathRelativeToClassPath, JaxcOptions options)
     {
         root = parsing.root;
-        this.filePath = filePath;
+        this.filePathRelativeToClassPath = filePathRelativeToClassPath;
         this.options = options;
     }
 
@@ -111,7 +111,7 @@ public class Semalysizer
 
     private void semalysizeClassDeclaration(ClassDeclaration classDeclaration)
     {
-        String classNameFromFile = filePath.substring(filePath.lastIndexOf('\\') + 1, filePath.lastIndexOf('.'));
+        String classNameFromFile = filePathRelativeToClassPath.substring(filePathRelativeToClassPath.lastIndexOf('/') + 1, filePathRelativeToClassPath.lastIndexOf('.'));
         if (!classDeclaration.id.name.equals(classNameFromFile))
             errors.add(new SemalyticalError(classDeclaration.id, "Class name does not match file name \"" + classNameFromFile + "\"."));
 

@@ -42,7 +42,7 @@ public abstract class TestCase
     private static boolean execSomething(String[] cmd, PrintStream verboseStream, PrintStream stderrStream)
     {
         verboseStream.println(Util.join(cmd, " "));
-        if (Util.exec(cmd, null, stderrStream) != 0)
+        if (TestUtil.exec(cmd, null, stderrStream) != 0)
             return false;
         return true;
     }
