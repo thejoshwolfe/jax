@@ -12,9 +12,9 @@ public abstract class TestCase
 
     protected void deleteFile(String filepath)
     {
-        new File(Util.platformizeFilepath(filepath)).delete();
+        new File(filepath).delete();
     }
-    protected boolean compileJax(String filepath, PrintStream verboseStream, JaxcOptions options)
+    protected static boolean compileJax(String filepath, JaxcOptions options, PrintStream verboseStream, PrintStream stderrStream)
     {
         String switchesString = "";
         if (options != null) {
@@ -23,7 +23,28 @@ public abstract class TestCase
                 switchesString += " ";
         }
         verboseStream.println("jaxc " + switchesString + filepath);
-        return Jaxc.compile(filepath, options);
+        try {
+            Jaxc.compile(filepath, options);
+        } catch (JaxcCompileException e) {
+            stderrStream.println(e.getMessage());
+            return false;
+        }
+        return true;
+    }
+    protected static boolean compileJava(String classPath, String filepath, PrintStream verboseStream, PrintStream stderrStream)
+    {
+        return execSomething(new String[] { "javac", "-cp", classPath, filepath }, verboseStream, stderrStream);
+    }
+    protected static boolean execJava(String classPath, String mainClass, PrintStream verboseStream, PrintStream stderrStream)
+    {
+        return execSomething(new String[] { "java", "-cp", classPath, mainClass}, verboseStream, stderrStream);
+    }
+    private static boolean execSomething(String[] cmd, PrintStream verboseStream, PrintStream stderrStream)
+    {
+        verboseStream.println(Util.join(cmd, " "));
+        if (Util.exec(cmd, null, stderrStream) != 0)
+            return false;
+        return true;
     }
     public String toString()
     {

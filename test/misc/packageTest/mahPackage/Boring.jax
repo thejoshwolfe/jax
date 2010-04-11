@@ -1,0 +1,6 @@
+package mahPackage;
+
+public class Boring {
+    public static void doNothing() {
+    }
+}

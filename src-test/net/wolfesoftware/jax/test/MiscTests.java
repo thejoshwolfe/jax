@@ -11,8 +11,9 @@ public class MiscTests
     public static TestCase[] getTests()
     {
         ArrayList<TestCase> tests = new ArrayList<TestCase>();
-        tests.add(new FancyZipTestCase());
+//        tests.add(new FancyZipTestCase());
 //        tests.add(new ScannerTestCase());
+        tests.add(new PackageTestCase());
         return tests.toArray(new TestCase[tests.size()]);
     }
     private static class FancyZipTestCase extends TestCase
@@ -34,7 +35,7 @@ public class MiscTests
         @Override
         public boolean run(PrintStream verboseStream, PrintStream stderrStream)
         {
-            if (!compileJax(jaxFilePath, verboseStream, null))
+            if (!compileJax(jaxFilePath, null, verboseStream, stderrStream))
                 return false;
             ByteArrayOutputStream stdoutBuffer = new ByteArrayOutputStream();
             PrintStream stdoutStream = new PrintStream(stdoutBuffer);
@@ -50,10 +51,10 @@ public class MiscTests
     }
     private static class ScannerTestCase extends TestCase
     {
-        private static final String classpath = rootDir;
-        private static final String className = "goal.testcases.Scanner";
-        private static final String fileBase = classpath + "/" + className.replace('.', '/');
-        static final String filepath = fileBase + ".jax";
+        private static final String classPath = rootDir + "/goal";
+        private static final String className = "scannerPackage.Scanner";
+        private static final String fileBase = classPath + "/" + className.replace('.', '/');
+        private static final String filepath = fileBase + ".jax";
         @Override
         public void clean()
         {
@@ -68,11 +69,51 @@ public class MiscTests
         public boolean run(PrintStream verboseStream, PrintStream stderrStream)
         {
             JaxcOptions options = new JaxcOptions();
-            options.classPath = new String[] { classpath };
+            options.classPath = new String[] { classPath };
             options.javaCompatabilityMode = true;
-            if (!compileJax(filepath, verboseStream, options))
+            if (!compileJax(filepath, options, verboseStream, stderrStream))
                 return false;
             // TODO, do something with the class file once it works
+            return true;
+        }
+    }
+    private static class PackageTestCase extends TestCase
+    {
+        private static final String classPath = rootDir + "/packageTest";
+        private static final String mainClass = "mahPackage.Boring";
+        private static final String mainFileBase = classPath + "/" + mainClass.replace('.', '/');
+        private static final String mainCallClass = "mahPackage.BoringCall";
+        private static final String mainCallFileBase = classPath + "/" + mainCallClass.replace('.', '/');
+        private static final String otherCallClass = "otherPackage.DistantBoringCall";
+        private static final String otherCallFileBase = classPath + "/" + otherCallClass.replace('.', '/');
+
+        @Override
+        public void clean()
+        {
+            deleteFile(mainFileBase + ".class");
+            deleteFile(mainCallFileBase + ".class");
+            deleteFile(otherCallFileBase + ".class");
+        }
+        @Override
+        public String getName()
+        {
+            return classPath;
+        }
+        @Override
+        public boolean run(PrintStream verboseStream, PrintStream stderrStream)
+        {
+            JaxcOptions options = new JaxcOptions();
+            options.classPath = new String[] { classPath };
+            if (!compileJax(mainFileBase + ".jax", options, verboseStream, stderrStream))
+                return false;
+            if (!compileJava(classPath, mainCallFileBase + ".java", verboseStream, stderrStream))
+                return false;
+            if (!execJava(classPath, mainCallClass, verboseStream, stderrStream))
+                return false;
+            if (!compileJava(classPath, otherCallFileBase + ".java", verboseStream, stderrStream))
+                return false;
+            if (!execJava(classPath, otherCallClass, verboseStream, stderrStream))
+                return false;
             return true;
         }
     }

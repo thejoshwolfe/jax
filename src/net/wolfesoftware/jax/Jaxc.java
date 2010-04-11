@@ -1,89 +1,102 @@
 package net.wolfesoftware.jax;
 
 import java.io.*;
-import java.util.List;
+import java.util.*;
 import net.wolfesoftware.jax.codegen.CodeGenerator;
-import net.wolfesoftware.jax.semalysis.*;
-import net.wolfesoftware.jax.staticalysis.Staticalysizer;
 import net.wolfesoftware.jax.parsing.*;
+import net.wolfesoftware.jax.semalysis.*;
 import net.wolfesoftware.jax.tokenization.*;
 import net.wolfesoftware.jax.util.Util;
 
-public class Jaxc
+public final class Jaxc
 {
-    public static void main(String[] args) throws FileNotFoundException, IOException
+    public static void main(String[] args)
     {
         if (args.length == 0)
             throw new IllegalArgumentException();
         List<String> argsList = Util.arrayToList(args);
         JaxcOptions options = JaxcOptions.parse(argsList);
-        String[] filenames = argsList.toArray(new String[argsList.size()]);
-        int exitValue = compile(filenames, options) ? 0 : 1;
-        System.exit(exitValue);
-    }
-
-    public static boolean compile(String[] jaxFilenames)
-    {
-        for (String jaxFilename : jaxFilenames)
-            if (!compile(jaxFilename))
-                return false;
-        return true;
-    }
-    public static boolean compile(String[] jaxFilenames, JaxcOptions options)
-    {
-        for (String jaxFilename : jaxFilenames)
-            if (!compile(jaxFilename, options))
-                return false;
-        return true;
-    }
-    public static boolean compile(String jaxFilename)
-    {
-        return compile(jaxFilename, null);
-    }
-
-    /**
-     * TODO: change the api or something so that libraries can catch exceptions.
-     */
-    public static boolean compile(String jaxFilename, JaxcOptions options)
-    {
+        String[] jaxFilePaths = argsList.toArray(new String[argsList.size()]);
         try {
-            return comprehend(Util.unixizeFilepath(jaxFilename), options) == 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+            compile(jaxFilePaths, options);
+        } catch (JaxcCompileException e) {
+            System.err.println(e.getMessage());
         }
     }
 
-    private static int comprehend(String fileName, JaxcOptions options) throws FileNotFoundException, IOException
+    public static void compile(String[] jaxFilePaths) throws JaxcCompileException
     {
+        for (String jaxFilePath : jaxFilePaths)
+            compile(jaxFilePath);
+    }
+    public static void compile(String[] jaxFilePaths, JaxcOptions options) throws JaxcCompileException
+    {
+        for (String jaxFilename : jaxFilePaths)
+            compile(jaxFilename, options);
+    }
+    public static void compile(String jaxFilePath) throws JaxcCompileException
+    {
+        compile(jaxFilePath, null);
+    }
+
+    public static void compile(String jaxFilePath, JaxcOptions options) throws JaxcCompileException
+    {
+        ArrayList<CompileError> compileErrors = internalCompile(Util.unixizeFilepath(jaxFilePath), options);
+        if (!compileErrors.isEmpty())
+            throw new JaxcCompileException(compileErrors.toArray(new CompileError[compileErrors.size()]));
+    }
+
+    private static ArrayList<CompileError> internalCompile(String filePath, JaxcOptions options) throws JaxcCompileException
+    {
+        ArrayList<CompileError> errors = new ArrayList<CompileError>();
         if (options == null)
             options = new JaxcOptions();
 
-        Tokenization tokenization = Tokenizer.tokenize(Util.fileToString(fileName));
-        if (printErrors(tokenization.errors))
-            return 1;
+        String filePathRelativeToClassPath = getFilePathRelativeToClassPath(filePath, options.classPath);
+        if (filePathRelativeToClassPath == null) {
+            errors.add(new CompileError("Source file \"" + filePath + "\"is not in classPath [" + Util.join(options.classPath, ", ") + "]."));
+            // not quite terminal. we'll see how tokenization and parsing goes.
+        }
+
+        Tokenization tokenization;
+        try {
+            tokenization = Tokenizer.tokenize(Util.readFile(filePath));
+        } catch (FileNotFoundException e) {
+            errors.add(new CompileError(e.getMessage()));
+            return errors;
+        }
+        errors.addAll(tokenization.errors);
 
         Parsing parsing = Parser.parse(tokenization, options);
-        if (printErrors(parsing.errors))
-            return 1;
+        errors.addAll(parsing.errors);
 
-        String classPath = fileName.substring(0, fileName.lastIndexOf('/') + 1);
-        String relativePath = fileName.substring(classPath.length());
-        Semalysization semalysization = Semalysizer.semalysize(parsing, relativePath);
-        if (printErrors(semalysization.errors))
-            return 1;
+        // don't go on if there are errors.
+        if (!errors.isEmpty())
+            return errors;
 
-        Staticalysizer.staticalysize(semalysization.root);
+        Semalysization semalysization = Semalysizer.semalysize(parsing, filePathRelativeToClassPath, options);
+        if (!errors.isEmpty())
+            return errors;
 
-        CodeGenerator.generate(semalysization, Util.platformizeFilepath(fileName), classPath);
+//        Staticalysizer.staticalysize(semalysization.root);
 
-        return 0;
+        try {
+            // TODO: -d outputdir
+            CodeGenerator.generate(semalysization, Util.platformizeFilepath(filePath), options.classPath[0]);
+        } catch (FileNotFoundException e) {
+            errors.add(new CompileError(e.getMessage()));
+        }
+        return errors;
     }
 
-    private static boolean printErrors(List<? extends CompileError> errors)
+    private static String getFilePathRelativeToClassPath(String filePath, String[] classPath)
     {
-        for (CompileError error : errors)
-            System.err.println(error.getMessage());
-        return errors.size() != 0;
+        String absFilePath = new File(filePath).getAbsolutePath();
+        for (String classPathDir : classPath) {
+            String absClassPathDir = new File(classPathDir).getAbsolutePath();
+            if (absFilePath.startsWith(absClassPathDir))
+                return Util.unixizeFilepath(absFilePath.substring(absClassPathDir.length() + 1));
+        }
+        return null;
     }
 }

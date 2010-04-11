@@ -59,9 +59,9 @@ public class CallTests
                 @Override
                 public boolean run(PrintStream verboseStream, PrintStream stderrStream)
                 {
-                    if (!compileJax(dirAndTest + ".jax", verboseStream, null))
+                    if (!compileJax(dirAndTest + ".jax", null, verboseStream, stderrStream))
                         return false;
-                    if (!compileJava(dirAndTest + "Call.java", verboseStream, stderrStream))
+                    if (!compileJava(Util.splitDirAndFile(dirAndTest)[0], dirAndTest + "Call.java", verboseStream, stderrStream))
                         return false;
                     String output = runJavaMain(dirAndTest + "Call", verboseStream, stderrStream);
                     if (!output.trim().equals("+++ PASS"))
@@ -76,18 +76,6 @@ public class CallTests
             });
         }
         return testCases.toArray(new TestCase[testCases.size()]);
-    }
-
-    private static boolean compileJava(String filepath, PrintStream verboseStream, PrintStream stderrStream)
-    {
-        filepath = Util.unixizeFilepath(filepath);
-        String[] dirAndFile = Util.splitDirAndFile(filepath);
-        String[] cmd = { "javac", "-cp", Util.platformizeFilepath(dirAndFile[0]), Util.platformizeFilepath(filepath) };
-        verboseStream.println(Util.join(cmd, " "));
-        int exitValue = Util.exec(cmd, null, stderrStream);
-        if (exitValue != 0)
-            return false;
-        return true;
     }
 
     private static String runJavaMain(String javaFilepath, PrintStream verboseStream, PrintStream stderrStream)

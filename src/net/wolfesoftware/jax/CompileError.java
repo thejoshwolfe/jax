@@ -1,10 +1,10 @@
 package net.wolfesoftware.jax;
 
-public abstract class CompileError
+public class CompileError
 {
     private final String message;
 
-    protected CompileError(String message)
+    public CompileError(String message)
     {
         this.message = message;
     }

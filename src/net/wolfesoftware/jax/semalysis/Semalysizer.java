@@ -1,6 +1,7 @@
 package net.wolfesoftware.jax.semalysis;
 
 import java.util.*;
+import net.wolfesoftware.jax.JaxcOptions;
 import net.wolfesoftware.jax.ast.*;
 import net.wolfesoftware.jax.codegen.Instructions;
 import net.wolfesoftware.jax.parsing.Parsing;
@@ -8,9 +9,9 @@ import net.wolfesoftware.jax.tokenization.Lang;
 
 public class Semalysizer
 {
-    public static Semalysization semalysize(Parsing parsing, String filePath)
+    public static Semalysization semalysize(Parsing parsing, String filePath, JaxcOptions options)
     {
-        return new Semalysizer(parsing, filePath).semalysizeRoot();
+        return new Semalysizer(parsing, filePath, options).semalysizeRoot();
     }
 
     private final HashMap<String, Type> importedTypes = new HashMap<String, Type>();
@@ -20,13 +21,16 @@ public class Semalysizer
         RuntimeType.initJavaLang(importedTypes);
     }
     private final Root root;
+    private final JaxcOptions options;
     private final String filePath;
+    private String qualifiedPackageName = null;
     private final ArrayList<SemalyticalError> errors = new ArrayList<SemalyticalError>();
 
-    private Semalysizer(Parsing parsing, String filePath)
+    private Semalysizer(Parsing parsing, String filePath, JaxcOptions options)
     {
         root = parsing.root;
         this.filePath = filePath;
+        this.options = options;
     }
 
     private Semalysization semalysizeRoot()
@@ -47,8 +51,30 @@ public class Semalysizer
 
     private void semalysizeCompilationUnit(CompilationUnit compilationUnit)
     {
+        semalysizePackageStatements(compilationUnit.packageStatements);
         semalysizeImports(compilationUnit.imports);
         semalysizeClassDeclaration(compilationUnit.classDeclaration);
+    }
+
+    private void semalysizePackageStatements(PackageStatements packageStatements)
+    {
+        for (PackageStatement packageStatement : packageStatements.elements) {
+            if (qualifiedPackageName != null) {
+                errors.add(new SemalyticalError(packageStatement, "only one package statement is allowed"));
+                continue;
+            }
+            semalysizePackageStatement(packageStatement);
+        }
+    }
+
+    private void semalysizePackageStatement(PackageStatement packageStatement)
+    {
+        if (packageStatement.qualifiedName.elements.isEmpty()) {
+            errors.add(new SemalyticalError(packageStatement, "package name required"));
+            return;
+        }
+        
+        qualifiedPackageName = packageStatement.qualifiedName.decompile();
     }
 
     private void semalysizeImports(Imports imports)

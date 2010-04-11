@@ -20,7 +20,7 @@ public final class Util
         return lines.toArray(new String[lines.size()]);
     }
 
-    public static String fileToString(String fileName) throws FileNotFoundException
+    public static String readFile(String fileName) throws FileNotFoundException
     {
         return join(fileToLines(fileName), "\n");
     }

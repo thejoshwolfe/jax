@@ -7,7 +7,7 @@ import net.wolfesoftware.jax.util.Util;
 
 public class CodeGenerator
 {
-    public static void generate(Semalysization semalysization, String sourceFile, String classPath) throws FileNotFoundException, IOException
+    public static void generate(Semalysization semalysization, String sourceFile, String classPath) throws FileNotFoundException
     {
         new CodeGenerator(semalysization.root, sourceFile, classPath).generateCode();
     }
@@ -22,23 +22,27 @@ public class CodeGenerator
         this.classPath = classPath;
     }
 
-    private void generateCode() throws FileNotFoundException, IOException
+    private void generateCode() throws FileNotFoundException
     {
         genCompilationUnit(root.content);
     }
 
-    private void genCompilationUnit(CompilationUnit compilationUnit) throws FileNotFoundException, IOException
+    private void genCompilationUnit(CompilationUnit compilationUnit) throws FileNotFoundException
     {
         genClassDeclaration(compilationUnit.classDeclaration);
     }
 
-    private void genClassDeclaration(ClassDeclaration classDeclaration) throws FileNotFoundException, IOException
+    private void genClassDeclaration(ClassDeclaration classDeclaration) throws FileNotFoundException
     {
         ClassFile classFile = ClassFile.generate(sourceFile, classDeclaration);
         String outputFilename = Util.platformizeFilepath(classPath + File.separator + classDeclaration.localType.getTypeName() + ".class");
         DataOutputStream out = new DataOutputStream(new FileOutputStream(outputFilename));
         classFile.write(out);
-        out.close();
+        try {
+            out.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

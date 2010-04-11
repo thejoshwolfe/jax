@@ -12,7 +12,7 @@
  * SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 
-package goal.testcases;
+package scannerPackage;
 
 import java.util.*;
 import java.util.regex.*;

@@ -61,33 +61,37 @@ public class ClassFile
         attributes.add(Attribute.sourceFile(sourceFile, constant_pool));
     }
 
-    public void write(DataOutputStream out) throws IOException
+    public void write(DataOutputStream out)
     {
-        out.writeInt(magic);
-        out.writeShort(minor_version);
-        out.writeShort(major_version);
-
-        constant_pool.write(out);
-
-        out.writeShort(access_flags);
-        out.writeShort(this_class);
-        out.writeShort(super_class);
-
-        out.writeShort(interfaces.length);
-        for (Short index : interfaces)
-            out.writeShort(index);
-
-        out.writeShort(fields.size());
-        for (FieldInfo field : fields)
-            field.write(out);
-
-        out.writeShort(methods.size());
-        for (MethodInfo method : methods)
-            method.write(out);
-
-        out.writeShort(attributes.size());
-        for (Attribute attribute : attributes)
-            attribute.write(out);
+        try {
+            out.writeInt(magic);
+            out.writeShort(minor_version);
+            out.writeShort(major_version);
+            
+            constant_pool.write(out);
+            
+            out.writeShort(access_flags);
+            out.writeShort(this_class);
+            out.writeShort(super_class);
+            
+            out.writeShort(interfaces.length);
+            for (Short index : interfaces)
+                out.writeShort(index);
+            
+            out.writeShort(fields.size());
+            for (FieldInfo field : fields)
+                field.write(out);
+            
+            out.writeShort(methods.size());
+            for (MethodInfo method : methods)
+                method.write(out);
+            
+            out.writeShort(attributes.size());
+            for (Attribute attribute : attributes)
+                attribute.write(out);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void generate(ClassBody classBody)

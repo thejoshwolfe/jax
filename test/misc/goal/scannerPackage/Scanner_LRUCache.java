@@ -1,4 +1,4 @@
-package goal.testcases;
+package scannerPackage;
 
 import java.util.regex.Pattern;
 import sun.misc.LRUCache;
