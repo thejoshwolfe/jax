@@ -3,7 +3,6 @@ package net.wolfesoftware.jax.test;
 import java.io.*;
 import java.util.ArrayList;
 import net.wolfesoftware.jax.JaxcOptions;
-import net.wolfesoftware.jax.util.Util;
 
 /**
  * This class performs tests on files in {@link #dir} named in {@link #tests}.
