@@ -4,7 +4,7 @@ public class IfThenElse extends ParseElement
 {
     public String label1;
     public String label2;
-    
+
     public Expression expression1;
     public Expression expression2;
     public Expression expression3;

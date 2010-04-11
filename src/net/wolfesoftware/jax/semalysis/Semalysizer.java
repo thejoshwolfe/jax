@@ -349,6 +349,7 @@ public class Semalysizer
                 returnBehavior = semalysizeAssignment(context, expression);
                 break;
             case IfThenElse.TYPE:
+            case QuestionColon.TYPE:
                 returnBehavior = semalysizeIfThenElse(context, (IfThenElse)content);
                 break;
             case IfThen.TYPE:

@@ -192,6 +192,7 @@ public class MethodInfo
                 evalAssignment((IdAssignment)content);
                 break;
             case IfThenElse.TYPE:
+            case QuestionColon.TYPE:
                 evalIfThenElse((IfThenElse)content);
                 break;
             case IfThen.TYPE:
