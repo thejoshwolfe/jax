@@ -4,24 +4,24 @@ import java.lang.reflect.Modifier;
 
 public class Method extends TakesArguments
 {
-    public String id;
+    public String name;
     public boolean isStatic;
-    public Method(Type declaringType, Type returnType, String id, Type[] argumentSignature, boolean isStatic)
+    public Method(Type declaringType, Type returnType, String name, Type[] argumentSignature, boolean isStatic)
     {
         super(declaringType, argumentSignature, returnType);
-        this.id = id;
+        this.name = name;
         this.isStatic = isStatic;
     }
 
     @Override
     public String getMethodCode()
     {
-        return declaringType.getTypeName() + '/' + id + getDescriptor();
+        return declaringType.getTypeName() + '/' + name + getDescriptor();
     }
     @Override
     public String getName()
     {
-        return id;
+        return name;
     }
 
     public static Method getMethod(java.lang.reflect.Method method)

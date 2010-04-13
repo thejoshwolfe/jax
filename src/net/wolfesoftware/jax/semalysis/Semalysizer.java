@@ -135,14 +135,12 @@ public class Semalysizer
 
     private void semalysizeClassModifiers(ClassModifiers classModifiers)
     {
-        HashSet<ClassModifier> presentModifiers = new HashSet<ClassModifier>();
+        // TODO: code duplication
         for (ClassModifier classModifier : classModifiers.elements) {
-            if (presentModifiers.contains(classModifier))
+            if ((classModifiers.bitmask & classModifier.bitmask) != 0)
                 errors.add(new SemalyticalError(classModifier, "Please say that it's \"" + classModifier + "\" at most once."));
-            presentModifiers.add(classModifier);
-        }
-        for (ClassModifier classModifier : presentModifiers)
             classModifiers.bitmask |= classModifier.bitmask;
+        }
     }
 
     private void semalysizeClassBody(LocalType context, ClassBody classBody)
@@ -175,8 +173,33 @@ public class Semalysizer
             case ConstructorDeclaration.TYPE:
                 preSemalysizeConstructorDeclaration(context, (ConstructorDeclaration)content);
                 break;
+            case FieldDeclaration.TYPE:
+            case FieldCreation.TYPE:
+                preSemalysizeFieldDeclaration(context, (FieldDeclaration)content);
+                break;
             default:
                 throw new RuntimeException("TODO: implement " + content.getClass().getName());
+        }
+    }
+
+    private void preSemalysizeFieldDeclaration(LocalType context, FieldDeclaration fieldDeclaration)
+    {
+        semalysizeFieldModifiers(fieldDeclaration.fieldModifiers);
+        resolveType(fieldDeclaration.typeId, true);
+        if (fieldDeclaration.typeId.type == RuntimeType.VOID) {
+            errors.add(new SemalyticalError(fieldDeclaration.typeId, "No void fields allowed."));
+            fieldDeclaration.typeId.type = UnknownType.INSTANCE;
+        }
+        fieldDeclaration.field = new Field(context, fieldDeclaration.typeId.type, fieldDeclaration.id.name, fieldDeclaration.fieldModifiers.isStatic());
+    }
+
+    private void semalysizeFieldModifiers(FieldModifiers fieldModifiers)
+    {
+        // TODO: code duplication
+        for (FieldModifier fieldModifier : fieldModifiers.elements) {
+            if ((fieldModifiers.bitmask & fieldModifier.bitmask) != 0)
+                errors.add(new SemalyticalError(fieldModifier, "Please say that it's \"" + fieldModifier + "\" at most once."));
+            fieldModifiers.bitmask |= fieldModifier.bitmask;
         }
     }
 
@@ -194,8 +217,12 @@ public class Semalysizer
 
     private void semalysizeMethodModifiers(MethodModifiers methodModifiers)
     {
-        for (MethodModifier methodModifier : methodModifiers.elements)
+        // TODO: code duplication
+        for (MethodModifier methodModifier : methodModifiers.elements) {
+            if ((methodModifiers.bitmask & methodModifier.bitmask) != 0)
+                errors.add(new SemalyticalError(methodModifier, "Please say that it's \"" + methodModifier + "\" at most once."));
             methodModifiers.bitmask |= methodModifier.bitmask;
+        }
     }
 
     private void preSemalysizeMethodDeclaration(LocalType context, MethodDeclaration methodDeclaration)
@@ -219,22 +246,40 @@ public class Semalysizer
         return argumentSignature;
     }
 
-    private void semalysizeClassMemeber(Type context, ClassMember classMember)
+    private void semalysizeClassMemeber(LocalType context, ClassMember classMember)
     {
+        // we have to put off constructor semalysis because field initializer code can show up after them.
+        ArrayList<ConstructorDeclaration> maybeLater = new ArrayList<ConstructorDeclaration>();
         ParseElement content = classMember.content;
         switch (content.getElementType()) {
             case ConstructorDeclaration.TYPE:
-                semalysizeConstructorDeclaration(context, (ConstructorDeclaration)content);
+                maybeLater.add((ConstructorDeclaration)content);
                 break;
             case MethodDeclaration.TYPE:
                 semalysizeMethodDeclaration(context, (MethodDeclaration)content);
                 break;
+            case FieldDeclaration.TYPE:
+                // it's just a field, guys. nothing to see here.
+                break;
+            case FieldCreation.TYPE:
+                semalysizeFieldCreation(context, (FieldCreation)content);
+                break;
             default:
                 throw new RuntimeException("TODO: implement " + content.getClass());
         }
+        for (ConstructorDeclaration constructorDeclaration : maybeLater)
+            semalysizeConstructorDeclaration(context, constructorDeclaration);
     }
 
-    private void semalysizeConstructorDeclaration(Type typeContext, ConstructorDeclaration constructorDeclaration)
+    private void semalysizeFieldCreation(LocalType context, FieldCreation fieldCreation)
+    {
+        if (fieldCreation.field.isStatic)
+            context.staticInitializerExpressions.add(new Expression(new StaticFieldAssignment(fieldCreation.field, fieldCreation.expression)));
+        else
+            context.initializerExpressions.add(new Expression(new FieldAssignment(new Expression(ThisExpression.INSTANCE), fieldCreation.field, fieldCreation.expression)));
+    }
+
+    private void semalysizeConstructorDeclaration(LocalType typeContext, ConstructorDeclaration constructorDeclaration)
     {
         // for now, hard-code implicit super() with no arguments
         ConstructorRedirectSuper constructorRedirect = new ConstructorRedirectSuper(new Arguments(new LinkedList<Expression>()));
@@ -244,7 +289,7 @@ public class Semalysizer
             errors.add(SemalyticalError.mustBeVoid(constructorDeclaration.expression));
     }
 
-    private void semalysizeMethodDeclaration(Type context, MethodDeclaration methodDeclaration)
+    private void semalysizeMethodDeclaration(LocalType context, MethodDeclaration methodDeclaration)
     {
         semalysizeExpression(methodDeclaration.context, methodDeclaration.expression);
         implicitCast(methodDeclaration.context, methodDeclaration.expression, methodDeclaration.method.returnType);

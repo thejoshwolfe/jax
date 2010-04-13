@@ -24,4 +24,9 @@ public class FieldModifiers extends ListElement<FieldModifier>
     {
         return TYPE;
     }
+
+    public boolean isStatic()
+    {
+        return (bitmask & FieldModifier.STATIC.bitmask) != 0;
+    }
 }

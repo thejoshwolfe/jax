@@ -10,6 +10,8 @@ public class LocalType extends Type
     public final LinkedList<Constructor> constructors = new LinkedList<Constructor>();
     private final LinkedList<Method> methods = new LinkedList<Method>();
     private final HashMap<String, Field> fields = new HashMap<String, Field>();
+    public final ArrayList<Expression> staticInitializerExpressions = new ArrayList<Expression>();
+    public final ArrayList<Expression> initializerExpressions = new ArrayList<Expression>();
     public LocalType(String qualifiedName, String id)
     {
         super(qualifiedName, id);

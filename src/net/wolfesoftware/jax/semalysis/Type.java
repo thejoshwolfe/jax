@@ -17,7 +17,7 @@ public abstract class Type
     {
         LinkedList<Method> overloads = new LinkedList<Method>();
         for (Method method : getMethods())
-            if (method.id.equals(name))
+            if (method.name.equals(name))
                 overloads.add(method);
         return resolveOverloads(overloads, argumentSignature);
     }

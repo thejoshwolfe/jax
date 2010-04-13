@@ -1,7 +1,11 @@
 package net.wolfesoftware.jax.ast;
 
+import net.wolfesoftware.jax.semalysis.Field;
+
 public class FieldDeclaration extends ParseElement
 {
+    public Field field;
+
     public FieldModifiers fieldModifiers;
     public TypeId typeId;
     public Id id;
