@@ -580,7 +580,7 @@ public class Semalysizer
         // primitive vs reference
         if (fromType.isPrimitive() != toType.isPrimitive()) {
             if (!(fromType == UnknownType.INSTANCE || toType == UnknownType.INSTANCE))
-                errors.add(new SemalyticalError(typeCast.typeId, "can't cast between primitives and non-primitives"));
+                errors.add(new SemalyticalError(typeCast.typeId, "Can't cast between primitives and non-primitives")); // TODO: code duplication
             return new ReturnBehavior(toType);
         }
         if (toType.isPrimitive()) {
@@ -947,7 +947,7 @@ public class Semalysizer
             return; // no need to cast
         boolean primitive = fromType.isPrimitive();
         if (primitive != toType.isPrimitive()) {
-            errors.add(new SemalyticalError(expression, "can't cast between primitives and non-primitives"));
+            errors.add(new SemalyticalError(expression, "Can't cast between primitives and non-primitives")); // TODO: code duplication
             return;
         }
         if (primitive) {
