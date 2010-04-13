@@ -189,7 +189,13 @@ public class MethodInfo
                 evalVariableDeclaration((VariableDeclaration)content);
                 break;
             case IdAssignment.TYPE:
-                evalAssignment((IdAssignment)content);
+                evalIdAssignment((IdAssignment)content);
+                break;
+            case FieldAssignment.TYPE:
+                evalFieldAssignment((FieldAssignment)content);
+                break;
+            case StaticFieldAssignment.TYPE:
+                evalStaticFieldAssignment((StaticFieldAssignment)content);
                 break;
             case IfThenElse.TYPE:
             case QuestionColon.TYPE:
@@ -614,11 +620,25 @@ public class MethodInfo
         fillins.add(new Fillin(ifOffset));
     }
 
-    private void evalAssignment(IdAssignment assignment)
+    private void evalIdAssignment(IdAssignment idAssignment)
     {
-        evalExpression(assignment.expression);
-        dup(assignment.expression.returnBehavior.type);
-        store(assignment.id.variable);
+        evalExpression(idAssignment.rightExpression);
+        dup(idAssignment.rightExpression.returnBehavior.type);
+        store(idAssignment.id.variable);
+    }
+
+    private void evalFieldAssignment(FieldAssignment fieldAssignment)
+    {
+        evalExpression(fieldAssignment.leftExpression);
+        evalExpression(fieldAssignment.rightExpression);
+        dup(fieldAssignment.rightExpression.returnBehavior.type);
+        putfield(fieldAssignment.field);
+    }
+    private void evalStaticFieldAssignment(StaticFieldAssignment staticFieldAssignment)
+    {
+        evalExpression(staticFieldAssignment.rightExpression);
+        dup(staticFieldAssignment.rightExpression.returnBehavior.type);
+        putstatic(staticFieldAssignment.field);
     }
 
     private void evalVariableDeclaration(VariableDeclaration variableDeclaration)
@@ -990,6 +1010,19 @@ public class MethodInfo
                 writeByte((byte)number);
                 break;
         }
+        context.popOperand();
+    }
+
+    private void putfield(Field field)
+    {
+        writeByte(Instructions.putfield);
+        writeShort(constantPool.getField(field));
+        context.popOperands(2);
+    }
+    private void putstatic(Field field)
+    {
+        writeByte(Instructions.putstatic);
+        writeShort(constantPool.getField(field));
         context.popOperand();
     }
 

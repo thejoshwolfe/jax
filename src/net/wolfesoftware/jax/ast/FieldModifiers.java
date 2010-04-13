@@ -9,8 +9,6 @@ public class FieldModifiers extends ListElement<FieldModifier>
     public FieldModifiers(List<FieldModifier> elements)
     {
         super(elements);
-        for (FieldModifier fieldModifier : elements)
-            bitmask |= fieldModifier.bitmask;
     }
 
     @Override

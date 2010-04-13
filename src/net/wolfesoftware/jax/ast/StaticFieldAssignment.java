@@ -1,23 +1,26 @@
 package net.wolfesoftware.jax.ast;
 
-import net.wolfesoftware.jax.semalysis.*;
+import net.wolfesoftware.jax.semalysis.Field;
 
-public class StaticFieldAssignment extends ParseElement
+public class StaticFieldAssignment extends GenericAssignment
 {
     public Field field;
-    public Expression expression;
-    public StaticFieldAssignment(Field field, Expression expression)
+
+    public TypeId typeId;
+    public StaticFieldAssignment(TypeId typeId, Id id, String operator, Expression rightExpression)
     {
-        this.field = field;
-        this.expression = expression;
+        super(id, operator, rightExpression);
+        this.typeId = typeId;
     }
 
     @Override
     protected void decompile(String indentation, StringBuilder out)
     {
-        out.append(field.declaringType.qualifiedName).append('.').append(field.name);
-        out.append(" = ");
-        expression.decompile(indentation, out);
+        typeId.decompile(indentation, out);
+        out.append('.');
+        id.decompile(indentation, out);
+        out.append(' ').append(operator).append(' ');
+        rightExpression.decompile(indentation, out);
     }
 
     public static final int TYPE = 0x5a9c0866;

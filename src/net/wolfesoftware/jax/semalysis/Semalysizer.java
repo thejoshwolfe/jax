@@ -157,8 +157,29 @@ public class Semalysizer
             preSemalysizeClassMemeber(context, classMember);
         }
 
-        for (ClassMember classMember : classBody.elements)
-            semalysizeClassMemeber(context, classMember);
+        // we have to put off constructor semalysis because field initializer code can turn up after them.
+        ArrayList<ConstructorDeclaration> maybeLater = new ArrayList<ConstructorDeclaration>();
+        for (ClassMember classMember : classBody.elements) {
+            ParseElement content = classMember.content;
+            switch (content.getElementType()) {
+                case ConstructorDeclaration.TYPE:
+                    maybeLater.add((ConstructorDeclaration)content);
+                    break;
+                case MethodDeclaration.TYPE:
+                    semalysizeMethodDeclaration(context, (MethodDeclaration)content);
+                    break;
+                case FieldDeclaration.TYPE:
+                    // it's just a field, guys. nothing to see here.
+                    break;
+                case FieldCreation.TYPE:
+                    semalysizeFieldCreation(context, (FieldCreation)content);
+                    break;
+                default:
+                    throw new RuntimeException("TODO: implement " + content.getClass());
+            }
+        }
+        for (ConstructorDeclaration constructorDeclaration : maybeLater)
+            semalysizeConstructorDeclaration(context, constructorDeclaration);
     }
 
     private void preSemalysizeClassMemeber(LocalType context, ClassMember classMember)
@@ -246,37 +267,12 @@ public class Semalysizer
         return argumentSignature;
     }
 
-    private void semalysizeClassMemeber(LocalType context, ClassMember classMember)
-    {
-        // we have to put off constructor semalysis because field initializer code can show up after them.
-        ArrayList<ConstructorDeclaration> maybeLater = new ArrayList<ConstructorDeclaration>();
-        ParseElement content = classMember.content;
-        switch (content.getElementType()) {
-            case ConstructorDeclaration.TYPE:
-                maybeLater.add((ConstructorDeclaration)content);
-                break;
-            case MethodDeclaration.TYPE:
-                semalysizeMethodDeclaration(context, (MethodDeclaration)content);
-                break;
-            case FieldDeclaration.TYPE:
-                // it's just a field, guys. nothing to see here.
-                break;
-            case FieldCreation.TYPE:
-                semalysizeFieldCreation(context, (FieldCreation)content);
-                break;
-            default:
-                throw new RuntimeException("TODO: implement " + content.getClass());
-        }
-        for (ConstructorDeclaration constructorDeclaration : maybeLater)
-            semalysizeConstructorDeclaration(context, constructorDeclaration);
-    }
-
     private void semalysizeFieldCreation(LocalType context, FieldCreation fieldCreation)
     {
         if (fieldCreation.field.isStatic)
-            context.staticInitializerExpressions.add(new Expression(new StaticFieldAssignment(fieldCreation.field, fieldCreation.expression)));
+            context.staticInitializerExpressions.add(new Expression(new StaticFieldAssignment(TypeId.fromId(new Id(context.id)), new Id(fieldCreation.field.name), Lang.SYMBOL_EQUALS, fieldCreation.expression)));
         else
-            context.initializerExpressions.add(new Expression(new FieldAssignment(new Expression(ThisExpression.INSTANCE), fieldCreation.field, fieldCreation.expression)));
+            context.initializerExpressions.add(new Expression(new FieldAssignment(new Expression(ThisExpression.INSTANCE), new Id(fieldCreation.field.name), Lang.SYMBOL_EQUALS, fieldCreation.expression)));
     }
 
     private void semalysizeConstructorDeclaration(LocalType typeContext, ConstructorDeclaration constructorDeclaration)
@@ -460,6 +456,9 @@ public class Semalysizer
             case NullExpression.TYPE:
                 returnBehavior = semalysizeNullExpression(context, (NullExpression)content);
                 break;
+            case ThisExpression.TYPE:
+                returnBehavior = semalysizeThisExpression(context, (ThisExpression)content);
+                break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
@@ -491,6 +490,10 @@ public class Semalysizer
     private ReturnBehavior semalysizeNullExpression(LocalContext context, NullExpression nullExpression)
     {
         return ReturnBehavior.NULL;
+    }
+    private ReturnBehavior semalysizeThisExpression(LocalContext context, ThisExpression nullExpression)
+    {
+        return new ReturnBehavior(context.getClassContext());
     }
 
     private ReturnBehavior semalysizeShortCircuitAnd(LocalContext context, ShortCircuitAnd shortCircuitAnd)
@@ -576,7 +579,8 @@ public class Semalysizer
 
         // primitive vs reference
         if (fromType.isPrimitive() != toType.isPrimitive()) {
-            errors.add(new SemalyticalError(typeCast.typeId, "can't cast between primitives and non-primitives"));
+            if (!(fromType == UnknownType.INSTANCE || toType == UnknownType.INSTANCE))
+                errors.add(new SemalyticalError(typeCast.typeId, "can't cast between primitives and non-primitives"));
             return new ReturnBehavior(toType);
         }
         if (toType.isPrimitive()) {
@@ -783,8 +787,10 @@ public class Semalysizer
     {
         Type type = semalysizeExpression(context, dereferenceField.expression).type;
         dereferenceField.field = resolveField(type, dereferenceField.id);
-        if (dereferenceField.field == null)
+        if (dereferenceField.field == null) {
             errors.add(SemalyticalError.cantResolveField(type, dereferenceField.id));
+            return ReturnBehavior.UNKNOWN;
+        }
         return new ReturnBehavior(dereferenceField.field.returnType);
     }
 
@@ -881,10 +887,18 @@ public class Semalysizer
     {
         Assignment assignment = (Assignment)expression.content;
         switch (assignment.expression1.content.getElementType()) {
-            case Id.TYPE:
-                IdAssignment idAssignment = new IdAssignment((Id)assignment.expression1.content, assignment.operator, assignment.expression2);
+            case Id.TYPE: {
+                Id id = (Id)assignment.expression1.content;
+                IdAssignment idAssignment = new IdAssignment(id, assignment.operator, assignment.expression2);
                 expression.content = idAssignment;
                 return semalysizeIdAssignment(context, idAssignment);
+            }
+            case DereferenceField.TYPE: {
+                DereferenceField dereferenceField = (DereferenceField)assignment.expression1.content;
+                FieldAssignment fieldAssignment = new FieldAssignment(dereferenceField.expression, dereferenceField.id, assignment.operator, assignment.expression2);
+                expression.content = fieldAssignment;
+                return semalysizeFieldAssignment(context, fieldAssignment);
+            }
             default:
                 errors.add(new SemalyticalError(assignment.expression1, "This expression is too complex to assign to"));
                 return semalysizeExpression(context, assignment.expression2);
@@ -895,13 +909,35 @@ public class Semalysizer
         if (idAssignment.operator != Lang.SYMBOL_EQUALS)
             throw null;
         idAssignment.id.variable = resolveId(context, idAssignment.id);
-        if (idAssignment.id.variable == null)
+        Type expectedAssignmentType;
+        if (idAssignment.id.variable != null) {
+            expectedAssignmentType = idAssignment.id.variable.type;
+        } else {
             errors.add(SemalyticalError.cantResolveLocalVariable(idAssignment.id));
-        semalysizeExpression(context, idAssignment.expression);
-        if (idAssignment.id.variable != null)
-            implicitCast(context, idAssignment.expression, idAssignment.id.variable.type);
-        Type returnType = idAssignment.expression.returnBehavior.type;
-        return new ReturnBehavior(returnType);
+            expectedAssignmentType = UnknownType.INSTANCE;
+        }
+        return semalysizeGenericAssignemnt(context, expectedAssignmentType, idAssignment);
+    }
+    private ReturnBehavior semalysizeFieldAssignment(LocalContext context, FieldAssignment fieldAssignment)
+    {
+        if (fieldAssignment.operator != Lang.SYMBOL_EQUALS)
+            throw null;
+        Type fieldDeclaringType = semalysizeExpression(context, fieldAssignment.leftExpression).type;
+        fieldAssignment.field = resolveField(fieldDeclaringType, fieldAssignment.id);
+        Type expectedAssignmentType;
+        if (fieldAssignment.field != null) {
+            expectedAssignmentType = fieldAssignment.field.returnType;
+        } else {
+            errors.add(SemalyticalError.cantResolveField(fieldDeclaringType, fieldAssignment.id));
+            expectedAssignmentType = UnknownType.INSTANCE;
+        }
+        return semalysizeGenericAssignemnt(context, expectedAssignmentType, fieldAssignment);
+    }
+    private ReturnBehavior semalysizeGenericAssignemnt(LocalContext context, Type expectedAssignmentType, GenericAssignment genericAssignment)
+    {
+        semalysizeExpression(context, genericAssignment.rightExpression);
+        implicitCast(context, genericAssignment.rightExpression, expectedAssignmentType);
+        return new ReturnBehavior(expectedAssignmentType);
     }
 
     private void implicitCast(LocalContext context, Expression expression, Type toType)

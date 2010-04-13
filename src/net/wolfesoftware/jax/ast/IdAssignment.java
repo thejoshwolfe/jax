@@ -1,15 +1,10 @@
 package net.wolfesoftware.jax.ast;
 
-public class IdAssignment extends ParseElement
+public class IdAssignment extends GenericAssignment
 {
-    public Id id;
-    public String operator;
-    public Expression expression;
-    public IdAssignment(Id id, String operator, Expression expression)
+    public IdAssignment(Id id, String operator, Expression rightExpression)
     {
-        this.id = id;
-        this.operator = operator;
-        this.expression = expression;
+        super(id, operator, rightExpression);
     }
 
     @Override
@@ -17,7 +12,7 @@ public class IdAssignment extends ParseElement
     {
         id.decompile(indentation, out);
         out.append(' ').append(operator).append(' ');
-        expression.decompile(indentation, out);
+        rightExpression.decompile(indentation, out);
     }
 
     public static final int TYPE = 0x1d9304c7;

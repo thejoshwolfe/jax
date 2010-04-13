@@ -9,8 +9,6 @@ public class MethodModifiers extends ListElement<MethodModifier>
     public MethodModifiers(List<MethodModifier> elements)
     {
         super(elements);
-        for (MethodModifier methodModifier : elements)
-            bitmask |= methodModifier.bitmask;
     }
 
     @Override
