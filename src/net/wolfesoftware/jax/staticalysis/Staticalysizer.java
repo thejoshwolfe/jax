@@ -159,8 +159,8 @@ public class Staticalysizer
             case VariableDeclaration.TYPE:
                 staticalysizeVariableDeclaration((VariableDeclaration)content);
                 break;
-            case IdAssignment.TYPE:
-                staticalysizeAssignment((IdAssignment)content);
+            case LocalVariableAssignment.TYPE:
+                staticalysizeAssignment((LocalVariableAssignment)content);
                 break;
             case IfThenElse.TYPE:
                 staticalysizeIfThenElse((IfThenElse)content);
@@ -174,8 +174,8 @@ public class Staticalysizer
             case WhileLoop.TYPE:
                 staticalysizeWhileLoop((WhileLoop)content);
                 break;
-            case MethodInvocation.TYPE:
-                staticalysizeMethodInvocation((MethodInvocation)content);
+            case MethodInvocation.AmbiguousMethodInvocation:
+                staticalysizeMethodInvocation((AmbiguousMethodInvocation)content);
                 break;
             case ConstructorInvocation.TYPE:
                 staticalysizeConstructorInvocation((ConstructorInvocation)content);
@@ -291,7 +291,7 @@ public class Staticalysizer
     {
         staticalysizeIncrementDecrement(postIncrement);
     }
-    private void staticalysizeIncrementDecrement(IncrementDecrement incrementDecrement)
+    private void staticalysizeIncrementDecrement(AmbiguousPreIncrementDecrement incrementDecrement)
     {
         staticalysizeId(incrementDecrement.id);
     }
@@ -359,7 +359,7 @@ public class Staticalysizer
         staticalysizeExpression(dereferenceField.expression);
     }
 
-    private void staticalysizeMethodInvocation(MethodInvocation methodInvocation)
+    private void staticalysizeMethodInvocation(AmbiguousMethodInvocation methodInvocation)
     {
         staticalysizeId(methodInvocation.id);
         staticalysizeArguments(methodInvocation.arguments);
@@ -383,7 +383,7 @@ public class Staticalysizer
         staticalysizeExpression(ifThen.expression2);
     }
 
-    private void staticalysizeAssignment(IdAssignment assignment)
+    private void staticalysizeAssignment(LocalVariableAssignment assignment)
     {
         staticalysizeId(assignment.id);
         throw null;

@@ -4,20 +4,19 @@ public class VariableDeclaration extends ParseElement
 {
     public TypeId typeId;
 
-    public Id id;
+    public String variableName;
 
-    public VariableDeclaration(TypeId type, Id id)
+    public VariableDeclaration(TypeId type, String variableName)
     {
         this.typeId = type;
-        this.id = id;
+        this.variableName = variableName;
     }
 
     @Override
     protected void decompile(String indentation, StringBuilder out)
     {
         typeId.decompile(indentation, out);
-        out.append(" ");
-        id.decompile(indentation, out);
+        out.append(' ').append(variableName);
     }
 
     public static final int TYPE = 0x49f4078d;

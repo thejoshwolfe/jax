@@ -7,13 +7,13 @@ public class ClassDeclaration extends ParseElement
     public LocalType localType;
 
     public ClassModifiers classModifiers;
-    public Id id;
+    public String className;
     public MaybeImplements maybeImplements;
     public ClassBody classBody;
-    public ClassDeclaration(ClassModifiers classModifiers, Id id, MaybeImplements maybeImplements, ClassBody classBody)
+    public ClassDeclaration(ClassModifiers classModifiers, String className, MaybeImplements maybeImplements, ClassBody classBody)
     {
         this.classModifiers = classModifiers;
-        this.id = id;
+        this.className = className;
         this.maybeImplements = maybeImplements;
         this.classBody = classBody;
     }
@@ -24,11 +24,11 @@ public class ClassDeclaration extends ParseElement
         classModifiers.decompile(indentation, out);
         if (!classModifiers.elements.isEmpty())
             out.append(' ');
-        out.append("class ");
-        id.decompile(indentation, out);
-        out.append("{");
+        out.append("class").append(className);
+        maybeImplements.decompile(indentation, out);
+        out.append(" {");
         classBody.decompile(increaseIndentation(indentation), out);
-        out.append("\n").append(indentation).append("}");
+        out.append('\n').append(indentation).append('}');
     }
 
     public static final int TYPE = 0x3465065d;

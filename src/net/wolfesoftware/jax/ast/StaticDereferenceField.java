@@ -6,20 +6,15 @@ public class StaticDereferenceField extends ParseElement
 {
     public Field field;
 
-    public TypeId typeId;
-    public Id id;
-    public StaticDereferenceField(TypeId typeId, Id id)
+    public StaticDereferenceField(Field field)
     {
-        this.typeId = typeId;
-        this.id = id;
+        this.field = field;
     }
 
     @Override
     protected void decompile(String indentation, StringBuilder out)
     {
-        typeId.decompile(indentation, out);
-        out.append('.');
-        id.decompile(indentation, out);
+        out.append(field.declaringType.simpleName).append('.').append(field.name);
     }
 
     public static final int TYPE = 0x637908a5;

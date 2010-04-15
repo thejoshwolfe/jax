@@ -2,7 +2,6 @@ package net.wolfesoftware.jax.semalysis;
 
 import java.util.*;
 import net.wolfesoftware.jax.ast.QualifiedName;
-import net.wolfesoftware.jax.util.Util;
 
 public class BuiltinPackageLister
 {
@@ -434,7 +433,7 @@ public class BuiltinPackageLister
 
     public static void importPackageStar(QualifiedName qualifiedName, HashMap<String, Type> importedTypes, ArrayList<SemalyticalError> errors)
     {
-        String packageName = Util.join(qualifiedName.elements, ".");
+        String packageName = qualifiedName.qualifiedName;
         String[] classNames = packages.get(packageName);
         if (classNames == null) {
             errors.add(SemalyticalError.cantResolveImport(qualifiedName));

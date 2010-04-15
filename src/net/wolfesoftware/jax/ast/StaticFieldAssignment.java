@@ -2,23 +2,20 @@ package net.wolfesoftware.jax.ast;
 
 import net.wolfesoftware.jax.semalysis.Field;
 
-public class StaticFieldAssignment extends GenericAssignment
+public class StaticFieldAssignment extends AbstractAssignment
 {
     public Field field;
 
-    public TypeId typeId;
-    public StaticFieldAssignment(TypeId typeId, Id id, String operator, Expression rightExpression)
+    public StaticFieldAssignment(Field field, String operator, Expression rightExpression)
     {
-        super(id, operator, rightExpression);
-        this.typeId = typeId;
+        super(operator, rightExpression);
+        this.field = field;
     }
 
     @Override
     protected void decompile(String indentation, StringBuilder out)
     {
-        typeId.decompile(indentation, out);
-        out.append('.');
-        id.decompile(indentation, out);
+        out.append(field.declaringType.simpleName).append('.').append(field.name);
         out.append(' ').append(operator).append(' ');
         rightExpression.decompile(indentation, out);
     }

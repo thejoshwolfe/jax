@@ -7,19 +7,18 @@ public class DereferenceField extends ParseElement
     public Field field;
 
     public Expression expression;
-    public Id id;
-    public DereferenceField(Expression expression, Id id)
+    public String fieldName;
+    public DereferenceField(Expression expression, String fieldName)
     {
         this.expression = expression;
-        this.id = id;
+        this.fieldName = fieldName;
     }
 
     @Override
     protected void decompile(String indentation, StringBuilder out)
     {
         expression.decompile(indentation, out);
-        out.append('.');
-        id.decompile(indentation, out);
+        out.append('.').append(fieldName);
     }
 
     public static final int TYPE = 0x34a8063d;

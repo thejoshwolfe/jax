@@ -121,11 +121,11 @@ public class RuntimeType extends Type
     public static final RuntimeType FLOAT = new NumericPrimitiveType(float.class, "F", 1);
     public static final RuntimeType DOUBLE = new NumericPrimitiveType(double.class, "D", 2);
     public static final RuntimeType CHAR = new NumericPrimitiveType(char.class, "C", 1);
-    private static final RuntimeType[] allPrimitiveTypes = { VOID, BOOLEAN, BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, CHAR };
+    public static final RuntimeType[] allPrimitiveTypes = { VOID, BOOLEAN, BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, CHAR };
     public static void initPrimitives(HashMap<String, Type> types)
     {
         for (RuntimeType primitiveType : allPrimitiveTypes)
-            types.put(primitiveType.id, primitiveType);
+            types.put(primitiveType.simpleName, primitiveType);
     }
 
     private static final Class<?>[] javaLangTypes = { AbstractMethodError.class, ArithmeticException.class, ArrayIndexOutOfBoundsException.class, ArrayStoreException.class, AssertionError.class,

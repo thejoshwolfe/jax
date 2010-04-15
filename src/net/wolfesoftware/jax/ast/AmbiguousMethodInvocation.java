@@ -1,29 +1,25 @@
 package net.wolfesoftware.jax.ast;
 
-import net.wolfesoftware.jax.semalysis.Method;
-
-public class MethodInvocation extends ParseElement
+public class AmbiguousMethodInvocation extends ParseElement
 {
-    public Method method;
-    
-    public Id id;
+    public String methodName;
     public Arguments arguments;
-    public MethodInvocation(Id id, Arguments arguments)
+    public AmbiguousMethodInvocation(String methodName, Arguments arguments)
     {
-        this.id = id;
+        this.methodName = methodName;
         this.arguments = arguments;
     }
 
     @Override
     protected void decompile(String indentation, StringBuilder out)
     {
-        id.decompile(indentation, out);
+        out.append(methodName);
         out.append("(");
         arguments.decompile(indentation, out);
         out.append(")");
     }
 
-    public static final int TYPE = 0x450a0761;
+    public static final int TYPE = 0x82090a28;
     public int getElementType()
     {
         return TYPE;

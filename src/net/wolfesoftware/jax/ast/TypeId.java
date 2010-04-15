@@ -1,23 +1,23 @@
 package net.wolfesoftware.jax.ast;
 
-import net.wolfesoftware.jax.semalysis.Type;
+import net.wolfesoftware.jax.semalysis.*;
 
 public class TypeId extends ParseElement
 {
     public Type type;
-    public ScalarType scalarType;
+    public String scalarTypeName;
     public ArrayDimensions arrayDimensions;
 
-    public TypeId(ScalarType scalarType, ArrayDimensions arrayDimensions)
+    public TypeId(String scalarTypeName, ArrayDimensions arrayDimensions)
     {
-        this.scalarType = scalarType;
+        this.scalarTypeName = scalarTypeName;
         this.arrayDimensions = arrayDimensions;
     }
 
     @Override
     protected void decompile(String indentation, StringBuilder out)
     {
-        scalarType.decompile(indentation, out);
+        out.append(scalarTypeName);
         arrayDimensions.decompile(indentation, out);
     }
 
@@ -27,7 +27,8 @@ public class TypeId extends ParseElement
         return TYPE;
     }
 
-    public static TypeId fromId(Id id) {
-        return new TypeId(new ScalarType(id), ArrayDimensions.EMPTY);
+    public static TypeId fromName(String name)
+    {
+        return new TypeId(name, ArrayDimensions.EMPTY);
     }
 }

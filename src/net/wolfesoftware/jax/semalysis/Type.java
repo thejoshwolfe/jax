@@ -4,13 +4,15 @@ import java.util.*;
 
 public abstract class Type
 {
+    /** ex: "java.lang.String" */
     public final String qualifiedName;
-    public final String id;
+    /** ex: "String" */
+    public final String simpleName;
 
-    public Type(String qualifiedName, String id)
+    public Type(String qualifiedName, String simpleName)
     {
         this.qualifiedName = qualifiedName;
-        this.id = id;
+        this.simpleName = simpleName;
     }
 
     public final Method resolveMethod(String name, Type[] argumentSignature)

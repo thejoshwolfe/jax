@@ -25,6 +25,10 @@ public class LocalType extends Type
     {
         methods.add(method);
     }
+    public void addField(Field field)
+    {
+        fields.put(field.name, field);
+    }
     @Override
     protected LinkedList<Method> getMethods()
     {
@@ -72,7 +76,7 @@ public class LocalType extends Type
     public ClassMember makeDefaultConstructor(ClassBody classBody)
     {
         MethodModifiers methodModifiers = new MethodModifiers(Util.arrayToList(MethodModifier.PUBLIC));
-        TypeId typeId = TypeId.fromId(new Id(id));
+        TypeId typeId = TypeId.fromName(simpleName);
         ArgumentDeclarations argumentDeclarations = new ArgumentDeclarations(new LinkedList<VariableDeclaration>());
         MaybeThrows maybeThrows = MaybeThrows.DOESNT;
         Expression expression = new Expression(Block.EMPTY);

@@ -4,13 +4,13 @@ import net.wolfesoftware.jax.semalysis.Method;
 
 public class MethodDeclaration extends ConstructorOrMethodDeclaration
 {
-    public Id id;
+    public String methodName;
     public Method method;
 
-    public MethodDeclaration(MethodModifiers methodModifiers, TypeId typeId, Id id, ArgumentDeclarations argumentDeclarations, MaybeThrows maybeThrows, Expression expression)
+    public MethodDeclaration(MethodModifiers methodModifiers, TypeId typeId, String methodName, ArgumentDeclarations argumentDeclarations, MaybeThrows maybeThrows, Expression expression)
     {
         super(methodModifiers, typeId, argumentDeclarations, maybeThrows, expression);
-        this.id = id;
+        this.methodName = methodName;
     }
 
     @Override
@@ -20,9 +20,7 @@ public class MethodDeclaration extends ConstructorOrMethodDeclaration
         if (!methodModifiers.elements.isEmpty())
             out.append(' ');
         typeId.decompile(indentation, out);
-        out.append(' ');
-        id.decompile(indentation, out);
-        out.append('(');
+        out.append(' ').append(methodName).append('(');
         argumentDeclarations.decompile(indentation, out);
         out.append(") ");
         expression.decompile(indentation, out);

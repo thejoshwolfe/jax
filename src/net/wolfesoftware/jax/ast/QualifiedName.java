@@ -1,18 +1,20 @@
 package net.wolfesoftware.jax.ast;
 
 import java.util.List;
+import net.wolfesoftware.jax.util.Util;
 
-public class QualifiedName extends ListElement<Id>
+public class QualifiedName extends ParseElement
 {
-    public QualifiedName(List<Id> elements)
+    public String qualifiedName;
+    public QualifiedName(List<String> parts)
     {
-        super(elements);
+        qualifiedName = Util.join(parts, ".");
     }
 
     @Override
-    protected String getDelimiter()
+    protected void decompile(String indentation, StringBuilder out)
     {
-        return ".";
+        out.append(qualifiedName);
     }
 
     public static final int TYPE = 0x22e0050b;
@@ -20,5 +22,4 @@ public class QualifiedName extends ListElement<Id>
     {
         return TYPE;
     }
-
 }

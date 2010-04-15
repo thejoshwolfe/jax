@@ -1,7 +1,6 @@
 package net.wolfesoftware.jax.semalysis;
 
 import java.util.*;
-import net.wolfesoftware.jax.ast.Id;
 
 public class LocalContext
 {
@@ -24,13 +23,13 @@ public class LocalContext
         }
     }
 
-    public final void addLocalVariable(Id id, Type type, ArrayList<SemalyticalError> errors)
+    public final void addLocalVariable(String variableName, Type type, ArrayList<SemalyticalError> errors)
     {
         // redeclaration is not a fatal error (it's even allowed in C)
-        if (getLocalVariable(id.name) != null)
-            errors.add(new SemalyticalError(id, "Redeclaration of local variable"));
-        id.variable = new LocalVariable(this, id.name, type);
-        localVariableMap.put(id.name, id.variable);
+        if (getLocalVariable(variableName) != null)
+            errors.add(new SemalyticalError(variableName, "Redeclaration of local variable"));
+        variableName.variable = new LocalVariable(this, variableName.name, type);
+        localVariableMap.put(variableName.name, variableName.variable);
     }
     public final SecretLocalVariable addSecretLocalVariable(Type type)
     {

@@ -1,7 +1,6 @@
 package net.wolfesoftware.jax.semalysis;
 
 import java.util.ArrayList;
-import net.wolfesoftware.jax.ast.Id;
 import net.wolfesoftware.jax.tokenization.Lang;
 
 public final class RootLocalContext extends LocalContext
@@ -18,7 +17,7 @@ public final class RootLocalContext extends LocalContext
         super(null);
         this.classContext = classContext;
         if (!isStatic)
-            addLocalVariable(new Id(Lang.KEYWORD_THIS), classContext, null);
+            addLocalVariable(Lang.KEYWORD_THIS, classContext, null);
     }
 
     @Override

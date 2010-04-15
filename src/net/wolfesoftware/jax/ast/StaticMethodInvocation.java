@@ -3,8 +3,8 @@ package net.wolfesoftware.jax.ast;
 public class StaticMethodInvocation extends ParseElement
 {
     public TypeId typeId;
-    public MethodInvocation methodInvocation;
-    public StaticMethodInvocation(TypeId typeId, MethodInvocation methodInvocation)
+    public AmbiguousMethodInvocation methodInvocation;
+    public StaticMethodInvocation(TypeId typeId, AmbiguousMethodInvocation methodInvocation)
     {
         this.typeId = typeId;
         this.methodInvocation = methodInvocation;

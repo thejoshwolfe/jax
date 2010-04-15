@@ -37,4 +37,9 @@ public class Field
     {
         return false;
     }
+
+    public String toString()
+    {
+        return returnType + " " + name;
+    }
 }

@@ -6,6 +6,10 @@ import net.wolfesoftware.jax.ast.*;
 
 public class SemalyticalError extends CompileError
 {
+    public SemalyticalError(String stringElement, String message)
+    {
+        this(new AmbiguousId(stringElement), message);
+    }
     public SemalyticalError(ParseElement element, String message)
     {
         super(message + " \"" + element.decompile() + "\"");

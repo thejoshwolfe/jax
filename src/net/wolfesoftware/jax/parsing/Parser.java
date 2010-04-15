@@ -3,6 +3,7 @@ package net.wolfesoftware.jax.parsing;
 import java.util.*;
 import net.wolfesoftware.jax.JaxcOptions;
 import net.wolfesoftware.jax.ast.*;
+import net.wolfesoftware.jax.semalysis.RuntimeType;
 import net.wolfesoftware.jax.tokenization.*;
 import net.wolfesoftware.jax.util.Util;
 
@@ -129,12 +130,14 @@ public final class Parser
             return null;
         offset = qualifiedName.end;
 
-        List<Id> qualifiedNameList = qualifiedName.element.elements;
-        if (qualifiedNameList.isEmpty() || qualifiedNameList.get(qualifiedNameList.size() - 1) != null)
+        // TODO: move this check to semalysis?
+        if (qualifiedName.element.qualifiedName.equals(""))
             return null;
+
         if (getToken(offset).text != Lang.SYMBOL_ASTERISK)
             return null;
         offset++;
+
         if (getToken(offset).text != Lang.SYMBOL_SEMICOLON)
             return null;
         offset++;
@@ -162,16 +165,15 @@ public final class Parser
 
     private SubParsing<QualifiedName> parseQualifiedName(int offset)
     {
-        ArrayList<Id> elements = new ArrayList<Id>();
+        ArrayList<String> elements = new ArrayList<String>();
         while (true) {
-            Id id = parseId(offset);
-            if (id != null) {
-                elements.add(id);
+            String idText = parseId(offset);
+            if (idText != null) {
+                elements.add(idText);
                 offset++;
             } else
                 elements.add(null);
-            Token period = getToken(offset);
-            if (period.text != Lang.SYMBOL_PERIOD)
+            if (getToken(offset).text != Lang.SYMBOL_PERIOD)
                 break;
             offset++;
         }
@@ -189,7 +191,7 @@ public final class Parser
             return null;
         offset++;
 
-        Id id = parseId(offset);
+        String id = parseId(offset);
         if (id == null)
             return null;
         offset++;
@@ -339,7 +341,7 @@ public final class Parser
             return null;
         offset = typeId.end;
 
-        Id id = parseId(offset);
+        String id = parseId(offset);
         if (id == null)
             return null;
         offset++;
@@ -359,7 +361,7 @@ public final class Parser
             return null;
         offset = typeId.end;
 
-        Id id = parseId(offset);
+        String id = parseId(offset);
         if (id == null)
             return null;
         offset++;
@@ -460,7 +462,7 @@ public final class Parser
             return null;
         offset = typeId.end;
 
-        Id id = parseId(offset);
+        String id = parseId(offset);
         if (id == null)
             return null;
         offset++;
@@ -599,7 +601,7 @@ public final class Parser
             return null;
         offset = typeId.end;
 
-        Id id = parseId(offset);
+        String id = parseId(offset);
         if (id == null)
             return null;
         offset++;
@@ -609,8 +611,8 @@ public final class Parser
 
     private SubParsing<TypeId> parseTypeId(int offset)
     {
-        ScalarType scalarType = parseScalarType(offset);
-        if (scalarType == null)
+        String scalarTypeName = parseScalarTypeName(offset);
+        if (scalarTypeName == null)
             return null;
         offset++;
 
@@ -619,7 +621,7 @@ public final class Parser
             return null;
         offset = arrayDimensions.end;
 
-        return new SubParsing<TypeId>(new TypeId(scalarType, arrayDimensions.element), offset);
+        return new SubParsing<TypeId>(new TypeId(scalarTypeName, arrayDimensions.element), offset);
     }
 
     private SubParsing<ArrayDimensions> parseArrayDimensions(int offset)
@@ -649,32 +651,27 @@ public final class Parser
         return ArrayDimension.INSTANCE;
     }
 
-    private ScalarType parseScalarType(int offset)
+    private static final HashSet<String> primitiveTypeNames = new HashSet<String>();
+    static {
+        for (RuntimeType primitiveType : RuntimeType.allPrimitiveTypes)
+            primitiveTypeNames.add(primitiveType.simpleName);
+    }
+    private String parseScalarTypeName(int offset)
     {
         Token token = getToken(offset);
         if (token.getType() == IdentifierToken.TYPE)
-            return new ScalarType(new Id(token.text));
-        if (token.text == Lang.KEYWORD_INT)
-            return ScalarType.INT;
-        if (token.text == Lang.KEYWORD_BYTE)
-            return ScalarType.BYTE;
-        if (token.text == Lang.KEYWORD_FLOAT)
-            return ScalarType.FLOAT;
-        if (token.text == Lang.KEYWORD_DOUBLE)
-            return ScalarType.DOUBLE;
-        if (token.text == Lang.KEYWORD_VOID)
-            return ScalarType.VOID;
-        if (token.text == Lang.KEYWORD_BOOLEAN)
-            return ScalarType.BOOLEAN;
+            return token.text;
+        if (primitiveTypeNames.contains(token.text))
+            return token.text;
         return null;
     }
 
-    private Id parseId(int offset)
+    private String parseId(int offset)
     {
         Token token = getToken(offset);
         if (token.getType() != IdentifierToken.TYPE)
             return null;
-        return new Id(token.text);
+        return token.text;
     }
 
     private SubParsing<Expression> parseExpression(int offset)
@@ -723,9 +720,9 @@ public final class Parser
 
         return new SubParsing<VariableCreation>(new VariableCreation(variableDeclaration.element, expression.element), offset);
     }
-    private SubParsing<MethodInvocation> parseMethodInvocation(int offset)
+    private SubParsing<AmbiguousMethodInvocation> parseAmbiguousMethodInvocation(int offset)
     {
-        Id id = parseId(offset);
+        String id = parseId(offset);
         if (id == null)
             return null;
         offset++;
@@ -743,7 +740,7 @@ public final class Parser
             return null;
         offset++;
 
-        return new SubParsing<MethodInvocation>(new MethodInvocation(id, arguments.element), offset);
+        return new SubParsing<AmbiguousMethodInvocation>(new AmbiguousMethodInvocation(id, arguments.element), offset);
     }
     private SubParsing<TryPart> parseTryPart(int offset)
     {
@@ -853,15 +850,15 @@ public final class Parser
                         offset++;
                         continue;
                     }
-                    SubParsing<MethodInvocation> methodInvocation = parseMethodInvocation(offset);
+                    SubParsing<AmbiguousMethodInvocation> methodInvocation = parseAmbiguousMethodInvocation(offset);
                     if (methodInvocation != null) {
                         pushUnit(methodInvocation.element);
                         offset = methodInvocation.end;
                         continue;
                     }
-                    Id id = parseId(offset);
+                    String id = parseId(offset);
                     if (id != null) {
-                        pushUnit(id);
+                        pushUnit(new AmbiguousId(id));
                         offset++;
                         continue;
                     }
@@ -965,26 +962,14 @@ public final class Parser
                             offset = innerParsing.end;
                             innerElements.add(innerParsing.element);
                             break;
-                        case MethodInvocation.TYPE:
-                            if (innerParsing == null || innerParsing.element.getElementType() != MethodInvocation.TYPE) {
+                        case AmbiguousId.TYPE:
+                            if (innerParsing == null || innerParsing.element.getElementType() != AmbiguousId.TYPE) {
                                 // history was missing/wrong
                                 Util.removeAfter(partialSubParsings, i);
-                                innerParsing = parseMethodInvocation(offset);
-                                if (innerParsing == null)
+                                String id = parseId(offset);
+                                if (id == null)
                                     return null;
-                                partialSubParsings.add(innerParsing);
-                            }
-                            offset = innerParsing.end;
-                            innerElements.add(innerParsing.element);
-                            break;
-                        case Id.TYPE:
-                            if (innerParsing == null || innerParsing.element.getElementType() != Id.TYPE) {
-                                // history was missing/wrong
-                                Util.removeAfter(partialSubParsings, i);
-                                // TODO streamline this a little
-                                innerParsing = new SubParsing<Id>(parseId(offset), offset + 1);
-                                if (innerParsing.element == null)
-                                    return null;
+                                innerParsing = new SubParsing<AmbiguousId>(new AmbiguousId(id), offset + 1);
                                 partialSubParsings.add(innerParsing);
                             }
                             offset = innerParsing.end;
@@ -1021,7 +1006,7 @@ public final class Parser
                                 innerParsing = parseTypeId(offset);
                                 if (innerParsing == null)
                                     return null;
-                                if (((TypeId)innerParsing.element).scalarType.content.getElementType() != PrimitiveType.TYPE)
+                                if (!primitiveTypeNames.contains(((TypeId)innerParsing.element).scalarTypeName))
                                     return null;
                                 partialSubParsings.add(innerParsing);
                             }

@@ -30,22 +30,23 @@ public final class Util
 
     public static <T> String join(Iterable<T> elements, String delimiter)
     {
+        Iterator<T> iterator = elements.iterator();
+        if (!iterator.hasNext())
+            return "";
         StringBuilder builder = new StringBuilder();
-        boolean empty = true;
-        for (T element : elements) {
-            if (empty)
-                empty = false;
-            else
-                builder.append(delimiter);
-            builder.append(element);
+        builder.append(iterator.next());
+        while (iterator.hasNext()) {
+            builder.append(delimiter);
+            builder.append(iterator.next());
         }
         return builder.toString();
     }
     public static <T> String join(T[] elements, String delimiter)
     {
+        if (elements.length == 0)
+            return "";
         StringBuilder builder = new StringBuilder();
-        if (0 < elements.length)
-            builder.append(elements[0]);
+        builder.append(elements[0]);
         for (int i = 1; i < elements.length; i++)
             builder.append(delimiter).append(elements[i]);
         return builder.toString();

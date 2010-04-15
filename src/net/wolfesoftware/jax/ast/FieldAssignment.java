@@ -2,24 +2,24 @@ package net.wolfesoftware.jax.ast;
 
 import net.wolfesoftware.jax.semalysis.Field;
 
-public class FieldAssignment extends GenericAssignment
+public class FieldAssignment extends AbstractAssignment
 {
     public Field field;
 
     public Expression leftExpression;
-    public FieldAssignment(Expression leftExpression, Id id, String operator, Expression rightExpression)
+    public String fieldName;
+    public FieldAssignment(Expression leftExpression, String fieldName, String operator, Expression rightExpression)
     {
-        super(id, operator, rightExpression);
+        super(operator, rightExpression);
         this.leftExpression = leftExpression;
+        this.fieldName = fieldName;
     }
 
     @Override
     protected void decompile(String indentation, StringBuilder out)
     {
         leftExpression.decompile(indentation, out);
-        out.append('.');
-        id.decompile(indentation, out);
-        out.append(' ').append(operator).append(' ');
+        out.append('.').append(fieldName).append(' ').append(operator).append(' ');
         rightExpression.decompile(indentation, out);
     }
 

@@ -8,13 +8,13 @@ public class FieldDeclaration extends ParseElement
 
     public FieldModifiers fieldModifiers;
     public TypeId typeId;
-    public Id id;
+    public String fieldName;
 
-    public FieldDeclaration(FieldModifiers fieldModifiers, TypeId type, Id id)
+    public FieldDeclaration(FieldModifiers fieldModifiers, TypeId type, String fieldName)
     {
         this.fieldModifiers = fieldModifiers;
         this.typeId = type;
-        this.id = id;
+        this.fieldName = fieldName;
     }
 
     @Override
@@ -25,7 +25,7 @@ public class FieldDeclaration extends ParseElement
             out.append(" ");
         typeId.decompile(indentation, out);
         out.append(" ");
-        id.decompile(indentation, out);
+        out.append(fieldName);
     }
 
     public static final int TYPE = 0x3391064b;

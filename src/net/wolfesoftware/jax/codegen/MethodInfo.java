@@ -188,8 +188,8 @@ public class MethodInfo
             case VariableDeclaration.TYPE:
                 evalVariableDeclaration((VariableDeclaration)content);
                 break;
-            case IdAssignment.TYPE:
-                evalIdAssignment((IdAssignment)content);
+            case LocalVariableAssignment.TYPE:
+                evalIdAssignment((LocalVariableAssignment)content);
                 break;
             case FieldAssignment.TYPE:
                 evalFieldAssignment((FieldAssignment)content);
@@ -210,8 +210,8 @@ public class MethodInfo
             case WhileLoop.TYPE:
                 evalWhileLoop((WhileLoop)content);
                 break;
-            case MethodInvocation.TYPE:
-                evalMethodInvocation((MethodInvocation)content);
+            case MethodInvocation.AmbiguousMethodInvocation:
+                evalMethodInvocation((AmbiguousMethodInvocation)content);
                 break;
             case ConstructorInvocation.TYPE:
                 evalConstructorInvocation((ConstructorInvocation)content);
@@ -551,7 +551,7 @@ public class MethodInfo
         context.pushOperand(dereferenceField.field.returnType);
     }
 
-    private void evalMethodInvocation(MethodInvocation methodInvocation)
+    private void evalMethodInvocation(AmbiguousMethodInvocation methodInvocation)
     {
         evalArguments(methodInvocation.arguments);
 
@@ -620,7 +620,7 @@ public class MethodInfo
         fillins.add(new Fillin(ifOffset));
     }
 
-    private void evalIdAssignment(IdAssignment idAssignment)
+    private void evalIdAssignment(LocalVariableAssignment idAssignment)
     {
         evalExpression(idAssignment.rightExpression);
         dup(idAssignment.rightExpression.returnBehavior.type);

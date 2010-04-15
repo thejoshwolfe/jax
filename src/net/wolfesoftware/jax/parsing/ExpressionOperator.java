@@ -64,25 +64,25 @@ public abstract class ExpressionOperator
     public static final ExpressionOperator preIncrement = new ExpressionOperator(-1, Lang.SYMBOL_PLUS_PLUS, PRECEDENCE_UNARY + 1) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
-            return new PreIncrement(rightExpression);
+            return new AmbiguousPreIncrementDecrement(Lang.SYMBOL_PLUS_PLUS, rightExpression);
         }
     };
     public static final ExpressionOperator preDecrement = new ExpressionOperator(-1, Lang.SYMBOL_MINUS_MINUS, PRECEDENCE_UNARY + 1) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
-            return new PreDecrement(rightExpression);
+            return new AmbiguousPreIncrementDecrement(Lang.SYMBOL_MINUS_MINUS, rightExpression);
         }
     };
     public static final ExpressionOperator postIncrement = new ExpressionOperator(PRECEDENCE_POSTFIX, Lang.SYMBOL_PLUS_PLUS, -1) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
-            return new PostIncrement(leftExpression);
+            return new AmbiguousPostIncrementDecrement(rightExpression, Lang.SYMBOL_PLUS_PLUS);
         }
     };
     public static final ExpressionOperator postDecrement = new ExpressionOperator(PRECEDENCE_POSTFIX, Lang.SYMBOL_MINUS_MINUS, -1) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
-            return new PostDecrement(leftExpression);
+            return new AmbiguousPostIncrementDecrement(rightExpression, Lang.SYMBOL_MINUS_MINUS);
         }
     };
 
@@ -237,10 +237,10 @@ public abstract class ExpressionOperator
         }
     };
     public static final ExpressionOperator constructorInvocation = new ExpressionEnclosingOperator(-1, Lang.KEYWORD_NEW, -1,
-            MethodInvocation.TYPE) {
+            AmbiguousId.TYPE, Lang.SYMBOL_OPEN_PARENS, Arguments.TYPE, Lang.SYMBOL_CLOSE_PARENS) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
-            return new ConstructorInvocation((MethodInvocation)innerElements.get(0));
+            return new ConstructorInvocation(((AmbiguousId)innerElements.get(0)).text, (Arguments)innerElements.get(1));
         }
     };
     public static final ExpressionOperator constructorRedirectThis = new ExpressionEnclosingOperator(-1, Lang.KEYWORD_THIS, -1,
@@ -259,10 +259,10 @@ public abstract class ExpressionOperator
     };
 
     public static final ExpressionOperator dereferenceField = new ExpressionEnclosingOperator(PRECEDENCE_DEREFERENCE, Lang.SYMBOL_PERIOD, -1,
-            Id.TYPE) {
+            AmbiguousId.TYPE) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
-            return new DereferenceField(leftExpression, (Id)innerElements.get(0));
+            return new DereferenceField(leftExpression, ((AmbiguousId)innerElements.get(0)).text);
         }
     };
     private static class ExpressionAssignmentOperator extends ExpressionOperator
@@ -300,10 +300,10 @@ public abstract class ExpressionOperator
     };
 
     public static final ExpressionOperator dereferenceMethod = new ExpressionEnclosingOperator(PRECEDENCE_DEREFERENCE, Lang.SYMBOL_PERIOD, -1,
-            MethodInvocation.TYPE, -1) { // insert this extra term so that the Parser looks for methods before fields
+            AmbiguousId.TYPE, Lang.SYMBOL_OPEN_PARENS, Arguments.TYPE, Lang.SYMBOL_CLOSE_PARENS) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
-            return new DereferenceMethod(leftExpression, (MethodInvocation)innerElements.get(0));
+            return new DereferenceMethod(leftExpression, ((AmbiguousId)innerElements.get(0)).text, (Arguments)innerElements.get(1));
         }
     };
     public static final ExpressionOperator arrayDereference = new ExpressionEnclosingOperator(PRECEDENCE_DEREFERENCE, Lang.SYMBOL_OPEN_BRACKET, -1,

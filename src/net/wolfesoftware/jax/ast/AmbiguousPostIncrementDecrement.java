@@ -1,23 +1,23 @@
 package net.wolfesoftware.jax.ast;
 
-public class FieldCreation extends FieldDeclaration
+public class AmbiguousPostIncrementDecrement extends ParseElement
 {
     public Expression expression;
-    public FieldCreation(FieldModifiers fieldModifiers, TypeId type, String fieldName, Expression expression)
+    public String operator;
+    public AmbiguousPostIncrementDecrement(Expression expression, String operator)
     {
-        super(fieldModifiers, type, fieldName);
         this.expression = expression;
+        this.operator = operator;
     }
 
     @Override
     protected void decompile(String indentation, StringBuilder out)
     {
-        super.decompile(indentation, out);
-        out.append(" = ");
         expression.decompile(indentation, out);
+        out.append(operator);
     }
 
-    public static final int TYPE = 0x226a051a;
+    public static final int TYPE = 0xc7440c8f;
     public int getElementType()
     {
         return TYPE;
