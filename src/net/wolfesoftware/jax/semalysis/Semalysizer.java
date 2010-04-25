@@ -273,7 +273,7 @@ public class Semalysizer
             StaticFieldAssignment staticFieldAssignment = new StaticFieldAssignment(fieldCreation.field, Lang.SYMBOL_EQUALS, fieldCreation.expression);
             context.staticInitializerExpressions.add(new Expression(staticFieldAssignment));
         } else {
-            FieldAssignment fieldAssignment = new FieldAssignment(new Expression(ThisExpression.INSTANCE), fieldCreation.field.name, Lang.SYMBOL_EQUALS, fieldCreation.expression);
+            InstanceFieldAssignment fieldAssignment = new InstanceFieldAssignment(new Expression(ThisExpression.INSTANCE), fieldCreation.field.name, Lang.SYMBOL_EQUALS, fieldCreation.expression);
             fieldAssignment.field = fieldCreation.field;
             context.initializerExpressions.add(new Expression(fieldAssignment));
         }
@@ -381,8 +381,8 @@ public class Semalysizer
             case VariableDeclaration.TYPE:
                 returnBehavior = semalysizeVariableDeclaration(context, (VariableDeclaration)content);
                 break;
-            case Assignment.TYPE:
-                returnBehavior = semalysizeAssignment(context, expression);
+            case AmbiguousAssignment.TYPE:
+                returnBehavior = semalysizeAmbiguousAssignment(context, expression);
                 break;
             case IfThenElse.TYPE:
             case QuestionColon.TYPE:
@@ -397,9 +397,6 @@ public class Semalysizer
             case WhileLoop.TYPE:
                 returnBehavior = semalysizeWhileLoop(context, (WhileLoop)content);
                 break;
-            case MethodInvocation.AmbiguousMethodInvocation:
-                returnBehavior = semalysizeMethodInvocation(context, (AmbiguousMethodInvocation)content);
-                break;
             case ConstructorInvocation.TYPE:
                 returnBehavior = semalysizeConstructorInvocation(context, (ConstructorInvocation)content);
                 break;
@@ -409,35 +406,11 @@ public class Semalysizer
             case ConstructorRedirectSuper.TYPE:
                 returnBehavior = semalysizeConstructorRedirectSuper(context, (ConstructorRedirectSuper)content);
                 break;
-            case DereferenceMethod.TYPE:
-                switch (disambiguateDereferenceMethod(context, expression)) {
-                    case DereferenceMethod.TYPE:
-                        returnBehavior = semalysizeDereferenceMethod(context, (DereferenceMethod)content);
-                        break;
-                    case StaticMethodInvocation.TYPE:
-                        returnBehavior = semalysizeStaticMethodInvocation(context, (StaticMethodInvocation)expression.content);
-                        break;
-                    case -1:
-                        returnBehavior = ReturnBehavior.UNKNOWN;
-                        break;
-                    default:
-                        throw new RuntimeException();
-                }
+            case AmbiguousMethodInvocation.TYPE:
+                returnBehavior = semalysizeAmbiguousMethodInvocation(context, expression);
                 break;
-            case DereferenceField.TYPE:
-                switch (disambiguateDereferenceField(context, expression)) {
-                    case DereferenceField.TYPE:
-                        returnBehavior = semalysizeDereferenceField(context, (DereferenceField)content);
-                        break;
-                    case StaticDereferenceField.TYPE:
-                        returnBehavior = semalysizeStaticDereferenceField(context, (StaticDereferenceField)expression.content);
-                        break;
-                    case -1:
-                        returnBehavior = ReturnBehavior.UNKNOWN;
-                        break;
-                    default:
-                        throw new RuntimeException();
-                }
+            case AmbiguousFieldExpression.TYPE:
+                returnBehavior = semalysizeAmbiguousFieldExpression(context, expression);
                 break;
             case ArrayDereference.TYPE:
                 returnBehavior = semalysizeArrayDereference(context, (ArrayDereference)content);
@@ -615,13 +588,14 @@ public class Semalysizer
 
     private ReturnBehavior semalysizeConstructorInvocation(LocalContext context, ConstructorInvocation constructorInvocation)
     {
-        TypeId typeId = TypeId.fromName(constructorInvocation.methodInvocation.id);
+        TypeId typeId = TypeId.fromName(constructorInvocation.typeName.text);
         resolveType(typeId, true);
-        ReturnBehavior[] argumentSignature = semalysizeArguments(context, constructorInvocation.methodInvocation.arguments);
+        ReturnBehavior[] argumentSignature = semalysizeArguments(context, constructorInvocation.arguments);
         constructorInvocation.constructor = resolveConstructor(typeId.type, argumentSignature);
-        implicitCastArguments(context, constructorInvocation.methodInvocation.arguments, constructorInvocation.constructor.argumentSignature);
         if (constructorInvocation.constructor == null)
             errors.add(new SemalyticalError(constructorInvocation, "can't resolve this constructor"));
+        else
+            implicitCastArguments(context, constructorInvocation.arguments, constructorInvocation.constructor.argumentSignature);
         return new ReturnBehavior(typeId.type);
     }
 
@@ -690,22 +664,17 @@ public class Semalysizer
         return new ReturnBehavior(scalarType);
     }
 
-    private ReturnBehavior semalysizeStaticDereferenceField(LocalContext context, StaticDereferenceField staticDereferenceField)
-    {
-        // semalysization already done for typeId
-        staticDereferenceField.field = resolveField(staticDereferenceField.typeId.type, staticDereferenceField.id.name);
-        if (staticDereferenceField.field == null)
-            errors.add(SemalyticalError.cantResolveField(staticDereferenceField.typeId.type, staticDereferenceField.id));
-        return new ReturnBehavior(staticDereferenceField.field.returnType);
-    }
-
     private ReturnBehavior semalysizeStaticMethodInvocation(LocalContext context, StaticMethodInvocation staticMethodInvocation)
     {
-        // semalysization already done for typeId
-        ReturnBehavior[] argumentSignature = semalysizeArguments(context, staticMethodInvocation.methodInvocation.arguments);
-        staticMethodInvocation.methodInvocation.method = resolveMethod(staticMethodInvocation.typeId.type, staticMethodInvocation.methodInvocation, argumentSignature);
-        implicitCastArguments(context, staticMethodInvocation.methodInvocation.arguments, staticMethodInvocation.methodInvocation.method.argumentSignature);
-        Type returnType = staticMethodInvocation.methodInvocation.method.returnType;
+        // semalysization is already done for typeId
+        return semalysizeAbstractMethodInvocation(context, staticMethodInvocation.typeId.type, staticMethodInvocation);
+    }
+    private ReturnBehavior semalysizeAbstractMethodInvocation(LocalContext context, Type type, AbstractMethodInvocation methodInvocation)
+    {
+        ReturnBehavior[] argumentSignature = semalysizeArguments(context, methodInvocation.arguments);
+        methodInvocation.method = resolveMethod(type, methodInvocation, argumentSignature);
+        implicitCastArguments(context, methodInvocation.arguments, methodInvocation.method.argumentSignature);
+        Type returnType = methodInvocation.method.returnType;
         return new ReturnBehavior(returnType);
     }
 
@@ -758,68 +727,63 @@ public class Semalysizer
         return new ReturnBehavior(returnBehavior.type);
     }
 
-    private int disambiguateDereferenceField(LocalContext context, Expression expression)
+    private ReturnBehavior semalysizeAmbiguousFieldExpression(LocalContext context, Expression expression)
     {
-        DereferenceField dereferenceField = (DereferenceField)expression.content;
-        if (dereferenceField.expression.content.getElementType() != Id.TYPE)
-            return DereferenceField.TYPE;
-        Id id = (Id)dereferenceField.expression.content;
-        LocalVariable localVariable = resolveId(context, id.name);
-        if (localVariable != null)
-            return DereferenceField.TYPE;
-        TypeId typeId = TypeId.fromName(id);
-        if (resolveType(typeId, false)) {
-            // convert to StaticDereferenceField
-            expression.content = new StaticDereferenceField(typeId, dereferenceField.id);
-            return StaticDereferenceField.TYPE;
+        AmbiguousFieldExpression fieldExpresion = (AmbiguousFieldExpression)expression.content;
+        if (fieldExpresion.leftExpression.content.getElementType() == AmbiguousId.TYPE)
+            semalysizeAmbiguousId(context, fieldExpresion.leftExpression);
+        switch (fieldExpresion.leftExpression.content.getElementType()) {
+            case TypeId.TYPE: {
+                // static field
+                TypeId typeId = (TypeId)fieldExpresion.leftExpression.content;
+                Field field = resolveField(typeId.type, fieldExpresion.fieldName.text);
+                expression.content = new StaticFieldExpression(field);
+                return new ReturnBehavior(field.returnType);
+            }
+            case AmbiguousId.TYPE: {
+                // left side is unknown.
+                return ReturnBehavior.UNKNOWN;
+            }
+            default: {
+                // instance field
+                Type declaringType = semalysizeExpression(context, fieldExpresion.leftExpression).type;
+                Field field = resolveField(declaringType, fieldExpresion.fieldName.text);
+                if (field == null) {
+                    errors.add(SemalyticalError.cantResolveField(declaringType, fieldExpresion.fieldName));
+                    return ReturnBehavior.UNKNOWN;
+                }
+                expression.content = new InstanceFieldExpression(fieldExpresion.leftExpression, field);
+                return new ReturnBehavior(field.returnType);
+            }
         }
-        errors.add(SemalyticalError.cantResolveLocalVariable(id));
-        return -1;
     }
 
-    private ReturnBehavior semalysizeDereferenceField(LocalContext context, DereferenceField dereferenceField)
+    private ReturnBehavior semalysizeAmbiguousMethodInvocation(LocalContext context, Expression expression)
     {
-        Type type = semalysizeExpression(context, dereferenceField.expression).type;
-        dereferenceField.field = resolveField(type, dereferenceField.id.name);
-        if (dereferenceField.field == null) {
-            errors.add(SemalyticalError.cantResolveField(type, dereferenceField.id));
-            return ReturnBehavior.UNKNOWN;
+        AmbiguousMethodInvocation methodInvocation = (AmbiguousMethodInvocation)expression.content;
+        if (methodInvocation.leftExpression.content.getElementType() != AmbiguousId.TYPE)
+            semalysizeAmbiguousId(context, methodInvocation.leftExpression);
+        else
+            semalysizeExpression(context, methodInvocation.leftExpression);
+        switch (methodInvocation.leftExpression.content.getElementType()) {
+            case TypeId.TYPE: {
+                // static method invocation
+                StaticMethodInvocation staticMethodInvocation = new StaticMethodInvocation((TypeId)methodInvocation.leftExpression.content, methodInvocation.methodName, methodInvocation.arguments);
+                expression.content = staticMethodInvocation;
+                return semalysizeStaticMethodInvocation(context, staticMethodInvocation);
+            }
+            default: {
+                InstanceMethodInvocation instanceMethodInvocation = new InstanceMethodInvocation(methodInvocation.leftExpression, methodInvocation.methodName, methodInvocation.arguments);
+                return semalysizeInstanceMethodInvocation(context, instanceMethodInvocation);
+            }
         }
-        return new ReturnBehavior(dereferenceField.field.returnType);
     }
 
-    private int disambiguateDereferenceMethod(LocalContext context, Expression expression)
+    private ReturnBehavior semalysizeInstanceMethodInvocation(LocalContext context, InstanceMethodInvocation methodInvocation)
     {
-        DereferenceMethod dereferenceMethod = (DereferenceMethod)expression.content;
-        if (dereferenceMethod.expression.content.getElementType() != Id.TYPE)
-            return DereferenceMethod.TYPE;
-        Id id = (Id)dereferenceMethod.expression.content;
-        LocalVariable localVariable = resolveId(context, id.name);
-        if (localVariable != null)
-            return DereferenceMethod.TYPE;
-        TypeId typeId = TypeId.fromName(id);
-        if (resolveType(typeId, false)) {
-            // convert to StaticMethodInvocation
-            expression.content = new StaticMethodInvocation(typeId, dereferenceMethod.methodInvocation);
-            return StaticMethodInvocation.TYPE;
-        }
-        errors.add(SemalyticalError.cantResolveLocalVariable(id));
-        return -1;
-    }
-
-    private ReturnBehavior semalysizeDereferenceMethod(LocalContext context, DereferenceMethod dereferenceMethod)
-    {
-        ReturnBehavior expressionReturnBehavior = semalysizeExpression(context, dereferenceMethod.expression);
-        ReturnBehavior[] argumentSignature = semalysizeArguments(context, dereferenceMethod.methodInvocation.arguments);
-        dereferenceMethod.methodInvocation.method = resolveMethod(expressionReturnBehavior.type, dereferenceMethod.methodInvocation, argumentSignature);
-        implicitCastArguments(context, dereferenceMethod.methodInvocation.arguments, dereferenceMethod.methodInvocation.method.argumentSignature);
-        return new ReturnBehavior(dereferenceMethod.methodInvocation.method.returnType);
-    }
-
-    private ReturnBehavior semalysizeMethodInvocation(LocalContext context, AmbiguousMethodInvocation methodInvocation)
-    {
+        ReturnBehavior expressionReturnBehavior = semalysizeExpression(context, methodInvocation.leftExpression);
         ReturnBehavior[] argumentSignature = semalysizeArguments(context, methodInvocation.arguments);
-        methodInvocation.method = resolveMethod(context.getClassContext(), methodInvocation, argumentSignature);
+        methodInvocation.method = resolveMethod(expressionReturnBehavior.type, methodInvocation, argumentSignature);
         implicitCastArguments(context, methodInvocation.arguments, methodInvocation.method.argumentSignature);
         return new ReturnBehavior(methodInvocation.method.returnType);
     }
@@ -877,49 +841,68 @@ public class Semalysizer
         return ReturnBehavior.VOID;
     }
 
-    private ReturnBehavior semalysizeAssignment(LocalContext context, Expression expression)
+    private ReturnBehavior semalysizeAmbiguousAssignment(LocalContext context, Expression expression)
     {
-        Assignment assignment = (Assignment)expression.content;
-        if (assignment.expression1.content.getElementType() == Id.TYPE)
-            disambiguateId(context, assignment.expression1);
+        AmbiguousAssignment assignment = (AmbiguousAssignment)expression.content;
+        if (assignment.expression1.content.getElementType() == AmbiguousId.TYPE)
+            semalysizeAmbiguousId(context, assignment.expression1);
         switch (assignment.expression1.content.getElementType()) {
-            case Id.TYPE: {
-                Id id = (Id)assignment.expression1.content;
-                LocalVariableAssignment idAssignment = new LocalVariableAssignment(id, assignment.operator, assignment.expression2);
-                expression.content = idAssignment;
-                return semalysizeIdAssignment(context, idAssignment);
+            case LocalVariableExpression.TYPE: {
+                LocalVariableExpression localVariableExpression = (LocalVariableExpression)assignment.expression1.content;
+                LocalVariableAssignment localVariableAssignment = new LocalVariableAssignment(localVariableExpression.variable, assignment.operator, assignment.expression2);
+                expression.content = localVariableAssignment;
+                return semalysizeAbstractAssignment(context, localVariableAssignment);
             }
-            case DereferenceField.TYPE: {
-                DereferenceField dereferenceField = (DereferenceField)assignment.expression1.content;
-                FieldAssignment fieldAssignment = new FieldAssignment(dereferenceField.expression, dereferenceField.id, assignment.operator, assignment.expression2);
+            case InstanceFieldExpression.TYPE: {
+                InstanceFieldExpression fieldExpression = (InstanceFieldExpression)assignment.expression1.content;
+                Field field = fieldExpression.field;
+                InstanceFieldAssignment fieldAssignment = new InstanceFieldAssignment(fieldExpression.leftExpression, field, assignment.operator, assignment.expression2);
                 expression.content = fieldAssignment;
-                return semalysizeFieldAssignment(context, fieldAssignment);
+                return semalysizeAbstractAssignment(context, fieldAssignment);
+            }
+            case StaticFieldExpression.TYPE: {
+                asdf; // TODO
             }
             default:
                 errors.add(new SemalyticalError(assignment.expression1, "This expression is too complex to assign to"));
                 return semalysizeExpression(context, assignment.expression2);
         }
     }
-    private void disambiguateId(LocalContext context, Expression expression)
+
+    private ReturnBehavior semalysizeAbstractAssignment(LocalContext context, AbstractAssignment assignment)
     {
-        Id id = (Id)expression.content;
-        id.variable = resolveId(context, id.name);
-        if (id.variable != null)
-            return; // it's a local variable
-        Field field = resolveField(context.getClassContext(), id.name);
+    }
+
+    private ReturnBehavior semalysizeAmbiguousId(LocalContext context, Expression expression)
+    {
+        AmbiguousId id = (AmbiguousId)expression.content;
+        LocalVariable variable = resolveId(context, id.text);
+        if (variable != null) {
+            // it's a local variable
+            expression.content = new LocalVariableExpression(variable);
+            return new ReturnBehavior(variable.type);
+        }
+        Field field = resolveField(context.getClassContext(), id.text);
         if (field != null) {
-            // it's a field
+            // it's a field of this class
             if (field.isStatic) {
                 // it's a static field
-                expression.content = new StaticDereferenceField(TypeId.fromName(new Id(context.getClassContext().simpleName)), id);
+                expression.content = new StaticFieldExpression(field);
             } else {
                 // it's a non-static field
-                expression.content = new DereferenceField(new Expression(ThisExpression.INSTANCE), id);
+                expression.content = new InstanceFieldExpression(new Expression(ThisExpression.INSTANCE), field);
             }
-            return;
+            return new ReturnBehavior(field.returnType);
         }
-        // well. i guess we'll leave it as a variable to be complained about later.
-        return;
+        TypeId typeId = TypeId.fromName(id.text);
+        if (resolveType(typeId, false)) {
+            // it's a class name
+            expression.content = typeId;
+            // isn't a valid expression. we'll return void, even though it's not true.
+            return ReturnBehavior.VOID;
+        }
+        errors.add(new SemalyticalError(id, "Can't resolve this identifier"));
+        return ReturnBehavior.UNKNOWN;
     }
 
     private ReturnBehavior semalysizeIdAssignment(LocalContext context, LocalVariableAssignment idAssignment)
@@ -935,22 +918,6 @@ public class Semalysizer
             expectedAssignmentType = UnknownType.INSTANCE;
         }
         return semalysizeGenericAssignemnt(context, expectedAssignmentType, idAssignment);
-    }
-    private ReturnBehavior semalysizeFieldAssignment(LocalContext context, FieldAssignment fieldAssignment)
-    {
-        if (fieldAssignment.operator != Lang.SYMBOL_EQUALS)
-            throw null;
-        Type fieldDeclaringType = semalysizeExpression(context, fieldAssignment.leftExpression).type;
-        if (fieldAssignment.field == null) // sometimes this is already done by disambiguateId
-            fieldAssignment.field = resolveField(fieldDeclaringType, fieldAssignment.id.name);
-        Type expectedAssignmentType;
-        if (fieldAssignment.field != null) {
-            expectedAssignmentType = fieldAssignment.field.returnType;
-        } else {
-            errors.add(SemalyticalError.cantResolveField(fieldDeclaringType, fieldAssignment.id));
-            expectedAssignmentType = UnknownType.INSTANCE;
-        }
-        return semalysizeGenericAssignemnt(context, expectedAssignmentType, fieldAssignment);
     }
     private ReturnBehavior semalysizeGenericAssignemnt(LocalContext context, Type expectedAssignmentType, AbstractAssignment genericAssignment)
     {
@@ -999,16 +966,6 @@ public class Semalysizer
             errors.add(new SemalyticalError(variableDeclaration, "You can't have a void variable."));
         context.addLocalVariable(variableDeclaration.id, variableDeclaration.typeId.type, errors);
         return ReturnBehavior.VOID;
-    }
-
-    private ReturnBehavior semalysizeId(LocalContext context, Id id)
-    {
-        id.variable = resolveId(context, id.name);
-        if (id.variable == null) {
-            errors.add(SemalyticalError.cantResolveLocalVariable(id));
-            return ReturnBehavior.UNKNOWN;
-        }
-        return new ReturnBehavior(id.variable.type);
     }
 
     private ReturnBehavior semalysizeVariableCreation(LocalContext context, VariableCreation variableCreation)
@@ -1195,6 +1152,9 @@ public class Semalysizer
         }
     }
 
+    /**
+     * @return success
+     */
     private boolean resolveType(TypeId typeId, boolean errorOnFailure)
     {
         boolean failure = false;
@@ -1213,11 +1173,11 @@ public class Semalysizer
         return !failure;
     }
 
-    private Method resolveMethod(Type type, AmbiguousMethodInvocation methodInvocation, ReturnBehavior[] argumentSignature)
+    private Method resolveMethod(Type type, AbstractMethodInvocation methodInvocation, ReturnBehavior[] argumentSignature)
     {
-        Method method = type.resolveMethod(methodInvocation.id.name, getArgumentTypes(argumentSignature));
+        Method method = type.resolveMethod(methodInvocation.methodName.text, getArgumentTypes(argumentSignature));
         if (method == null) {
-            errors.add(SemalyticalError.cantResolveMethod(type, methodInvocation.id, argumentSignature));
+            errors.add(SemalyticalError.cantResolveMethod(type, methodInvocation.methodName, argumentSignature));
             return Method.UNKNOWN;
         }
         return method;

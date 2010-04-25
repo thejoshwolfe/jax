@@ -4,10 +4,11 @@ import net.wolfesoftware.jax.semalysis.*;
 
 public class ConstructorInvocation extends ParseElement
 {
-    public String typeName;
-    public Arguments arguments;
     public Constructor constructor;
-    public ConstructorInvocation(String typeName, Arguments arguments)
+
+    public AmbiguousId typeName;
+    public Arguments arguments;
+    public ConstructorInvocation(AmbiguousId typeName, Arguments arguments)
     {
         this.typeName = typeName;
         this.arguments = arguments;
@@ -15,7 +16,9 @@ public class ConstructorInvocation extends ParseElement
 
     protected void decompile(String indentation, StringBuilder out)
     {
-        out.append("new ").append(typeName).append('(');
+        out.append("new ");
+        typeName.decompile(indentation, out);
+        out.append('(');
         arguments.decompile(indentation, out);
         out.append(')');
     }

@@ -5,6 +5,10 @@ import net.wolfesoftware.jax.semalysis.LocalVariable;
 public class LocalVariableExpression extends ParseElement
 {
     public LocalVariable variable;
+    public LocalVariableExpression(LocalVariable variable)
+    {
+        this.variable = variable;
+    }
 
     @Override
     protected void decompile(String indentation, StringBuilder out)

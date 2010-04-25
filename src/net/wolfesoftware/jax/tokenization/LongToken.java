@@ -18,7 +18,7 @@ public class LongToken extends LiteralToken
         return new LongLiteral(value);
     }
 
-    public static final int TYPE = 0x0de3032d;
+    public static final int TYPE = 0x11720392;
     public int getType()
     {
         return TYPE;

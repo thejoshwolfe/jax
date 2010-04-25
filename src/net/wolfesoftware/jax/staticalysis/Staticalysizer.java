@@ -189,11 +189,11 @@ public class Staticalysizer
             case DereferenceMethod.TYPE:
                 staticalysizeDereferenceMethod((DereferenceMethod)content);
                 break;
-            case DereferenceField.TYPE:
-                staticalysizeDereferenceField((DereferenceField)content);
+            case InstanceFieldExpression.TYPE:
+                staticalysizeDereferenceField((InstanceFieldExpression)content);
                 break;
-            case StaticDereferenceField.TYPE:
-                staticalysizeStaticDereferenceField((StaticDereferenceField)content);
+            case StaticFieldExpression.TYPE:
+                staticalysizeStaticDereferenceField((StaticFieldExpression)content);
                 break;
             case ArrayDereference.TYPE:
                 staticalysizeArrayDereference((ArrayDereference)content);
@@ -343,7 +343,7 @@ public class Staticalysizer
         staticalysizeExpression(tryPart.expression);
     }
 
-    private void staticalysizeStaticDereferenceField(StaticDereferenceField staticDereferenceField)
+    private void staticalysizeStaticDereferenceField(StaticFieldExpression staticDereferenceField)
     {
         // do nothing
     }
@@ -354,9 +354,9 @@ public class Staticalysizer
         staticalysizeMethodInvocation(dereferenceMethod.methodInvocation);
     }
 
-    private void staticalysizeDereferenceField(DereferenceField dereferenceField)
+    private void staticalysizeDereferenceField(InstanceFieldExpression dereferenceField)
     {
-        staticalysizeExpression(dereferenceField.expression);
+        staticalysizeExpression(dereferenceField.leftExpression);
     }
 
     private void staticalysizeMethodInvocation(AmbiguousMethodInvocation methodInvocation)

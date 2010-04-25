@@ -1,11 +1,11 @@
 package net.wolfesoftware.jax.ast;
 
-public class Assignment extends ParseElement
+public class AmbiguousAssignment extends ParseElement
 {
     public Expression expression1;
     public String operator;
     public Expression expression2;
-    public Assignment(Expression expression1, String operator, Expression expression2)
+    public AmbiguousAssignment(Expression expression1, String operator, Expression expression2)
     {
         this.expression1 = expression1;
         this.operator = operator;
@@ -20,7 +20,7 @@ public class Assignment extends ParseElement
         expression2.decompile(indentation, out);
     }
 
-    public static final int TYPE = 0x15d9041a;
+    public static final int TYPE = 0x4bf007c6;
     public int getElementType()
     {
         return TYPE;

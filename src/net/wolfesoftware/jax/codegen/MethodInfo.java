@@ -191,8 +191,8 @@ public class MethodInfo
             case LocalVariableAssignment.TYPE:
                 evalIdAssignment((LocalVariableAssignment)content);
                 break;
-            case FieldAssignment.TYPE:
-                evalFieldAssignment((FieldAssignment)content);
+            case InstanceFieldAssignment.TYPE:
+                evalFieldAssignment((InstanceFieldAssignment)content);
                 break;
             case StaticFieldAssignment.TYPE:
                 evalStaticFieldAssignment((StaticFieldAssignment)content);
@@ -225,11 +225,11 @@ public class MethodInfo
             case DereferenceMethod.TYPE:
                 evalDereferenceMethod((DereferenceMethod)content);
                 break;
-            case DereferenceField.TYPE:
-                evalDereferenceField((DereferenceField)content);
+            case InstanceFieldExpression.TYPE:
+                evalDereferenceField((InstanceFieldExpression)content);
                 break;
-            case StaticDereferenceField.TYPE:
-                evalStaticDereferenceField((StaticDereferenceField)content);
+            case StaticFieldExpression.TYPE:
+                evalStaticDereferenceField((StaticFieldExpression)content);
                 break;
             case StaticMethodInvocation.TYPE:
                 evalStaticMethodInvocation((StaticMethodInvocation)content);
@@ -525,7 +525,7 @@ public class MethodInfo
         }
     }
 
-    private void evalStaticDereferenceField(StaticDereferenceField staticDereferenceField)
+    private void evalStaticDereferenceField(StaticFieldExpression staticDereferenceField)
     {
         writeByte(Instructions.getstatic);
         writeShort(constantPool.getField(staticDereferenceField.field));
@@ -538,9 +538,9 @@ public class MethodInfo
         evalMethodInvocation(dereferenceMethod.methodInvocation);
     }
 
-    private void evalDereferenceField(DereferenceField dereferenceField)
+    private void evalDereferenceField(InstanceFieldExpression dereferenceField)
     {
-        evalExpression(dereferenceField.expression);
+        evalExpression(dereferenceField.leftExpression);
         if (dereferenceField.field.isArrayLength())
             writeByte(Instructions.arraylength);
         else {
@@ -627,7 +627,7 @@ public class MethodInfo
         store(idAssignment.id.variable);
     }
 
-    private void evalFieldAssignment(FieldAssignment fieldAssignment)
+    private void evalFieldAssignment(InstanceFieldAssignment fieldAssignment)
     {
         evalExpression(fieldAssignment.leftExpression);
         evalExpression(fieldAssignment.rightExpression);

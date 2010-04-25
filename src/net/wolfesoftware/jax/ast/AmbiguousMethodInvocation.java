@@ -2,10 +2,12 @@ package net.wolfesoftware.jax.ast;
 
 public class AmbiguousMethodInvocation extends ParseElement
 {
-    public String methodName;
+    public Expression leftExpression;
+    public AmbiguousId methodName;
     public Arguments arguments;
-    public AmbiguousMethodInvocation(String methodName, Arguments arguments)
+    public AmbiguousMethodInvocation(Expression leftExpression, AmbiguousId methodName, Arguments arguments)
     {
+        this.leftExpression = leftExpression;
         this.methodName = methodName;
         this.arguments = arguments;
     }
@@ -13,7 +15,9 @@ public class AmbiguousMethodInvocation extends ParseElement
     @Override
     protected void decompile(String indentation, StringBuilder out)
     {
-        out.append(methodName);
+        leftExpression.decompile(indentation, out);
+        out.append('.');
+        methodName.decompile(indentation, out);
         out.append("(");
         arguments.decompile(indentation, out);
         out.append(")");

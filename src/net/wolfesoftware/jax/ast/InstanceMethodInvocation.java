@@ -1,18 +1,18 @@
 package net.wolfesoftware.jax.ast;
 
-public class StaticMethodInvocation extends AbstractMethodInvocation
+public class InstanceMethodInvocation extends AbstractMethodInvocation
 {
-    public TypeId typeId;
-    public StaticMethodInvocation(TypeId typeId, AmbiguousId methodName, Arguments arguments)
+    public Expression leftExpression;
+    public InstanceMethodInvocation(Expression leftExpression, AmbiguousId methodName, Arguments arguments)
     {
         super(methodName, arguments);
-        this.typeId = typeId;
+        this.leftExpression = leftExpression;
     }
 
     @Override
     protected void decompile(String indentation, StringBuilder out)
     {
-        typeId.decompile(indentation, out);
+        leftExpression.decompile(indentation, out);
         out.append('.');
         methodName.decompile(indentation, out);
         out.append('(');
@@ -20,7 +20,7 @@ public class StaticMethodInvocation extends AbstractMethodInvocation
         out.append(')');
     }
 
-    public static final int TYPE = 0x78ab09c9;
+    public static final int TYPE = 0x777b09b1;
     public int getElementType()
     {
         return TYPE;

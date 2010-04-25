@@ -20,7 +20,7 @@ public class SemalyticalError extends CompileError
         return new SemalyticalError(element, "Can't cast type " + from + " to type " + to + ".");
     }
 
-    public static SemalyticalError cantResolveLocalVariable(Id id)
+    public static SemalyticalError cantResolveLocalVariable(AmbiguousId id)
     {
         return new SemalyticalError(id, "Can't resolve local variable.");
     }
@@ -49,7 +49,7 @@ public class SemalyticalError extends CompileError
         return new SemalyticalError(parseElement, "this has to be a variable.");
     }
 
-    public static SemalyticalError variableMustBeInt(Id id)
+    public static SemalyticalError variableMustBeInt(AmbiguousId id)
     {
         return new SemalyticalError(id, "variable needs to be of type int.");
     }
@@ -59,12 +59,12 @@ public class SemalyticalError extends CompileError
         return new SemalyticalError(typeId, "Dunno what this type is.");
     }
 
-    public static SemalyticalError cantResolveField(Type type, Id id)
+    public static SemalyticalError cantResolveField(Type type, AmbiguousId id)
     {
         return new SemalyticalError(id, "The type " + type + " doesn't have a field called " + id);
     }
 
-    public static SemalyticalError cantResolveMethod(Type type, Id id, ReturnBehavior[] argumentSignature)
+    public static SemalyticalError cantResolveMethod(Type type, AmbiguousId id, ReturnBehavior[] argumentSignature)
     {
         return new SemalyticalError(id, "Can't resolve the method \"" + id + "\" in the type \"" + type + "\" with arguments " + Arrays.toString(argumentSignature) + ".");
     }
