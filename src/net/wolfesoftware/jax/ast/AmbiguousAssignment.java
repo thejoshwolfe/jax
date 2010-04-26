@@ -2,22 +2,22 @@ package net.wolfesoftware.jax.ast;
 
 public class AmbiguousAssignment extends ParseElement
 {
-    public Expression expression1;
+    public Expression leftExpression;
     public String operator;
-    public Expression expression2;
+    public Expression rightExpression;
     public AmbiguousAssignment(Expression expression1, String operator, Expression expression2)
     {
-        this.expression1 = expression1;
+        this.leftExpression = expression1;
         this.operator = operator;
-        this.expression2 = expression2;
+        this.rightExpression = expression2;
     }
 
     @Override
     protected final void decompile(String indentation, StringBuilder out)
     {
-        expression1.decompile(indentation, out);
+        leftExpression.decompile(indentation, out);
         out.append(' ').append(operator).append(' ');
-        expression2.decompile(indentation, out);
+        rightExpression.decompile(indentation, out);
     }
 
     public static final int TYPE = 0x4bf007c6;

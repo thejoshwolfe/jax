@@ -1,6 +1,6 @@
 package net.wolfesoftware.jax.ast;
 
-import net.wolfesoftware.jax.semalysis.LocalVariable;
+import net.wolfesoftware.jax.semalysis.*;
 
 public class LocalVariableAssignment extends AbstractAssignment
 {
@@ -9,6 +9,12 @@ public class LocalVariableAssignment extends AbstractAssignment
     {
         super(operator, rightExpression);
         this.variable = variable;
+    }
+
+    @Override
+    public Type getLeftType()
+    {
+        return variable.type;
     }
 
     @Override

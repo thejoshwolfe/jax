@@ -23,13 +23,14 @@ public class LocalContext
         }
     }
 
-    public final void addLocalVariable(String variableName, Type type, ArrayList<SemalyticalError> errors)
+    public final LocalVariable addLocalVariable(String variableName, Type type, ArrayList<SemalyticalError> errors)
     {
         // redeclaration is not a fatal error (it's even allowed in C)
         if (getLocalVariable(variableName) != null)
             errors.add(new SemalyticalError(variableName, "Redeclaration of local variable"));
-        variableName.variable = new LocalVariable(this, variableName.name, type);
-        localVariableMap.put(variableName.name, variableName.variable);
+        LocalVariable variable = new LocalVariable(this, variableName, type);
+        localVariableMap.put(variableName, variable);
+        return variable;
     }
     public final SecretLocalVariable addSecretLocalVariable(Type type)
     {

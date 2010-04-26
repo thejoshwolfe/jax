@@ -1,6 +1,6 @@
 package net.wolfesoftware.jax.ast;
 
-import net.wolfesoftware.jax.semalysis.Field;
+import net.wolfesoftware.jax.semalysis.*;
 
 public class StaticFieldAssignment extends AbstractAssignment
 {
@@ -10,6 +10,12 @@ public class StaticFieldAssignment extends AbstractAssignment
     {
         super(operator, rightExpression);
         this.field = field;
+    }
+
+    @Override
+    public Type getLeftType()
+    {
+        return field.returnType;
     }
 
     @Override

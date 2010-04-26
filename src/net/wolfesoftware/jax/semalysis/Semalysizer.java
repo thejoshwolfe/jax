@@ -273,8 +273,7 @@ public class Semalysizer
             StaticFieldAssignment staticFieldAssignment = new StaticFieldAssignment(fieldCreation.field, Lang.SYMBOL_EQUALS, fieldCreation.expression);
             context.staticInitializerExpressions.add(new Expression(staticFieldAssignment));
         } else {
-            InstanceFieldAssignment fieldAssignment = new InstanceFieldAssignment(new Expression(ThisExpression.INSTANCE), fieldCreation.field.name, Lang.SYMBOL_EQUALS, fieldCreation.expression);
-            fieldAssignment.field = fieldCreation.field;
+            InstanceFieldAssignment fieldAssignment = new InstanceFieldAssignment(new Expression(ThisExpression.INSTANCE), fieldCreation.field, Lang.SYMBOL_EQUALS, fieldCreation.expression);
             context.initializerExpressions.add(new Expression(fieldAssignment));
         }
     }
@@ -316,7 +315,8 @@ public class Semalysizer
                 returnBehavior = semalysizeDivision(context, (Division)content);
                 break;
             case AmbiguousPreIncrementDecrement.TYPE:
-                returnBehavior = semalysizeAmbiguousPreIncrementDecrement(context, (AmbiguousPreIncrementDecrement)content);
+            case AmbiguousPostIncrementDecrement.TYPE:
+                returnBehavior = semalysizeAmbiguousIncrementDecrement(context, (AmbiguousIncrementDecrement)content);
                 break;
             case LessThan.TYPE:
                 returnBehavior = semalysizeLessThan(context, (LessThan)content);
@@ -599,32 +599,16 @@ public class Semalysizer
         return new ReturnBehavior(typeId.type);
     }
 
-    private ReturnBehavior semalysizeAmbiguousPreIncrementDecrement(LocalContext context, AmbiguousPreIncrementDecrement preIncrement)
+    private ReturnBehavior semalysizeAmbiguousIncrementDecrement(LocalContext context, AmbiguousIncrementDecrement preIncrementDecrement)
     {
-    }
-    private ReturnBehavior semalysizePreDecrement(LocalContext context, PreDecrement preDecrement)
-    {
-        return semalysizeIncrementDecrement(context, preDecrement);
-    }
-    private ReturnBehavior semalysizePostIncrement(LocalContext context, PostIncrement postIncrement)
-    {
-        return semalysizeIncrementDecrement(context, postIncrement);
-    }
-    private ReturnBehavior semalysizePostDecrement(LocalContext context, PostDecrement postDecrement)
-    {
-        return semalysizeIncrementDecrement(context, postDecrement);
-    }
-    private ReturnBehavior semalysizeIncrementDecrement(LocalContext context, AmbiguousPreIncrementDecrement incrementDecrement)
-    {
-        if (incrementDecrement.expression.content.getElementType() != Id.TYPE)
-            errors.add(SemalyticalError.mustBeVariable(incrementDecrement.expression.content));
-        else {
-            incrementDecrement.id = (Id)incrementDecrement.expression.content;
-            semalysizeId(context, incrementDecrement.id);
-            if (incrementDecrement.id.variable.type != RuntimeType.INT)
-                errors.add(SemalyticalError.variableMustBeInt(incrementDecrement.id));
-        }
-        return ReturnBehavior.INT;
+        // TODO
+        throw null;
+//        if (preIncrementDecrement.expression.content.getElementType() == AmbiguousId.TYPE)
+//            semalysizeAmbiguousId(context, preIncrementDecrement.expression);
+//        switch (preIncrementDecrement.expression.content.getElementType()) {
+//            case LocalVariableExpression.TYPE: {
+//            }
+//        }
     }
 
     private ReturnBehavior semalysizeForLoop(LocalContext context, ForLoop forLoop)
@@ -844,33 +828,76 @@ public class Semalysizer
     private ReturnBehavior semalysizeAmbiguousAssignment(LocalContext context, Expression expression)
     {
         AmbiguousAssignment assignment = (AmbiguousAssignment)expression.content;
-        if (assignment.expression1.content.getElementType() == AmbiguousId.TYPE)
-            semalysizeAmbiguousId(context, assignment.expression1);
-        switch (assignment.expression1.content.getElementType()) {
+        if (assignment.leftExpression.content.getElementType() == AmbiguousId.TYPE)
+            semalysizeAmbiguousId(context, assignment.leftExpression);
+        switch (assignment.leftExpression.content.getElementType()) {
             case LocalVariableExpression.TYPE: {
-                LocalVariableExpression localVariableExpression = (LocalVariableExpression)assignment.expression1.content;
-                LocalVariableAssignment localVariableAssignment = new LocalVariableAssignment(localVariableExpression.variable, assignment.operator, assignment.expression2);
+                LocalVariableExpression localVariableExpression = (LocalVariableExpression)assignment.leftExpression.content;
+                LocalVariableAssignment localVariableAssignment = new LocalVariableAssignment(localVariableExpression.variable, assignment.operator, assignment.rightExpression);
                 expression.content = localVariableAssignment;
                 return semalysizeAbstractAssignment(context, localVariableAssignment);
             }
             case InstanceFieldExpression.TYPE: {
-                InstanceFieldExpression fieldExpression = (InstanceFieldExpression)assignment.expression1.content;
-                Field field = fieldExpression.field;
-                InstanceFieldAssignment fieldAssignment = new InstanceFieldAssignment(fieldExpression.leftExpression, field, assignment.operator, assignment.expression2);
+                InstanceFieldExpression fieldExpression = (InstanceFieldExpression)assignment.leftExpression.content;
+                InstanceFieldAssignment fieldAssignment = new InstanceFieldAssignment(fieldExpression.leftExpression, fieldExpression.field, assignment.operator, assignment.rightExpression);
                 expression.content = fieldAssignment;
                 return semalysizeAbstractAssignment(context, fieldAssignment);
             }
             case StaticFieldExpression.TYPE: {
-                asdf; // TODO
+                StaticFieldExpression fieldExpression = (StaticFieldExpression)assignment.leftExpression.content;
+                StaticFieldAssignment fieldAssignment = new StaticFieldAssignment(fieldExpression.field, assignment.operator, assignment.rightExpression);
+                expression.content = fieldAssignment;
+                return semalysizeAbstractAssignment(context, fieldAssignment);
             }
+            // TODO: array assignment
             default:
-                errors.add(new SemalyticalError(assignment.expression1, "This expression is too complex to assign to"));
-                return semalysizeExpression(context, assignment.expression2);
+                errors.add(new SemalyticalError(assignment.leftExpression, "This expression is too complex to assign to"));
+                return semalysizeExpression(context, assignment.rightExpression);
         }
     }
 
+    private static final int 
+    ASSIGNMENT_OPERATOR_TYPE_NUMERIC = 1,
+    ASSIGNMENT_OPERATOR_TYPE_BOOLEAN = 2,
+    ASSIGNMENT_OPERATOR_TYPE_NUMERIC_BOOLEAN = 3,
+    ASSIGNMENT_OPERATOR_TYPE_REFERENCE = 4,
+    ASSIGNMENT_OPERATOR_TYPE_ANY = 7;
+
+    private static final HashMap<String, Integer> assignmentOperatorTypes = new HashMap<String, Integer>();
+    static {
+        assignmentOperatorTypes.put(Lang.SYMBOL_EQUALS, ASSIGNMENT_OPERATOR_TYPE_ANY);
+        assignmentOperatorTypes.put(Lang.SYMBOL_PLUS_EQUALS, ASSIGNMENT_OPERATOR_TYPE_NUMERIC);
+        assignmentOperatorTypes.put(Lang.SYMBOL_MINUS_EQUALS, ASSIGNMENT_OPERATOR_TYPE_NUMERIC);
+        assignmentOperatorTypes.put(Lang.SYMBOL_ASTERISK_EQUALS, ASSIGNMENT_OPERATOR_TYPE_NUMERIC);
+        assignmentOperatorTypes.put(Lang.SYMBOL_SLASH_EQUALS, ASSIGNMENT_OPERATOR_TYPE_NUMERIC);
+        assignmentOperatorTypes.put(Lang.SYMBOL_PERCENT_EQUALS, ASSIGNMENT_OPERATOR_TYPE_NUMERIC);
+        assignmentOperatorTypes.put(Lang.SYMBOL_AMPERSAND_EQUALS, ASSIGNMENT_OPERATOR_TYPE_NUMERIC_BOOLEAN);
+        assignmentOperatorTypes.put(Lang.SYMBOL_CARET_EQUALS, ASSIGNMENT_OPERATOR_TYPE_NUMERIC_BOOLEAN);
+        assignmentOperatorTypes.put(Lang.SYMBOL_PIPE_EQUALS, ASSIGNMENT_OPERATOR_TYPE_NUMERIC_BOOLEAN);
+        assignmentOperatorTypes.put(Lang.SYMBOL_LESS_THAN_LESS_THAN_EQUALS, ASSIGNMENT_OPERATOR_TYPE_NUMERIC);
+        assignmentOperatorTypes.put(Lang.SYMBOL_GREATER_THAN_GREATER_THAN_EQUALS, ASSIGNMENT_OPERATOR_TYPE_NUMERIC);
+        assignmentOperatorTypes.put(Lang.SYMBOL_GREATER_THAN_GREATER_THAN_GREATER_THAN_EQUALS, ASSIGNMENT_OPERATOR_TYPE_NUMERIC);
+    }
     private ReturnBehavior semalysizeAbstractAssignment(LocalContext context, AbstractAssignment assignment)
     {
+        Type rightType = semalysizeExpression(context, assignment.rightExpression).type;
+        Type leftType = assignment.getLeftType();
+        if (assignment.operator == Lang.SYMBOL_EQUALS)
+            implicitCast(context, assignment.rightExpression, leftType);
+        int requiredOperatorType;
+        if (!leftType.isPrimitive())
+            requiredOperatorType = ASSIGNMENT_OPERATOR_TYPE_REFERENCE;
+        else if (leftType == RuntimeType.BOOLEAN)
+            requiredOperatorType = ASSIGNMENT_OPERATOR_TYPE_BOOLEAN;
+        else if (leftType == RuntimeType.VOID) {
+            errors.add(new SemalyticalError(assignment, "Can't assign to type void"));
+            return new ReturnBehavior(rightType);
+        } else
+            requiredOperatorType = ASSIGNMENT_OPERATOR_TYPE_NUMERIC;
+        int actualOperatorType = assignmentOperatorTypes.get(assignment.operator);
+        if ((actualOperatorType & requiredOperatorType) == 0)
+            errors.add(new SemalyticalError(assignment, "Can't assign to a \"" + leftType.simpleName + "\" with this operator"));
+        return new ReturnBehavior(rightType);
     }
 
     private ReturnBehavior semalysizeAmbiguousId(LocalContext context, Expression expression)
@@ -903,27 +930,6 @@ public class Semalysizer
         }
         errors.add(new SemalyticalError(id, "Can't resolve this identifier"));
         return ReturnBehavior.UNKNOWN;
-    }
-
-    private ReturnBehavior semalysizeIdAssignment(LocalContext context, LocalVariableAssignment idAssignment)
-    {
-        if (idAssignment.operator != Lang.SYMBOL_EQUALS)
-            throw null;
-        idAssignment.id.variable = resolveId(context, idAssignment.id.name);
-        Type expectedAssignmentType;
-        if (idAssignment.id.variable != null) {
-            expectedAssignmentType = idAssignment.id.variable.type;
-        } else {
-            errors.add(SemalyticalError.cantResolveLocalVariable(idAssignment.id));
-            expectedAssignmentType = UnknownType.INSTANCE;
-        }
-        return semalysizeGenericAssignemnt(context, expectedAssignmentType, idAssignment);
-    }
-    private ReturnBehavior semalysizeGenericAssignemnt(LocalContext context, Type expectedAssignmentType, AbstractAssignment genericAssignment)
-    {
-        semalysizeExpression(context, genericAssignment.rightExpression);
-        implicitCast(context, genericAssignment.rightExpression, expectedAssignmentType);
-        return new ReturnBehavior(expectedAssignmentType);
     }
 
     private void implicitCast(LocalContext context, Expression expression, Type toType)
@@ -964,7 +970,7 @@ public class Semalysizer
     {
         if (!resolveType(variableDeclaration.typeId, true))
             errors.add(new SemalyticalError(variableDeclaration, "You can't have a void variable."));
-        context.addLocalVariable(variableDeclaration.id, variableDeclaration.typeId.type, errors);
+        variableDeclaration.variable = context.addLocalVariable(variableDeclaration.variableName, variableDeclaration.typeId.type, errors);
         return ReturnBehavior.VOID;
     }
 
@@ -1040,7 +1046,7 @@ public class Semalysizer
             // String.valueOf(a).concat(String.valueOf(b))
             Expression string1 = stringValueOf(addition.expression1);
             Expression string2 = stringValueOf(addition.expression2);
-            expression.content = new DereferenceMethod(string1, new AmbiguousMethodInvocation(new Id("concat"), new Arguments(Arrays.asList(string2))));
+            expression.content = new InstanceMethodInvocation(string1, new AmbiguousId("concat"), new Arguments(Arrays.asList(string2)));
             return semalysizeExpression(context, expression);
         } else {
             return semalysizeNumericOperator(context, addition);
@@ -1048,7 +1054,7 @@ public class Semalysizer
     }
     private Expression stringValueOf(Expression expression)
     {
-        return new Expression(new DereferenceMethod(new Expression(new Id("String")), new AmbiguousMethodInvocation(new Id("valueOf"), new Arguments(Arrays.asList(expression)))));
+        return new Expression(new InstanceMethodInvocation(new Expression(new AmbiguousId("String")), new AmbiguousId("valueOf"), new Arguments(Arrays.asList(expression))));
     }
     private ReturnBehavior semalysizeSubtraction(LocalContext context, Subtraction subtraction)
     {
@@ -1137,14 +1143,10 @@ public class Semalysizer
 
     private void resolveQualifiedName(QualifiedName qualifiedName)
     {
-        StringBuilder stringBuilder = new StringBuilder();
-        int i;
-        for (i = 0; i < qualifiedName.elements.size() - 1; i++)
-            stringBuilder.append(qualifiedName.elements.get(i).name).append('.');
-        String typeName = qualifiedName.elements.get(i).name;
-        stringBuilder.append(typeName);
-        String fullTypeName = stringBuilder.toString();
+        String fullTypeName = qualifiedName.qualifiedName;
+        String typeName = fullTypeName.substring(fullTypeName.lastIndexOf('.') + 1);
         try {
+            // TODO: this is cheating
             Class<?> runtimeType = Class.forName(fullTypeName);
             importedTypes.put(typeName, RuntimeType.getType(runtimeType));
         } catch (ClassNotFoundException e) {
@@ -1152,9 +1154,7 @@ public class Semalysizer
         }
     }
 
-    /**
-     * @return success
-     */
+    /** @return success */
     private boolean resolveType(TypeId typeId, boolean errorOnFailure)
     {
         boolean failure = false;

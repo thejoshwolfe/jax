@@ -1,9 +1,12 @@
 package net.wolfesoftware.jax.ast;
 
+import net.wolfesoftware.jax.semalysis.LocalVariable;
+
 public class VariableDeclaration extends ParseElement
 {
-    public TypeId typeId;
+    public LocalVariable variable;
 
+    public TypeId typeId;
     public String variableName;
 
     public VariableDeclaration(TypeId type, String variableName)

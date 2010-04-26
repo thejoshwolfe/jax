@@ -1,13 +1,10 @@
 package net.wolfesoftware.jax.ast;
 
-public class AmbiguousPostIncrementDecrement extends ParseElement
+public class AmbiguousPostIncrementDecrement extends AmbiguousIncrementDecrement
 {
-    public Expression expression;
-    public String operator;
     public AmbiguousPostIncrementDecrement(Expression expression, String operator)
     {
-        this.expression = expression;
-        this.operator = operator;
+        super(expression, operator);
     }
 
     @Override
