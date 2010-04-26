@@ -85,7 +85,7 @@ public class MethodInfo
         if (!methodDeclaration.isStatic())
             context.getLocalVariable(Lang.KEYWORD_THIS).getNumber();
         for (VariableDeclaration variableDeclaration : methodDeclaration.argumentDeclarations.elements)
-            variableDeclaration.id.variable.getNumber();
+            variableDeclaration.variable.getNumber();
         evalExpression(methodDeclaration.expression);
         _return(methodDeclaration.returnBehavior.type);
         Util._assert(context.stackSize == 0);
@@ -119,8 +119,8 @@ public class MethodInfo
             case StringLiteral.TYPE:
                 evalStringLiteral((StringLiteral)content);
                 break;
-            case Id.TYPE:
-                evalId((Id)content);
+            case LocalVariableExpression.TYPE:
+                evalLocalVariableExpression((LocalVariableExpression)content);
                 break;
             case Addition.TYPE:
                 evalAddition((Addition)content);
@@ -133,18 +133,6 @@ public class MethodInfo
                 break;
             case Division.TYPE:
                 evalDivision((Division)content);
-                break;
-            case PreIncrement.TYPE:
-                evalPreIncrement((PreIncrement)content);
-                break;
-            case PreDecrement.TYPE:
-                evalPreDecrement((PreDecrement)content);
-                break;
-            case PostIncrement.TYPE:
-                evalPostIncrement((PostIncrement)content);
-                break;
-            case PostDecrement.TYPE:
-                evalPostDecrement((PostDecrement)content);
                 break;
             case LessThan.TYPE:
                 evalLessThan((LessThan)content);
@@ -189,7 +177,7 @@ public class MethodInfo
                 evalVariableDeclaration((VariableDeclaration)content);
                 break;
             case LocalVariableAssignment.TYPE:
-                evalIdAssignment((LocalVariableAssignment)content);
+                evalLocalVariableAssignment((LocalVariableAssignment)content);
                 break;
             case InstanceFieldAssignment.TYPE:
                 evalFieldAssignment((InstanceFieldAssignment)content);
@@ -210,8 +198,9 @@ public class MethodInfo
             case WhileLoop.TYPE:
                 evalWhileLoop((WhileLoop)content);
                 break;
-            case MethodInvocation.AmbiguousMethodInvocation:
-                evalMethodInvocation((AmbiguousMethodInvocation)content);
+            case StaticMethodInvocation.TYPE:
+            case InstanceMethodInvocation.TYPE:
+                evalAbstractMethodInvocation((AbstractMethodInvocation)content);
                 break;
             case ConstructorInvocation.TYPE:
                 evalConstructorInvocation((ConstructorInvocation)content);
@@ -222,17 +211,11 @@ public class MethodInfo
             case ConstructorRedirectSuper.TYPE:
                 evalConstructorRedirectSuper((ConstructorRedirectSuper)content);
                 break;
-            case DereferenceMethod.TYPE:
-                evalDereferenceMethod((DereferenceMethod)content);
-                break;
             case InstanceFieldExpression.TYPE:
                 evalDereferenceField((InstanceFieldExpression)content);
                 break;
             case StaticFieldExpression.TYPE:
                 evalStaticDereferenceField((StaticFieldExpression)content);
-                break;
-            case StaticMethodInvocation.TYPE:
-                evalStaticMethodInvocation((StaticMethodInvocation)content);
                 break;
             case ArrayDereference.TYPE:
                 evalArrayDereference((ArrayDereference)content);
@@ -361,39 +344,10 @@ public class MethodInfo
         context.pushOperand(constructorInvocation.constructor.declaringType);
         writeByte(Instructions.dup);
         context.pushOperand(RuntimeType.OBJECT); // this is a lie, but whatever
-        evalArguments(constructorInvocation.methodInvocation.arguments);
+        evalArguments(constructorInvocation.arguments);
         writeByte(Instructions.invokespecial);
         writeShort(constantPool.getMethod(constructorInvocation.constructor));
-        context.popOperands(1 + constructorInvocation.methodInvocation.arguments.elements.size());
-    }
-
-    private void evalPreIncrement(PreIncrement preIncrement)
-    {
-        writeByte(Instructions.iinc);
-        writeByte((byte)preIncrement.id.variable.getNumber());
-        writeByte((byte)1);
-        evalId(preIncrement.id);
-    }
-    private void evalPreDecrement(PreDecrement preDecrement)
-    {
-        writeByte(Instructions.iinc);
-        writeByte((byte)preDecrement.id.variable.getNumber());
-        writeByte((byte)-1);
-        evalId(preDecrement.id);
-    }
-    private void evalPostIncrement(PostIncrement postIncrement)
-    {
-        evalId(postIncrement.id);
-        writeByte(Instructions.iinc);
-        writeByte((byte)postIncrement.id.variable.getNumber());
-        writeByte((byte)1);
-    }
-    private void evalPostDecrement(PostDecrement postDecrement)
-    {
-        evalId(postDecrement.id);
-        writeByte(Instructions.iinc);
-        writeByte((byte)postDecrement.id.variable.getNumber());
-        writeByte((byte)-1);
+        context.popOperands(1 + constructorInvocation.arguments.elements.size());
     }
 
     private void evalForLoop(ForLoop forLoop)
@@ -444,11 +398,6 @@ public class MethodInfo
             throw null;
         context.popOperands(2);
         context.pushOperand(type);
-    }
-
-    private void evalStaticMethodInvocation(StaticMethodInvocation staticMethodInvocation)
-    {
-        evalMethodInvocation(staticMethodInvocation.methodInvocation);
     }
 
     private void evalTryCatch(TryCatch tryCatch)
@@ -514,7 +463,7 @@ public class MethodInfo
     {
         context.pushOperand(RuntimeType.OBJECT); // exception object
         catchBody.startOffset = offset;
-        astore(catchBody.variableDeclaration.id.variable.getNumber());
+        astore(catchBody.variableDeclaration.variable.getNumber());
         evalExpression(catchBody.expression);
         if (addGoto) {
             if (catchBody.expression.returnBehavior.type != RuntimeType.VOID)
@@ -532,12 +481,6 @@ public class MethodInfo
         context.pushOperand(staticDereferenceField.field.returnType);
     }
 
-    private void evalDereferenceMethod(DereferenceMethod dereferenceMethod)
-    {
-        evalExpression(dereferenceMethod.expression);
-        evalMethodInvocation(dereferenceMethod.methodInvocation);
-    }
-
     private void evalDereferenceField(InstanceFieldExpression dereferenceField)
     {
         evalExpression(dereferenceField.leftExpression);
@@ -551,11 +494,15 @@ public class MethodInfo
         context.pushOperand(dereferenceField.field.returnType);
     }
 
-    private void evalMethodInvocation(AmbiguousMethodInvocation methodInvocation)
+    private void evalAbstractMethodInvocation(AbstractMethodInvocation methodInvocation)
     {
+        Method method = methodInvocation.method;
+
+        if (!method.isStatic)
+            evalExpression(((InstanceMethodInvocation)methodInvocation).leftExpression);
+
         evalArguments(methodInvocation.arguments);
 
-        Method method = methodInvocation.method;
         if (method.declaringType.isInterface()) {
             // interface method
             writeByte(Instructions.invokeinterface);
@@ -620,11 +567,11 @@ public class MethodInfo
         fillins.add(new Fillin(ifOffset));
     }
 
-    private void evalIdAssignment(LocalVariableAssignment idAssignment)
+    private void evalLocalVariableAssignment(LocalVariableAssignment localVariableAssignment)
     {
-        evalExpression(idAssignment.rightExpression);
-        dup(idAssignment.rightExpression.returnBehavior.type);
-        store(idAssignment.id.variable);
+        evalExpression(localVariableAssignment.rightExpression);
+        dup(localVariableAssignment.rightExpression.returnBehavior.type);
+        store(localVariableAssignment.variable);
     }
 
     private void evalFieldAssignment(InstanceFieldAssignment fieldAssignment)
@@ -644,28 +591,28 @@ public class MethodInfo
     private void evalVariableDeclaration(VariableDeclaration variableDeclaration)
     {
         // we have to do this so that nested scopes done step on us
-        variableDeclaration.id.variable.getNumber();
+        variableDeclaration.variable.getNumber();
     }
 
     private void evalVariableCreation(VariableCreation variableCreation)
     {
         evalExpression(variableCreation.expression);
-        LocalVariable variable = variableCreation.variableDeclaration.id.variable;
+        LocalVariable variable = variableCreation.variableDeclaration.variable;
         store(variable);
     }
-    private void evalId(Id id)
+    private void evalLocalVariableExpression(LocalVariableExpression localVariableExpression)
     {
-        Type type = translateTypeForInstructions(id.variable.type);
+        Type type = translateTypeForInstructions(localVariableExpression.variable.type);
         if (!type.isPrimitive())
-            aload(id.variable.getNumber());
+            aload(localVariableExpression.variable.getNumber());
         else if (type == RuntimeType.INT)
-            iload(id.variable.getNumber());
+            iload(localVariableExpression.variable.getNumber());
         else if (type == RuntimeType.LONG)
-            lload(id.variable.getNumber());
+            lload(localVariableExpression.variable.getNumber());
         else if (type == RuntimeType.FLOAT)
-            fload(id.variable.getNumber());
+            fload(localVariableExpression.variable.getNumber());
         else if (type == RuntimeType.DOUBLE)
-            dload(id.variable.getNumber());
+            dload(localVariableExpression.variable.getNumber());
         else
             throw null;
         context.pushOperand(type);

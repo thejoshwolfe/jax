@@ -720,9 +720,10 @@ public final class Parser
 
         return new SubParsing<VariableCreation>(new VariableCreation(variableDeclaration.element, expression.element), offset);
     }
-    private SubParsing<AmbiguousMethodInvocation> parseAmbiguousMethodInvocation(int offset)
+
+    private SubParsing<AmbiguousImplicitThisMethodInvocation> parseAmbiguousImplicitThisMethodInvocation(int offset)
     {
-        String id = parseId(offset);
+        AmbiguousId id = new AmbiguousId(parseId(offset));
         if (id == null)
             return null;
         offset++;
@@ -740,7 +741,7 @@ public final class Parser
             return null;
         offset++;
 
-        return new SubParsing<AmbiguousMethodInvocation>(new AmbiguousMethodInvocation(id, arguments.element), offset);
+        return new SubParsing<AmbiguousImplicitThisMethodInvocation>(new AmbiguousImplicitThisMethodInvocation(id, arguments.element), offset);
     }
     private SubParsing<TryPart> parseTryPart(int offset)
     {
@@ -850,7 +851,7 @@ public final class Parser
                         offset++;
                         continue;
                     }
-                    SubParsing<AmbiguousMethodInvocation> methodInvocation = parseAmbiguousMethodInvocation(offset);
+                    SubParsing<AmbiguousImplicitThisMethodInvocation> methodInvocation = parseAmbiguousImplicitThisMethodInvocation(offset);
                     if (methodInvocation != null) {
                         pushUnit(methodInvocation.element);
                         offset = methodInvocation.end;
