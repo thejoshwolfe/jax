@@ -313,6 +313,8 @@ public class Semalysizer
         initialStuffElements.add(constructorRedirectExpression);
         for (Expression initializerExpression : context.getClassContext().initializerExpressions)
             initialStuffElements.add((Expression)initializerExpression.cloneElement());
+        // this block should return null
+        initialStuffElements.add(null);
 
         // add the initial stuff to the constructor body block to be semalysized
         Expression initialStuffExpression = new Expression(new Block(new BlockContents(initialStuffElements)));
@@ -422,6 +424,10 @@ public class Semalysizer
             case StaticFieldAssignment.TYPE:
                 // called for statically initialized fields
                 returnBehavior = semalysizeStaticFieldAssignment(context, (StaticFieldAssignment)expression.content);
+                break;
+            case InstanceFieldAssignment.TYPE:
+                // called for inlined field creation 
+                returnBehavior = semalysizeInstanceFieldAssignment(context, (InstanceFieldAssignment)expression.content);
                 break;
             case IfThenElse.TYPE:
             case QuestionColon.TYPE:
@@ -863,6 +869,13 @@ public class Semalysizer
 
     private ReturnBehavior semalysizeStaticFieldAssignment(LocalContext context, StaticFieldAssignment assignment)
     {
+        semalysizeExpression(context, assignment.rightExpression);
+        return semalysizeAbstractAssignment(context, assignment);
+    }
+
+    private ReturnBehavior semalysizeInstanceFieldAssignment(LocalContext context, InstanceFieldAssignment assignment)
+    {
+        semalysizeExpression(context, assignment.leftExpression);
         semalysizeExpression(context, assignment.rightExpression);
         return semalysizeAbstractAssignment(context, assignment);
     }
