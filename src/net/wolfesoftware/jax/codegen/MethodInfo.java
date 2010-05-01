@@ -588,7 +588,7 @@ public class MethodInfo
     {
         evalExpression(fieldAssignment.leftExpression);
         evalExpression(fieldAssignment.rightExpression);
-        dup(fieldAssignment.rightExpression.returnBehavior.type);
+        dup_x(fieldAssignment.leftExpression.returnBehavior.type, fieldAssignment.rightExpression.returnBehavior.type);
         putfield(fieldAssignment.field);
     }
     private void evalStaticFieldAssignment(StaticFieldAssignment staticFieldAssignment)
@@ -840,6 +840,39 @@ public class MethodInfo
                 throw null;
         }
         context.pushOperand(type);
+    }
+
+    private void dup_x(Type underneathType, Type topType)
+    {
+        switch (topType.getSize()) {
+            case 1:
+                switch (underneathType.getSize()) {
+                    case 1:
+                        writeByte(Instructions.dup_x1);
+                        break;
+                    case 2:
+                        writeByte(Instructions.dup_x2);
+                        break;
+                    default:
+                        throw null;
+                }
+                break;
+            case 2:
+                switch (underneathType.getSize()) {
+                    case 1:
+                        writeByte(Instructions.dup2_x1);
+                        break;
+                    case 2:
+                        writeByte(Instructions.dup2_x2);
+                        break;
+                    default:
+                        throw null;
+                }
+                break;
+            default:
+                throw null;
+        }
+        context.pushOperand(topType);
     }
     private void store(SecretLocalVariable variable)
     {

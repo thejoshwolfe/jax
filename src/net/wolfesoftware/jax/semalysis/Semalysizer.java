@@ -953,7 +953,9 @@ public class Semalysizer
                 expression.content = new StaticFieldExpression(field);
             } else {
                 // it's a non-static field
-                expression.content = new InstanceFieldExpression(new Expression(ThisExpression.INSTANCE), field);
+                Expression leftExpression = new Expression(ThisExpression.INSTANCE);
+                semalysizeExpression(context, leftExpression);
+                expression.content = new InstanceFieldExpression(leftExpression, field);
             }
             return new ReturnBehavior(field.returnType);
         }
