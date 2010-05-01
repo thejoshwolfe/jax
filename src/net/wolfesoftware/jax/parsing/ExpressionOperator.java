@@ -169,21 +169,21 @@ public abstract class ExpressionOperator
         }
     };
 
-    public static final ExpressionOperator quantity = new ExpressionEnclosingOperator(-1, Lang.SYMBOL_OPEN_PARENS, -1, 
+    public static final ExpressionOperator quantity = new ExpressionEnclosingOperator(-1, Lang.SYMBOL_OPEN_PARENS, -1,
             Expression.TYPE, Lang.SYMBOL_CLOSE_PARENS) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
             return new Quantity((Expression)innerElements.get(0));
         }
     };
-    public static final ExpressionOperator primitiveCast = new ExpressionEnclosingOperator(-1, Lang.SYMBOL_OPEN_PARENS, PRECEDENCE_UNARY + 1, 
+    public static final ExpressionOperator primitiveCast = new ExpressionEnclosingOperator(-1, Lang.SYMBOL_OPEN_PARENS, PRECEDENCE_UNARY + 1,
             PrimitiveType.TYPE, Lang.SYMBOL_CLOSE_PARENS, -1) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
             return new TypeCast((TypeId)innerElements.get(0), rightExpression);
         }
     };
-    public static final ExpressionOperator typeIdCast = new ExpressionEnclosingOperator(-1, Lang.SYMBOL_OPEN_PARENS, PRECEDENCE_UNARY + 1, 
+    public static final ExpressionOperator typeIdCast = new ExpressionEnclosingOperator(-1, Lang.SYMBOL_OPEN_PARENS, PRECEDENCE_UNARY + 1,
             TypeId.TYPE, Lang.SYMBOL_CLOSE_PARENS) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
@@ -192,7 +192,7 @@ public abstract class ExpressionOperator
     };
 
     /* ControlStructure */
-    public static final ExpressionOperator ifThen = new ExpressionEnclosingOperator(-1, Lang.KEYWORD_IF, -1, 
+    public static final ExpressionOperator ifThen = new ExpressionEnclosingOperator(-1, Lang.KEYWORD_IF, -1,
             Lang.SYMBOL_OPEN_PARENS, Expression.TYPE, Lang.SYMBOL_CLOSE_PARENS, Expression.TYPE) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {

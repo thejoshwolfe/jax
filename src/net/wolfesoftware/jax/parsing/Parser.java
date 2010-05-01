@@ -723,9 +723,10 @@ public final class Parser
 
     private SubParsing<AmbiguousImplicitThisMethodInvocation> parseAmbiguousImplicitThisMethodInvocation(int offset)
     {
-        AmbiguousId id = new AmbiguousId(parseId(offset));
-        if (id == null)
+        String idString = parseId(offset);
+        if (idString == null)
             return null;
+        AmbiguousId id = new AmbiguousId(idString);
         offset++;
 
         if (getToken(offset).text != Lang.SYMBOL_OPEN_PARENS)
