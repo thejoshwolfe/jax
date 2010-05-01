@@ -11,6 +11,7 @@ public class LocalType extends Type
     private final LinkedList<Method> methods = new LinkedList<Method>();
     private final HashMap<String, Field> fields = new HashMap<String, Field>();
     public final ArrayList<Expression> staticInitializerExpressions = new ArrayList<Expression>();
+    public final LocalContext staticInitializerContext = new RootLocalContext(this, true);
     public final ArrayList<Expression> initializerExpressions = new ArrayList<Expression>();
     public LocalType(String qualifiedName, String id)
     {

@@ -174,9 +174,15 @@ public class Semalysizer
                     semalysizeFieldCreation(context, (FieldCreation)content);
                     break;
                 default:
-                    throw new RuntimeException("TODO: implement " + content.getClass());
+                    throw new RuntimeException(content.getClass().toString());
             }
         }
+
+        // static initializer
+        for (Expression staticInitializerExpression : context.staticInitializerExpressions)
+            semalysizeExpression(context.staticInitializerContext, staticInitializerExpression);
+
+        // constructors
         for (ConstructorDeclaration constructorDeclaration : maybeLater)
             semalysizeConstructorDeclaration(context, constructorDeclaration);
     }
@@ -383,6 +389,10 @@ public class Semalysizer
                 break;
             case AmbiguousAssignment.TYPE:
                 returnBehavior = semalysizeAmbiguousAssignment(context, expression);
+                break;
+            case StaticFieldAssignment.TYPE:
+                // called for statically initialized fields
+                returnBehavior = semalysizeStaticFieldAssignment(context, (StaticFieldAssignment)expression.content);
                 break;
             case IfThenElse.TYPE:
             case QuestionColon.TYPE:
@@ -825,11 +835,17 @@ public class Semalysizer
         return ReturnBehavior.VOID;
     }
 
+    private ReturnBehavior semalysizeStaticFieldAssignment(LocalContext context, StaticFieldAssignment assignment)
+    {
+        semalysizeExpression(context, assignment.rightExpression);
+        return semalysizeAbstractAssignment(context, assignment);
+    }
+
     private ReturnBehavior semalysizeAmbiguousAssignment(LocalContext context, Expression expression)
     {
         AmbiguousAssignment assignment = (AmbiguousAssignment)expression.content;
-        if (assignment.leftExpression.content.getElementType() == AmbiguousId.TYPE)
-            semalysizeAmbiguousId(context, assignment.leftExpression);
+        semalysizeExpression(context, assignment.leftExpression);
+        semalysizeExpression(context, assignment.rightExpression);
         switch (assignment.leftExpression.content.getElementType()) {
             case LocalVariableExpression.TYPE: {
                 LocalVariableExpression localVariableExpression = (LocalVariableExpression)assignment.leftExpression.content;
@@ -880,7 +896,7 @@ public class Semalysizer
     }
     private ReturnBehavior semalysizeAbstractAssignment(LocalContext context, AbstractAssignment assignment)
     {
-        Type rightType = semalysizeExpression(context, assignment.rightExpression).type;
+        Type rightType = assignment.rightExpression.returnBehavior.type;
         Type leftType = assignment.getLeftType();
         if (assignment.operator == Lang.SYMBOL_EQUALS)
             implicitCast(context, assignment.rightExpression, leftType);
@@ -890,14 +906,34 @@ public class Semalysizer
         else if (leftType == RuntimeType.BOOLEAN)
             requiredOperatorType = ASSIGNMENT_OPERATOR_TYPE_BOOLEAN;
         else if (leftType == RuntimeType.VOID) {
+            // don't this will ever happen
             errors.add(new SemalyticalError(assignment, "Can't assign to type void"));
             return new ReturnBehavior(rightType);
         } else
             requiredOperatorType = ASSIGNMENT_OPERATOR_TYPE_NUMERIC;
         int actualOperatorType = assignmentOperatorTypes.get(assignment.operator);
-        if ((actualOperatorType & requiredOperatorType) == 0)
-            errors.add(new SemalyticalError(assignment, "Can't assign to a \"" + leftType.simpleName + "\" with this operator"));
+        if ((actualOperatorType & requiredOperatorType) == 0) {
+            String vowelA = getVowelA(leftType.simpleName);
+            errors.add(new SemalyticalError(assignment, "Can't modify " + vowelA + " \"" + leftType.simpleName + "\" with this operator"));
+        }
         return new ReturnBehavior(rightType);
+    }
+
+    /** lol */
+    private static String getVowelA(String beforeThisText)
+    {
+        if (beforeThisText.equals(""))
+            return "a";
+        switch (beforeThisText.toLowerCase().charAt(0)) {
+            case 'a':
+            case 'e':
+            case 'i':
+            case 'o':
+            case 'u':
+                return "an";
+            default:
+                return "a";
+        }
     }
 
     private ReturnBehavior semalysizeAmbiguousId(LocalContext context, Expression expression)

@@ -22,6 +22,17 @@ import net.wolfesoftware.jax.util.Util;
  */
 public class MethodInfo
 {
+    public static final short
+    ACC_PUBLIC = 0x0001,
+    ACC_PRIVATE = 0x0002,
+    ACC_PROTECTED = 0x0004,
+    ACC_STATIC = 0x0008,
+    ACC_FINAL = 0x0010,
+    ACC_SYNCHRONIZED = 0x0020,
+    ACC_NATIVE = 0x0100,
+    ACC_ABSTRACT = 0x0400,
+    ACC_STRICT = 0x0800;
+
     public static MethodInfo generate(MethodDeclaration methodDeclaration, ConstantPool constantPool)
     {
         MethodInfo methodInfo = new MethodInfo(methodDeclaration.method, methodDeclaration.methodModifiers.bitmask, constantPool);
@@ -35,16 +46,6 @@ public class MethodInfo
         return methodInfo;
     }
 
-    public static final short
-    ACC_PUBLIC = 0x0001,
-    ACC_PRIVATE = 0x0002,
-    ACC_PROTECTED = 0x0004,
-    ACC_STATIC = 0x0008,
-    ACC_FINAL = 0x0010,
-    ACC_SYNCHRONIZED = 0x0020,
-    ACC_NATIVE = 0x0100,
-    ACC_ABSTRACT = 0x0400,
-    ACC_STRICT = 0x0800;
 
     private final short access_flags;
     private final short name_index;

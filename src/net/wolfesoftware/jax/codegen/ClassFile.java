@@ -111,8 +111,12 @@ public class ClassFile
             case ConstructorDeclaration.TYPE:
                 methods.add(MethodInfo.generate((ConstructorDeclaration)content, constant_pool));
                 break;
+            case FieldDeclaration.TYPE:
+            case FieldCreation.TYPE:
+                fields.add(FieldInfo.generate((FieldDeclaration)content, constant_pool));
+                break;
             default:
-                throw new RuntimeException();
+                throw new RuntimeException(content.getClass().toString());
         }
     }
 }
