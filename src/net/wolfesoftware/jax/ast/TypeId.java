@@ -31,4 +31,11 @@ public class TypeId extends ParseElement
     {
         return new TypeId(name, ArrayDimensions.EMPTY);
     }
+
+    public static TypeId fromType(Type type)
+    {
+        TypeId typeId = fromName(type.simpleName);
+        typeId.type = type;
+        return typeId;
+    }
 }

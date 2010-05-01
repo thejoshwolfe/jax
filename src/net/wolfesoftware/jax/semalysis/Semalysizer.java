@@ -454,6 +454,9 @@ public class Semalysizer
             case AmbiguousMethodInvocation.TYPE:
                 returnBehavior = semalysizeAmbiguousMethodInvocation(context, expression);
                 break;
+            case AmbiguousImplicitThisMethodInvocation.TYPE:
+                returnBehavior = semalysizeAmbiguousImplicitThisMethodInvocation(context, expression);
+                break;
             case AmbiguousFieldExpression.TYPE:
                 returnBehavior = semalysizeAmbiguousFieldExpression(context, expression);
                 break;
@@ -698,7 +701,7 @@ public class Semalysizer
     private ReturnBehavior semalysizeAbstractMethodInvocation(LocalContext context, Type type, AbstractMethodInvocation methodInvocation)
     {
         ReturnBehavior[] argumentSignature = semalysizeArguments(context, methodInvocation.arguments);
-        methodInvocation.method = resolveMethod(type, methodInvocation, argumentSignature);
+        methodInvocation.method = resolveMethod(type, methodInvocation.methodName, argumentSignature);
         implicitCastArguments(context, methodInvocation.arguments, methodInvocation.method.argumentSignature);
         Type returnType = methodInvocation.method.returnType;
         return new ReturnBehavior(returnType);
@@ -783,7 +786,7 @@ public class Semalysizer
             }
         }
     }
-
+    
     private ReturnBehavior semalysizeAmbiguousMethodInvocation(LocalContext context, Expression expression)
     {
         AmbiguousMethodInvocation methodInvocation = (AmbiguousMethodInvocation)expression.content;
@@ -791,17 +794,31 @@ public class Semalysizer
             semalysizeAmbiguousId(context, methodInvocation.leftExpression);
         else
             semalysizeExpression(context, methodInvocation.leftExpression);
-        switch (methodInvocation.leftExpression.content.getElementType()) {
-            case TypeId.TYPE: {
-                // static method invocation
-                StaticMethodInvocation staticMethodInvocation = new StaticMethodInvocation((TypeId)methodInvocation.leftExpression.content, methodInvocation.methodName, methodInvocation.arguments);
-                expression.content = staticMethodInvocation;
-                return semalysizeStaticMethodInvocation(context, staticMethodInvocation);
-            }
-            default: {
-                InstanceMethodInvocation instanceMethodInvocation = new InstanceMethodInvocation(methodInvocation.leftExpression, methodInvocation.methodName, methodInvocation.arguments);
-                return semalysizeInstanceMethodInvocation(context, instanceMethodInvocation);
-            }
+        if (methodInvocation.leftExpression.content.getElementType() == TypeId.TYPE) {
+            // static method invocation
+            StaticMethodInvocation staticMethodInvocation = new StaticMethodInvocation((TypeId)methodInvocation.leftExpression.content, methodInvocation.methodName, methodInvocation.arguments);
+            expression.content = staticMethodInvocation;
+            return semalysizeStaticMethodInvocation(context, staticMethodInvocation);
+        } else {
+            InstanceMethodInvocation instanceMethodInvocation = new InstanceMethodInvocation(methodInvocation.leftExpression, methodInvocation.methodName, methodInvocation.arguments);
+            return semalysizeInstanceMethodInvocation(context, instanceMethodInvocation);
+        }
+    }
+    private ReturnBehavior semalysizeAmbiguousImplicitThisMethodInvocation(LocalContext context, Expression expression)
+    {
+        AmbiguousImplicitThisMethodInvocation methodInvocation = (AmbiguousImplicitThisMethodInvocation)expression.content;
+        ReturnBehavior[] argumentSignature = semalysizeArguments(context, methodInvocation.arguments);
+        Method method = resolveMethod(context.getClassContext(), methodInvocation.methodName, argumentSignature);
+        if (method.isStatic) {
+            // implicit static ClassName.method()
+            StaticMethodInvocation staticMethodInvocation = new StaticMethodInvocation(TypeId.fromType(context.getClassContext()), methodInvocation.methodName, methodInvocation.arguments);
+            expression.content = staticMethodInvocation;
+            return semalysizeStaticMethodInvocation(context, staticMethodInvocation);
+        } else {
+            // implicit instance this.method()
+            InstanceMethodInvocation instanceMethodInvocation = new InstanceMethodInvocation(new Expression(ThisExpression.INSTANCE), methodInvocation.methodName, methodInvocation.arguments);
+            expression.content = instanceMethodInvocation;
+            return semalysizeInstanceMethodInvocation(context, instanceMethodInvocation);
         }
     }
 
@@ -809,7 +826,7 @@ public class Semalysizer
     {
         ReturnBehavior expressionReturnBehavior = semalysizeExpression(context, methodInvocation.leftExpression);
         ReturnBehavior[] argumentSignature = semalysizeArguments(context, methodInvocation.arguments);
-        methodInvocation.method = resolveMethod(expressionReturnBehavior.type, methodInvocation, argumentSignature);
+        methodInvocation.method = resolveMethod(expressionReturnBehavior.type, methodInvocation.methodName, argumentSignature);
         implicitCastArguments(context, methodInvocation.arguments, methodInvocation.method.argumentSignature);
         return new ReturnBehavior(methodInvocation.method.returnType);
     }
@@ -823,7 +840,7 @@ public class Semalysizer
             if (element.returnBehavior == null)
                 rtnArr[i++] = semalysizeExpression(context, element);
             else {
-                // TODO: is this ok? the conversion from addition to string concatenation has already semalysized some arguments
+                // already semalysized
                 rtnArr[i++] = element.returnBehavior;
             }
         }
@@ -1250,11 +1267,11 @@ public class Semalysizer
         return !failure;
     }
 
-    private Method resolveMethod(Type type, AbstractMethodInvocation methodInvocation, ReturnBehavior[] argumentSignature)
+    private Method resolveMethod(Type type, AmbiguousId methodName, ReturnBehavior[] argumentSignature)
     {
-        Method method = type.resolveMethod(methodInvocation.methodName.text, getArgumentTypes(argumentSignature));
+        Method method = type.resolveMethod(methodName.text, getArgumentTypes(argumentSignature));
         if (method == null) {
-            errors.add(SemalyticalError.cantResolveMethod(type, methodInvocation.methodName, argumentSignature));
+            errors.add(SemalyticalError.cantResolveMethod(type, methodName, argumentSignature));
             return Method.UNKNOWN;
         }
         return method;
