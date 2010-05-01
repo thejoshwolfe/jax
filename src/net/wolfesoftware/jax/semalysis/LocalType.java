@@ -85,7 +85,7 @@ public class LocalType extends Type
         TypeId typeId = TypeId.fromName(simpleName);
         ArgumentDeclarations argumentDeclarations = new ArgumentDeclarations(new LinkedList<VariableDeclaration>());
         MaybeThrows maybeThrows = MaybeThrows.DOESNT;
-        Expression expression = new Expression(Block.EMPTY);
+        Expression expression = new Expression(new Block(new BlockContents(new LinkedList<Expression>())));
         return new ClassMember(new ConstructorDeclaration(methodModifiers, typeId, argumentDeclarations, maybeThrows, expression));
     }
 }
