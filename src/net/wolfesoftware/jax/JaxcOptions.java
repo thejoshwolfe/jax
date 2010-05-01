@@ -11,7 +11,7 @@ public class JaxcOptions
     public String[] classPath = DEFAULT_classPath;
     public static final boolean DEFAULT_javaCompatabilityMode = false;
     public boolean javaCompatabilityMode = DEFAULT_javaCompatabilityMode;
-    public static final HashMap<String, String> aliases = new HashMap<String, String>();
+    private static final HashMap<String, String> aliases = new HashMap<String, String>();
     static {
         aliases.put("cp", "classPath");
         aliases.put("javaMode", "javaCompatabilityMode");

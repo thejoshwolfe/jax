@@ -50,81 +50,79 @@ public final class Jaxc
         System.exit(0);
     }
 
-    /** see {@link #compile(String, JaxcOptions)}. */
-    public static void compile(String[] jaxFilePaths) throws JaxcCompileException
-    {
-        for (String jaxFilePath : jaxFilePaths)
-            compile(jaxFilePath);
-    }
-    /** see {@link #compile(String, JaxcOptions)}. */
-    public static void compile(String[] jaxFilePaths, JaxcOptions options) throws JaxcCompileException
-    {
-        for (String jaxFilename : jaxFilePaths)
-            compile(jaxFilename, options);
-    }
-    /** see {@link #compile(String, JaxcOptions)}. */
+    /** see {@link #compile(String[], JaxcOptions)}. */
     public static void compile(String jaxFilePath) throws JaxcCompileException
     {
         compile(jaxFilePath, null);
     }
-
-    /**
-     * Compiles a Jax source file.
-     * @param options can be <code>null</code>
-     * @throws JaxcCompileException for code problems as well as file io problems
-     */
+    /** see {@link #compile(String[], JaxcOptions)}. */
     public static void compile(String jaxFilePath, JaxcOptions options) throws JaxcCompileException
     {
-        ArrayList<CompileError> compileErrors = internalCompile(jaxFilePath, options);
+        compile(new String[] { jaxFilePath }, options);
+    }
+    /** see {@link #compile(String[], JaxcOptions)}. */
+    public static void compile(String[] jaxFilePaths) throws JaxcCompileException
+    {
+        compile(jaxFilePaths, null);
+    }
+    /**
+     * Compiles Jax source files.
+     * @param options can be <code>null</code>.
+     * @throws JaxcCompileException for code problems as well as file io problems
+     */
+    public static void compile(String[] jaxFilePaths, JaxcOptions options) throws JaxcCompileException
+    {
+        ArrayList<CompileError> compileErrors = internalCompile(jaxFilePaths, options);
         if (!compileErrors.isEmpty())
             throw new JaxcCompileException(compileErrors.toArray(new CompileError[compileErrors.size()]));
     }
 
-    private static ArrayList<CompileError> internalCompile(String jaxFilePath, JaxcOptions options)
+    private static ArrayList<CompileError> internalCompile(String[] jaxFilePaths, JaxcOptions options)
     {
-        jaxFilePath = Util.unixizeFilepath(jaxFilePath);
-        if (options == null)
-            options = new JaxcOptions();
-
         ArrayList<CompileError> errors = new ArrayList<CompileError>();
+        for (String jaxFilePath : jaxFilePaths) {
+            jaxFilePath = Util.unixizeFilepath(jaxFilePath);
+            if (options == null)
+                options = new JaxcOptions();
 
-        String jaxFileName = jaxFilePath.substring(jaxFilePath.lastIndexOf('/') + 1);
-        if (!jaxFileName.endsWith(".jax"))
-            errors.add(new CompileError("Source file \"" + jaxFilePath + "\" must end with \".jax\"."));
-        else if (jaxFileName.equals(".jax"))
-            errors.add(new CompileError("Source file \"" + jaxFilePath + "\" needs a name."));
+            String jaxFileName = jaxFilePath.substring(jaxFilePath.lastIndexOf('/') + 1);
+            if (!jaxFileName.endsWith(".jax"))
+                errors.add(new CompileError("Source file \"" + jaxFilePath + "\" must end with \".jax\"."));
+            else if (jaxFileName.equals(".jax"))
+                errors.add(new CompileError("Source file \"" + jaxFilePath + "\" needs a name."));
 
-        String filePathRelativeToClassPath = getFilePathRelativeToClassPath(jaxFilePath, options.classPath);
-        if (filePathRelativeToClassPath == null)
-            errors.add(new CompileError("Source file \"" + jaxFilePath + "\" is not in classPath [" + Util.join(options.classPath, ", ") + "]."));
+            String filePathRelativeToClassPath = getFilePathRelativeToClassPath(jaxFilePath, options.classPath);
+            if (filePathRelativeToClassPath == null)
+                errors.add(new CompileError("Source file \"" + jaxFilePath + "\" is not in classPath [" + Util.join(options.classPath, ", ") + "]."));
 
-        Tokenization tokenization;
-        try {
-            tokenization = Tokenizer.tokenize(Util.readTextFile(jaxFilePath));
-        } catch (FileNotFoundException e) {
-            errors.add(new CompileError(e.getMessage()));
-            // we can't do anything without a source file
-            return errors;
-        }
-        errors.addAll(tokenization.errors);
+            Tokenization tokenization;
+            try {
+                tokenization = Tokenizer.tokenize(Util.readTextFile(jaxFilePath));
+            } catch (FileNotFoundException e) {
+                errors.add(new CompileError(e.getMessage()));
+                // we can't do anything without a source file
+                continue;
+            }
+            errors.addAll(tokenization.errors);
 
-        Parsing parsing = Parser.parse(tokenization, options);
-        errors.addAll(parsing.errors);
+            Parsing parsing = Parser.parse(tokenization, options);
+            errors.addAll(parsing.errors);
 
-        // don't try to semalysize if there are errors.
-        if (!errors.isEmpty())
-            return errors;
-        Semalysization semalysization = Semalysizer.semalysize(parsing, filePathRelativeToClassPath);
-        errors.addAll(semalysization.errors);
+            // don't try to semalysize if there are errors.
+            if (!errors.isEmpty())
+                continue;
+            Semalysization semalysization = Semalysizer.semalysize(parsing, filePathRelativeToClassPath);
+            errors.addAll(semalysization.errors);
 
-        // don't try to generate code if there are errors.
-        if (!errors.isEmpty())
-            return errors;
-        try {
-            // TODO: -d outputdir
-            CodeGenerator.generate(semalysization, jaxFilePath, options.classPath[0]);
-        } catch (FileNotFoundException e) {
-            errors.add(new CompileError(e.getMessage()));
+            // don't try to generate code if there are errors.
+            if (!errors.isEmpty())
+                continue;
+            try {
+                // TODO: -d outputdir
+                CodeGenerator.generate(semalysization, jaxFilePath, options.classPath[0]);
+            } catch (FileNotFoundException e) {
+                errors.add(new CompileError(e.getMessage()));
+            }
         }
         return errors;
     }

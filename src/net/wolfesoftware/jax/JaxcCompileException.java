@@ -12,7 +12,7 @@ public final class JaxcCompileException extends Exception
 
     public CompileError[] getCompileErrors()
     {
-        return compileErrors.clone();
+        return compileErrors;
     }
     @Override
     public String getMessage()
