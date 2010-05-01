@@ -5,14 +5,15 @@ public class FieldsCall
         boolean pass = true;
         pass &= Fields.getFive() == 5;
         pass &= Fields.ten == 10;
-        pass &= Fields.getObject() != null;
-        pass &= Fields.getThing() == null;
-        pass &= Fields.setThing("asdf");
-        pass &= Fields.getThing() == "asdf";
-        pass &= Fields.setThisThing("fdsa");
-        pass &= Fields.getThisThing() == "fdsa";
+        Fields fields = new Fields();
+        pass &= fields.getObject() != null;
+        pass &= fields.getThing() == null;
+        fields.setThing("asdf");
+        pass &= fields.getThing() == "asdf";
+        fields.setThisThing("fdsa");
+        pass &= fields.getThisThing() == "fdsa";
         if (!pass)
             System.out.println("*** FAIL");
-        System.out.println(Fields.pass());
+        System.out.println("+++ PASS");
     }
 }
