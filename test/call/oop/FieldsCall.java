@@ -13,6 +13,6 @@ public class FieldsCall
         pass &= Fields.getThisThing() == "fdsa";
         if (!pass)
             System.out.println("*** FAIL");
-        System.out.println(FunctionInvocation.pass());
+        System.out.println(Fields.pass());
     }
 }

@@ -233,6 +233,9 @@ public class MethodInfo
             case NullExpression.TYPE:
                 evalNullExpression((NullExpression)content);
                 break;
+            case ThisExpression.TYPE:
+                evalThisExpression((ThisExpression)content);
+                break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
@@ -298,8 +301,14 @@ public class MethodInfo
 
     private void evalNullExpression(NullExpression nullExpression)
     {
-        writeShort(Instructions.aconst_null);
+        writeByte(Instructions.aconst_null);
         context.pushOperand(NullType.INSTANCE);
+    }
+
+    private void evalThisExpression(ThisExpression thisExpression)
+    {
+        aload(0);
+        context.pushOperand(RuntimeType.OBJECT); // close enough
     }
 
     private void evalNegation(Negation negation)
