@@ -37,5 +37,12 @@ public class NullType extends Type
         return null;
     }
 
+    @Override
+    public Type getParent()
+    {
+        // don't think should ever be called.
+        throw null;
+    }
+
     public static final NullType INSTANCE = new NullType();
 }

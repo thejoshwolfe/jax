@@ -18,5 +18,11 @@ public class ReturnVoid extends ParseElement
         return TYPE;
     }
 
+    @Override
+    protected boolean isSingletonLike()
+    {
+        return true;
+    }
+
     public static final ReturnVoid INSTANCE = new ReturnVoid();
 }

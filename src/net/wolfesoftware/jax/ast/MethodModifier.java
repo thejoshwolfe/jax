@@ -25,6 +25,12 @@ public class MethodModifier extends ParseElement
         return TYPE;
     }
 
+    @Override
+    protected boolean isSingletonLike()
+    {
+        return true;
+    }
+
     public static final MethodModifier PUBLIC = new MethodModifier(KeywordElement.PUBLIC, MethodInfo.ACC_PUBLIC);
     public static final MethodModifier PRIVATE = new MethodModifier(KeywordElement.PRIVATE, MethodInfo.ACC_PRIVATE);
     public static final MethodModifier PROTECTED = new MethodModifier(KeywordElement.PROTECTED, MethodInfo.ACC_PROTECTED);

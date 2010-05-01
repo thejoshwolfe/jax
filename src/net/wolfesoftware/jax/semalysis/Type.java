@@ -97,4 +97,6 @@ public abstract class Type
     {
         return 1;
     }
+
+    public abstract Type getParent();
 }

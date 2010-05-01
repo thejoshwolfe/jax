@@ -247,14 +247,14 @@ public abstract class ExpressionOperator
             Lang.SYMBOL_OPEN_PARENS, Arguments.TYPE, Lang.SYMBOL_CLOSE_PARENS) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
-            return new ConstructorRedirectThis((Arguments)innerElements.get(0));
+            return new ConstructorRedirect(Lang.KEYWORD_THIS, (Arguments)innerElements.get(0));
         }
     };
     public static final ExpressionOperator constructorRedirectSuper = new ExpressionEnclosingOperator(-1, Lang.KEYWORD_SUPER, -1,
             Lang.SYMBOL_OPEN_PARENS, Arguments.TYPE, Lang.SYMBOL_CLOSE_PARENS) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
-            return new ConstructorRedirectSuper((Arguments)innerElements.get(0));
+            return new ConstructorRedirect(Lang.KEYWORD_SUPER, (Arguments)innerElements.get(0));
         }
     };
 

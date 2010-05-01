@@ -17,6 +17,11 @@ public class ArrayDimension extends ParseElement
     {
         return TYPE;
     }
+    @Override
+    protected boolean isSingletonLike()
+    {
+        return true;
+    }
 
     public static final ArrayDimension INSTANCE = new ArrayDimension();
 }

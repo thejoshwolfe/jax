@@ -2,19 +2,21 @@ package net.wolfesoftware.jax.ast;
 
 import net.wolfesoftware.jax.semalysis.Constructor;
 
-public class ConstructorRedirectThis extends ParseElement
+public class ConstructorRedirect extends ParseElement
 {
     public Constructor constructor;
 
+    public String keyword;
     public Arguments arguments;
-    public ConstructorRedirectThis(Arguments arguments)
+    public ConstructorRedirect(String keyword, Arguments arguments)
     {
+        this.keyword = keyword;
         this.arguments = arguments;
     }
     @Override
     protected void decompile(String indentation, StringBuilder out)
     {
-        out.append("this(");
+        out.append(keyword).append('(');
         arguments.decompile(indentation, out);
         out.append(')');
     }

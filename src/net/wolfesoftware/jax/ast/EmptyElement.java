@@ -15,6 +15,12 @@ public class EmptyElement extends ParseElement
     }
 
     @Override
+    protected boolean isSingletonLike()
+    {
+        return true;
+    }
+
+    @Override
     protected void decompile(String indentation, StringBuilder out)
     {
     }

@@ -19,6 +19,12 @@ public class BooleanLiteral extends LiteralElement
         return TYPE;
     }
 
+    @Override
+    protected boolean isSingletonLike()
+    {
+        return true;
+    }
+
     public static final BooleanLiteral TRUE = new BooleanLiteral(true);
     public static final BooleanLiteral FALSE = new BooleanLiteral(false);
 }

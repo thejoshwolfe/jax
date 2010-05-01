@@ -25,6 +25,12 @@ public class FieldModifier extends ParseElement
         return TYPE;
     }
 
+    @Override
+    protected boolean isSingletonLike()
+    {
+        return true;
+    }
+
     public static final FieldModifier PUBLIC = new FieldModifier(KeywordElement.PUBLIC, FieldInfo.ACC_PUBLIC);
     public static final FieldModifier PRIVATE = new FieldModifier(KeywordElement.PRIVATE, FieldInfo.ACC_PRIVATE);
     public static final FieldModifier PROTECTED = new FieldModifier(KeywordElement.PROTECTED, FieldInfo.ACC_PROTECTED);

@@ -20,6 +20,12 @@ public class PrimitiveType extends ParseElement
         return TYPE;
     }
 
+    @Override
+    protected boolean isSingletonLike()
+    {
+        return true;
+    }
+
     public static final PrimitiveType VOID = new PrimitiveType(KeywordElement.VOID);
     public static final PrimitiveType INT = new PrimitiveType(KeywordElement.INT);
     public static final PrimitiveType BYTE = new PrimitiveType(KeywordElement.BYTE);

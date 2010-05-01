@@ -25,6 +25,12 @@ public class ClassModifier extends ParseElement
         return TYPE;
     }
 
+    @Override
+    protected boolean isSingletonLike()
+    {
+        return true;
+    }
+
     public static final ClassModifier PUBLIC = new ClassModifier(KeywordElement.PUBLIC, ClassFile.ACC_PUBLIC);
     public static final ClassModifier FINAL = new ClassModifier(KeywordElement.FINAL, ClassFile.ACC_FINAL);
 }

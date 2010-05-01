@@ -286,9 +286,38 @@ public class Semalysizer
 
     private void semalysizeConstructorDeclaration(LocalType typeContext, ConstructorDeclaration constructorDeclaration)
     {
-        // for now, hard-code implicit super() with no arguments
-        ConstructorRedirectSuper constructorRedirect = new ConstructorRedirectSuper(new Arguments(new LinkedList<Expression>()));
-        constructorDeclaration.expression = new Expression(new Block(new BlockContents(Arrays.asList(new Expression(constructorRedirect), constructorDeclaration.expression))));
+        LocalContext context = new RootLocalContext(typeContext, false);
+        // look for a constructor redirect
+        if (constructorDeclaration.expression.content.getElementType() != Block.TYPE) {
+            errors.add(new SemalyticalError(constructorDeclaration.expression, "Constructor bodies must be blocks."));
+            return;
+        }
+        List<Expression> bodyElements = ((Block)constructorDeclaration.expression.content).blockContents.elements;
+
+        ConstructorRedirect constructorRedirect = null;
+        if (!bodyElements.isEmpty()) {
+            ParseElement firstExpressionElement = bodyElements.get(0).content;
+            if (firstExpressionElement.getElementType() == ConstructorRedirect.TYPE) {
+                bodyElements.remove(0); // re add it later
+                constructorRedirect = (ConstructorRedirect)firstExpressionElement;
+            }
+        }
+        if (constructorRedirect == null)
+            constructorRedirect = new ConstructorRedirect(Lang.KEYWORD_SUPER, new Arguments(new LinkedList<Expression>()));
+
+        Expression constructorRedirectExpression = new Expression(constructorRedirect);
+        constructorRedirectExpression.returnBehavior = semalysizeConstructorRedirect(context, constructorRedirect);
+
+        // initial stuff is a block with the redirect and all the initializer code inline
+        List<Expression> initialStuffElements = new ArrayList<Expression>();
+        initialStuffElements.add(constructorRedirectExpression);
+        for (Expression initializerExpression : context.getClassContext().initializerExpressions)
+            initialStuffElements.add((Expression)initializerExpression.cloneElement());
+
+        // add the initial stuff to the constructor body block to be semalysized
+        Expression initialStuffExpression = new Expression(new Block(new BlockContents(initialStuffElements)));
+        bodyElements.add(0, initialStuffExpression);
+
         constructorDeclaration.returnBehavior = semalysizeExpression(constructorDeclaration.context, constructorDeclaration.expression);
         if (constructorDeclaration.returnBehavior.type != RuntimeType.VOID)
             errors.add(SemalyticalError.mustBeVoid(constructorDeclaration.expression));
@@ -303,8 +332,8 @@ public class Semalysizer
 
     private ReturnBehavior semalysizeExpression(LocalContext context, Expression expression)
     {
-        if (expression == null)
-            throw null;
+//        if (expression == null) TODO
+//            throw null;
         ParseElement content = expression.content;
         ReturnBehavior returnBehavior;
         switch (content.getElementType()) {
@@ -410,11 +439,11 @@ public class Semalysizer
             case ConstructorInvocation.TYPE:
                 returnBehavior = semalysizeConstructorInvocation(context, (ConstructorInvocation)content);
                 break;
-            case ConstructorRedirectThis.TYPE:
-                returnBehavior = semalysizeConstructorRedirectThis(context, (ConstructorRedirectThis)content);
-                break;
-            case ConstructorRedirectSuper.TYPE:
-                returnBehavior = semalysizeConstructorRedirectSuper(context, (ConstructorRedirectSuper)content);
+            case ConstructorRedirect.TYPE:
+                // either already done, or an error
+                if (expression.returnBehavior == null)
+                    errors.add(new SemalyticalError(expression.content, "You can only redirect a constructor at the beginning of a constructor."));
+                returnBehavior = ReturnBehavior.VOID;
                 break;
             case AmbiguousMethodInvocation.TYPE:
                 returnBehavior = semalysizeAmbiguousMethodInvocation(context, expression);
@@ -444,27 +473,24 @@ public class Semalysizer
         return returnBehavior;
     }
 
-    private ReturnBehavior semalysizeConstructorRedirectThis(LocalContext context, ConstructorRedirectThis constructorRedirect)
+    private ReturnBehavior semalysizeConstructorRedirect(LocalContext context, ConstructorRedirect constructorRedirect)
     {
         ReturnBehavior[] argumentSignature = semalysizeArguments(context, constructorRedirect.arguments);
-        Type type = context.getClassContext();
-        constructorRedirect.constructor = resolveConstructor(type, argumentSignature);
-        implicitCastArguments(context, constructorRedirect.arguments, constructorRedirect.constructor.argumentSignature);
-        if (constructorRedirect.constructor == null)
+        Type thisType = context.getClassContext();
+        Type constructorType;
+        if (constructorRedirect.keyword == Lang.KEYWORD_THIS)
+            constructorType = thisType;
+        else if (constructorRedirect.keyword == Lang.KEYWORD_SUPER)
+            constructorType = thisType.getParent();
+        else
+            throw null;
+        constructorRedirect.constructor = resolveConstructor(constructorType, argumentSignature);
+        if (constructorRedirect.constructor != null)
+            implicitCastArguments(context, constructorRedirect.arguments, constructorRedirect.constructor.argumentSignature);
+        else
             errors.add(new SemalyticalError(constructorRedirect, "can't resolve this constructor"));
         return ReturnBehavior.VOID;
     }
-    private ReturnBehavior semalysizeConstructorRedirectSuper(LocalContext context, ConstructorRedirectSuper constructorRedirect)
-    {
-        ReturnBehavior[] argumentSignature = semalysizeArguments(context, constructorRedirect.arguments);
-        Type type = context.getClassContext().getParent();
-        constructorRedirect.constructor = resolveConstructor(type, argumentSignature);
-        implicitCastArguments(context, constructorRedirect.arguments, constructorRedirect.constructor.argumentSignature);
-        if (constructorRedirect.constructor == null)
-            errors.add(new SemalyticalError(constructorRedirect, "can't resolve this constructor"));
-        return ReturnBehavior.VOID;
-    }
-
     private ReturnBehavior semalysizeNullExpression(LocalContext context, NullExpression nullExpression)
     {
         return ReturnBehavior.NULL;

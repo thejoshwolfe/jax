@@ -18,5 +18,11 @@ public class ThisExpression extends ParseElement
         return TYPE;
     }
 
+    @Override
+    protected boolean isSingletonLike()
+    {
+        return true;
+    }
+
     public static final ThisExpression INSTANCE = new ThisExpression();
 }

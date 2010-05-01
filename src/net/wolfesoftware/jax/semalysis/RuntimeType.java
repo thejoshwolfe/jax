@@ -60,6 +60,12 @@ public class RuntimeType extends Type
         return underlyingType.isInterface();
     }
 
+    @Override
+    public Type getParent()
+    {
+        return getType(underlyingType.getSuperclass());
+    }
+
     public static final int TYPE = 0x1b070487;
     public int getType()
     {

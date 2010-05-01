@@ -37,5 +37,11 @@ public class UnknownType extends Type
         return null;
     }
 
+    @Override
+    public Type getParent()
+    {
+        return RuntimeType.OBJECT;
+    }
+
     public static final UnknownType INSTANCE = new UnknownType();
 }

@@ -54,6 +54,12 @@ public class ArrayType extends Type
         return "[" + scalarType.getTypeCode();
     }
 
+    @Override
+    public Type getParent()
+    {
+        return RuntimeType.OBJECT;
+    }
+
     public static final int TYPE = 0x51691576; // TODO
     public int getType()
     {
