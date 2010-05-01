@@ -45,6 +45,12 @@ public class MethodInfo
         methodInfo.internalGenerate(constructorDeclaration);
         return methodInfo;
     }
+    public static MethodInfo generate(StaticInitializerDeclaration staticInitializerDeclaration, ConstantPool constant_pool)
+    {
+        MethodInfo methodInfo = new MethodInfo(staticInitializerDeclaration.method, staticInitializerDeclaration.methodModifiers.bitmask, constant_pool);
+        methodInfo.internalGenerate(staticInitializerDeclaration);
+        return methodInfo;
+    }
 
 
     private final short access_flags;

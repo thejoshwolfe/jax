@@ -179,8 +179,10 @@ public class Semalysizer
         }
 
         // static initializer
-        for (Expression staticInitializerExpression : context.staticInitializerExpressions)
-            semalysizeExpression(context.staticInitializerContext, staticInitializerExpression);
+        List<Expression> staticInitializerExpressions = context.getStaticInitializerExpressions();
+        if (!staticInitializerExpressions.isEmpty())
+            staticInitializerExpressions.add(null);
+        semalysizeExpression(context.staticInitializer.context, context.staticInitializer.expression);
 
         // constructors
         for (ConstructorDeclaration constructorDeclaration : maybeLater)
@@ -277,7 +279,7 @@ public class Semalysizer
     {
         if (fieldCreation.field.isStatic) {
             StaticFieldAssignment staticFieldAssignment = new StaticFieldAssignment(fieldCreation.field, Lang.SYMBOL_EQUALS, fieldCreation.expression);
-            context.staticInitializerExpressions.add(new Expression(staticFieldAssignment));
+            context.getStaticInitializerExpressions().add(new Expression(staticFieldAssignment));
         } else {
             InstanceFieldAssignment fieldAssignment = new InstanceFieldAssignment(new Expression(ThisExpression.INSTANCE), fieldCreation.field, Lang.SYMBOL_EQUALS, fieldCreation.expression);
             context.initializerExpressions.add(new Expression(fieldAssignment));
@@ -334,8 +336,6 @@ public class Semalysizer
 
     private ReturnBehavior semalysizeExpression(LocalContext context, Expression expression)
     {
-//        if (expression == null) TODO
-//            throw null;
         ParseElement content = expression.content;
         ReturnBehavior returnBehavior;
         switch (content.getElementType()) {

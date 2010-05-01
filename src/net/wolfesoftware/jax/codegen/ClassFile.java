@@ -1,7 +1,7 @@
 package net.wolfesoftware.jax.codegen;
 
 import java.io.*;
-import java.util.LinkedList;
+import java.util.*;
 import net.wolfesoftware.jax.ast.*;
 import net.wolfesoftware.jax.semalysis.*;
 
@@ -33,7 +33,7 @@ public class ClassFile
     public static ClassFile generate(String sourceFile, ClassDeclaration classDeclaration)
     {
         ClassFile classFile = new ClassFile(sourceFile, classDeclaration.localType);
-        classFile.generate(classDeclaration.classBody);
+        classFile.internalGenerate(classDeclaration);
         return classFile;
     }
 
@@ -94,29 +94,27 @@ public class ClassFile
         }
     }
 
-    private void generate(ClassBody classBody)
+    private void internalGenerate(ClassDeclaration classDeclaration)
     {
-        for (ClassMember element : classBody.elements)
-            genClassMember(element);
-    }
+        if (!classDeclaration.localType.getStaticInitializerExpressions().isEmpty())
+            methods.add(MethodInfo.generate(classDeclaration.localType.staticInitializer, constant_pool));
 
-    private void genClassMember(ClassMember classMember)
-    {
-        ParseElement content = classMember.content;
-        switch (content.getElementType())
-        {
-            case MethodDeclaration.TYPE:
-                methods.add(MethodInfo.generate((MethodDeclaration)content, constant_pool));
-                break;
-            case ConstructorDeclaration.TYPE:
-                methods.add(MethodInfo.generate((ConstructorDeclaration)content, constant_pool));
-                break;
-            case FieldDeclaration.TYPE:
-            case FieldCreation.TYPE:
-                fields.add(FieldInfo.generate((FieldDeclaration)content, constant_pool));
-                break;
-            default:
-                throw new RuntimeException(content.getClass().toString());
+        for (ClassMember element : classDeclaration.classBody.elements) {
+            ParseElement content = element.content;
+            switch (content.getElementType()) {
+                case MethodDeclaration.TYPE:
+                    methods.add(MethodInfo.generate((MethodDeclaration)content, constant_pool));
+                    break;
+                case ConstructorDeclaration.TYPE:
+                    methods.add(MethodInfo.generate((ConstructorDeclaration)content, constant_pool));
+                    break;
+                case FieldDeclaration.TYPE:
+                case FieldCreation.TYPE:
+                    fields.add(FieldInfo.generate((FieldDeclaration)content, constant_pool));
+                    break;
+                default:
+                    throw new RuntimeException(content.getClass().toString());
+            }
         }
     }
 }

@@ -1,6 +1,6 @@
 package net.wolfesoftware.jax.ast;
 
-import java.util.List;
+import java.util.*;
 
 public class ArgumentDeclarations extends ListElement<VariableDeclaration>
 {
@@ -20,4 +20,6 @@ public class ArgumentDeclarations extends ListElement<VariableDeclaration>
     {
         return TYPE;
     }
+
+    public static final ArgumentDeclarations EMPTY = new ArgumentDeclarations(new LinkedList<VariableDeclaration>());
 }
