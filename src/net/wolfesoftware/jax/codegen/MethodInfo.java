@@ -265,10 +265,10 @@ public class MethodInfo
     private void evalLocalVariablePreIncrementDecrement(LocalVariablePreIncrementDecrement localVariablePreIncrementDecrement)
     {
         LocalVariable variable = localVariablePreIncrementDecrement.variable;
-        int amount = localVariablePreIncrementDecrement.operator == Lang.SYMBOL_PLUS_PLUS ? 1 : -1;
         Type type = variable.type;
         if (type == RuntimeType.INT) {
             // use the special iinc instruction
+            int amount = localVariablePreIncrementDecrement.operator == Lang.SYMBOL_PLUS_PLUS ? 1 : -1;
             writeByte(Instructions.iinc);
             writeByte((byte)variable.getNumber());
             writeByte((byte)amount);
@@ -276,13 +276,109 @@ public class MethodInfo
         } else {
             // the long way
             load(variable);
-            addThisAmount(type, amount);
+            addOrSubtractOne(type, localVariablePreIncrementDecrement.operator);
             dup(type);
             store(variable);
         }
     }
-    private void addThisAmount(Type type, int amount)
+    private void evalLocalVariablePostIncrementDecrement(LocalVariablePostIncrementDecrement localVariablePostIncrementDecrement)
     {
+        LocalVariable variable = localVariablePostIncrementDecrement.variable;
+        Type type = variable.type;
+        if (type == RuntimeType.INT) {
+            // use the special iinc instruction
+            int amount = localVariablePostIncrementDecrement.operator == Lang.SYMBOL_PLUS_PLUS ? 1 : -1;
+            load(variable);
+            writeByte(Instructions.iinc);
+            writeByte((byte)variable.getNumber());
+            writeByte((byte)amount);
+        } else {
+            // the long way
+            load(variable);
+            dup(type);
+            addOrSubtractOne(type, localVariablePostIncrementDecrement.operator);
+            store(variable);
+        }
+    }
+    private void evalInstanceFieldPreIncrementDecrement(InstanceFieldPreIncrementDecrement instanceFieldPreIncrementDecrement)
+    {
+        // code duplication? feasible to fix it?
+        Type instanceType = instanceFieldPreIncrementDecrement.leftExpression.returnBehavior.type;
+        Type fieldType = instanceFieldPreIncrementDecrement.field.returnType;
+        short fieldIndex = constantPool.getField(instanceFieldPreIncrementDecrement.field);
+        evalExpression(instanceFieldPreIncrementDecrement.leftExpression);
+        dup(instanceType);
+        writeByte(Instructions.getfield);
+        writeShort(fieldIndex);
+        context.popOperand();
+        context.pushOperand(fieldType);
+        addOrSubtractOne(fieldType, instanceFieldPreIncrementDecrement.operator);
+        swap();
+        dup_x(fieldType, instanceType);
+        writeByte(Instructions.putfield);
+        writeShort(fieldIndex);
+    }
+    private void evalInstanceFieldPostIncrementDecrement(InstanceFieldPostIncrementDecrement instanceFieldPostIncrementDecrement)
+    {
+        // code duplication? feasible to fix it?
+        Type instanceType = instanceFieldPostIncrementDecrement.leftExpression.returnBehavior.type;
+        Type fieldType = instanceFieldPostIncrementDecrement.field.returnType;
+        short fieldIndex = constantPool.getField(instanceFieldPostIncrementDecrement.field);
+        evalExpression(instanceFieldPostIncrementDecrement.leftExpression);
+        dup(instanceType);
+        writeByte(Instructions.getfield);
+        writeShort(fieldIndex);
+        context.popOperand();
+        context.pushOperand(fieldType);
+        swap();
+        dup_x(fieldType, instanceType);
+        addOrSubtractOne(fieldType, instanceFieldPostIncrementDecrement.operator);
+        writeByte(Instructions.putfield);
+        writeShort(fieldIndex);
+    }
+    private void evalStaticFieldPreIncrementDecrement(StaticFieldPreIncrementDecrement staticFieldPreIncrementDecrement)
+    {
+        Field field = staticFieldPreIncrementDecrement.field;
+        Type fieldType = field.returnType;
+        short fieldIndex = constantPool.getField(field);
+        writeByte(Instructions.getstatic);
+        writeShort(fieldIndex);
+        context.pushOperand(fieldType);
+        addOrSubtractOne(fieldType, staticFieldPreIncrementDecrement.operator);
+        dup(fieldType);
+        writeByte(Instructions.putstatic);
+        writeShort(fieldIndex);
+        context.popOperand();
+    }
+    private void evalStaticFieldPostIncrementDecrement(StaticFieldPostIncrementDecrement staticFieldPostIncrementDecrement)
+    {
+        Field field = staticFieldPostIncrementDecrement.field;
+        Type fieldType = field.returnType;
+        short fieldIndex = constantPool.getField(field);
+        writeByte(Instructions.getstatic);
+        writeShort(fieldIndex);
+        context.pushOperand(fieldType);
+        dup(fieldType);
+        addOrSubtractOne(fieldType, staticFieldPostIncrementDecrement.operator);
+        writeByte(Instructions.putstatic);
+        writeShort(fieldIndex);
+        context.popOperand();
+    }
+
+    private void swap()
+    {
+        writeByte(Instructions.swap);
+        Type type1 = context.peekOperandType();
+        context.popOperand();
+        Type type2 = context.peekOperandType();
+        context.popOperand();
+        context.pushOperand(type1);
+        context.pushOperand(type2);
+    }
+
+    private void addOrSubtractOne(Type type, String operator)
+    {
+        int amount = operator == Lang.SYMBOL_PLUS_PLUS ? 1 : -1;
         if (RuntimeType.promoteBabyPrimitiveNumericTypes(type) == RuntimeType.INT) {
             pushLiteralInt(amount);
             writeByte(Instructions.iadd);
@@ -300,6 +396,7 @@ public class MethodInfo
         context.pushOperand(type);
         context.popOperand();
     }
+
     private void pushLiteralInt(int value)
     {
         switch (value) {
@@ -987,7 +1084,7 @@ public class MethodInfo
             default:
                 throw null;
         }
-        context.pushOperand(topType);
+        context.pushOperand(underneathType);
     }
     private void store(SecretLocalVariable variable)
     {
