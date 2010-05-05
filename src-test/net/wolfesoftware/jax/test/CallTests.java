@@ -17,7 +17,7 @@ public class CallTests
 {
     private static final String dir = "test/call";
     private static final String[] tests = {
-//        "primitive/Arithmetic",
+        "primitive/Arithmetic",
         //        "primitive/BooleanType",
         //        "primitive/FloatingTypes",
         //        "primitive/ConstReturn",

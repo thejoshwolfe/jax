@@ -353,7 +353,7 @@ public class Semalysizer
                 break;
             case AmbiguousPreIncrementDecrement.TYPE:
             case AmbiguousPostIncrementDecrement.TYPE:
-                returnBehavior = semalysizeAmbiguousIncrementDecrement(context, (AmbiguousIncrementDecrement)content);
+                returnBehavior = semalysizeAmbiguousIncrementDecrement(context, expression);
                 break;
             case LessThan.TYPE:
                 returnBehavior = semalysizeLessThan(context, (LessThan)content);
@@ -545,8 +545,10 @@ public class Semalysizer
     private ReturnBehavior semalysizeNegation(LocalContext context, Negation negation)
     {
         Type operandType = semalysizeExpression(context, negation.expression).type;
-        if (!SemalyticalError.mustBeNumeric(negation.expression, errors))
+        if (!operandType.isNumeric()) {
+            errors.add(SemalyticalError.mustBeNumeric(negation.expression, operandType));
             return ReturnBehavior.INT;
+        }
         Type resultType = operandType;
         if (operandType == RuntimeType.CHAR || operandType == RuntimeType.BYTE || operandType == RuntimeType.SHORT)
             resultType = RuntimeType.INT;
@@ -644,16 +646,44 @@ public class Semalysizer
         return new ReturnBehavior(typeId.type);
     }
 
-    private ReturnBehavior semalysizeAmbiguousIncrementDecrement(LocalContext context, AmbiguousIncrementDecrement preIncrementDecrement)
+    private ReturnBehavior semalysizeAmbiguousIncrementDecrement(LocalContext context, Expression expression)
     {
-        // TODO
-        throw null;
-//        if (preIncrementDecrement.expression.content.getElementType() == AmbiguousId.TYPE)
-//            semalysizeAmbiguousId(context, preIncrementDecrement.expression);
-//        switch (preIncrementDecrement.expression.content.getElementType()) {
-//            case LocalVariableExpression.TYPE: {
-//            }
-//        }
+        AmbiguousIncrementDecrement incrementDecrement = (AmbiguousIncrementDecrement)expression.content;
+        if (semalysizeExpression(context, incrementDecrement.expression).type == UnknownType.INSTANCE)
+            return ReturnBehavior.UNKNOWN;
+
+        ParseElement content = incrementDecrement.expression.content;
+        switch (content.getElementType()) {
+            case LocalVariableExpression.TYPE: {
+                LocalVariableExpression localVariableExpression = (LocalVariableExpression)content;
+                LocalVariableIncrementDecrement localVariableIncrementDecrement = incrementDecrement.makeLocalVariableDisambiguation(localVariableExpression.variable);
+                return semalysizeAbstractIncrementDecrement(context, localVariableIncrementDecrement);
+            }
+            case InstanceFieldExpression.TYPE: {
+                InstanceFieldExpression instanceFieldExpression = (InstanceFieldExpression)content;
+                InstanceFieldIncrementDecrement instanceFieldIncrementDecrement = incrementDecrement.makeInstanceFieldDisambiguation(instanceFieldExpression.leftExpression, instanceFieldExpression.field);
+                return semalysizeAbstractIncrementDecrement(context, instanceFieldIncrementDecrement);
+            }
+            case StaticFieldExpression.TYPE: {
+                StaticFieldExpression staticFieldExpression = (StaticFieldExpression)content;
+                StaticFieldIncrementDecrement staticFieldIncrementDecrement = incrementDecrement.makeStaticFieldDisambiguation(staticFieldExpression.field);
+                return semalysizeAbstractIncrementDecrement(context, staticFieldIncrementDecrement);
+            }
+            default: {
+                errors.add(new SemalyticalError(incrementDecrement, "Can't assign into this kind of thing"));
+                return ReturnBehavior.UNKNOWN;
+            }
+        }
+    }
+
+    private ReturnBehavior semalysizeAbstractIncrementDecrement(LocalContext context, AbstractIncrementDecrement abstractIncrementDecrement)
+    {
+        Type type = abstractIncrementDecrement.getAssignmentTargetType();
+        if (!type.isNumeric()) {
+            errors.add(SemalyticalError.mustBeNumeric(abstractIncrementDecrement, type));
+            return ReturnBehavior.UNKNOWN;
+        }
+        return new ReturnBehavior(RuntimeType.promoteBabyPrimitiveNumericTypes(type));
     }
 
     private ReturnBehavior semalysizeForLoop(LocalContext context, ForLoop forLoop)
@@ -1164,11 +1194,19 @@ public class Semalysizer
     }
     private ReturnBehavior semalysizeNumericOperator(LocalContext context, BinaryOperatorElement operator)
     {
+        boolean good = true;
+
         Type returnType1 = lazySemalysizeExpression(context, operator.expression1).type;
-        boolean good = SemalyticalError.mustBeNumeric(operator.expression1, errors);
+        if (!returnType1.isNumeric()) {
+            errors.add(SemalyticalError.mustBeNumeric(operator.expression1, returnType1));
+            good = false;
+        }
 
         Type returnType2 = lazySemalysizeExpression(context, operator.expression2).type;
-        good &= SemalyticalError.mustBeNumeric(operator.expression2, errors);
+        if (!returnType2.isNumeric()) {
+            errors.add(SemalyticalError.mustBeNumeric(operator.expression2, returnType2));
+            good = false;
+        }
 
         if (!good)
             return ReturnBehavior.INT;

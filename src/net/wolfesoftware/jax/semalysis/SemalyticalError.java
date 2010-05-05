@@ -69,16 +69,9 @@ public class SemalyticalError extends CompileError
         return new SemalyticalError(id, "Can't resolve the method \"" + id + "\" in the type \"" + type + "\" with arguments " + Arrays.toString(argumentSignature) + ".");
     }
 
-    public static boolean mustBeNumeric(Expression expression, ArrayList<SemalyticalError> errors)
+    public static SemalyticalError mustBeNumeric(ParseElement element, Type type)
     {
-        Type type = expression.returnBehavior.type;
-        if (type == UnknownType.INSTANCE)
-            return false;
-        if (!(type.isPrimitive() && type != RuntimeType.VOID && type != RuntimeType.BOOLEAN)) {
-            errors.add(new SemalyticalError(expression, "This thing is type \"" + type + "\" and it needs to be numeric."));
-            return false;
-        }
-        return true;
+        return new SemalyticalError(element, "This thing is type \"" + type + "\" and it needs to be numeric.");
     }
 
     public static SemalyticalError cantConvert(Expression element, Type fromType, Type toType)

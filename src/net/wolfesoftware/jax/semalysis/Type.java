@@ -92,6 +92,10 @@ public abstract class Type
     {
         return false;
     }
+    public boolean isNumeric()
+    {
+        return false;
+    }
 
     public int getSize()
     {

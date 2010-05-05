@@ -72,6 +72,13 @@ public class RuntimeType extends Type
         return TYPE;
     }
 
+    public static Type promoteBabyPrimitiveNumericTypes(Type type)
+    {
+        if (type == BYTE || type == SHORT || type == CHAR)
+            return INT;
+        return type;
+    }
+
     private static class PrimitiveType extends RuntimeType
     {
         private final String typeCode;
@@ -115,6 +122,11 @@ public class RuntimeType extends Type
             if (!(type instanceof NumericPrimitiveType))
                 return false;
             return getPrimitiveConversionType(this, type) >= 0;
+        }
+        @Override
+        public boolean isNumeric()
+        {
+            return true;
         }
     }
     // http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html#84645

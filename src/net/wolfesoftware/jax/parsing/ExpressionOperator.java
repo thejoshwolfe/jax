@@ -76,13 +76,13 @@ public abstract class ExpressionOperator
     public static final ExpressionOperator postIncrement = new ExpressionOperator(PRECEDENCE_POSTFIX, Lang.SYMBOL_PLUS_PLUS, -1) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
-            return new AmbiguousPostIncrementDecrement(rightExpression, Lang.SYMBOL_PLUS_PLUS);
+            return new AmbiguousPostIncrementDecrement(leftExpression, Lang.SYMBOL_PLUS_PLUS);
         }
     };
     public static final ExpressionOperator postDecrement = new ExpressionOperator(PRECEDENCE_POSTFIX, Lang.SYMBOL_MINUS_MINUS, -1) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
-            return new AmbiguousPostIncrementDecrement(rightExpression, Lang.SYMBOL_MINUS_MINUS);
+            return new AmbiguousPostIncrementDecrement(leftExpression, Lang.SYMBOL_MINUS_MINUS);
         }
     };
 

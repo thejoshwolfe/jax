@@ -239,9 +239,132 @@ public class MethodInfo
             case ThisExpression.TYPE:
                 evalThisExpression((ThisExpression)content);
                 break;
+            case LocalVariablePreIncrementDecrement.TYPE:
+                evalLocalVariablePreIncrementDecrement((LocalVariablePreIncrementDecrement)content);
+                break;
+            case LocalVariablePostIncrementDecrement.TYPE:
+                evalLocalVariablePostIncrementDecrement((LocalVariablePostIncrementDecrement)content);
+                break;
+            case InstanceFieldPreIncrementDecrement.TYPE:
+                evalInstanceFieldPreIncrementDecrement((InstanceFieldPreIncrementDecrement)content);
+                break;
+            case InstanceFieldPostIncrementDecrement.TYPE:
+                evalInstanceFieldPostIncrementDecrement((InstanceFieldPostIncrementDecrement)content);
+                break;
+            case StaticFieldPreIncrementDecrement.TYPE:
+                evalStaticFieldPreIncrementDecrement((StaticFieldPreIncrementDecrement)content);
+                break;
+            case StaticFieldPostIncrementDecrement.TYPE:
+                evalStaticFieldPostIncrementDecrement((StaticFieldPostIncrementDecrement)content);
+                break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
+    }
+
+    private void evalLocalVariablePreIncrementDecrement(LocalVariablePreIncrementDecrement localVariablePreIncrementDecrement)
+    {
+        LocalVariable variable = localVariablePreIncrementDecrement.variable;
+        int amount = localVariablePreIncrementDecrement.operator == Lang.SYMBOL_PLUS_PLUS ? 1 : -1;
+        Type type = variable.type;
+        if (type == RuntimeType.INT) {
+            // use the special iinc instruction
+            writeByte(Instructions.iinc);
+            writeByte((byte)variable.getNumber());
+            writeByte((byte)amount);
+            load(variable);
+        } else {
+            // the long way
+            load(variable);
+            addThisAmount(type, amount);
+            dup(type);
+            store(variable);
+        }
+    }
+    private void addThisAmount(Type type, int amount)
+    {
+        if (RuntimeType.promoteBabyPrimitiveNumericTypes(type) == RuntimeType.INT) {
+            pushLiteralInt(amount);
+            writeByte(Instructions.iadd);
+        } else if (type == RuntimeType.LONG) {
+            pushLiteralLong(amount);
+            writeByte(Instructions.ladd);
+        } else if (type == RuntimeType.FLOAT) {
+            pushLiteralFloat(amount);
+            writeByte(Instructions.fadd);
+        } else if (type == RuntimeType.DOUBLE) {
+            pushLiteralDouble(amount);
+            writeByte(Instructions.dadd);
+        } else
+            throw null;
+        context.pushOperand(type);
+        context.popOperand();
+    }
+    private void pushLiteralInt(int value)
+    {
+        switch (value) {
+            case -1:
+                writeByte(Instructions.iconst_m1);
+                break;
+            case 0:
+                writeByte(Instructions.iconst_0);
+                break;
+            case 1:
+                writeByte(Instructions.iconst_1);
+                break;
+            case 2:
+                writeByte(Instructions.iconst_2);
+                break;
+            case 3:
+                writeByte(Instructions.iconst_3);
+                break;
+            case 4:
+                writeByte(Instructions.iconst_4);
+                break;
+            case 5:
+                writeByte(Instructions.iconst_5);
+                break;
+            default:
+                ldc(constantPool.getInteger(value));
+        }
+        context.pushOperand(RuntimeType.INT);
+    }
+    private void pushLiteralLong(long value)
+    {
+        // "Cannot switch on a value of type long. Only convertible int values or enum constants are permitted"
+        if (value == 0) {
+            writeByte(Instructions.lconst_0);
+        } else if (value == 1) {
+            writeByte(Instructions.lconst_1);
+        } else {
+            writeByte(Instructions.ldc2_w);
+            writeShort(constantPool.getLong(value));
+        }
+        context.pushOperand(RuntimeType.LONG);
+    }
+    private void pushLiteralFloat(float value)
+    {
+        if (value == 0.0f)
+            writeByte(Instructions.fconst_0);
+        else if (value == 1.0f)
+            writeByte(Instructions.fconst_1);
+        else if (value == 2.0f)
+            writeByte(Instructions.fconst_2);
+        else
+            ldc(constantPool.getFloat(value));
+        context.pushOperand(RuntimeType.FLOAT);
+    }
+    private void pushLiteralDouble(double value)
+    {
+        if (value == 0.0) {
+            writeByte(Instructions.dconst_0);
+        } else if (value == 1.0) {
+            writeByte(Instructions.dconst_1);
+        } else {
+            writeByte(Instructions.ldc2_w);
+            writeShort(constantPool.getDouble(value));
+        }
+        context.pushOperand(RuntimeType.DOUBLE);
     }
 
     private void evalConstructorRedirect(ConstructorRedirect constructorRedirect)
@@ -764,26 +887,19 @@ public class MethodInfo
 
     private void evalIntLiteral(IntLiteral intLiteral)
     {
-        // TODO use iconst_<n> sometimes
-        ldc(constantPool.getInteger(intLiteral.value));
-        context.pushOperand(RuntimeType.INT);
+        pushLiteralInt(intLiteral.value);
     }
     private void evalLongLiteral(LongLiteral longLiteral)
     {
-        writeByte(Instructions.ldc2_w);
-        writeShort(constantPool.getLong(longLiteral.value));
-        context.pushOperand(RuntimeType.LONG);
+        pushLiteralLong(longLiteral.value);
     }
     private void evalFloatLiteral(FloatLiteral floatLiteral)
     {
-        ldc(constantPool.getFloat(floatLiteral.value));
-        context.pushOperand(RuntimeType.FLOAT);
+        pushLiteralFloat(floatLiteral.value);
     }
     private void evalDoubleLiteral(DoubleLiteral doubleLiteral)
     {
-        writeByte(Instructions.ldc2_w);
-        writeShort(constantPool.getDouble(doubleLiteral.value));
-        context.pushOperand(RuntimeType.DOUBLE);
+        pushLiteralDouble(doubleLiteral.value);
     }
     private void evalBooleanLiteral(BooleanLiteral booleanLiteral)
     {
