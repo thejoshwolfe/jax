@@ -76,4 +76,44 @@ public final class Util
             list.add(element);
         return list;
     }
+
+    public static <T> Iterable<T> withoutNulls(final Iterable<T> iterable)
+    {
+        return new Iterable<T>() {
+            public Iterator<T> iterator()
+            {
+                return new Iterator<T>() {
+                    private Iterator<T> iter = iterable.iterator();
+                    private boolean hasNext = true;
+                    private T preview = seekPreview();
+                    private T seekPreview()
+                    {
+                        while (true) {
+                            if (!iter.hasNext()) {
+                                hasNext = false;
+                                return null;
+                            }
+                            T tmp = iter.next();
+                            if (tmp != null)
+                                return tmp;
+                        }
+                    }
+                    public boolean hasNext()
+                    {
+                        return hasNext;
+                    }
+                    public T next()
+                    {
+                        T tmp = preview;
+                        preview = seekPreview();
+                        return tmp;
+                    }
+                    public void remove()
+                    {
+                        throw new UnsupportedOperationException();
+                    }
+                };
+            }
+        };
+    }
 }

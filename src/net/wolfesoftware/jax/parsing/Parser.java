@@ -130,7 +130,6 @@ public final class Parser
             return null;
         offset = qualifiedName.end;
 
-        // TODO: move this check to semalysis?
         if (qualifiedName.element.qualifiedName.equals(""))
             return null;
 
@@ -171,8 +170,10 @@ public final class Parser
             if (idText != null) {
                 elements.add(idText);
                 offset++;
-            } else
+            } else {
                 elements.add(null);
+                break;
+            }
             if (getToken(offset).text != Lang.SYMBOL_PERIOD)
                 break;
             offset++;

@@ -475,6 +475,15 @@ public class Semalysizer
             case ThisExpression.TYPE:
                 returnBehavior = semalysizeThisExpression(context, (ThisExpression)content);
                 break;
+            case LocalVariableExpression.TYPE:
+                returnBehavior = new ReturnBehavior(((LocalVariableExpression)content).variable.type);
+                break;
+            case StaticFieldExpression.TYPE:
+                returnBehavior = new ReturnBehavior(((StaticFieldExpression)content).field.returnType);
+                break;
+            case InstanceMethodInvocation.TYPE:
+                returnBehavior = new ReturnBehavior(((InstanceMethodInvocation)content).method.returnType);
+                break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
@@ -657,16 +666,19 @@ public class Semalysizer
             case LocalVariableExpression.TYPE: {
                 LocalVariableExpression localVariableExpression = (LocalVariableExpression)content;
                 LocalVariableIncrementDecrement localVariableIncrementDecrement = incrementDecrement.makeLocalVariableDisambiguation(localVariableExpression.variable);
+                expression.content = localVariableIncrementDecrement;
                 return semalysizeAbstractIncrementDecrement(context, localVariableIncrementDecrement);
             }
             case InstanceFieldExpression.TYPE: {
                 InstanceFieldExpression instanceFieldExpression = (InstanceFieldExpression)content;
                 InstanceFieldIncrementDecrement instanceFieldIncrementDecrement = incrementDecrement.makeInstanceFieldDisambiguation(instanceFieldExpression.leftExpression, instanceFieldExpression.field);
+                expression.content = instanceFieldIncrementDecrement;
                 return semalysizeAbstractIncrementDecrement(context, instanceFieldIncrementDecrement);
             }
             case StaticFieldExpression.TYPE: {
                 StaticFieldExpression staticFieldExpression = (StaticFieldExpression)content;
                 StaticFieldIncrementDecrement staticFieldIncrementDecrement = incrementDecrement.makeStaticFieldDisambiguation(staticFieldExpression.field);
+                expression.content = staticFieldIncrementDecrement;
                 return semalysizeAbstractIncrementDecrement(context, staticFieldIncrementDecrement);
             }
             default: {
@@ -820,7 +832,7 @@ public class Semalysizer
     private ReturnBehavior semalysizeAmbiguousMethodInvocation(LocalContext context, Expression expression)
     {
         AmbiguousMethodInvocation methodInvocation = (AmbiguousMethodInvocation)expression.content;
-        if (methodInvocation.leftExpression.content.getElementType() != AmbiguousId.TYPE)
+        if (methodInvocation.leftExpression.content.getElementType() == AmbiguousId.TYPE)
             semalysizeAmbiguousId(context, methodInvocation.leftExpression);
         else
             semalysizeExpression(context, methodInvocation.leftExpression);
@@ -831,6 +843,7 @@ public class Semalysizer
             return semalysizeStaticMethodInvocation(context, staticMethodInvocation);
         } else {
             InstanceMethodInvocation instanceMethodInvocation = new InstanceMethodInvocation(methodInvocation.leftExpression, methodInvocation.methodName, methodInvocation.arguments);
+            expression.content = instanceMethodInvocation;
             return semalysizeInstanceMethodInvocation(context, instanceMethodInvocation);
         }
     }

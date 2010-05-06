@@ -8,7 +8,7 @@ public class QualifiedName extends ParseElement
     public String qualifiedName;
     public QualifiedName(List<String> parts)
     {
-        qualifiedName = Util.join(parts, ".");
+        qualifiedName = Util.join(Util.withoutNulls(parts), ".");
     }
 
     @Override
