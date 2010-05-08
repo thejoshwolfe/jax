@@ -147,16 +147,17 @@ public class RuntimeType extends Type
     }
 
     private static final Class<?>[] javaLangTypes = { AbstractMethodError.class, ArithmeticException.class, ArrayIndexOutOfBoundsException.class, ArrayStoreException.class, AssertionError.class,
-            Boolean.class, Byte.class, Character.class, CharSequence.class, Class.class, ClassCastException.class, ClassCircularityError.class, ClassFormatError.class, ClassLoader.class,
-            ClassNotFoundException.class, Cloneable.class, CloneNotSupportedException.class, Comparable.class, Compiler.class, Double.class, Error.class, Exception.class,
+            Boolean.class, Byte.class, CharSequence.class, Character.class, Class.class, ClassCastException.class, ClassCircularityError.class, ClassFormatError.class, ClassLoader.class,
+            ClassNotFoundException.class, CloneNotSupportedException.class, Cloneable.class, Comparable.class, Compiler.class, Double.class, Error.class, Exception.class,
             ExceptionInInitializerError.class, Float.class, IllegalAccessError.class, IllegalAccessException.class, IllegalArgumentException.class, IllegalMonitorStateException.class,
             IllegalStateException.class, IllegalThreadStateException.class, IncompatibleClassChangeError.class, IndexOutOfBoundsException.class, InheritableThreadLocal.class,
             InstantiationError.class, InstantiationException.class, Integer.class, InternalError.class, InterruptedException.class, LinkageError.class, Long.class, Math.class,
             NegativeArraySizeException.class, NoClassDefFoundError.class, NoSuchFieldError.class, NoSuchFieldException.class, NoSuchMethodError.class, NoSuchMethodException.class,
             NullPointerException.class, Number.class, NumberFormatException.class, Object.class, OutOfMemoryError.class, Package.class, Process.class, Runnable.class, Runtime.class,
             RuntimeException.class, RuntimePermission.class, SecurityException.class, SecurityManager.class, Short.class, StackOverflowError.class, StackTraceElement.class, StrictMath.class,
-            String.class, StringBuffer.class, StringIndexOutOfBoundsException.class, System.class, Thread.class, ThreadDeath.class, ThreadGroup.class, ThreadLocal.class, Throwable.class,
-            UnknownError.class, UnsatisfiedLinkError.class, UnsupportedClassVersionError.class, UnsupportedOperationException.class, VerifyError.class, VirtualMachineError.class, Void.class, };
+            String.class, StringBuffer.class, StringBuilder.class, StringIndexOutOfBoundsException.class, System.class, Thread.class, ThreadDeath.class, ThreadGroup.class, ThreadLocal.class,
+            Throwable.class, UnknownError.class, UnsatisfiedLinkError.class, UnsupportedClassVersionError.class, UnsupportedOperationException.class, VerifyError.class, VirtualMachineError.class,
+            Void.class, };
     public static void initJavaLang(HashMap<String, Type> types)
     {
         for (Class<?> type : javaLangTypes)
@@ -169,8 +170,9 @@ public class RuntimeType extends Type
         for (RuntimeType primitiveType : allPrimitiveTypes)
             cache.put(primitiveType.underlyingType, primitiveType);
     }
-    public static final RuntimeType STRING = cache.get(String.class);
     public static final RuntimeType OBJECT = cache.get(Object.class);
+    public static final RuntimeType STRING = cache.get(String.class);
+    public static final RuntimeType STRING_BUILDER = cache.get(StringBuilder.class);
     public static Type getType(Class<?> underlyingType)
     {
         RuntimeType type = cache.get(underlyingType);

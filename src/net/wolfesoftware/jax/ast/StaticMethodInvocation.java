@@ -1,5 +1,8 @@
 package net.wolfesoftware.jax.ast;
 
+import net.wolfesoftware.jax.semalysis.Method;
+import net.wolfesoftware.jax.util.Util;
+
 public class StaticMethodInvocation extends AbstractMethodInvocation
 {
     public TypeId typeId;
@@ -24,5 +27,12 @@ public class StaticMethodInvocation extends AbstractMethodInvocation
     public int getElementType()
     {
         return TYPE;
+    }
+
+    public static ParseElement fromMethod(Method method, Expression ... args)
+    {
+        StaticMethodInvocation tmp = new StaticMethodInvocation(TypeId.fromType(method.declaringType), new AmbiguousId(method.name), new Arguments(Util.arrayToList(args)));
+        tmp.method = method;
+        return tmp;
     }
 }

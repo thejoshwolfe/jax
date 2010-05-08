@@ -1,6 +1,7 @@
 package net.wolfesoftware.jax.ast;
 
 import net.wolfesoftware.jax.semalysis.*;
+import net.wolfesoftware.jax.util.Util;
 
 public class ConstructorInvocation extends ParseElement
 {
@@ -27,5 +28,12 @@ public class ConstructorInvocation extends ParseElement
     public int getElementType()
     {
         return TYPE;
+    }
+
+    public static ConstructorInvocation fromConstructor(Constructor constructor, Expression... args)
+    {
+        ConstructorInvocation tmp = new ConstructorInvocation(new AmbiguousId(constructor.declaringType.simpleName), new Arguments(Util.arrayToList(args)));
+        tmp.constructor = constructor;
+        return tmp;
     }
 }

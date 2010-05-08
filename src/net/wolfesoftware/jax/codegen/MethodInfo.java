@@ -205,6 +205,9 @@ public class MethodInfo
             case WhileLoop.TYPE:
                 evalWhileLoop((WhileLoop)content);
                 break;
+            case StringConcatenation.TYPE:
+                evalStringConcatenation((StringConcatenation)content);
+                break;
             case StaticMethodInvocation.TYPE:
             case InstanceMethodInvocation.TYPE:
                 evalAbstractMethodInvocation((AbstractMethodInvocation)content);
@@ -721,6 +724,11 @@ public class MethodInfo
         }
         context.popOperand();
         context.pushOperand(dereferenceField.field.returnType);
+    }
+
+    private void evalStringConcatenation(StringConcatenation stringConcatenation)
+    {
+        evalExpression(stringConcatenation.getEffectiveExpression());
     }
 
     private void evalAbstractMethodInvocation(AbstractMethodInvocation methodInvocation)

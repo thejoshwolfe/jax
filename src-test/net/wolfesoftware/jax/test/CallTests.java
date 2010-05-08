@@ -37,7 +37,7 @@ public class CallTests
         "baseLibraries/Import",
         "baseLibraries/ImportStar",
         "baseLibraries/RuntimeType",
-//        "baseLibraries/StringConcatenation",
+        "baseLibraries/StringConcatenation",
         "arrays/ArrayType",
         "arrays/ArrayDereference",
         "exceptions/TryCatch",

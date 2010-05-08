@@ -1177,21 +1177,19 @@ public class Semalysizer
         Type returnType1 = semalysizeExpression(context, addition.expression1).type;
         Type returnType2 = semalysizeExpression(context, addition.expression2).type;
         if (returnType1 == RuntimeType.STRING || returnType2 == RuntimeType.STRING) {
-            // convert to string concatenation
-            // a + b
-            // becomes
-            // String.valueOf(a).concat(String.valueOf(b))
-            Expression string1 = stringValueOf(addition.expression1);
-            Expression string2 = stringValueOf(addition.expression2);
-            expression.content = new InstanceMethodInvocation(string1, new AmbiguousId("concat"), new Arguments(Arrays.asList(string2)));
-            return semalysizeExpression(context, expression);
+            // convert addition to string concatenation
+            StringConcatenation concatenation;
+            if (addition.expression1.content.getElementType() == StringConcatenation.TYPE)
+                concatenation = (StringConcatenation)addition.expression1.content;
+            else
+                concatenation = new StringConcatenation(addition.expression1);
+            concatenation.append(addition.expression2);
+            expression.content = concatenation;
+            expression.returnBehavior = ReturnBehavior.STRING;
+            return expression.returnBehavior;
         } else {
             return semalysizeNumericOperator(context, addition);
         }
-    }
-    private Expression stringValueOf(Expression expression)
-    {
-        return new Expression(new InstanceMethodInvocation(new Expression(new AmbiguousId("String")), new AmbiguousId("valueOf"), new Arguments(Arrays.asList(expression))));
     }
     private ReturnBehavior semalysizeSubtraction(LocalContext context, Subtraction subtraction)
     {

@@ -34,13 +34,13 @@ public abstract class Type
         {
             Type[] params1 = o1.argumentSignature;
             Type[] params2 = o2.argumentSignature;
-            for (int i = 0; i < params1.length; i++)
-            {
+            for (int i = 0; i < params1.length; i++) {
                 if (params1[i] == params2[i])
                     continue;
                 return params1[i].isInstanceOf(params2[i]) ? -1 : 1;
             }
-            throw new RuntimeException("Duplicate method signatures: " + o1 + " : " + o2);
+            // declaringType is a lie, so we'll use the return type as a hack to resolve shadowing
+            return o1.returnType.isInstanceOf(o2.returnType) ? -1 : 1;
         }
     };
     private <T extends TakesArguments> T resolveOverloads(LinkedList<T> overloads, Type[] argumentSignature)
