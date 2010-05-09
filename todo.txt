@@ -3,29 +3,29 @@ This is a roadmap/todo.
 Version 1.0:
 
 broken:
-    detect ambiguous overload resolution (is this really a problem?)
+    detect ambiguous overload resolution
     "special handling for superclass, private, and instance initialization method invocations" ( http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc6.html#invokespecial )
 
 semalysis:
-    field declarations
     throw
+    interface declaration
 
 ast:
-    static and non-static initializers
     array store
     loops with else's
     continue/break/return
-    non static members
-    access modifiers
-    final fields/methods/classes
-    interface declaration
+    forbidding assignment to final fields
     extends and implements
     abstract classes/methods
     class literals (ex: String.class)
     array initializers (new int[] { 1, 2 })
     do-while loops
     finally
-    synchronized
+    synchronized blocks
+
+parse:
+    static and non-static initializers
+    constructor declarations
 
 staticalysis:
     uninitialized variable access
@@ -34,21 +34,17 @@ staticalysis:
 
 misc:
     hygienic macros
-    line + column lookup in all compile errors
-    debug info
-
 
 
 Version 1.1:
 
-semalysis:
-    proper String contatentation (using StringBuilder)
 staticalysis:
-    compile-time constant reduction (ex: "a=1+1" => "a=2")
+    compile-time constant reduction (ex: a=1+1 => a=2)
     static final field (constant) inlining
 misc:
-    referencing other .jax files
-
+    line + column lookup in all compile errors
+    debug info
+    referencing other .jax files (kind of important)
 
 
 
@@ -61,15 +57,10 @@ ast:
     for each loops
 
 semalysis:
-    closure-like final variable thing with the above
+    closure-like final variable thing
     generic types
     automatic boxing/unboxing
 
-
-
-
-Version 3.0:
-
 Java compatibility mode:
-    Abridged array initializers (int[] a = { 1, 2 })
+    abridged array initializers (int[] a = { 1, 2 })
 
