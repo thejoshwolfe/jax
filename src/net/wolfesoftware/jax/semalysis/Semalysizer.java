@@ -2,7 +2,7 @@ package net.wolfesoftware.jax.semalysis;
 
 import java.util.*;
 import net.wolfesoftware.jax.ast.*;
-import net.wolfesoftware.jax.codegen.Instructions;
+import net.wolfesoftware.jax.codegen.*;
 import net.wolfesoftware.jax.parsing.Parsing;
 import net.wolfesoftware.jax.tokenization.Lang;
 
@@ -173,6 +173,9 @@ public class Semalysizer
                 case FieldCreation.TYPE:
                     semalysizeFieldCreation(context, (FieldCreation)content);
                     break;
+                case AmbiguousInitializer.TYPE:
+                    // doesn't really exist.
+                    break;
                 default:
                     throw new RuntimeException(content.getClass().toString());
             }
@@ -205,8 +208,37 @@ public class Semalysizer
             case FieldCreation.TYPE:
                 preSemalysizeFieldDeclaration(context, (FieldDeclaration)content);
                 break;
+            case AmbiguousInitializer.TYPE:
+                preSemalysizeAmbiguousInitializer(context, classMember);
+                break;
             default:
                 throw new RuntimeException("TODO: implement " + content.getClass().getName());
+        }
+    }
+
+    private void preSemalysizeAmbiguousInitializer(LocalType context, ClassMember classMember)
+    {
+        AmbiguousInitializer initializer = (AmbiguousInitializer)classMember.content;
+        semalysizeInitializerModifiers(initializer.methodModifiers);
+        List<Expression> initializerExpressions;
+        if ((initializer.methodModifiers.bitmask & MethodInfo.ACC_STATIC) != 0)
+            initializerExpressions = context.getStaticInitializerExpressions();
+        else
+            initializerExpressions = context.initializerExpressions;
+        initializerExpressions.add(new Expression(initializer.block));
+    }
+
+    private void semalysizeInitializerModifiers(MethodModifiers methodModifiers)
+    {
+        // TODO: code duplication
+        for (MethodModifier methodModifier : methodModifiers.elements) {
+            if (methodModifier != MethodModifier.STATIC) {
+                errors.add(new SemalyticalError(methodModifier, "Only the modifier \"static\" is allowed on initializers."));
+                continue;
+            }
+            if ((methodModifiers.bitmask & methodModifier.bitmask) != 0)
+                errors.add(new SemalyticalError(methodModifier, "Please say that it's \"" + methodModifier + "\" at most once."));
+            methodModifiers.bitmask |= methodModifier.bitmask;
         }
     }
 
@@ -294,7 +326,9 @@ public class Semalysizer
             errors.add(new SemalyticalError(constructorDeclaration.expression, "Constructor bodies must be blocks."));
             return;
         }
-        List<Expression> bodyElements = ((Block)constructorDeclaration.expression.content).blockContents.elements;
+        BlockContents blockContents = ((Block)constructorDeclaration.expression.content).blockContents;
+        deleteNulls(blockContents);
+        List<Expression> bodyElements = blockContents.elements;
 
         ConstructorRedirect constructorRedirect = null;
         if (!bodyElements.isEmpty()) {

@@ -1,13 +1,13 @@
 public class Initializers {
-    private static int five;
+    public static int five;
     static {
         five = 5;
     };
-    private int four;
+    public int four;
     {
         four = 4;
     };
-    private int three;
+    public int three;
     {
         three = 3;
     };
