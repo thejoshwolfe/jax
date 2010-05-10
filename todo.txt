@@ -25,7 +25,6 @@ ast:
 
 parse:
     static and non-static initializers
-    constructor declarations
 
 staticalysis:
     uninitialized variable access
