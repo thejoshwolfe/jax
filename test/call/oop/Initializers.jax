@@ -1,0 +1,18 @@
+public class Initializers {
+    private static int five;
+    static {
+        five = 5;
+    };
+    private int four;
+    {
+        four = 4;
+    };
+    private int three;
+    {
+        three = 3;
+    };
+    public Initializers() {
+    };
+    public Initializers(String ignored) {
+    };
+}
