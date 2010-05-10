@@ -112,7 +112,7 @@ public class ClassFile
                 case FieldCreation.TYPE:
                     fields.add(FieldInfo.generate((FieldDeclaration)content, constant_pool));
                     break;
-                case AmbiguousInitializer.TYPE:
+                case Initializer.TYPE:
                     break;
                 default:
                     throw new RuntimeException(content.getClass().toString());

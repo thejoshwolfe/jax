@@ -1,10 +1,10 @@
 package net.wolfesoftware.jax.ast;
 
-public class AmbiguousInitializer extends ParseElement
+public class Initializer extends ParseElement
 {
     public MethodModifiers methodModifiers;
     public Block block;
-    public AmbiguousInitializer(MethodModifiers methodModifiers, Block block)
+    public Initializer(MethodModifiers methodModifiers, Block block)
     {
         this.methodModifiers = methodModifiers;
         this.block = block;

@@ -173,7 +173,7 @@ public class Semalysizer
                 case FieldCreation.TYPE:
                     semalysizeFieldCreation(context, (FieldCreation)content);
                     break;
-                case AmbiguousInitializer.TYPE:
+                case Initializer.TYPE:
                     // doesn't really exist.
                     break;
                 default:
@@ -208,7 +208,7 @@ public class Semalysizer
             case FieldCreation.TYPE:
                 preSemalysizeFieldDeclaration(context, (FieldDeclaration)content);
                 break;
-            case AmbiguousInitializer.TYPE:
+            case Initializer.TYPE:
                 preSemalysizeAmbiguousInitializer(context, classMember);
                 break;
             default:
@@ -218,7 +218,7 @@ public class Semalysizer
 
     private void preSemalysizeAmbiguousInitializer(LocalType context, ClassMember classMember)
     {
-        AmbiguousInitializer initializer = (AmbiguousInitializer)classMember.content;
+        Initializer initializer = (Initializer)classMember.content;
         semalysizeInitializerModifiers(initializer.methodModifiers);
         List<Expression> initializerExpressions;
         if ((initializer.methodModifiers.bitmask & MethodInfo.ACC_STATIC) != 0)

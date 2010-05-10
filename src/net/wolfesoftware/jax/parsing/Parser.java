@@ -332,7 +332,7 @@ public final class Parser
         return new SubParsing<ClassMember>(new ClassMember(content.element), offset);
     }
 
-    private SubParsing<AmbiguousInitializer> parseInitializer(int offset)
+    private SubParsing<Initializer> parseInitializer(int offset)
     {
         SubParsing<MethodModifiers> methodModifiers = parseMethodModifiers(offset);
         offset = methodModifiers.end;
@@ -350,7 +350,7 @@ public final class Parser
             return null;
         offset++;
 
-        return new SubParsing<AmbiguousInitializer>(new AmbiguousInitializer(methodModifiers.element, new Block(blockContents.element)), offset);
+        return new SubParsing<Initializer>(new Initializer(methodModifiers.element, new Block(blockContents.element)), offset);
     }
 
     private SubParsing<FieldDeclaration> parseFieldDeclaration(int offset)
