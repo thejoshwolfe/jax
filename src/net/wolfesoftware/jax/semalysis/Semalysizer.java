@@ -326,12 +326,10 @@ public class Semalysizer
             errors.add(new SemalyticalError(constructorDeclaration.expression, "Constructor bodies must be blocks."));
             return;
         }
-        BlockContents blockContents = ((Block)constructorDeclaration.expression.content).blockContents;
-        deleteNulls(blockContents);
-        List<Expression> bodyElements = blockContents.elements;
+        List<Expression> bodyElements = ((Block)constructorDeclaration.expression.content).blockContents.elements;
 
         ConstructorRedirect constructorRedirect = null;
-        if (!bodyElements.isEmpty()) {
+        if (!bodyElements.isEmpty() && bodyElements.get(0) != null) {
             ParseElement firstExpressionElement = bodyElements.get(0).content;
             if (firstExpressionElement.getElementType() == ConstructorRedirect.TYPE) {
                 bodyElements.remove(0); // re add it later
