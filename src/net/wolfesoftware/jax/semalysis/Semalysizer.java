@@ -288,7 +288,7 @@ public class Semalysizer
 
     private void semalysizeConstructorDeclaration(LocalType typeContext, ConstructorDeclaration constructorDeclaration)
     {
-        LocalContext context = new RootLocalContext(typeContext, false);
+        LocalContext context = constructorDeclaration.context;
         // look for a constructor redirect
         if (constructorDeclaration.expression.content.getElementType() != Block.TYPE) {
             errors.add(new SemalyticalError(constructorDeclaration.expression, "Constructor bodies must be blocks."));
