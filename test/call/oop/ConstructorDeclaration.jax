@@ -1,0 +1,13 @@
+
+public class ConstructorDeclaration {
+    public int thing;
+    public ConstructorDeclaration() {
+        thing = 1;
+    }
+    public ConstructorDeclaration(int thing) {
+        this.thing = thing;
+    }
+    public ConstructorDeclaration(String fakeThing, int realThing) {
+        this(realThing);
+    }
+}
