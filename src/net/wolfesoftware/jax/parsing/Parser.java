@@ -324,10 +324,33 @@ public final class Parser
         if (content == null)
             content = parseFieldDeclaration(offset);
         if (content == null)
+            content = parseInitializer(offset);
+        if (content == null)
             return null;
         offset = content.end;
 
         return new SubParsing<ClassMember>(new ClassMember(content.element), offset);
+    }
+
+    private SubParsing<AmbiguousInitializer> parseInitializer(int offset)
+    {
+        SubParsing<MethodModifiers> methodModifiers = parseMethodModifiers(offset);
+        offset = methodModifiers.end;
+
+        if (getToken(offset).text != Lang.SYMBOL_OPEN_BRACE)
+            return null;
+        offset++;
+
+        SubParsing<BlockContents> blockContents = parseBlockContents(offset);
+        if (blockContents == null)
+            return null;
+        offset = blockContents.end;
+
+        if (getToken(offset).text != Lang.SYMBOL_CLOSE_BRACE)
+            return null;
+        offset++;
+
+        return new SubParsing<AmbiguousInitializer>(new AmbiguousInitializer(methodModifiers.element, new Block(blockContents.element)), offset);
     }
 
     private SubParsing<FieldDeclaration> parseFieldDeclaration(int offset)

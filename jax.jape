@@ -158,8 +158,11 @@ $ConstructorDeclaration = ID "(" ArgumentDeclarations ")" MaybeThrows Expression
 $AbstractMethodDeclaration = TypeId ID "(" ArgumentDeclarations ")" MaybeThrows
 $MethodDeclaration = TypeId ID "(" ArgumentDeclarations ")" MaybeThrows Expression
 
+### initializers
+$AmbiguousInitializer = MethodModifiers "{" Expression "}"
+
 ### Class
-|ClassMember = MethodDeclaration | AbstractMethodDeclaration | FieldDeclaration | FieldCreation | ConstructorDeclaration
+|ClassMember = MethodDeclaration | AbstractMethodDeclaration | FieldDeclaration | FieldCreation | ConstructorDeclaration | AmbiguousInitializer
 ~ClassBody = (ClassMember) : ";"
 |ClassModifier = "public" | "final"
 ~ClassModifiers = ClassModifier : ""
