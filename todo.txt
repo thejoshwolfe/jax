@@ -23,9 +23,6 @@ ast:
     finally
     synchronized blocks
 
-parse:
-    static and non-static initializers
-
 staticalysis:
     uninitialized variable access
     unreachable code
