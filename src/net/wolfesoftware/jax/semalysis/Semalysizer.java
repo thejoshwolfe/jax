@@ -14,11 +14,6 @@ public class Semalysizer
     }
 
     private final HashMap<String, Type> importedTypes = new HashMap<String, Type>();
-    {
-        // import built-in types
-        RuntimeType.initPrimitives(importedTypes);
-        RuntimeType.initJavaLang(importedTypes);
-    }
     private final Root root;
     private final String expectedQualifiedPackageName;
     private final String expectedClassName;
@@ -31,6 +26,10 @@ public class Semalysizer
         int lastSlash = filePathRelativeToClassPath.lastIndexOf('/');
         expectedQualifiedPackageName = lastSlash != -1 ? filePathRelativeToClassPath.substring(0, lastSlash).replace('/', '.') : "";
         expectedClassName = filePathRelativeToClassPath.substring(lastSlash + 1, filePathRelativeToClassPath.length() - ".jax".length());
+
+        // import built-in types
+        RuntimeType.initPrimitives(importedTypes);
+        BuiltinPackageLister.importPackageStar(QualifiedName.fromString("java.lang"), importedTypes, errors);
     }
 
     private Semalysization semalysizeRoot()
@@ -454,11 +453,9 @@ public class Semalysizer
                 returnBehavior = semalysizeAmbiguousAssignment(context, expression);
                 break;
             case StaticFieldAssignment.TYPE:
-                // called for statically initialized fields
                 returnBehavior = semalysizeStaticFieldAssignment(context, (StaticFieldAssignment)expression.content);
                 break;
             case InstanceFieldAssignment.TYPE:
-                // called for inlined field creation 
                 returnBehavior = semalysizeInstanceFieldAssignment(context, (InstanceFieldAssignment)expression.content);
                 break;
             case IfThenElse.TYPE:
@@ -516,11 +513,20 @@ public class Semalysizer
             case InstanceMethodInvocation.TYPE:
                 returnBehavior = new ReturnBehavior(((InstanceMethodInvocation)content).method.returnType);
                 break;
+            case ReturnExpression.TYPE:
+                returnBehavior = semalysizeReturnExpression(context, (ReturnExpression)content);
+                break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
         expression.returnBehavior = returnBehavior;
         return returnBehavior;
+    }
+
+    private ReturnBehavior semalysizeReturnExpression(LocalContext context, ReturnExpression returnExpression)
+    {
+        Type type = semalysizeExpression(context, returnExpression.expression).type;
+        throw null; // TODO
     }
 
     private ReturnBehavior semalysizeConstructorRedirect(LocalContext context, ConstructorRedirect constructorRedirect)
@@ -1138,7 +1144,7 @@ public class Semalysizer
     private ReturnBehavior semalysizeVariableDeclaration(LocalContext context, VariableDeclaration variableDeclaration)
     {
         if (!resolveType(variableDeclaration.typeId, true))
-            errors.add(new SemalyticalError(variableDeclaration, "You can't have a void variable."));
+            errors.add(new SemalyticalError(variableDeclaration, "You can't have a void variable.")); // TODO: wrong message
         variableDeclaration.variable = context.addLocalVariable(variableDeclaration.variableName, variableDeclaration.typeId.type, errors);
         return ReturnBehavior.VOID;
     }

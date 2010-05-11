@@ -22,4 +22,9 @@ public class QualifiedName extends ParseElement
     {
         return TYPE;
     }
+
+    public static QualifiedName fromString(String string)
+    {
+        return new QualifiedName(Util.arrayToList(string));
+    }
 }

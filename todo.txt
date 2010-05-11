@@ -19,6 +19,7 @@ ast:
     abstract classes/methods
     class literals (ex: String.class)
     array initializers (new int[] { 1, 2 })
+    javaMode abridged array initializers (int[] a = { 1, 2 })
     do-while loops
     finally
     synchronized blocks
@@ -56,7 +57,4 @@ semalysis:
     closure-like final variable thing
     generic types
     automatic boxing/unboxing
-
-Java compatibility mode:
-    abridged array initializers (int[] a = { 1, 2 })
 
