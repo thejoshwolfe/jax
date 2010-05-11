@@ -94,7 +94,7 @@ public class MethodInfo
         for (VariableDeclaration variableDeclaration : methodDeclaration.argumentDeclarations.elements)
             variableDeclaration.variable.getNumber();
         evalExpression(methodDeclaration.expression);
-        _return(methodDeclaration.returnBehavior.type);
+        _return(methodDeclaration.returnType);
         Util._assert(context.stackSize == 0);
         byte[] codeBytes = codeBufferArray.toByteArray();
         for (Fillin fillin : fillins) {
@@ -306,7 +306,7 @@ public class MethodInfo
     private void evalInstanceFieldPreIncrementDecrement(InstanceFieldPreIncrementDecrement instanceFieldPreIncrementDecrement)
     {
         // code duplication? feasible to fix it?
-        Type instanceType = instanceFieldPreIncrementDecrement.leftExpression.returnBehavior.type;
+        Type instanceType = instanceFieldPreIncrementDecrement.leftExpression.returnType;
         Type fieldType = instanceFieldPreIncrementDecrement.field.returnType;
         short fieldIndex = constantPool.getField(instanceFieldPreIncrementDecrement.field);
         evalExpression(instanceFieldPreIncrementDecrement.leftExpression);
@@ -324,7 +324,7 @@ public class MethodInfo
     private void evalInstanceFieldPostIncrementDecrement(InstanceFieldPostIncrementDecrement instanceFieldPostIncrementDecrement)
     {
         // code duplication? feasible to fix it?
-        Type instanceType = instanceFieldPostIncrementDecrement.leftExpression.returnBehavior.type;
+        Type instanceType = instanceFieldPostIncrementDecrement.leftExpression.returnType;
         Type fieldType = instanceFieldPostIncrementDecrement.field.returnType;
         short fieldIndex = constantPool.getField(instanceFieldPostIncrementDecrement.field);
         evalExpression(instanceFieldPostIncrementDecrement.leftExpression);
@@ -590,8 +590,8 @@ public class MethodInfo
         writeDummyShort();
         int continueToOffset = offset;
         evalExpression(forLoop.expression3);
-        if (forLoop.expression3.returnBehavior.type != RuntimeType.VOID)
-            pop(forLoop.expression3.returnBehavior.type);
+        if (forLoop.expression3.returnType != RuntimeType.VOID)
+            pop(forLoop.expression3.returnType);
         fillins.add(new Fillin(initialGotoOffset));
         evalExpression(forLoop.expression2);
         int breakToOffset = offset;
@@ -609,7 +609,7 @@ public class MethodInfo
     {
         evalExpression(arrayDereference.expression1);
         evalExpression(arrayDereference.expression2);
-        Type type = ((ArrayType)arrayDereference.expression1.returnBehavior.type).scalarType;
+        Type type = ((ArrayType)arrayDereference.expression1.returnType).scalarType;
         if (!type.isPrimitive())
             writeByte(Instructions.aaload);
         else if (type == RuntimeType.INT)
@@ -644,7 +644,7 @@ public class MethodInfo
 
         tryCatch.tryPart.startOffset = offset;
         evalExpression(tryCatch.tryPart.expression);
-        if (tryCatch.tryPart.expression.returnBehavior.type != RuntimeType.VOID)
+        if (tryCatch.tryPart.expression.returnType != RuntimeType.VOID)
             context.popOperand(); // take this off for now. it's added as part of the last catch
         int successfulTryEndOffset = offset;
         tryCatch.tryPart.endOffset = offset;
@@ -698,7 +698,7 @@ public class MethodInfo
         astore(catchBody.variableDeclaration.variable.getNumber());
         evalExpression(catchBody.expression);
         if (addGoto) {
-            if (catchBody.expression.returnBehavior.type != RuntimeType.VOID)
+            if (catchBody.expression.returnType != RuntimeType.VOID)
                 context.popOperand(); // take this off for now
             catchBody.endGotoOffset = offset;
             writeByte(Instructions._goto);
@@ -747,7 +747,7 @@ public class MethodInfo
             // this is dumb. "The redundancy is historical."
             int stackSize = 0;
             for (Expression expression : methodInvocation.arguments.elements)
-                stackSize += expression.returnBehavior.type.getSize();
+                stackSize += expression.returnType.getSize();
             if (!method.isStatic)
                 stackSize += 1;
             writeByte((byte)stackSize);
@@ -784,7 +784,7 @@ public class MethodInfo
         context.popOperand();
         writeDummyShort();
         evalExpression(ifThenElse.expression2);
-        if (ifThenElse.expression2.returnBehavior.type != RuntimeType.VOID)
+        if (ifThenElse.expression2.returnType != RuntimeType.VOID)
             context.popOperand(); // take this off for now
         int gotoOffset = offset;
         writeByte(Instructions._goto);
@@ -807,7 +807,7 @@ public class MethodInfo
     private void evalLocalVariableAssignment(LocalVariableAssignment localVariableAssignment)
     {
         evalExpression(localVariableAssignment.rightExpression);
-        dup(localVariableAssignment.rightExpression.returnBehavior.type);
+        dup(localVariableAssignment.rightExpression.returnType);
         store(localVariableAssignment.variable);
     }
 
@@ -815,13 +815,13 @@ public class MethodInfo
     {
         evalExpression(fieldAssignment.leftExpression);
         evalExpression(fieldAssignment.rightExpression);
-        dup_x(fieldAssignment.leftExpression.returnBehavior.type, fieldAssignment.rightExpression.returnBehavior.type);
+        dup_x(fieldAssignment.leftExpression.returnType, fieldAssignment.rightExpression.returnType);
         putfield(fieldAssignment.field);
     }
     private void evalStaticFieldAssignment(StaticFieldAssignment staticFieldAssignment)
     {
         evalExpression(staticFieldAssignment.rightExpression);
-        dup(staticFieldAssignment.rightExpression.returnBehavior.type);
+        dup(staticFieldAssignment.rightExpression.returnType);
         putstatic(staticFieldAssignment.field);
     }
 
@@ -865,9 +865,9 @@ public class MethodInfo
         for (int i = 0; i < blockContents.elements.size(); i++) {
             Expression element = blockContents.elements.get(i);
             evalExpression(element);
-            if (element.returnBehavior.type != RuntimeType.VOID)
+            if (element.returnType != RuntimeType.VOID)
                 if (i < blockContents.elements.size() - 1 || blockContents.forceVoid)
-                    pop(element.returnBehavior.type);
+                    pop(element.returnType);
         }
     }
 
@@ -962,12 +962,12 @@ public class MethodInfo
     }
     private void evalEquality(Equality equality)
     {
-        byte instruction = equality.expression1.returnBehavior.type.isPrimitive() ? Instructions.if_icmpeq : Instructions.if_acmpeq;
+        byte instruction = equality.expression1.returnType.isPrimitive() ? Instructions.if_icmpeq : Instructions.if_acmpeq;
         evalComparison(equality, instruction);
     }
     private void evalInequality(Inequality inequality)
     {
-        byte instruction = inequality.expression1.returnBehavior.type.isPrimitive() ? Instructions.if_icmpne : Instructions.if_acmpne;
+        byte instruction = inequality.expression1.returnType.isPrimitive() ? Instructions.if_icmpne : Instructions.if_acmpne;
         evalComparison(inequality, instruction);
     }
     private void evalComparison(ComparisonOperator operator, byte instruction)

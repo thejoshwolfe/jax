@@ -18,7 +18,7 @@ public class StaticInitializerDeclaration extends ConstructorOrMethodDeclaration
     {
         super(METHOD_MODIFIERS, TypeId.fromName("<clinit>"), ArgumentDeclarations.EMPTY, MaybeThrows.DOESNT, new Expression(new Block(new BlockContents(new ArrayList<Expression>()))));
         context = rootLocalContext;
-        returnBehavior = ReturnBehavior.VOID;
+        returnType = RuntimeType.VOID;
         method = new StaticInitializer(context.getClassContext());
     }
 

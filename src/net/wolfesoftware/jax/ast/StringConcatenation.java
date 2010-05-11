@@ -50,27 +50,27 @@ public class StringConcatenation extends ParseElement
         Constructor constructor = RuntimeType.STRING_BUILDER.resolveConstructor(new Type[] { RuntimeType.STRING });
         ConstructorInvocation constructorInvocation = ConstructorInvocation.fromConstructor(constructor, stringArg);
         Expression newExpression = new Expression(constructorInvocation);
-        newExpression.returnBehavior = ReturnBehavior.STRING;
+        newExpression.returnType = RuntimeType.STRING;
         return newExpression;
     }
 
     private static Expression stringValueOf(Expression expression)
     {
-        Type type = expression.returnBehavior.type;
+        Type type = expression.returnType;
         if (type == RuntimeType.STRING)
             return expression;
         Method method = RuntimeType.STRING.resolveMethod("valueOf", new Type[] { type });
         Expression newExpression = new Expression(StaticMethodInvocation.fromMethod(method, expression));
-        newExpression.returnBehavior = ReturnBehavior.STRING;
+        newExpression.returnType = RuntimeType.STRING;
         return newExpression;
     }
 
     private static Expression stringBuilderAppend(Expression stringBuilderExpression, Expression someTypeArg)
     {
-        Method appendMethod = RuntimeType.STRING_BUILDER.resolveMethod("append", new Type[] { someTypeArg.returnBehavior.type });
+        Method appendMethod = RuntimeType.STRING_BUILDER.resolveMethod("append", new Type[] { someTypeArg.returnType });
         InstanceMethodInvocation instanceMethodInvocation = InstanceMethodInvocation.fromMethod(stringBuilderExpression, appendMethod, someTypeArg);
         Expression newExpression = new Expression(instanceMethodInvocation);
-        newExpression.returnBehavior = ReturnBehavior.STRING_BUILDER;
+        newExpression.returnType = RuntimeType.STRING_BUILDER;
         return newExpression;
     }
 
@@ -80,7 +80,7 @@ public class StringConcatenation extends ParseElement
         Method toStringMethod = RuntimeType.STRING_BUILDER.resolveMethod("toString", new Type[] {});
         InstanceMethodInvocation instanceMethodInvocation = InstanceMethodInvocation.fromMethod(stringBuilderExpression, toStringMethod);
         Expression newExpression = new Expression(instanceMethodInvocation);
-        newExpression.returnBehavior = ReturnBehavior.STRING;
+        newExpression.returnType = RuntimeType.STRING;
         return newExpression;
     }
 }

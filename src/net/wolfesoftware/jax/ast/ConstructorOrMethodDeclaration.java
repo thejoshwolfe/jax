@@ -5,7 +5,7 @@ import net.wolfesoftware.jax.semalysis.*;
 
 public abstract class ConstructorOrMethodDeclaration extends ParseElement
 {
-    public ReturnBehavior returnBehavior;
+    public Type returnType;
     public RootLocalContext context;
 
     public MethodModifiers methodModifiers;

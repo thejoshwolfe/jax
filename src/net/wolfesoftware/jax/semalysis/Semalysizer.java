@@ -339,7 +339,7 @@ public class Semalysizer
             constructorRedirect = new ConstructorRedirect(Lang.KEYWORD_SUPER, new Arguments(new LinkedList<Expression>()));
 
         Expression constructorRedirectExpression = new Expression(constructorRedirect);
-        constructorRedirectExpression.returnBehavior = semalysizeConstructorRedirect(context, constructorRedirect);
+        constructorRedirectExpression.returnType = semalysizeConstructorRedirect(context, constructorRedirect);
 
         // initial stuff is a block with the redirect and all the initializer code inline
         List<Expression> initialStuffElements = new ArrayList<Expression>();
@@ -353,8 +353,8 @@ public class Semalysizer
         Expression initialStuffExpression = new Expression(new Block(new BlockContents(initialStuffElements)));
         bodyElements.add(0, initialStuffExpression);
 
-        constructorDeclaration.returnBehavior = semalysizeExpression(constructorDeclaration.context, constructorDeclaration.expression);
-        if (constructorDeclaration.returnBehavior.type != RuntimeType.VOID)
+        constructorDeclaration.returnType = semalysizeExpression(constructorDeclaration.context, constructorDeclaration.expression);
+        if (constructorDeclaration.returnType != RuntimeType.VOID)
             errors.add(SemalyticalError.mustBeVoid(constructorDeclaration.expression));
     }
 
@@ -362,176 +362,176 @@ public class Semalysizer
     {
         semalysizeExpression(methodDeclaration.context, methodDeclaration.expression);
         implicitCast(methodDeclaration.context, methodDeclaration.expression, methodDeclaration.method.returnType);
-        methodDeclaration.returnBehavior = methodDeclaration.expression.returnBehavior;
+        methodDeclaration.returnType = methodDeclaration.expression.returnType;
     }
 
-    private ReturnBehavior semalysizeExpression(LocalContext context, Expression expression)
+    private Type semalysizeExpression(LocalContext context, Expression expression)
     {
         ParseElement content = expression.content;
-        ReturnBehavior returnBehavior;
+        Type returnType;
         switch (content.getElementType()) {
             case Addition.TYPE:
-                returnBehavior = semalysizeAddition(context, expression);
+                returnType = semalysizeAddition(context, expression);
                 break;
             case Subtraction.TYPE:
-                returnBehavior = semalysizeSubtraction(context, (Subtraction)content);
+                returnType = semalysizeSubtraction(context, (Subtraction)content);
                 break;
             case Multiplication.TYPE:
-                returnBehavior = semalysizeMultiplication(context, (Multiplication)content);
+                returnType = semalysizeMultiplication(context, (Multiplication)content);
                 break;
             case Division.TYPE:
-                returnBehavior = semalysizeDivision(context, (Division)content);
+                returnType = semalysizeDivision(context, (Division)content);
                 break;
             case AmbiguousPreIncrementDecrement.TYPE:
             case AmbiguousPostIncrementDecrement.TYPE:
-                returnBehavior = semalysizeAmbiguousIncrementDecrement(context, expression);
+                returnType = semalysizeAmbiguousIncrementDecrement(context, expression);
                 break;
             case LessThan.TYPE:
-                returnBehavior = semalysizeLessThan(context, (LessThan)content);
+                returnType = semalysizeLessThan(context, (LessThan)content);
                 break;
             case GreaterThan.TYPE:
-                returnBehavior = semalysizeGreaterThan(context, (GreaterThan)content);
+                returnType = semalysizeGreaterThan(context, (GreaterThan)content);
                 break;
             case LessThanOrEqual.TYPE:
-                returnBehavior = semalysizeLessThanOrEqual(context, (LessThanOrEqual)content);
+                returnType = semalysizeLessThanOrEqual(context, (LessThanOrEqual)content);
                 break;
             case GreaterThanOrEqual.TYPE:
-                returnBehavior = semalysizeGreaterThanOrEqual(context, (GreaterThanOrEqual)content);
+                returnType = semalysizeGreaterThanOrEqual(context, (GreaterThanOrEqual)content);
                 break;
             case Equality.TYPE:
-                returnBehavior = semalysizeEquality(context, (Equality)content);
+                returnType = semalysizeEquality(context, (Equality)content);
                 break;
             case Inequality.TYPE:
-                returnBehavior = semalysizeInequality(context, (Inequality)content);
+                returnType = semalysizeInequality(context, (Inequality)content);
                 break;
             case ShortCircuitAnd.TYPE:
-                returnBehavior = semalysizeShortCircuitAnd(context, (ShortCircuitAnd)content);
+                returnType = semalysizeShortCircuitAnd(context, (ShortCircuitAnd)content);
                 break;
             case ShortCircuitOr.TYPE:
-                returnBehavior = semalysizeShortCircuitOr(context, (ShortCircuitOr)content);
+                returnType = semalysizeShortCircuitOr(context, (ShortCircuitOr)content);
                 break;
             case Negation.TYPE:
-                returnBehavior = semalysizeNegation(context, (Negation)content);
+                returnType = semalysizeNegation(context, (Negation)content);
                 break;
             case BooleanNot.TYPE:
-                returnBehavior = semalysizeBooleanNot(context, (BooleanNot)content);
+                returnType = semalysizeBooleanNot(context, (BooleanNot)content);
                 break;
             case AmbiguousId.TYPE:
-                returnBehavior = semalysizeAmbiguousId(context, expression);
+                returnType = semalysizeAmbiguousId(context, expression);
                 break;
             case Block.TYPE:
-                returnBehavior = semalysizeBlock(context, (Block)content);
+                returnType = semalysizeBlock(context, (Block)content);
                 break;
             case IntLiteral.TYPE:
-                returnBehavior = semalysizeIntLiteral(context, (IntLiteral)content);
+                returnType = semalysizeIntLiteral(context, (IntLiteral)content);
                 break;
             case LongLiteral.TYPE:
-                returnBehavior = semalysizeLongLiteral(context, (LongLiteral)content);
+                returnType = semalysizeLongLiteral(context, (LongLiteral)content);
                 break;
             case FloatLiteral.TYPE:
-                returnBehavior = semalysizeFloatLiteral(context, (FloatLiteral)content);
+                returnType = semalysizeFloatLiteral(context, (FloatLiteral)content);
                 break;
             case DoubleLiteral.TYPE:
-                returnBehavior = semalysizeDoubleLiteral(context, (DoubleLiteral)content);
+                returnType = semalysizeDoubleLiteral(context, (DoubleLiteral)content);
                 break;
             case BooleanLiteral.TYPE:
-                returnBehavior = semalysizeBooleanLiteral(context, (BooleanLiteral)content);
+                returnType = semalysizeBooleanLiteral(context, (BooleanLiteral)content);
                 break;
             case StringLiteral.TYPE:
-                returnBehavior = semalysizeStringLiteral(context, (StringLiteral)content);
+                returnType = semalysizeStringLiteral(context, (StringLiteral)content);
                 break;
             case Quantity.TYPE:
-                returnBehavior = semalysizeQuantity(context, (Quantity)content);
+                returnType = semalysizeQuantity(context, (Quantity)content);
                 break;
             case VariableCreation.TYPE:
-                returnBehavior = semalysizeVariableCreation(context, (VariableCreation)content);
+                returnType = semalysizeVariableCreation(context, (VariableCreation)content);
                 break;
             case VariableDeclaration.TYPE:
-                returnBehavior = semalysizeVariableDeclaration(context, (VariableDeclaration)content);
+                returnType = semalysizeVariableDeclaration(context, (VariableDeclaration)content);
                 break;
             case AmbiguousAssignment.TYPE:
-                returnBehavior = semalysizeAmbiguousAssignment(context, expression);
+                returnType = semalysizeAmbiguousAssignment(context, expression);
                 break;
             case StaticFieldAssignment.TYPE:
-                returnBehavior = semalysizeStaticFieldAssignment(context, (StaticFieldAssignment)expression.content);
+                returnType = semalysizeStaticFieldAssignment(context, (StaticFieldAssignment)expression.content);
                 break;
             case InstanceFieldAssignment.TYPE:
-                returnBehavior = semalysizeInstanceFieldAssignment(context, (InstanceFieldAssignment)expression.content);
+                returnType = semalysizeInstanceFieldAssignment(context, (InstanceFieldAssignment)expression.content);
                 break;
             case IfThenElse.TYPE:
             case QuestionColon.TYPE:
-                returnBehavior = semalysizeIfThenElse(context, (IfThenElse)content);
+                returnType = semalysizeIfThenElse(context, (IfThenElse)content);
                 break;
             case IfThen.TYPE:
-                returnBehavior = semalysizeIfThen(context, (IfThen)content);
+                returnType = semalysizeIfThen(context, (IfThen)content);
                 break;
             case ForLoop.TYPE:
-                returnBehavior = semalysizeForLoop(context, (ForLoop)content);
+                returnType = semalysizeForLoop(context, (ForLoop)content);
                 break;
             case WhileLoop.TYPE:
-                returnBehavior = semalysizeWhileLoop(context, (WhileLoop)content);
+                returnType = semalysizeWhileLoop(context, (WhileLoop)content);
                 break;
             case ConstructorInvocation.TYPE:
-                returnBehavior = semalysizeConstructorInvocation(context, (ConstructorInvocation)content);
+                returnType = semalysizeConstructorInvocation(context, (ConstructorInvocation)content);
                 break;
             case ConstructorRedirect.TYPE:
                 // either already done, or an error
-                if (expression.returnBehavior == null)
+                if (expression.returnType == null)
                     errors.add(new SemalyticalError(expression.content, "You can only redirect a constructor at the beginning of a constructor."));
-                returnBehavior = ReturnBehavior.VOID;
+                returnType = RuntimeType.VOID;
                 break;
             case AmbiguousMethodInvocation.TYPE:
-                returnBehavior = semalysizeAmbiguousMethodInvocation(context, expression);
+                returnType = semalysizeAmbiguousMethodInvocation(context, expression);
                 break;
             case AmbiguousImplicitThisMethodInvocation.TYPE:
-                returnBehavior = semalysizeAmbiguousImplicitThisMethodInvocation(context, expression);
+                returnType = semalysizeAmbiguousImplicitThisMethodInvocation(context, expression);
                 break;
             case AmbiguousFieldExpression.TYPE:
-                returnBehavior = semalysizeAmbiguousFieldExpression(context, expression);
+                returnType = semalysizeAmbiguousFieldExpression(context, expression);
                 break;
             case ArrayDereference.TYPE:
-                returnBehavior = semalysizeArrayDereference(context, (ArrayDereference)content);
+                returnType = semalysizeArrayDereference(context, (ArrayDereference)content);
                 break;
             case TryCatch.TYPE:
-                returnBehavior = semalysizeTryCatch(context, (TryCatch)content);
+                returnType = semalysizeTryCatch(context, (TryCatch)content);
                 break;
             case TypeCast.TYPE:
-                returnBehavior = semalysizeTypeCast(context, expression);
+                returnType = semalysizeTypeCast(context, expression);
                 break;
             case NullExpression.TYPE:
-                returnBehavior = semalysizeNullExpression(context, (NullExpression)content);
+                returnType = semalysizeNullExpression(context, (NullExpression)content);
                 break;
             case ThisExpression.TYPE:
-                returnBehavior = semalysizeThisExpression(context, (ThisExpression)content);
+                returnType = semalysizeThisExpression(context, (ThisExpression)content);
                 break;
             case LocalVariableExpression.TYPE:
-                returnBehavior = new ReturnBehavior(((LocalVariableExpression)content).variable.type);
+                returnType = ((LocalVariableExpression)content).variable.type;
                 break;
             case StaticFieldExpression.TYPE:
-                returnBehavior = new ReturnBehavior(((StaticFieldExpression)content).field.returnType);
+                returnType = ((StaticFieldExpression)content).field.returnType;
                 break;
             case InstanceMethodInvocation.TYPE:
-                returnBehavior = new ReturnBehavior(((InstanceMethodInvocation)content).method.returnType);
+                returnType = ((InstanceMethodInvocation)content).method.returnType;
                 break;
             case ReturnExpression.TYPE:
-                returnBehavior = semalysizeReturnExpression(context, (ReturnExpression)content);
+                returnType = semalysizeReturnExpression(context, (ReturnExpression)content);
                 break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
-        expression.returnBehavior = returnBehavior;
-        return returnBehavior;
+        expression.returnType = returnType;
+        return returnType;
     }
 
-    private ReturnBehavior semalysizeReturnExpression(LocalContext context, ReturnExpression returnExpression)
+    private Type semalysizeReturnExpression(LocalContext context, ReturnExpression returnExpression)
     {
-        Type type = semalysizeExpression(context, returnExpression.expression).type;
+        Type type = semalysizeExpression(context, returnExpression.expression);
         throw null; // TODO
     }
 
-    private ReturnBehavior semalysizeConstructorRedirect(LocalContext context, ConstructorRedirect constructorRedirect)
+    private Type semalysizeConstructorRedirect(LocalContext context, ConstructorRedirect constructorRedirect)
     {
-        ReturnBehavior[] argumentSignature = semalysizeArguments(context, constructorRedirect.arguments);
+        Type[] argumentSignature = semalysizeArguments(context, constructorRedirect.arguments);
         Type thisType = context.getClassContext();
         Type constructorType;
         if (constructorRedirect.keyword == Lang.KEYWORD_THIS)
@@ -545,56 +545,56 @@ public class Semalysizer
             implicitCastArguments(context, constructorRedirect.arguments, constructorRedirect.constructor.argumentSignature);
         else
             errors.add(new SemalyticalError(constructorRedirect, "can't resolve this constructor"));
-        return ReturnBehavior.VOID;
+        return RuntimeType.VOID;
     }
-    private ReturnBehavior semalysizeNullExpression(LocalContext context, NullExpression nullExpression)
+    private Type semalysizeNullExpression(LocalContext context, NullExpression nullExpression)
     {
-        return ReturnBehavior.NULL;
+        return NullType.INSTANCE;
     }
-    private ReturnBehavior semalysizeThisExpression(LocalContext context, ThisExpression nullExpression)
+    private Type semalysizeThisExpression(LocalContext context, ThisExpression nullExpression)
     {
-        return new ReturnBehavior(context.getClassContext());
+        return context.getClassContext();
     }
 
-    private ReturnBehavior semalysizeShortCircuitAnd(LocalContext context, ShortCircuitAnd shortCircuitAnd)
+    private Type semalysizeShortCircuitAnd(LocalContext context, ShortCircuitAnd shortCircuitAnd)
     {
         return semalysizeShortCircuitOperator(context, shortCircuitAnd);
     }
 
-    private ReturnBehavior semalysizeShortCircuitOr(LocalContext context, ShortCircuitOr shortCircuitOr)
+    private Type semalysizeShortCircuitOr(LocalContext context, ShortCircuitOr shortCircuitOr)
     {
         return semalysizeShortCircuitOperator(context, shortCircuitOr);
     }
 
-    private ReturnBehavior semalysizeShortCircuitOperator(LocalContext context, ShortCircuitOperator shortCircuitOperator)
+    private Type semalysizeShortCircuitOperator(LocalContext context, ShortCircuitOperator shortCircuitOperator)
     {
-        ReturnBehavior returnBehavior1 = semalysizeExpression(context, shortCircuitOperator.expression1);
-        if (returnBehavior1.type != RuntimeType.BOOLEAN)
+        Type returnBehavior1 = semalysizeExpression(context, shortCircuitOperator.expression1);
+        if (returnBehavior1 != RuntimeType.BOOLEAN)
             errors.add(SemalyticalError.mustBeBoolean(shortCircuitOperator.expression1));
-        ReturnBehavior returnBehavior2 = semalysizeExpression(context, shortCircuitOperator.expression2);
-        if (returnBehavior2.type != RuntimeType.BOOLEAN)
+        Type returnBehavior2 = semalysizeExpression(context, shortCircuitOperator.expression2);
+        if (returnBehavior2 != RuntimeType.BOOLEAN)
             errors.add(SemalyticalError.mustBeBoolean(shortCircuitOperator.expression2));
         shortCircuitOperator.label1 = context.nextLabel();
         shortCircuitOperator.label2 = context.nextLabel();
-        return new ReturnBehavior(RuntimeType.BOOLEAN);
+        return RuntimeType.BOOLEAN;
     }
 
-    private ReturnBehavior semalysizeBooleanNot(LocalContext context, BooleanNot booleanNot)
+    private Type semalysizeBooleanNot(LocalContext context, BooleanNot booleanNot)
     {
-        ReturnBehavior returnBehavior = semalysizeExpression(context, booleanNot.expression);
-        if (returnBehavior.type != RuntimeType.BOOLEAN)
+        Type returnBehavior = semalysizeExpression(context, booleanNot.expression);
+        if (returnBehavior != RuntimeType.BOOLEAN)
             errors.add(SemalyticalError.mustBeBoolean(booleanNot.expression));
         booleanNot.label1 = context.nextLabel();
         booleanNot.label2 = context.nextLabel();
-        return new ReturnBehavior(RuntimeType.BOOLEAN);
+        return RuntimeType.BOOLEAN;
     }
 
-    private ReturnBehavior semalysizeNegation(LocalContext context, Negation negation)
+    private Type semalysizeNegation(LocalContext context, Negation negation)
     {
-        Type operandType = semalysizeExpression(context, negation.expression).type;
+        Type operandType = semalysizeExpression(context, negation.expression);
         if (!operandType.isNumeric()) {
             errors.add(SemalyticalError.mustBeNumeric(negation.expression, operandType));
-            return ReturnBehavior.INT;
+            return RuntimeType.INT;
         }
         Type resultType = operandType;
         if (operandType == RuntimeType.CHAR || operandType == RuntimeType.BYTE || operandType == RuntimeType.SHORT)
@@ -608,13 +608,13 @@ public class Semalysizer
         else if (resultType == RuntimeType.DOUBLE)
             negation.instruction = Instructions.dneg;
 
-        return new ReturnBehavior(resultType);
+        return resultType;
     }
 
-    private ReturnBehavior semalysizeTypeCast(LocalContext context, Expression expression)
+    private Type semalysizeTypeCast(LocalContext context, Expression expression)
     {
         TypeCast typeCast = (TypeCast)expression.content;
-        Type fromType = semalysizeExpression(context, typeCast.expression).type;
+        Type fromType = semalysizeExpression(context, typeCast.expression);
 
         // inline the TypeCast object. Other classes are used when needed.
         expression.content = typeCast.expression.content;
@@ -634,70 +634,70 @@ public class Semalysizer
         // error recovery
         if (fromType == null) {
             if (toType == null)
-                return new ReturnBehavior(RuntimeType.getType(Object.class));
-            return new ReturnBehavior(toType);
+                return RuntimeType.getType(Object.class);
+            return toType;
         } else if (toType == null)
-            return new ReturnBehavior(fromType);
+            return fromType;
 
         // primitive vs reference
         if (fromType.isPrimitive() != toType.isPrimitive()) {
             if (!(fromType == UnknownType.INSTANCE || toType == UnknownType.INSTANCE))
                 errors.add(new SemalyticalError(typeCast.typeId, "Can't cast between primitives and non-primitives")); // TODO: code duplication
-            return new ReturnBehavior(toType);
+            return toType;
         }
         if (toType.isPrimitive()) {
             // primitive
             if (fromType == RuntimeType.BOOLEAN || toType == RuntimeType.BOOLEAN) {
                 errors.add(SemalyticalError.cantCast(typeCast.typeId, fromType, toType));
-                return new ReturnBehavior(toType);
+                return toType;
             }
             convertPrimitive(context, fromType, toType, expression);
-            return expression.returnBehavior;
+            return expression.returnType;
         } else {
             // reference
             if (!fromType.isInstanceOf(toType)) {
                 Expression innerExpression = new Expression(expression.content);
-                innerExpression.returnBehavior = expression.returnBehavior;
+                innerExpression.returnType = expression.returnType;
                 expression.content = new ReferenceConversion(innerExpression, toType);
-                expression.returnBehavior = new ReturnBehavior(toType);
+                expression.returnType = toType;
             }
-            return new ReturnBehavior(toType);
+            return toType;
         }
     }
 
-    private ReturnBehavior semalysizeWhileLoop(LocalContext context, WhileLoop whileLoop)
+    private Type semalysizeWhileLoop(LocalContext context, WhileLoop whileLoop)
     {
         whileLoop.continueToLabel = context.nextLabel();
-        ReturnBehavior returnBehavior1 = semalysizeExpression(context, whileLoop.expression1);
-        if (returnBehavior1.type != RuntimeType.BOOLEAN)
+        Type returnBehavior1 = semalysizeExpression(context, whileLoop.expression1);
+        if (returnBehavior1 != RuntimeType.BOOLEAN)
             errors.add(SemalyticalError.mustBeBoolean(whileLoop.expression1));
 
-        ReturnBehavior returnBehavior2 = semalysizeExpression(context, whileLoop.expression2);
-        if (returnBehavior2.type != RuntimeType.VOID)
+        Type returnBehavior2 = semalysizeExpression(context, whileLoop.expression2);
+        if (returnBehavior2 != RuntimeType.VOID)
             errors.add(SemalyticalError.mustBeVoid(whileLoop.expression2));
 
         whileLoop.breakToLabel = context.nextLabel();
-        return ReturnBehavior.VOID;
+        return RuntimeType.VOID;
     }
 
-    private ReturnBehavior semalysizeConstructorInvocation(LocalContext context, ConstructorInvocation constructorInvocation)
+    private Type semalysizeConstructorInvocation(LocalContext context, ConstructorInvocation constructorInvocation)
     {
         TypeId typeId = TypeId.fromName(constructorInvocation.typeName.text);
         resolveType(typeId, true);
-        ReturnBehavior[] argumentSignature = semalysizeArguments(context, constructorInvocation.arguments);
+        Type[] argumentSignature = semalysizeArguments(context, constructorInvocation.arguments);
         constructorInvocation.constructor = resolveConstructor(typeId.type, argumentSignature);
         if (constructorInvocation.constructor == null)
             errors.add(new SemalyticalError(constructorInvocation, "can't resolve this constructor"));
         else
             implicitCastArguments(context, constructorInvocation.arguments, constructorInvocation.constructor.argumentSignature);
-        return new ReturnBehavior(typeId.type);
+        return typeId.type;
     }
 
-    private ReturnBehavior semalysizeAmbiguousIncrementDecrement(LocalContext context, Expression expression)
+    private Type semalysizeAmbiguousIncrementDecrement(LocalContext context, Expression expression)
     {
         AmbiguousIncrementDecrement incrementDecrement = (AmbiguousIncrementDecrement)expression.content;
-        if (semalysizeExpression(context, incrementDecrement.expression).type == UnknownType.INSTANCE)
-            return ReturnBehavior.UNKNOWN;
+        if (semalysizeExpression(context, incrementDecrement.expression) == UnknownType.INSTANCE)
+            return UnknownType.INSTANCE;
 
         ParseElement content = incrementDecrement.expression.content;
         switch (content.getElementType()) {
@@ -721,110 +721,110 @@ public class Semalysizer
             }
             default: {
                 errors.add(new SemalyticalError(incrementDecrement, "Can't assign into this kind of thing"));
-                return ReturnBehavior.UNKNOWN;
+                return UnknownType.INSTANCE;
             }
         }
     }
 
-    private ReturnBehavior semalysizeAbstractIncrementDecrement(LocalContext context, AbstractIncrementDecrement abstractIncrementDecrement)
+    private Type semalysizeAbstractIncrementDecrement(LocalContext context, AbstractIncrementDecrement abstractIncrementDecrement)
     {
         Type type = abstractIncrementDecrement.getAssignmentTargetType();
         if (!type.isNumeric()) {
             errors.add(SemalyticalError.mustBeNumeric(abstractIncrementDecrement, type));
-            return ReturnBehavior.UNKNOWN;
+            return UnknownType.INSTANCE;
         }
-        return new ReturnBehavior(RuntimeType.promoteBabyPrimitiveNumericTypes(type));
+        return RuntimeType.promoteBabyPrimitiveNumericTypes(type);
     }
 
-    private ReturnBehavior semalysizeForLoop(LocalContext context, ForLoop forLoop)
+    private Type semalysizeForLoop(LocalContext context, ForLoop forLoop)
     {
         LocalContext innerContext = context.makeSubContext();
-        ReturnBehavior returnBehavior1 = semalysizeExpression(innerContext, forLoop.expression1);
-        if (returnBehavior1.type != RuntimeType.VOID)
+        Type returnBehavior1 = semalysizeExpression(innerContext, forLoop.expression1);
+        if (returnBehavior1 != RuntimeType.VOID)
             errors.add(SemalyticalError.mustBeVoid(forLoop.expression1));
 
         forLoop.continueToLabel = innerContext.nextLabel();
         semalysizeExpression(innerContext, forLoop.expression3);
 
         forLoop.initialGotoLabel = innerContext.nextLabel();
-        ReturnBehavior returnBehavior2 = semalysizeExpression(innerContext, forLoop.expression2);
-        if (returnBehavior2.type != RuntimeType.BOOLEAN)
+        Type returnBehavior2 = semalysizeExpression(innerContext, forLoop.expression2);
+        if (returnBehavior2 != RuntimeType.BOOLEAN)
             errors.add(SemalyticalError.mustBeBoolean(forLoop.expression2));
 
-        ReturnBehavior returnBehavior4 = semalysizeExpression(innerContext, forLoop.expression4);
-        if (returnBehavior4.type != RuntimeType.VOID)
+        Type returnBehavior4 = semalysizeExpression(innerContext, forLoop.expression4);
+        if (returnBehavior4 != RuntimeType.VOID)
             errors.add(SemalyticalError.mustBeVoid(forLoop.expression4));
 
         forLoop.breakToLabel = innerContext.nextLabel();
 
-        return ReturnBehavior.VOID;
+        return RuntimeType.VOID;
     }
 
-    private ReturnBehavior semalysizeArrayDereference(LocalContext context, ArrayDereference arrayDereference)
+    private Type semalysizeArrayDereference(LocalContext context, ArrayDereference arrayDereference)
     {
-        ReturnBehavior returnBehavior1 = semalysizeExpression(context, arrayDereference.expression1);
-        if (returnBehavior1.type.getType() != ArrayType.TYPE)
+        Type returnBehavior1 = semalysizeExpression(context, arrayDereference.expression1);
+        if (returnBehavior1.getType() != ArrayType.TYPE)
             errors.add(new SemalyticalError(arrayDereference, "Can't dereference this thing like an array"));
-        ReturnBehavior returnBehavior2 = semalysizeExpression(context, arrayDereference.expression2);
-        if (returnBehavior2.type != RuntimeType.INT)
+        Type returnBehavior2 = semalysizeExpression(context, arrayDereference.expression2);
+        if (returnBehavior2 != RuntimeType.INT)
             errors.add(SemalyticalError.mustBeInt(arrayDereference.expression2));
 
-        Type scalarType = ((ArrayType)returnBehavior1.type).scalarType;
-        return new ReturnBehavior(scalarType);
+        Type scalarType = ((ArrayType)returnBehavior1).scalarType;
+        return scalarType;
     }
 
-    private ReturnBehavior semalysizeStaticMethodInvocation(LocalContext context, StaticMethodInvocation staticMethodInvocation)
+    private Type semalysizeStaticMethodInvocation(LocalContext context, StaticMethodInvocation staticMethodInvocation)
     {
         // semalysization is already done for typeId
         return semalysizeAbstractMethodInvocation(context, staticMethodInvocation.typeId.type, staticMethodInvocation);
     }
-    private ReturnBehavior semalysizeAbstractMethodInvocation(LocalContext context, Type type, AbstractMethodInvocation methodInvocation)
+    private Type semalysizeAbstractMethodInvocation(LocalContext context, Type type, AbstractMethodInvocation methodInvocation)
     {
-        ReturnBehavior[] argumentSignature = semalysizeArguments(context, methodInvocation.arguments);
+        Type[] argumentSignature = semalysizeArguments(context, methodInvocation.arguments);
         methodInvocation.method = resolveMethod(type, methodInvocation.methodName, argumentSignature);
         implicitCastArguments(context, methodInvocation.arguments, methodInvocation.method.argumentSignature);
         Type returnType = methodInvocation.method.returnType;
-        return new ReturnBehavior(returnType);
+        return returnType;
     }
 
-    private ReturnBehavior semalysizeTryCatch(LocalContext context, TryCatch tryCatch)
+    private Type semalysizeTryCatch(LocalContext context, TryCatch tryCatch)
     {
-        ReturnBehavior tryPartReturnBehavior = semalysizeTryPart(context, tryCatch.tryPart);
-        ReturnBehavior catchPartReturnBehavior = semalysizeCatchPart(context, tryCatch.catchPart);
-        if (tryPartReturnBehavior.type != catchPartReturnBehavior.type)
+        Type tryPartReturnBehavior = semalysizeTryPart(context, tryCatch.tryPart);
+        Type catchPartReturnBehavior = semalysizeCatchPart(context, tryCatch.catchPart);
+        if (tryPartReturnBehavior != catchPartReturnBehavior)
             errors.add(new SemalyticalError(tryCatch, "return types must match")); // TODO code duplication
-        tryCatch.type = tryPartReturnBehavior.type;
+        tryCatch.type = tryPartReturnBehavior;
 
-        return new ReturnBehavior(tryPartReturnBehavior.type);
+        return tryPartReturnBehavior;
     }
 
-    private ReturnBehavior semalysizeTryPart(LocalContext context, TryPart tryPart)
+    private Type semalysizeTryPart(LocalContext context, TryPart tryPart)
     {
         semalysizeExpression(context, tryPart.expression);
-        return tryPart.expression.returnBehavior;
+        return tryPart.expression.returnType;
     }
 
-    private ReturnBehavior semalysizeCatchPart(LocalContext context, CatchPart catchPart)
+    private Type semalysizeCatchPart(LocalContext context, CatchPart catchPart)
     {
         return semalysizeCatchList(context, catchPart.catchList);
     }
 
-    private ReturnBehavior semalysizeCatchList(LocalContext context, CatchList catchList)
+    private Type semalysizeCatchList(LocalContext context, CatchList catchList)
     {
         Type returnType = null;
         for (CatchBody catchBody : catchList.elements) {
-            ReturnBehavior returnBehavior = semalysizeCatchBody(context, catchBody);
+            Type returnBehavior = semalysizeCatchBody(context, catchBody);
             if (returnType == null)
-                returnType = returnBehavior.type;
-            else if (returnType != returnBehavior.type)
+                returnType = returnBehavior;
+            else if (returnType != returnBehavior)
                 errors.add(new SemalyticalError(catchList, "return types must match"));
         }
         if (returnType == null)
             errors.add(new SemalyticalError(catchList, "must catch something"));
-        return new ReturnBehavior(returnType);
+        return returnType;
     }
 
-    private ReturnBehavior semalysizeCatchBody(LocalContext context, CatchBody catchBody)
+    private Type semalysizeCatchBody(LocalContext context, CatchBody catchBody)
     {
         LocalContext nestedContext = context.makeSubContext();
         semalysizeVariableDeclaration(nestedContext, catchBody.variableDeclaration);
@@ -832,11 +832,10 @@ public class Semalysizer
             errors.add(new SemalyticalError(catchBody.variableDeclaration, "Type must descend from Throwable. Can't catch a " + catchBody.variableDeclaration.typeId));
             catchBody.variableDeclaration.typeId.type = UnknownType.INSTANCE;
         }
-        ReturnBehavior returnBehavior = semalysizeExpression(nestedContext, catchBody.expression);
-        return new ReturnBehavior(returnBehavior.type);
+        return semalysizeExpression(nestedContext, catchBody.expression);
     }
 
-    private ReturnBehavior semalysizeAmbiguousFieldExpression(LocalContext context, Expression expression)
+    private Type semalysizeAmbiguousFieldExpression(LocalContext context, Expression expression)
     {
         AmbiguousFieldExpression fieldExpresion = (AmbiguousFieldExpression)expression.content;
         if (fieldExpresion.leftExpression.content.getElementType() == AmbiguousId.TYPE)
@@ -847,27 +846,27 @@ public class Semalysizer
                 TypeId typeId = (TypeId)fieldExpresion.leftExpression.content;
                 Field field = resolveField(typeId.type, fieldExpresion.fieldName.text);
                 expression.content = new StaticFieldExpression(field);
-                return new ReturnBehavior(field.returnType);
+                return field.returnType;
             }
             case AmbiguousId.TYPE: {
                 // left side is unknown.
-                return ReturnBehavior.UNKNOWN;
+                return UnknownType.INSTANCE;
             }
             default: {
                 // instance field
-                Type declaringType = semalysizeExpression(context, fieldExpresion.leftExpression).type;
+                Type declaringType = semalysizeExpression(context, fieldExpresion.leftExpression);
                 Field field = resolveField(declaringType, fieldExpresion.fieldName.text);
                 if (field == null) {
                     errors.add(SemalyticalError.cantResolveField(declaringType, fieldExpresion.fieldName));
-                    return ReturnBehavior.UNKNOWN;
+                    return UnknownType.INSTANCE;
                 }
                 expression.content = new InstanceFieldExpression(fieldExpresion.leftExpression, field);
-                return new ReturnBehavior(field.returnType);
+                return field.returnType;
             }
         }
     }
     
-    private ReturnBehavior semalysizeAmbiguousMethodInvocation(LocalContext context, Expression expression)
+    private Type semalysizeAmbiguousMethodInvocation(LocalContext context, Expression expression)
     {
         AmbiguousMethodInvocation methodInvocation = (AmbiguousMethodInvocation)expression.content;
         if (methodInvocation.leftExpression.content.getElementType() == AmbiguousId.TYPE)
@@ -885,10 +884,10 @@ public class Semalysizer
             return semalysizeInstanceMethodInvocation(context, instanceMethodInvocation);
         }
     }
-    private ReturnBehavior semalysizeAmbiguousImplicitThisMethodInvocation(LocalContext context, Expression expression)
+    private Type semalysizeAmbiguousImplicitThisMethodInvocation(LocalContext context, Expression expression)
     {
         AmbiguousImplicitThisMethodInvocation methodInvocation = (AmbiguousImplicitThisMethodInvocation)expression.content;
-        ReturnBehavior[] argumentSignature = semalysizeArguments(context, methodInvocation.arguments);
+        Type[] argumentSignature = semalysizeArguments(context, methodInvocation.arguments);
         Method method = resolveMethod(context.getClassContext(), methodInvocation.methodName, argumentSignature);
         if (method.isStatic) {
             // implicit static ClassName.method()
@@ -903,26 +902,26 @@ public class Semalysizer
         }
     }
 
-    private ReturnBehavior semalysizeInstanceMethodInvocation(LocalContext context, InstanceMethodInvocation methodInvocation)
+    private Type semalysizeInstanceMethodInvocation(LocalContext context, InstanceMethodInvocation methodInvocation)
     {
-        ReturnBehavior expressionReturnBehavior = semalysizeExpression(context, methodInvocation.leftExpression);
-        ReturnBehavior[] argumentSignature = semalysizeArguments(context, methodInvocation.arguments);
-        methodInvocation.method = resolveMethod(expressionReturnBehavior.type, methodInvocation.methodName, argumentSignature);
+        Type expressionReturnBehavior = semalysizeExpression(context, methodInvocation.leftExpression);
+        Type[] argumentSignature = semalysizeArguments(context, methodInvocation.arguments);
+        methodInvocation.method = resolveMethod(expressionReturnBehavior, methodInvocation.methodName, argumentSignature);
         implicitCastArguments(context, methodInvocation.arguments, methodInvocation.method.argumentSignature);
-        return new ReturnBehavior(methodInvocation.method.returnType);
+        return methodInvocation.method.returnType;
     }
 
-    private ReturnBehavior[] semalysizeArguments(LocalContext context, Arguments arguments)
+    private Type[] semalysizeArguments(LocalContext context, Arguments arguments)
     {
         deleteNulls(arguments);
-        ReturnBehavior[] rtnArr = new ReturnBehavior[arguments.elements.size()];
+        Type[] rtnArr = new Type[arguments.elements.size()];
         int i = 0;
         for (Expression element : arguments.elements) {
-            if (element.returnBehavior == null)
+            if (element.returnType == null)
                 rtnArr[i++] = semalysizeExpression(context, element);
             else {
                 // already semalysized
-                rtnArr[i++] = element.returnBehavior;
+                rtnArr[i++] = element.returnType;
             }
         }
         return rtnArr;
@@ -935,10 +934,10 @@ public class Semalysizer
             implicitCast(context, element, argumentSignature[i++]);
     }
 
-    private ReturnBehavior semalysizeIfThenElse(LocalContext context, IfThenElse ifThenElse)
+    private Type semalysizeIfThenElse(LocalContext context, IfThenElse ifThenElse)
     {
         semalysizeExpression(context, ifThenElse.expression1);
-        if (ifThenElse.expression1.returnBehavior.type != RuntimeType.BOOLEAN)
+        if (ifThenElse.expression1.returnType != RuntimeType.BOOLEAN)
             errors.add(SemalyticalError.mustBeBoolean(ifThenElse.expression1));
 
         ifThenElse.label1 = context.nextLabel();
@@ -947,38 +946,38 @@ public class Semalysizer
         ifThenElse.label2 = context.nextLabel();
         semalysizeExpression(context, ifThenElse.expression3);
 
-        if (ifThenElse.expression2.returnBehavior.type != ifThenElse.expression3.returnBehavior.type)
+        if (ifThenElse.expression2.returnType != ifThenElse.expression3.returnType)
             errors.add(new SemalyticalError(ifThenElse, "return types must match"));
-        return new ReturnBehavior(ifThenElse.expression2.returnBehavior.type);
+        return ifThenElse.expression2.returnType;
     }
-    private ReturnBehavior semalysizeIfThen(LocalContext context, IfThen ifThen)
+    private Type semalysizeIfThen(LocalContext context, IfThen ifThen)
     {
         semalysizeExpression(context, ifThen.expression1);
-        if (ifThen.expression1.returnBehavior.type != RuntimeType.BOOLEAN)
+        if (ifThen.expression1.returnType != RuntimeType.BOOLEAN)
             errors.add(SemalyticalError.mustBeBoolean(ifThen.expression1));
         ifThen.label = context.nextLabel();
 
         semalysizeExpression(context, ifThen.expression2);
-        if (ifThen.expression2.returnBehavior.type != RuntimeType.VOID)
+        if (ifThen.expression2.returnType != RuntimeType.VOID)
             errors.add(SemalyticalError.mustBeVoid(ifThen.expression2));
 
-        return ReturnBehavior.VOID;
+        return RuntimeType.VOID;
     }
 
-    private ReturnBehavior semalysizeStaticFieldAssignment(LocalContext context, StaticFieldAssignment assignment)
+    private Type semalysizeStaticFieldAssignment(LocalContext context, StaticFieldAssignment assignment)
     {
         semalysizeExpression(context, assignment.rightExpression);
         return semalysizeAbstractAssignment(context, assignment);
     }
 
-    private ReturnBehavior semalysizeInstanceFieldAssignment(LocalContext context, InstanceFieldAssignment assignment)
+    private Type semalysizeInstanceFieldAssignment(LocalContext context, InstanceFieldAssignment assignment)
     {
         semalysizeExpression(context, assignment.leftExpression);
         semalysizeExpression(context, assignment.rightExpression);
         return semalysizeAbstractAssignment(context, assignment);
     }
 
-    private ReturnBehavior semalysizeAmbiguousAssignment(LocalContext context, Expression expression)
+    private Type semalysizeAmbiguousAssignment(LocalContext context, Expression expression)
     {
         AmbiguousAssignment assignment = (AmbiguousAssignment)expression.content;
         semalysizeExpression(context, assignment.leftExpression);
@@ -1031,9 +1030,9 @@ public class Semalysizer
         assignmentOperatorTypes.put(Lang.SYMBOL_GREATER_THAN_GREATER_THAN_EQUALS, ASSIGNMENT_OPERATOR_TYPE_NUMERIC);
         assignmentOperatorTypes.put(Lang.SYMBOL_GREATER_THAN_GREATER_THAN_GREATER_THAN_EQUALS, ASSIGNMENT_OPERATOR_TYPE_NUMERIC);
     }
-    private ReturnBehavior semalysizeAbstractAssignment(LocalContext context, AbstractAssignment assignment)
+    private Type semalysizeAbstractAssignment(LocalContext context, AbstractAssignment assignment)
     {
-        Type rightType = assignment.rightExpression.returnBehavior.type;
+        Type rightType = assignment.rightExpression.returnType;
         Type leftType = assignment.getLeftType();
         if (assignment.operator == Lang.SYMBOL_EQUALS)
             implicitCast(context, assignment.rightExpression, leftType);
@@ -1045,7 +1044,7 @@ public class Semalysizer
         else if (leftType == RuntimeType.VOID) {
             // don't this will ever happen
             errors.add(new SemalyticalError(assignment, "Can't assign to type void"));
-            return new ReturnBehavior(rightType);
+            return rightType;
         } else
             requiredOperatorType = ASSIGNMENT_OPERATOR_TYPE_NUMERIC;
         int actualOperatorType = assignmentOperatorTypes.get(assignment.operator);
@@ -1053,7 +1052,7 @@ public class Semalysizer
             String vowelA = getVowelA(leftType.simpleName);
             errors.add(new SemalyticalError(assignment, "Can't modify " + vowelA + " \"" + leftType.simpleName + "\" with this operator"));
         }
-        return new ReturnBehavior(rightType);
+        return rightType;
     }
 
     /** lol */
@@ -1073,14 +1072,14 @@ public class Semalysizer
         }
     }
 
-    private ReturnBehavior semalysizeAmbiguousId(LocalContext context, Expression expression)
+    private Type semalysizeAmbiguousId(LocalContext context, Expression expression)
     {
         AmbiguousId id = (AmbiguousId)expression.content;
         LocalVariable variable = resolveId(context, id.text);
         if (variable != null) {
             // it's a local variable
             expression.content = new LocalVariableExpression(variable);
-            return new ReturnBehavior(variable.type);
+            return variable.type;
         }
         Field field = resolveField(context.getClassContext(), id.text);
         if (field != null) {
@@ -1094,22 +1093,22 @@ public class Semalysizer
                 semalysizeExpression(context, leftExpression);
                 expression.content = new InstanceFieldExpression(leftExpression, field);
             }
-            return new ReturnBehavior(field.returnType);
+            return field.returnType;
         }
         TypeId typeId = TypeId.fromName(id.text);
         if (resolveType(typeId, false)) {
             // it's a class name
             expression.content = typeId;
             // isn't a valid expression. we'll return void, even though it's not true.
-            return ReturnBehavior.VOID;
+            return RuntimeType.VOID;
         }
         errors.add(new SemalyticalError(id, "Can't resolve this identifier"));
-        return ReturnBehavior.UNKNOWN;
+        return UnknownType.INSTANCE;
     }
 
     private void implicitCast(LocalContext context, Expression expression, Type toType)
     {
-        Type fromType = expression.returnBehavior.type;
+        Type fromType = expression.returnType;
         if (fromType == toType)
             return; // no need to cast
         boolean primitive = fromType.isPrimitive();
@@ -1138,82 +1137,80 @@ public class Semalysizer
             if (!fromType.isInstanceOf(toType))
                 errors.add(SemalyticalError.cantConvert(expression, fromType, toType));
         }
-        expression.returnBehavior = new ReturnBehavior(toType); // TODO this is overwriting a valid object at least sometimes
+        expression.returnType = toType;
     }
 
-    private ReturnBehavior semalysizeVariableDeclaration(LocalContext context, VariableDeclaration variableDeclaration)
+    private Type semalysizeVariableDeclaration(LocalContext context, VariableDeclaration variableDeclaration)
     {
         if (!resolveType(variableDeclaration.typeId, true))
             errors.add(new SemalyticalError(variableDeclaration, "You can't have a void variable.")); // TODO: wrong message
         variableDeclaration.variable = context.addLocalVariable(variableDeclaration.variableName, variableDeclaration.typeId.type, errors);
-        return ReturnBehavior.VOID;
+        return RuntimeType.VOID;
     }
 
-    private ReturnBehavior semalysizeVariableCreation(LocalContext context, VariableCreation variableCreation)
+    private Type semalysizeVariableCreation(LocalContext context, VariableCreation variableCreation)
     {
         semalysizeVariableDeclaration(context, variableCreation.variableDeclaration);
         semalysizeExpression(context, variableCreation.expression);
         implicitCast(context, variableCreation.expression, variableCreation.variableDeclaration.typeId.type);
-        return ReturnBehavior.VOID;
+        return RuntimeType.VOID;
     }
 
-    private ReturnBehavior semalysizeBlock(LocalContext context, Block block)
+    private Type semalysizeBlock(LocalContext context, Block block)
     {
         LocalContext localContext = context.makeSubContext();
         return semalysizeBlockContents(localContext, block.blockContents);
     }
 
-    private ReturnBehavior semalysizeBlockContents(LocalContext context, BlockContents blockContents)
+    private Type semalysizeBlockContents(LocalContext context, BlockContents blockContents)
     {
         blockContents.forceVoid = blockContents.elements.size() == 0 || blockContents.elements.get(blockContents.elements.size() - 1) == null;
 
         deleteNulls(blockContents);
 
         Type returnType = RuntimeType.VOID;
-        for (Expression element : blockContents.elements) {
-            ReturnBehavior returnBehavior = semalysizeExpression(context, element);
-            returnType = returnBehavior.type;
-        }
+        for (Expression element : blockContents.elements)
+            returnType = semalysizeExpression(context, element);
         if (blockContents.forceVoid)
             returnType = RuntimeType.VOID;
-        return new ReturnBehavior(returnType);
+        return returnType;
     }
 
-    private ReturnBehavior semalysizeQuantity(LocalContext context, Quantity quantity)
+    private Type semalysizeQuantity(LocalContext context, Quantity quantity)
     {
         return semalysizeExpression(context, quantity.expression);
     }
 
-    private ReturnBehavior semalysizeIntLiteral(LocalContext context, IntLiteral intLiteral)
+    private Type semalysizeIntLiteral(LocalContext context, IntLiteral intLiteral)
     {
-        return ReturnBehavior.INT;
+        return RuntimeType.INT;
     }
-    private ReturnBehavior semalysizeLongLiteral(LocalContext context, LongLiteral longLiteral)
+    private Type semalysizeLongLiteral(LocalContext context, LongLiteral longLiteral)
     {
-        return ReturnBehavior.LONG;
+        return RuntimeType.LONG;
     }
-    private ReturnBehavior semalysizeFloatLiteral(LocalContext context, FloatLiteral floatLiteral)
+    private Type semalysizeFloatLiteral(LocalContext context, FloatLiteral floatLiteral)
     {
-        return ReturnBehavior.FLOAT;
+        return RuntimeType.FLOAT;
     }
-    private ReturnBehavior semalysizeDoubleLiteral(LocalContext context, DoubleLiteral doubleLiteral)
+    private Type semalysizeDoubleLiteral(LocalContext context, DoubleLiteral doubleLiteral)
     {
-        return ReturnBehavior.DOUBLE;
+        return RuntimeType.DOUBLE;
     }
-    private ReturnBehavior semalysizeBooleanLiteral(LocalContext context, BooleanLiteral booleanLiteral)
+    private Type semalysizeBooleanLiteral(LocalContext context, BooleanLiteral booleanLiteral)
     {
-        return ReturnBehavior.BOOLEAN;
+        return RuntimeType.BOOLEAN;
     }
-    private ReturnBehavior semalysizeStringLiteral(LocalContext context, StringLiteral stringLiteral)
+    private Type semalysizeStringLiteral(LocalContext context, StringLiteral stringLiteral)
     {
-        return ReturnBehavior.STRING;
+        return RuntimeType.STRING;
     }
 
-    private ReturnBehavior semalysizeAddition(LocalContext context, Expression expression)
+    private Type semalysizeAddition(LocalContext context, Expression expression)
     {
         Addition addition = (Addition)expression.content;
-        Type returnType1 = semalysizeExpression(context, addition.expression1).type;
-        Type returnType2 = semalysizeExpression(context, addition.expression2).type;
+        Type returnType1 = semalysizeExpression(context, addition.expression1);
+        Type returnType2 = semalysizeExpression(context, addition.expression2);
         if (returnType1 == RuntimeType.STRING || returnType2 == RuntimeType.STRING) {
             // convert addition to string concatenation
             StringConcatenation concatenation;
@@ -1223,42 +1220,42 @@ public class Semalysizer
                 concatenation = new StringConcatenation(addition.expression1);
             concatenation.append(addition.expression2);
             expression.content = concatenation;
-            expression.returnBehavior = ReturnBehavior.STRING;
-            return expression.returnBehavior;
+            expression.returnType = RuntimeType.STRING;
+            return expression.returnType;
         } else {
             return semalysizeNumericOperator(context, addition);
         }
     }
-    private ReturnBehavior semalysizeSubtraction(LocalContext context, Subtraction subtraction)
+    private Type semalysizeSubtraction(LocalContext context, Subtraction subtraction)
     {
         return semalysizeNumericOperator(context, subtraction);
     }
-    private ReturnBehavior semalysizeMultiplication(LocalContext context, Multiplication multiplication)
+    private Type semalysizeMultiplication(LocalContext context, Multiplication multiplication)
     {
         return semalysizeNumericOperator(context, multiplication);
     }
-    private ReturnBehavior semalysizeDivision(LocalContext context, Division division)
+    private Type semalysizeDivision(LocalContext context, Division division)
     {
         return semalysizeNumericOperator(context, division);
     }
-    private ReturnBehavior semalysizeNumericOperator(LocalContext context, BinaryOperatorElement operator)
+    private Type semalysizeNumericOperator(LocalContext context, BinaryOperatorElement operator)
     {
         boolean good = true;
 
-        Type returnType1 = lazySemalysizeExpression(context, operator.expression1).type;
+        Type returnType1 = lazySemalysizeExpression(context, operator.expression1);
         if (!returnType1.isNumeric()) {
             errors.add(SemalyticalError.mustBeNumeric(operator.expression1, returnType1));
             good = false;
         }
 
-        Type returnType2 = lazySemalysizeExpression(context, operator.expression2).type;
+        Type returnType2 = lazySemalysizeExpression(context, operator.expression2);
         if (!returnType2.isNumeric()) {
             errors.add(SemalyticalError.mustBeNumeric(operator.expression2, returnType2));
             good = false;
         }
 
         if (!good)
-            return ReturnBehavior.INT;
+            return RuntimeType.INT;
 
         Type resultType = RuntimeType.getPrimitiveConversionType(returnType1, returnType2) < 0 ? returnType1 : returnType2;
         if (resultType == RuntimeType.CHAR || resultType == RuntimeType.BYTE || resultType == RuntimeType.SHORT)
@@ -1267,48 +1264,48 @@ public class Semalysizer
         convertPrimitive(context, returnType2, resultType, operator.expression2);
 
         operator.type = resultType;
-        return new ReturnBehavior(resultType);
+        return resultType;
     }
-    private ReturnBehavior lazySemalysizeExpression(LocalContext context, Expression expression)
+    private Type lazySemalysizeExpression(LocalContext context, Expression expression)
     {
-        if (expression.returnBehavior != null)
-            return expression.returnBehavior;
+        if (expression.returnType != null)
+            return expression.returnType;
         return semalysizeExpression(context, expression);
     }
-    private ReturnBehavior semalysizeLessThan(LocalContext context, LessThan lessThan)
+    private Type semalysizeLessThan(LocalContext context, LessThan lessThan)
     {
         return semalysizeComparisonOperator(context, lessThan, false);
     }
-    private ReturnBehavior semalysizeGreaterThan(LocalContext context, GreaterThan greaterThan)
+    private Type semalysizeGreaterThan(LocalContext context, GreaterThan greaterThan)
     {
         return semalysizeComparisonOperator(context, greaterThan, false);
     }
-    private ReturnBehavior semalysizeLessThanOrEqual(LocalContext context, LessThanOrEqual lessThanOrEqual)
+    private Type semalysizeLessThanOrEqual(LocalContext context, LessThanOrEqual lessThanOrEqual)
     {
         return semalysizeComparisonOperator(context, lessThanOrEqual, false);
     }
-    private ReturnBehavior semalysizeGreaterThanOrEqual(LocalContext context, GreaterThanOrEqual greaterThanOrEqual)
+    private Type semalysizeGreaterThanOrEqual(LocalContext context, GreaterThanOrEqual greaterThanOrEqual)
     {
         return semalysizeComparisonOperator(context, greaterThanOrEqual, false);
     }
-    private ReturnBehavior semalysizeEquality(LocalContext context, Equality equality)
+    private Type semalysizeEquality(LocalContext context, Equality equality)
     {
         return semalysizeComparisonOperator(context, equality, true);
     }
-    private ReturnBehavior semalysizeInequality(LocalContext context, Inequality inequality)
+    private Type semalysizeInequality(LocalContext context, Inequality inequality)
     {
         return semalysizeComparisonOperator(context, inequality, true);
     }
-    private ReturnBehavior semalysizeComparisonOperator(LocalContext context, ComparisonOperator operator, boolean allowReferenceOperands)
+    private Type semalysizeComparisonOperator(LocalContext context, ComparisonOperator operator, boolean allowReferenceOperands)
     {
         operator.label1 = context.nextLabel();
         operator.label2 = context.nextLabel();
         return semalysizeOperator(context, operator, RuntimeType.BOOLEAN, allowReferenceOperands);
     }
-    private ReturnBehavior semalysizeOperator(LocalContext context, BinaryOperatorElement operator, Type returnType, boolean allowReferenceOperands)
+    private Type semalysizeOperator(LocalContext context, BinaryOperatorElement operator, Type returnType, boolean allowReferenceOperands)
     {
-        Type returnType1 = semalysizeExpression(context, operator.expression1).type;
-        Type returnType2 = semalysizeExpression(context, operator.expression2).type;
+        Type returnType1 = semalysizeExpression(context, operator.expression1);
+        Type returnType2 = semalysizeExpression(context, operator.expression2);
         if (allowReferenceOperands) {
             if (!(returnType1.isInstanceOf(returnType2) || returnType2.isInstanceOf(returnType1)))
                 errors.add(new SemalyticalError(operator, "operand types are incompatible."));
@@ -1319,7 +1316,7 @@ public class Semalysizer
                 errors.add(new SemalyticalError(operator.expression2, "operand can't be a reference type."));
         }
         returnType = returnType != null ? returnType : returnType1;
-        return new ReturnBehavior(returnType);
+        return returnType;
     }
 
     private void resolveQualifiedName(QualifiedName qualifiedName)
@@ -1354,9 +1351,9 @@ public class Semalysizer
         return !failure;
     }
 
-    private Method resolveMethod(Type type, AmbiguousId methodName, ReturnBehavior[] argumentSignature)
+    private Method resolveMethod(Type type, AmbiguousId methodName, Type[] argumentSignature)
     {
-        Method method = type.resolveMethod(methodName.text, getArgumentTypes(argumentSignature));
+        Method method = type.resolveMethod(methodName.text, argumentSignature);
         if (method == null) {
             errors.add(SemalyticalError.cantResolveMethod(type, methodName, argumentSignature));
             return Method.UNKNOWN;
@@ -1364,9 +1361,9 @@ public class Semalysizer
         return method;
     }
 
-    private Constructor resolveConstructor(Type type, ReturnBehavior[] argumentSignature)
+    private Constructor resolveConstructor(Type type, Type[] argumentSignature)
     {
-        return type.resolveConstructor(getArgumentTypes(argumentSignature));
+        return type.resolveConstructor(argumentSignature);
     }
 
     private LocalVariable resolveId(LocalContext context, String name)
@@ -1378,13 +1375,6 @@ public class Semalysizer
         return type.resolveField(name);
     }
 
-    private static Type[] getArgumentTypes(ReturnBehavior[] argumentSignature)
-    {
-        Type[] argumentTypes = new Type[argumentSignature.length];
-        for (int i = 0; i < argumentSignature.length; i++)
-            argumentTypes[i] = argumentSignature[i].type;
-        return argumentTypes;
-    }
     private void convertPrimitive(LocalContext context, Type fromType, Type toType, Expression expression)
     {
         // same type needs no conversion
@@ -1408,9 +1398,9 @@ public class Semalysizer
         // single operation conversion
         byte instruction = getPrimitiveConversionInstruction(fromType, toType);
         Expression innerExpression = new Expression(expression.content);
-        innerExpression.returnBehavior = new ReturnBehavior(fromType);
+        innerExpression.returnType = fromType;
         expression.content = new PrimitiveConversion(innerExpression, instruction, toType);
-        expression.returnBehavior = new ReturnBehavior(toType);
+        expression.returnType = toType;
     }
     private static byte getPrimitiveConversionInstruction(Type fromType, Type toType)
     {

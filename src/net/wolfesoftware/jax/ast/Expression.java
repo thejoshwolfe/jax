@@ -1,10 +1,10 @@
 package net.wolfesoftware.jax.ast;
 
-import net.wolfesoftware.jax.semalysis.ReturnBehavior;
+import net.wolfesoftware.jax.semalysis.Type;
 
 public class Expression extends SwitchElement
 {
-    public ReturnBehavior returnBehavior;
+    public Type returnType;
 
     public Expression(ParseElement content)
     {
