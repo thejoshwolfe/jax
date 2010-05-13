@@ -1,0 +1,13 @@
+public class Return {
+    public static void returnVoid(boolean[] setTheSecond) {
+        if (!setTheSecond[0]) return;
+        setTheSecond[1] = true;
+    };
+    
+    public static String returnExpression(String chopFirstLetterOff) {
+        if (chopFirstLetterOff == null) return null;
+        return (chopFirstLetterOff.length() == 0)
+            ? ""
+            : chopFirstLetterOff.substring(1);
+    };
+}

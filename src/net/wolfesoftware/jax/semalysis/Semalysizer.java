@@ -516,6 +516,9 @@ public class Semalysizer
             case ReturnExpression.TYPE:
                 returnType = semalysizeReturnExpression(context, (ReturnExpression)content);
                 break;
+            case ReturnVoid.TYPE:
+                returnType = semalysizeReturnVoid(context, (ReturnVoid)content);
+                break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
@@ -525,8 +528,13 @@ public class Semalysizer
 
     private Type semalysizeReturnExpression(LocalContext context, ReturnExpression returnExpression)
     {
-        Type type = semalysizeExpression(context, returnExpression.expression);
-        throw null; // TODO
+        returnExpression.branchType = semalysizeExpression(context, returnExpression.expression);
+        return UnreachableType.INSTANCE;
+    }
+
+    private Type semalysizeReturnVoid(LocalContext context, ReturnVoid returnVoid)
+    {
+        return UnreachableType.INSTANCE;
     }
 
     private Type semalysizeConstructorRedirect(LocalContext context, ConstructorRedirect constructorRedirect)

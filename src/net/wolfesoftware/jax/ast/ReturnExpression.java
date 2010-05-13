@@ -1,6 +1,6 @@
 package net.wolfesoftware.jax.ast;
 
-public class ReturnExpression extends ParseElement
+public class ReturnExpression extends BranchStatement
 {
     public Expression expression;
 

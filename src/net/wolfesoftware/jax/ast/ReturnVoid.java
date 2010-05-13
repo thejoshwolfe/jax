@@ -1,9 +1,12 @@
 package net.wolfesoftware.jax.ast;
 
-public class ReturnVoid extends ParseElement
+import net.wolfesoftware.jax.semalysis.RuntimeType;
+
+public class ReturnVoid extends BranchStatement
 {
     private ReturnVoid()
     {
+        this.branchType = RuntimeType.VOID;
     }
 
     @Override
