@@ -349,8 +349,9 @@ public class Semalysizer
         // this block should return null
         initialStuffElements.add(null);
 
-        // add the initial stuff to the constructor body block to be semalysized
-        Expression initialStuffExpression = new Expression(new Block(new BlockContents(initialStuffElements)));
+        Block initialStuffBlock = new Block(new BlockContents(initialStuffElements));
+        initialStuffBlock.forbidBranchEscape = true;
+        Expression initialStuffExpression = new Expression(initialStuffBlock);
         bodyElements.add(0, initialStuffExpression);
 
         constructorDeclaration.returnType = semalysizeExpression(constructorDeclaration.context, constructorDeclaration.expression);
@@ -1150,9 +1151,12 @@ public class Semalysizer
 
     private Type semalysizeVariableDeclaration(LocalContext context, VariableDeclaration variableDeclaration)
     {
-        if (!resolveType(variableDeclaration.typeId, true))
-            errors.add(new SemalyticalError(variableDeclaration, "You can't have a void variable.")); // TODO: wrong message
-        variableDeclaration.variable = context.addLocalVariable(variableDeclaration.variableName, variableDeclaration.typeId.type, errors);
+        if (!resolveType(variableDeclaration.typeId, true)) {
+            if (variableDeclaration.typeId.type == RuntimeType.VOID)
+                errors.add(new SemalyticalError(variableDeclaration, "You can't have a void variable."));
+            else
+                variableDeclaration.variable = context.addLocalVariable(variableDeclaration.variableName, variableDeclaration.typeId.type, errors);
+        }
         return RuntimeType.VOID;
     }
 

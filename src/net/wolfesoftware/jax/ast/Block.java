@@ -2,6 +2,8 @@ package net.wolfesoftware.jax.ast;
 
 public class Block extends ParseElement
 {
+    public boolean forbidBranchEscape = false;
+
     public BlockContents blockContents;
     public Block(BlockContents blockContents)
     {

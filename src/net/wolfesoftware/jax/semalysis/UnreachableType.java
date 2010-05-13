@@ -36,7 +36,7 @@ public class UnreachableType extends Type
     @Override
     public boolean isInstanceOf(Type type)
     {
-        return true;
+        return false;
     }
 
     @Override
