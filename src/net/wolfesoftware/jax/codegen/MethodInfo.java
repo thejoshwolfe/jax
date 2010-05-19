@@ -227,6 +227,9 @@ public class MethodInfo
             case ArrayDereference.TYPE:
                 evalArrayDereference((ArrayDereference)content);
                 break;
+            case ArrayAssignment.TYPE:
+                evalArrayAssignment((ArrayAssignment)content);
+                break;
             case TryCatch.TYPE:
                 evalTryCatch((TryCatch)content);
                 break;
@@ -260,11 +263,18 @@ public class MethodInfo
             case StaticFieldPostIncrementDecrement.TYPE:
                 evalStaticFieldPostIncrementDecrement((StaticFieldPostIncrementDecrement)content);
                 break;
+            case ReturnVoid.TYPE:
+                evalReturnVoid((ReturnVoid)content);
+                break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
     }
 
+    private void evalReturnVoid(ReturnVoid returnVoid)
+    {
+        writeByte(Instructions._return);
+    }
     private void evalLocalVariablePreIncrementDecrement(LocalVariablePreIncrementDecrement localVariablePreIncrementDecrement)
     {
         LocalVariable variable = localVariablePreIncrementDecrement.variable;
@@ -590,7 +600,7 @@ public class MethodInfo
         writeDummyShort();
         int continueToOffset = offset;
         evalExpression(forLoop.expression3);
-        if (forLoop.expression3.returnType != RuntimeType.VOID)
+        if (!forLoop.expression3.returnType.isVoidLike())
             pop(forLoop.expression3.returnType);
         fillins.add(new Fillin(initialGotoOffset));
         evalExpression(forLoop.expression2);
@@ -632,6 +642,38 @@ public class MethodInfo
         context.pushOperand(type);
     }
 
+    private void evalArrayAssignment(ArrayAssignment arrayAssignment)
+    {
+        evalExpression(arrayAssignment.arrayExpression);
+        evalExpression(arrayAssignment.indexExpression);
+        evalExpression(arrayAssignment.rightExpression);
+        Type valueType = context.peekOperandType();
+
+        byte dupeInstruction = valueType.getSize() == 1 ? Instructions.dup_x2 : Instructions.dup2_x2;
+        writeByte(dupeInstruction);
+
+        if (!valueType.isPrimitive())
+            writeByte(Instructions.aastore);
+        else if (valueType == RuntimeType.INT)
+            writeByte(Instructions.iastore);
+        else if (valueType == RuntimeType.LONG)
+            writeByte(Instructions.lastore);
+        else if (valueType == RuntimeType.FLOAT)
+            writeByte(Instructions.fastore);
+        else if (valueType == RuntimeType.DOUBLE)
+            writeByte(Instructions.dastore);
+        else if (valueType == RuntimeType.BYTE || valueType == RuntimeType.BOOLEAN)
+            writeByte(Instructions.bastore);
+        else if (valueType == RuntimeType.CHAR)
+            writeByte(Instructions.castore);
+        else if (valueType == RuntimeType.SHORT)
+            writeByte(Instructions.sastore);
+        else
+            throw null;
+        context.popOperands(3);
+        context.pushOperand(valueType);
+    }
+
     private void evalTryCatch(TryCatch tryCatch)
     {
         // preserve operand stack
@@ -644,7 +686,7 @@ public class MethodInfo
 
         tryCatch.tryPart.startOffset = offset;
         evalExpression(tryCatch.tryPart.expression);
-        if (tryCatch.tryPart.expression.returnType != RuntimeType.VOID)
+        if (!tryCatch.tryPart.expression.returnType.isVoidLike())
             context.popOperand(); // take this off for now. it's added as part of the last catch
         int successfulTryEndOffset = offset;
         tryCatch.tryPart.endOffset = offset;
@@ -698,7 +740,7 @@ public class MethodInfo
         astore(catchBody.variableDeclaration.variable.getNumber());
         evalExpression(catchBody.expression);
         if (addGoto) {
-            if (catchBody.expression.returnType != RuntimeType.VOID)
+            if (!catchBody.expression.returnType.isVoidLike())
                 context.popOperand(); // take this off for now
             catchBody.endGotoOffset = offset;
             writeByte(Instructions._goto);
@@ -735,7 +777,7 @@ public class MethodInfo
     {
         Method method = methodInvocation.method;
 
-        if (!method.isStatic)
+        if (!method.isStatic())
             evalExpression(((InstanceMethodInvocation)methodInvocation).leftExpression);
 
         evalArguments(methodInvocation.arguments);
@@ -748,25 +790,33 @@ public class MethodInfo
             int stackSize = 0;
             for (Expression expression : methodInvocation.arguments.elements)
                 stackSize += expression.returnType.getSize();
-            if (!method.isStatic)
+            if (!method.isStatic())
                 stackSize += 1;
             writeByte((byte)stackSize);
             writeByte((byte)0);
         } else {
             // non-interface method
-            // TODO: "special handling for superclass, private, and instance initialization method invocations"
             byte invokeInstruction;
-            if (method.isStatic)
+            if (method.isStatic()) {
+                // static method
                 invokeInstruction = Instructions.invokestatic;
-            else
-                invokeInstruction = Instructions.invokevirtual;
+            } else {
+                // non-static method
+                if (method.isPrivate() || context.getClassContext().getParent().isInstanceOf(method.declaringType)) {
+                    // private or super class non-virtual invocation
+                    invokeInstruction = Instructions.invokespecial;
+                } else {
+                    // virtual invocation (includes final method invocation for some reason)
+                    invokeInstruction = Instructions.invokevirtual;
+                }
+            }
             writeByte(invokeInstruction);
             writeShort(constantPool.getMethod(methodInvocation.method));
         }
         context.popOperands(methodInvocation.arguments.elements.size());
-        if (!method.isStatic)
+        if (!method.isStatic())
             context.popOperand();
-        if (method.returnType != RuntimeType.VOID)
+        if (!method.returnType.isVoidLike())
             context.pushOperand(method.returnType);
     }
 
@@ -784,7 +834,7 @@ public class MethodInfo
         context.popOperand();
         writeDummyShort();
         evalExpression(ifThenElse.expression2);
-        if (ifThenElse.expression2.returnType != RuntimeType.VOID)
+        if (!ifThenElse.expression2.returnType.isVoidLike())
             context.popOperand(); // take this off for now
         int gotoOffset = offset;
         writeByte(Instructions._goto);
@@ -865,7 +915,7 @@ public class MethodInfo
         for (int i = 0; i < blockContents.elements.size(); i++) {
             Expression element = blockContents.elements.get(i);
             evalExpression(element);
-            if (element.returnType != RuntimeType.VOID)
+            if (!element.returnType.isVoidLike())
                 if (i < blockContents.elements.size() - 1 || blockContents.forceVoid)
                     pop(element.returnType);
         }
@@ -1407,8 +1457,17 @@ public class MethodInfo
         public final short value;
         public Fillin(int branchInstructionOffset)
         {
-            address = branchInstructionOffset + 1;
-            value = (short)(offset - branchInstructionOffset);
+            this(branchInstructionOffset, offset);
         }
+        public Fillin(int branchInstructionOffset, int destination)
+        {
+            address = branchInstructionOffset + 1;
+            value = (short)(destination - branchInstructionOffset);
+        }
+    }
+    public String toString()
+    {
+        // for easy debugging
+        return context.toString();
     }
 }

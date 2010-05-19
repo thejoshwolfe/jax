@@ -291,7 +291,7 @@ public class Semalysizer
         resolveType(methodDeclaration.typeId, true);
         methodDeclaration.context = new RootLocalContext(context, methodDeclaration.isStatic());
         Type[] arguemntSignature = semalysizeArgumentDeclarations(methodDeclaration.context, methodDeclaration.argumentDeclarations);
-        methodDeclaration.method = new Method(context, methodDeclaration.typeId.type, methodDeclaration.methodName, arguemntSignature, true);
+        methodDeclaration.method = new Method(context, methodDeclaration.typeId.type, methodDeclaration.methodName, arguemntSignature, methodDeclaration.methodModifiers.bitmask);
         context.addMethod(methodDeclaration.method);
     }
 
@@ -346,7 +346,7 @@ public class Semalysizer
         initialStuffElements.add(constructorRedirectExpression);
         for (Expression initializerExpression : context.getClassContext().initializerExpressions)
             initialStuffElements.add((Expression)initializerExpression.cloneElement());
-        // this block should return null
+        // this block should return void
         initialStuffElements.add(null);
 
         Block initialStuffBlock = new Block(new BlockContents(initialStuffElements));
@@ -355,15 +355,32 @@ public class Semalysizer
         bodyElements.add(0, initialStuffExpression);
 
         constructorDeclaration.returnType = semalysizeExpression(constructorDeclaration.context, constructorDeclaration.expression);
-        if (constructorDeclaration.returnType != RuntimeType.VOID)
+        if (!isVoidLikeOrIrrelevant(constructorDeclaration.returnType))
             errors.add(SemalyticalError.mustBeVoid(constructorDeclaration.expression));
+    }
+
+    private boolean isVoidLikeOrIrrelevant(Type type)
+    {
+        return type.isVoidLike() || isTypeIrrelevant(type);
+    }
+
+    private boolean isTypeIrrelevant(Type type)
+    {
+        switch (type.getType()) {
+            case UnknownType.TYPE:
+            case UnreachableType.TYPE:
+                return true;
+        }
+        return false;
     }
 
     private void semalysizeMethodDeclaration(LocalType context, MethodDeclaration methodDeclaration)
     {
-        semalysizeExpression(methodDeclaration.context, methodDeclaration.expression);
-        implicitCast(methodDeclaration.context, methodDeclaration.expression, methodDeclaration.method.returnType);
-        methodDeclaration.returnType = methodDeclaration.expression.returnType;
+        methodDeclaration.context.setReturnDestination(new BranchDestination(methodDeclaration.method.returnType));
+        Type bodyType = semalysizeExpression(methodDeclaration.context, methodDeclaration.expression);
+        if (bodyType != UnreachableType.INSTANCE)
+            implicitCast(methodDeclaration.context, methodDeclaration.expression, methodDeclaration.method.returnType);
+        methodDeclaration.returnType = methodDeclaration.method.returnType;
     }
 
     private Type semalysizeExpression(LocalContext context, Expression expression)
@@ -529,12 +546,26 @@ public class Semalysizer
 
     private Type semalysizeReturnExpression(LocalContext context, ReturnExpression returnExpression)
     {
-        returnExpression.branchType = semalysizeExpression(context, returnExpression.expression);
+        semalysizeExpression(context, returnExpression.expression);
+        BranchDestination returnDestination = context.getReturnDestination();
+        if (returnDestination == null) {
+            errors.add(new SemalyticalError(returnExpression, "Nowhere to return to."));
+            return UnreachableType.INSTANCE;
+        }
+        implicitCast(context, returnExpression.expression, returnDestination.type);
+        returnExpression.branchDestination = returnDestination;
         return UnreachableType.INSTANCE;
     }
 
     private Type semalysizeReturnVoid(LocalContext context, ReturnVoid returnVoid)
     {
+        BranchDestination returnDestination = context.getReturnDestination();
+        if (returnDestination == null) {
+            errors.add(new SemalyticalError(returnVoid, "Nowhere to return to."));
+            return UnreachableType.INSTANCE;
+        }
+        if (!isVoidLikeOrIrrelevant(returnDestination.type))
+            errors.add(new SemalyticalError(returnVoid, "Need to return something"));
         return UnreachableType.INSTANCE;
     }
 
@@ -650,8 +681,8 @@ public class Semalysizer
 
         // primitive vs reference
         if (fromType.isPrimitive() != toType.isPrimitive()) {
-            if (!(fromType == UnknownType.INSTANCE || toType == UnknownType.INSTANCE))
-                errors.add(new SemalyticalError(typeCast.typeId, "Can't cast between primitives and non-primitives")); // TODO: code duplication
+            if (!(isTypeIrrelevant(fromType) || isTypeIrrelevant(toType)))
+                errors.add(SemalyticalError.cantCastBetweenPrimitivesAndNonPrimitives(typeCast.typeId));
             return toType;
         }
         if (toType.isPrimitive()) {
@@ -682,7 +713,7 @@ public class Semalysizer
             errors.add(SemalyticalError.mustBeBoolean(whileLoop.expression1));
 
         Type returnBehavior2 = semalysizeExpression(context, whileLoop.expression2);
-        if (returnBehavior2 != RuntimeType.VOID)
+        if (!isVoidLikeOrIrrelevant(returnBehavior2))
             errors.add(SemalyticalError.mustBeVoid(whileLoop.expression2));
 
         whileLoop.breakToLabel = context.nextLabel();
@@ -748,20 +779,20 @@ public class Semalysizer
     private Type semalysizeForLoop(LocalContext context, ForLoop forLoop)
     {
         LocalContext innerContext = context.makeSubContext();
-        Type returnBehavior1 = semalysizeExpression(innerContext, forLoop.expression1);
-        if (returnBehavior1 != RuntimeType.VOID)
+        Type returnType1 = semalysizeExpression(innerContext, forLoop.expression1);
+        if (!isVoidLikeOrIrrelevant(returnType1))
             errors.add(SemalyticalError.mustBeVoid(forLoop.expression1));
 
         forLoop.continueToLabel = innerContext.nextLabel();
         semalysizeExpression(innerContext, forLoop.expression3);
 
         forLoop.initialGotoLabel = innerContext.nextLabel();
-        Type returnBehavior2 = semalysizeExpression(innerContext, forLoop.expression2);
-        if (returnBehavior2 != RuntimeType.BOOLEAN)
+        Type returnType2 = semalysizeExpression(innerContext, forLoop.expression2);
+        if (returnType2 != RuntimeType.BOOLEAN)
             errors.add(SemalyticalError.mustBeBoolean(forLoop.expression2));
 
-        Type returnBehavior4 = semalysizeExpression(innerContext, forLoop.expression4);
-        if (returnBehavior4 != RuntimeType.VOID)
+        Type returnType4 = semalysizeExpression(innerContext, forLoop.expression4);
+        if (!isVoidLikeOrIrrelevant(returnType4))
             errors.add(SemalyticalError.mustBeVoid(forLoop.expression4));
 
         forLoop.breakToLabel = innerContext.nextLabel();
@@ -771,14 +802,17 @@ public class Semalysizer
 
     private Type semalysizeArrayDereference(LocalContext context, ArrayDereference arrayDereference)
     {
-        Type returnBehavior1 = semalysizeExpression(context, arrayDereference.expression1);
-        if (returnBehavior1.getType() != ArrayType.TYPE)
-            errors.add(new SemalyticalError(arrayDereference, "Can't dereference this thing like an array"));
-        Type returnBehavior2 = semalysizeExpression(context, arrayDereference.expression2);
-        if (returnBehavior2 != RuntimeType.INT)
+        Type returnType1 = semalysizeExpression(context, arrayDereference.expression1);
+        Type returnType2 = semalysizeExpression(context, arrayDereference.expression2);
+        if (returnType1.getType() != ArrayType.TYPE) {
+            if (returnType1.getType() != UnknownType.TYPE)
+                errors.add(new SemalyticalError(arrayDereference, "Can't dereference this thing like an array"));
+            return UnknownType.INSTANCE;
+        }
+        if (returnType2 != RuntimeType.INT)
             errors.add(SemalyticalError.mustBeInt(arrayDereference.expression2));
 
-        Type scalarType = ((ArrayType)returnBehavior1).scalarType;
+        Type scalarType = ((ArrayType)returnType1).scalarType;
         return scalarType;
     }
 
@@ -898,7 +932,7 @@ public class Semalysizer
         AmbiguousImplicitThisMethodInvocation methodInvocation = (AmbiguousImplicitThisMethodInvocation)expression.content;
         Type[] argumentSignature = semalysizeArguments(context, methodInvocation.arguments);
         Method method = resolveMethod(context.getClassContext(), methodInvocation.methodName, argumentSignature);
-        if (method.isStatic) {
+        if (method.isStatic()) {
             // implicit static ClassName.method()
             StaticMethodInvocation staticMethodInvocation = new StaticMethodInvocation(TypeId.fromType(context.getClassContext()), methodInvocation.methodName, methodInvocation.arguments);
             expression.content = staticMethodInvocation;
@@ -915,6 +949,8 @@ public class Semalysizer
     {
         Type expressionReturnBehavior = semalysizeExpression(context, methodInvocation.leftExpression);
         Type[] argumentSignature = semalysizeArguments(context, methodInvocation.arguments);
+        if (expressionReturnBehavior.getType() == UnknownType.TYPE)
+            return UnknownType.INSTANCE;
         methodInvocation.method = resolveMethod(expressionReturnBehavior, methodInvocation.methodName, argumentSignature);
         implicitCastArguments(context, methodInvocation.arguments, methodInvocation.method.argumentSignature);
         return methodInvocation.method.returnType;
@@ -967,7 +1003,7 @@ public class Semalysizer
         ifThen.label = context.nextLabel();
 
         semalysizeExpression(context, ifThen.expression2);
-        if (ifThen.expression2.returnType != RuntimeType.VOID)
+        if (!isVoidLikeOrIrrelevant(ifThen.expression2.returnType))
             errors.add(SemalyticalError.mustBeVoid(ifThen.expression2));
 
         return RuntimeType.VOID;
@@ -1010,7 +1046,12 @@ public class Semalysizer
                 expression.content = fieldAssignment;
                 return semalysizeAbstractAssignment(context, fieldAssignment);
             }
-            // TODO: array assignment
+            case ArrayDereference.TYPE: {
+                ArrayDereference arrayDereference = (ArrayDereference)assignment.leftExpression.content;
+                ArrayAssignment arrayAssignment = new ArrayAssignment(arrayDereference.expression1, arrayDereference.expression2, assignment.operator, assignment.rightExpression);
+                expression.content = arrayAssignment;
+                return semalysizeAbstractAssignment(context, arrayAssignment);
+            }
             default:
                 errors.add(new SemalyticalError(assignment.leftExpression, "This expression is too complex to assign to"));
                 return semalysizeExpression(context, assignment.rightExpression);
@@ -1051,7 +1092,7 @@ public class Semalysizer
         else if (leftType == RuntimeType.BOOLEAN)
             requiredOperatorType = ASSIGNMENT_OPERATOR_TYPE_BOOLEAN;
         else if (leftType == RuntimeType.VOID) {
-            // don't this will ever happen
+            // don't think this will ever happen
             errors.add(new SemalyticalError(assignment, "Can't assign to type void"));
             return rightType;
         } else
@@ -1122,7 +1163,8 @@ public class Semalysizer
             return; // no need to cast
         boolean primitive = fromType.isPrimitive();
         if (primitive != toType.isPrimitive()) {
-            errors.add(new SemalyticalError(expression, "Can't cast between primitives and non-primitives")); // TODO: code duplication
+            if (!(isTypeIrrelevant(fromType) || isTypeIrrelevant(toType)))
+                errors.add(SemalyticalError.cantCastBetweenPrimitivesAndNonPrimitives(expression));
             return;
         }
         if (primitive) {
@@ -1151,7 +1193,7 @@ public class Semalysizer
 
     private Type semalysizeVariableDeclaration(LocalContext context, VariableDeclaration variableDeclaration)
     {
-        if (!resolveType(variableDeclaration.typeId, true)) {
+        if (resolveType(variableDeclaration.typeId, true)) {
             if (variableDeclaration.typeId.type == RuntimeType.VOID)
                 errors.add(new SemalyticalError(variableDeclaration, "You can't have a void variable."));
             else
@@ -1181,9 +1223,12 @@ public class Semalysizer
         deleteNulls(blockContents);
 
         Type returnType = RuntimeType.VOID;
-        for (Expression element : blockContents.elements)
+        for (Expression element : blockContents.elements) {
+            if (returnType == UnreachableType.INSTANCE)
+                errors.add(SemalyticalError.unreachableCode(element));
             returnType = semalysizeExpression(context, element);
-        if (blockContents.forceVoid)
+        }
+        if (blockContents.forceVoid && returnType != UnreachableType.INSTANCE)
             returnType = RuntimeType.VOID;
         return returnType;
     }

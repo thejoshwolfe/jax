@@ -45,5 +45,10 @@ public class UnreachableType extends Type
         return null;
     }
 
+    @Override
+    public boolean isVoidLike()
+    {
+        return true;
+    }
     public static final UnreachableType INSTANCE = new UnreachableType();
 }

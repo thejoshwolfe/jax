@@ -86,4 +86,10 @@ public final class RootLocalContext extends LocalContext
     {
         return "stack: [" + stackSize + "," + stackCapacity + "]";
     }
+    
+    @Override
+    public BranchDestination getReturnDestination()
+    {
+        return returnDestination;
+    }
 }

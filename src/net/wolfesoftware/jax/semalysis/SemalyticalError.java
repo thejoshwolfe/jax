@@ -78,4 +78,12 @@ public class SemalyticalError extends CompileError
     {
         return new SemalyticalError(element, "Can't convert expression of type " + fromType + " to type " + toType + ".");
     }
+    public static SemalyticalError cantCastBetweenPrimitivesAndNonPrimitives(ParseElement element)
+    {
+        return new SemalyticalError(element, "Can't cast between primitives and non-primitives");
+    }
+    public static SemalyticalError unreachableCode(Expression element)
+    {
+        return new SemalyticalError(element, "Unreachable code.");
+    }
 }

@@ -1,14 +1,7 @@
 package net.wolfesoftware.jax.ast;
 
-import net.wolfesoftware.jax.semalysis.RuntimeType;
-
 public class ReturnVoid extends BranchStatement
 {
-    private ReturnVoid()
-    {
-        this.branchType = RuntimeType.VOID;
-    }
-
     @Override
     protected void decompile(String indentation, StringBuilder out)
     {
@@ -20,12 +13,4 @@ public class ReturnVoid extends BranchStatement
     {
         return TYPE;
     }
-
-    @Override
-    protected boolean isSingletonLike()
-    {
-        return true;
-    }
-
-    public static final ReturnVoid INSTANCE = new ReturnVoid();
 }

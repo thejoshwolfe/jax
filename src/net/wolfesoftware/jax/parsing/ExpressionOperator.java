@@ -159,7 +159,7 @@ public abstract class ExpressionOperator
     public static final ExpressionOperator returnVoid = new ExpressionOperator(-1, Lang.KEYWORD_RETURN, -1) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {
-            return ReturnVoid.INSTANCE;
+            return new ReturnVoid();
         }
     };
     public static final ExpressionOperator _throw = new ExpressionOperator(-1, Lang.KEYWORD_THROW, PRECEDENCE_LOWEST) {

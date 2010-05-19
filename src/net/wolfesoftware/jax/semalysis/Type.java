@@ -103,4 +103,9 @@ public abstract class Type
     }
 
     public abstract Type getParent();
+
+    public boolean isVoidLike()
+    {
+        return false;
+    }
 }

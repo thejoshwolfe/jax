@@ -50,7 +50,7 @@ public class RuntimeType extends Type
     public boolean isInstanceOf(Type type)
     {
         if (!(type instanceof RuntimeType))
-            return false; // RuntimeTypes only descend from other RuntimeTypes
+            return false; // runtime types only descend from other runtime types
         return ((RuntimeType)type).underlyingType.isAssignableFrom(underlyingType);
     }
 
@@ -109,6 +109,11 @@ public class RuntimeType extends Type
         {
             return true;
         }
+        @Override
+        public boolean isVoidLike()
+        {
+            return this == VOID;
+        }
     }
     private static class NumericPrimitiveType extends PrimitiveType
     {
@@ -166,14 +171,14 @@ public class RuntimeType extends Type
     public static Type[] getTypes(Class<?>[] underlyingTypes)
     {
         Type[] returnTypes = new Type[underlyingTypes.length];
-        for (int i = 0; i < underlyingTypes.length; i++) 
+        for (int i = 0; i < underlyingTypes.length; i++)
             returnTypes[i] = getType(underlyingTypes[i]);
         return returnTypes;
     }
 
     // http://java.sun.com/docs/books/jvms/second_edition/html/Concepts.doc.html#23435
     private static final int[][] primitiveConversionTable = {
-    // to: char byte short int long float double    | from:
+    // to: char,byte,short,int,long,float,double    | from:
         {     0,  -1,   -1,  1,   1,    1,     1}, // char   0
         {    -1,   0,    1,  1,   1,    1,     1}, // byte   1
         {    -1,  -1,    0,  1,   1,    1,     1}, // short  2
@@ -182,10 +187,12 @@ public class RuntimeType extends Type
         {    -1,  -1,   -1, -1,  -1,    0,     1}, // float  5
         {    -1,  -1,   -1, -1,  -1,   -1,     0}, // double 6
     };
-    public static int getPrimitiveConversionType(Type fromType, Type toType) {
+    public static int getPrimitiveConversionType(Type fromType, Type toType)
+    {
         return primitiveConversionTable[getPrimitiveIndex(fromType)][getPrimitiveIndex(toType)];
     }
-    private static int getPrimitiveIndex(Type type) {
+    private static int getPrimitiveIndex(Type type)
+    {
         if (type == CHAR)
             return 0;
         if (type == BYTE)

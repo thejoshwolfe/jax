@@ -39,6 +39,14 @@ ACC_INTERFACE = 0x0200
 ACC_ABSTRACT = 0x0400
 ACC_STRICT = 0x0800
 
+T_BOOLEAN = 4
+T_CHAR = 5
+T_FLOAT = 6
+T_DOUBLE = 7
+T_BYTE = 8
+T_SHORT = 9
+T_INT = 10
+T_LONG = 11
 
 
 ARG_NOT_SUPPORTED = "ARG_NOT_SUPPORTED"
@@ -605,7 +613,19 @@ def main(input, output):
                     instructionHex = opcodeHex + h
                     argsStr = " " + className
                 elif argumentType == ARG_ATYPE_CODE:
-                    return "argument type " + argumentType + " is not implemented yet"
+                    (h, atypeCode) = readByte()
+                    arrayTypeName = {
+                        T_BOOLEAN: "boolean",
+                        T_CHAR: "char",
+                        T_FLOAT: "float",
+                        T_DOUBLE: "double",
+                        T_BYTE: "byte",
+                        T_SHORT: "short",
+                        T_INT: "int",
+                        T_LONG: "long",
+                    }[atypeCode]
+                    instructionHex = opcodeHex + h
+                    argsStr = " " + arrayTypeName + "[]"
                 elif argumentType == ARG_WIDE_ARGUMENTS:
                     return "argument type " + argumentType + " is not implemented yet"
                 elif argumentType == ARG_MULTIANEWARRAY:
