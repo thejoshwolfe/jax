@@ -10,6 +10,8 @@ public class ReturnCall {
         pass &= Return.returnExpression("").equals("");
         pass &= Return.returnExpression("a").equals("");
         pass &= Return.returnExpression("ab").equals("b");
+        if (pass)
+            System.out.println("+++ PASS");
     }
     private static boolean[] helper(boolean[] array)
     {

@@ -675,6 +675,9 @@ public class MethodInfo
 
         byte dupeInstruction = valueType.getSize() == 1 ? Instructions.dup_x2 : Instructions.dup2_x2;
         writeByte(dupeInstruction);
+        // make sure there's space
+        context.pushOperand(valueType);
+        context.popOperand();
 
         if (!valueType.isPrimitive())
             writeByte(Instructions.aastore);

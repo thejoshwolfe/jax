@@ -33,7 +33,7 @@ public abstract class TestCase
     }
     protected static boolean compileJava(String classPath, String filepath, PrintStream verboseStream, PrintStream stderrStream)
     {
-        return execSomething(new String[] { "javac", "-cp", classPath, filepath }, verboseStream, stderrStream, null);
+        return execSomething(new String[] { "javac", "-g", "-cp", classPath, filepath }, verboseStream, stderrStream, null);
     }
     protected static boolean execJava(String classPath, String mainClass, PrintStream verboseStream, PrintStream stderrStream, PrintStream stdoutStream)
     {
