@@ -4,14 +4,12 @@ Version 1.0:
 
 broken:
     detect ambiguous overload resolution
-    "special handling for superclass, private, and instance initialization method invocations" ( http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.doc6.html#invokespecial )
 
 semalysis:
     throw
     interface declaration
 
 ast:
-    array store
     loops with else's
     continue/break/return
     forbidding assignment to final fields
@@ -26,7 +24,6 @@ ast:
 
 staticalysis:
     uninitialized variable access
-    unreachable code
     checked exceptions
 
 misc:
@@ -38,6 +35,7 @@ Version 1.1:
 staticalysis:
     compile-time constant reduction (ex: a=1+1 => a=2)
     static final field (constant) inlining
+
 misc:
     line + column lookup in all compile errors
     debug info
@@ -58,3 +56,5 @@ semalysis:
     generic types
     automatic boxing/unboxing
 
+staticalysis:
+    StackMapTable attribute
