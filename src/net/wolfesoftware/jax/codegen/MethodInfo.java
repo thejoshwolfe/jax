@@ -94,7 +94,8 @@ public class MethodInfo
         for (VariableDeclaration variableDeclaration : methodDeclaration.argumentDeclarations.elements)
             variableDeclaration.variable.getNumber();
         evalExpression(methodDeclaration.expression);
-        _return(methodDeclaration.returnType);
+        if (methodDeclaration.expression.returnType != UnreachableType.INSTANCE)
+            _return(methodDeclaration.returnType);
         Util._assert(context.stackSize == 0);
         byte[] codeBytes = codeBufferArray.toByteArray();
         for (Fillin fillin : fillins) {
@@ -266,6 +267,9 @@ public class MethodInfo
             case ReturnVoid.TYPE:
                 evalReturnVoid((ReturnVoid)content);
                 break;
+            case ReturnExpression.TYPE:
+                evalReturnExpression((ReturnExpression)content);
+                break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
@@ -274,6 +278,26 @@ public class MethodInfo
     private void evalReturnVoid(ReturnVoid returnVoid)
     {
         writeByte(Instructions._return);
+    }
+    private void evalReturnExpression(ReturnExpression returnVoid)
+    {
+        evalExpression(returnVoid.expression);
+        Type type = translateTypeForInstructions(context.peekOperandType());
+        byte returnInstruction;
+        if (!type.isPrimitive())
+            returnInstruction = Instructions.areturn;
+        else if (type == RuntimeType.INT)
+            returnInstruction = Instructions.ireturn;
+        else if (type == RuntimeType.LONG)
+            returnInstruction = Instructions.lreturn;
+        else if (type == RuntimeType.FLOAT)
+            returnInstruction = Instructions.freturn;
+        else if (type == RuntimeType.DOUBLE)
+            returnInstruction = Instructions.dreturn;
+        else
+            throw null;
+        writeByte(returnInstruction);
+        context.popOperand();
     }
     private void evalLocalVariablePreIncrementDecrement(LocalVariablePreIncrementDecrement localVariablePreIncrementDecrement)
     {
