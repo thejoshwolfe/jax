@@ -280,7 +280,6 @@ def main(input, output):
     """
     input  : str - such as open("Example.class", "r").read()
     output : file - such as stdout or anything with a method write(str)
-    return : str - error message or None
     """
     
     # this is a bound variable :|
@@ -320,7 +319,7 @@ def main(input, output):
     # magic number
     (h, magic) = readUInt()
     if magic != 0xcafebabe:
-        return "wrong magic number: " + str(magic)
+        exit("wrong magic number: " + str(magic))
     output.write(h + "\n\n")
     
     # version
@@ -399,7 +398,7 @@ def main(input, output):
             constantPoolHex.append((typeHex, h1, h2))
             i += 1
         else:
-            return "error: constant code " + str(type) + " for index " + str(index[0])+":"+str(i) + " is not real"
+            exit("error: constant code " + repr(type) + " for index " + str(index[0])+":"+str(i) + " is not real")
 
     # verify and print constant pool
     i = 1
@@ -456,7 +455,7 @@ def main(input, output):
             output.write("NameAndType = %s:%s\n" % (name, descriptor))
             i += 1
         else:
-            return "omgwtf!!!"
+            exit("omgwtf!!!")
         output.write("".join("\t%s\n" % hexStr for hexStr in hexStrs) + "\t\n")
     
     # class declaration
@@ -492,9 +491,7 @@ def main(input, output):
     # function for calling readAttribute()
     def readAttributes(attributeCount, indentation):
         for i in range(attributeCount):
-            errorMessage = readAttribute(indentation)
-            if errorMessage != None:
-                return errorMessage
+            readAttribute(indentation)
             if i < attributeCount:
                 output.write(indentation + "\n")
     
@@ -531,7 +528,7 @@ def main(input, output):
                 instructionHex = None
                 argsStr = None
                 if argumentType == ARG_NOT_SUPPORTED:
-                    return "Instruction %s is not supported" % instructionName
+                    exit("Instruction %s is not supported" % instructionName)
                 elif argumentType == ARG_NONE:
                     instructionHex = opcodeHex
                     argsStr = ""
@@ -582,9 +579,9 @@ def main(input, output):
                     instructionHex = opcodeHex + h
                     argsStr = " " + str(value + offset)
                 elif argumentType == ARG_TABLESWITCH:
-                    return "argument type " + argumentType + " is not implemented yet"
+                    exit("argument type " + argumentType + " for instruction " + instructionName + " is not implemented yet")
                 elif argumentType == ARG_LOOKUPSWITCH:
-                    return "argument type " + argumentType + " is not implemented yet"
+                    exit("argument type " + argumentType + " for instruction " + instructionName + " is not implemented yet")
                 elif argumentType == ARG_FIELDREF_INDEX:
                     (h, fieldrefIndex) = readShort()
                     className = constantPool[constantPool[constantPool[fieldrefIndex][1]][1]][1]
@@ -627,11 +624,11 @@ def main(input, output):
                     instructionHex = opcodeHex + h
                     argsStr = " " + arrayTypeName + "[]"
                 elif argumentType == ARG_WIDE_ARGUMENTS:
-                    return "argument type " + argumentType + " is not implemented yet"
+                    exit("argument type " + argumentType + " for instruction " + instructionName + " is not implemented yet")
                 elif argumentType == ARG_MULTIANEWARRAY:
-                    return "argument type " + argumentType + " is not implemented yet"
+                    exit("argument type " + argumentType + " for instruction " + instructionName + " is not implemented yet")
                 else:
-                    return "omgwtf!!"
+                    exit("omgwtf!!")
                 output.write("%s\t%s; %i:  %s%s\n" % (indentation, instructionHex.ljust(9), offset, instructionName, argsStr))
                 offset += len(instructionHex) / 3
                 
@@ -649,9 +646,7 @@ def main(input, output):
             (h, attributeCount) = readShort()
             output.write("%s; attributes; size=%i\n" % (indentation, attributeCount))
             output.write(indentation + h + "\n")
-            errorMessage = readAttributes(attributeCount, indentation + "\t")
-            if errorMessage != None:
-                return errorMessage
+            readAttributes(attributeCount, indentation + "\t")
             
         else:
             # unknown attribute name
@@ -687,9 +682,7 @@ def main(input, output):
         (h, attributeCount) = readShort()
         output.write("\t; attributes; size=%i\n" % attributeCount)
         output.write("\t" + h + "\n")
-        errorMessage = readAttributes(attributeCount, "\t\t")
-        if errorMessage != None:
-            return errorMessage
+        readAttributes(attributeCount, "\t\t")
         output.write("\t\n")
     
     # methods
@@ -724,23 +717,19 @@ def main(input, output):
         (h, attributeCount) = readShort()
         output.write("\t; attributes; size=%i\n" % attributeCount)
         output.write("\t" + h + "\n")
-        errorMessage = readAttributes(attributeCount, "\t\t")
-        if errorMessage != None:
-            return errorMessage
+        readAttributes(attributeCount, "\t\t")
         output.write("\t\n")
     
     # class attributes
     (h, attributeCount) = readShort()
     output.write("; attributes; size=%i\n" % attributeCount)
     output.write(h + "\n")
-    errorMessage = readAttributes(attributeCount, "\t")
-    if errorMessage != None:
-        return errorMessage
+    readAttributes(attributeCount, "\t")
     output.write("\n")
     
     # EOF
     if index[0] != len(input):
-        return "Expected EOF at offset " + str(index[0])
+        exit("Expected EOF at offset " + str(index[0]))
 
 if __name__ == "__main__":
     if len(argv) >= 2 and argv[1] in ("-h", "-help", "--help"):
@@ -759,12 +748,8 @@ if __name__ == "__main__":
         stderr.write("too many arguments\n")
         stdout.write(usage)
         exit(1)
-    errorMessage = main(input, output)
-    returnCode = 0
-    if errorMessage != None:
-        stderr.write(errorMessage + "\n")
-        returnCode = 1
+    
+    main(input, output)
     if output != stdout:
         output.close()
-    exit(returnCode)
 
