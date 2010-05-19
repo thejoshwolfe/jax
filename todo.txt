@@ -11,7 +11,7 @@ semalysis:
 
 ast:
     loops with else's
-    continue/break/return
+    continue and break
     forbidding assignment to final fields
     extends and implements
     abstract classes/methods
