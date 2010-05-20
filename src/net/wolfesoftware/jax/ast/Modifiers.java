@@ -2,11 +2,11 @@ package net.wolfesoftware.jax.ast;
 
 import java.util.List;
 
-public class ClassModifiers extends ListElement<ClassModifier>
+public class Modifiers extends ListElement<Modifier>
 {
     public short bitmask = 0;
 
-    public ClassModifiers(List<ClassModifier> elements)
+    public Modifiers(List<Modifier> elements)
     {
         super(elements);
     }

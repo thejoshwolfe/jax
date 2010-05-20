@@ -1,20 +1,20 @@
 package net.wolfesoftware.jax.semalysis;
 
-import java.lang.reflect.Modifier;
 import java.util.HashMap;
+import net.wolfesoftware.jax.ast.Modifier;
 
 public class Field
 {
     public Type declaringType;
     public Type returnType;
     public String name;
-    public final boolean isStatic;
-    public Field(Type declaringType, Type returnType, String name, boolean isStatic)
+    public short modifiers;
+    public Field(Type declaringType, Type returnType, String name, short modifiers)
     {
         this.declaringType = declaringType;
         this.returnType = returnType;
         this.name = name;
-        this.isStatic = isStatic;
+        this.modifiers = modifiers;
     }
 
     private static final HashMap<java.lang.reflect.Field, Field> cache = new HashMap<java.lang.reflect.Field, Field>();
@@ -24,7 +24,7 @@ public class Field
         if (field == null) {
             Type declaringType = RuntimeType.getType(underlyingField.getDeclaringClass());
             Type returnType = RuntimeType.getType(underlyingField.getType());
-            field = new Field(declaringType, returnType, underlyingField.getName(), Modifier.isStatic(underlyingField.getModifiers()));
+            field = new Field(declaringType, returnType, underlyingField.getName(), (short)underlyingField.getModifiers());
             cache.put(underlyingField, field);
         }
         return field;
@@ -41,5 +41,9 @@ public class Field
     public String toString()
     {
         return returnType + " " + name;
+    }
+    public boolean isStatic()
+    {
+        return (modifiers & Modifier.ACC_STATIC) != 0;
     }
 }

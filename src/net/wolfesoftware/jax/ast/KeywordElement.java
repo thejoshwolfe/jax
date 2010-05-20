@@ -37,6 +37,7 @@ public class KeywordElement extends ParseElement
     public static final KeywordElement FINAL = new KeywordElement(Lang.KEYWORD_FINAL);
     public static final KeywordElement VOLATILE = new KeywordElement(Lang.KEYWORD_VOLATILE);
     public static final KeywordElement TRANSIENT = new KeywordElement(Lang.KEYWORD_TRANSIENT);
+    public static final KeywordElement NATIVE = new KeywordElement(Lang.KEYWORD_NATIVE);
     public static final KeywordElement SYNCHRONIZED = new KeywordElement(Lang.KEYWORD_SYNCHRONIZED);
     public static final KeywordElement ABSTRACT = new KeywordElement(Lang.KEYWORD_ABSTRACT);
     public static final KeywordElement STRICTFP = new KeywordElement(Lang.KEYWORD_STRICTFP);

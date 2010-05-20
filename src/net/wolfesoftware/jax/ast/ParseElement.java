@@ -1,6 +1,6 @@
 package net.wolfesoftware.jax.ast;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
 
 public abstract class ParseElement implements Cloneable
 {
@@ -30,7 +30,7 @@ public abstract class ParseElement implements Cloneable
         // deep copy all fields of this type
         Object object = super.clone();
         for (Field field : object.getClass().getFields()) {
-            if (Modifier.isStatic(field.getModifiers()))
+            if (java.lang.reflect.Modifier.isStatic(field.getModifiers()))
                 continue;
             if (!ParseElement.class.isAssignableFrom(field.getType()))
                 continue;

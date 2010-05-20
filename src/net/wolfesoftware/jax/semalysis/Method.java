@@ -1,6 +1,6 @@
 package net.wolfesoftware.jax.semalysis;
 
-import net.wolfesoftware.jax.codegen.MethodInfo;
+import net.wolfesoftware.jax.ast.Modifier;
 
 public class Method extends TakesArguments
 {
@@ -36,10 +36,10 @@ public class Method extends TakesArguments
     public static final Method UNKNOWN = new Method(UnknownType.INSTANCE, UnknownType.INSTANCE, "", new Type[0], (short)0);
     public boolean isPrivate()
     {
-        return (modifiers & MethodInfo.ACC_PRIVATE) != 0;
+        return (modifiers & Modifier.ACC_PRIVATE) != 0;
     }
     public boolean isStatic()
     {
-        return (modifiers & MethodInfo.ACC_STATIC) != 0;
+        return (modifiers & Modifier.ACC_STATIC) != 0;
     }
 }

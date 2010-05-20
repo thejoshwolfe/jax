@@ -2,7 +2,7 @@ package net.wolfesoftware.jax.codegen;
 
 import java.io.*;
 import java.util.LinkedList;
-import net.wolfesoftware.jax.ast.*;
+import net.wolfesoftware.jax.ast.FieldDeclaration;
 
 /**
  * http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html#2877
@@ -17,15 +17,6 @@ import net.wolfesoftware.jax.ast.*;
  */
 public class FieldInfo
 {
-    public static final short
-    ACC_PUBLIC = 0x0001,
-    ACC_PRIVATE = 0x0002,
-    ACC_PROTECTED = 0x0004,
-    ACC_STATIC = 0x0008,
-    ACC_FINAL = 0x0010,
-    ACC_VOLATILE = 0x0040,
-    ACC_TRANSIENT = 0x0080;
-
     public static FieldInfo generate(FieldDeclaration fieldDeclaration, ConstantPool constantPool)
     {
         return new FieldInfo(fieldDeclaration, constantPool);

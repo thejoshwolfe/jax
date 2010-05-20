@@ -2,9 +2,9 @@ package net.wolfesoftware.jax.ast;
 
 public class Initializer extends ParseElement
 {
-    public MethodModifiers methodModifiers;
+    public Modifiers methodModifiers;
     public Block block;
-    public Initializer(MethodModifiers methodModifiers, Block block)
+    public Initializer(Modifiers methodModifiers, Block block)
     {
         this.methodModifiers = methodModifiers;
         this.block = block;

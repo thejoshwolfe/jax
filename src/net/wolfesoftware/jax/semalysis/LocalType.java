@@ -2,7 +2,6 @@ package net.wolfesoftware.jax.semalysis;
 
 import java.util.*;
 import net.wolfesoftware.jax.ast.*;
-import net.wolfesoftware.jax.codegen.ClassFile;
 import net.wolfesoftware.jax.util.Util;
 
 public class LocalType extends Type
@@ -66,7 +65,7 @@ public class LocalType extends Type
 
     public short getFlags()
     {
-        return ClassFile.ACC_PUBLIC;
+        return Modifier.ACC_PUBLIC;
     }
 
     public Type getParent()
@@ -81,7 +80,7 @@ public class LocalType extends Type
 
     public ClassMember makeDefaultConstructor(ClassBody classBody)
     {
-        MethodModifiers methodModifiers = new MethodModifiers(Util.arrayToList(MethodModifier.PUBLIC));
+        Modifiers methodModifiers = new Modifiers(Util.arrayToList(Modifier.PUBLIC));
         TypeId typeId = TypeId.fromName(simpleName);
         ArgumentDeclarations argumentDeclarations = new ArgumentDeclarations(new LinkedList<VariableDeclaration>());
         MaybeThrows maybeThrows = MaybeThrows.DOESNT;

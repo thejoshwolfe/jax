@@ -6,11 +6,11 @@ public class FieldDeclaration extends ParseElement
 {
     public Field field;
 
-    public FieldModifiers fieldModifiers;
+    public Modifiers fieldModifiers;
     public TypeId typeId;
     public String fieldName;
 
-    public FieldDeclaration(FieldModifiers fieldModifiers, TypeId type, String fieldName)
+    public FieldDeclaration(Modifiers fieldModifiers, TypeId type, String fieldName)
     {
         this.fieldModifiers = fieldModifiers;
         this.typeId = type;

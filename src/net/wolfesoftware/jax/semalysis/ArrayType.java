@@ -1,6 +1,7 @@
 package net.wolfesoftware.jax.semalysis;
 
 import java.util.*;
+import net.wolfesoftware.jax.ast.Modifier;
 
 /**
  * http://java.sun.com/docs/books/jls/second_edition/html/arrays.doc.html
@@ -13,7 +14,7 @@ public class ArrayType extends Type
     {
         super(scalarType.qualifiedName + "[]", scalarType.simpleName + "[]");
         this.scalarType = scalarType;
-        lengthField = new Field(this, RuntimeType.INT, "length", false) {
+        lengthField = new Field(this, RuntimeType.INT, "length", (short)(Modifier.ACC_PUBLIC | Modifier.ACC_FINAL)) {
             @Override
             public boolean isArrayLength()
             {

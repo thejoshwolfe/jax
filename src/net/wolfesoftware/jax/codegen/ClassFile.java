@@ -1,7 +1,7 @@
 package net.wolfesoftware.jax.codegen;
 
 import java.io.*;
-import java.util.*;
+import java.util.LinkedList;
 import net.wolfesoftware.jax.ast.*;
 import net.wolfesoftware.jax.semalysis.*;
 
@@ -28,8 +28,6 @@ import net.wolfesoftware.jax.semalysis.*;
  */
 public class ClassFile
 {
-    public static final short ACC_PUBLIC = 0x0001, ACC_FINAL = 0x0010, ACC_SUPER = 0x0020, ACC_INTERFACE = 0x0200, ACC_ABSTRACT = 0x0400;
-
     public static ClassFile generate(String sourceFile, ClassDeclaration classDeclaration)
     {
         ClassFile classFile = new ClassFile(sourceFile, classDeclaration.localType);
@@ -51,7 +49,7 @@ public class ClassFile
     private ClassFile(String sourceFile, LocalType type)
     {
         // "All new compilers to the instruction set of the Java virtual machine should set the ACC_SUPER flag."
-        access_flags = (short)(type.getFlags() | ACC_SUPER);
+        access_flags = (short)(type.getFlags() | Modifier.ACC_SUPER);
         this_class = constant_pool.getClass(type);
         super_class = constant_pool.getClass(type.getParent());
         Type[] interfaces = type.getInterfaces();

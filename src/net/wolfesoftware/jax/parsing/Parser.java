@@ -183,7 +183,7 @@ public final class Parser
 
     private SubParsing<ClassDeclaration> parseClassDeclaration(int offset)
     {
-        SubParsing<ClassModifiers> classModifiers = parseClassModifiers(offset);
+        SubParsing<Modifiers> classModifiers = parseModifiers(offset);
         if (classModifiers == null)
             return null;
         offset = classModifiers.end;
@@ -218,27 +218,27 @@ public final class Parser
         return new SubParsing<ClassDeclaration>(new ClassDeclaration(classModifiers.element, id, maybeImplements.element, classBody.element), offset);
     }
 
-    private SubParsing<ClassModifiers> parseClassModifiers(int offset)
+    private SubParsing<Modifiers> parseModifiers(int offset)
     {
-        ArrayList<ClassModifier> elements = new ArrayList<ClassModifier>();
+        ArrayList<Modifier> elements = new ArrayList<Modifier>();
         while (true) {
-            ClassModifier classModifier = parseClassModifier(offset);
+            Modifier classModifier = parseClassModifier(offset);
             if (classModifier != null) {
                 elements.add(classModifier);
                 offset++;
             } else
                 break;
         }
-        return new SubParsing<ClassModifiers>(new ClassModifiers(elements), offset);
+        return new SubParsing<Modifiers>(new Modifiers(elements), offset);
     }
 
-    private ClassModifier parseClassModifier(int offset)
+    private Modifier parseClassModifier(int offset)
     {
         Token token = getToken(offset);
         if (token.text == Lang.KEYWORD_FINAL)
-            return ClassModifier.FINAL;
+            return Modifier.FINAL;
         if (token.text == Lang.KEYWORD_PUBLIC)
-            return ClassModifier.PUBLIC;
+            return Modifier.PUBLIC;
         return null;
     }
 
@@ -334,7 +334,7 @@ public final class Parser
 
     private SubParsing<Initializer> parseInitializer(int offset)
     {
-        SubParsing<MethodModifiers> methodModifiers = parseMethodModifiers(offset);
+        SubParsing<Modifiers> methodModifiers = parseModifiers(offset);
         offset = methodModifiers.end;
 
         if (getToken(offset).text != Lang.SYMBOL_OPEN_BRACE)
@@ -355,7 +355,7 @@ public final class Parser
 
     private SubParsing<FieldDeclaration> parseFieldDeclaration(int offset)
     {
-        SubParsing<FieldModifiers> fieldModifiers = parseFieldModifiers(offset);
+        SubParsing<Modifiers> fieldModifiers = parseModifiers(offset);
         if (fieldModifiers == null)
             return null;
         offset = fieldModifiers.end;
@@ -375,7 +375,7 @@ public final class Parser
 
     private SubParsing<FieldCreation> parseFieldCreation(int offset)
     {
-        SubParsing<FieldModifiers> fieldModifiers = parseFieldModifiers(offset);
+        SubParsing<Modifiers> fieldModifiers = parseModifiers(offset);
         if (fieldModifiers == null)
             return null;
         offset = fieldModifiers.end;
@@ -402,43 +402,9 @@ public final class Parser
         return new SubParsing<FieldCreation>(new FieldCreation(fieldModifiers.element, typeId.element, id, expression.element), offset);
     }
 
-    private SubParsing<FieldModifiers> parseFieldModifiers(int offset)
-    {
-        ArrayList<FieldModifier> elements = new ArrayList<FieldModifier>();
-        while (true) {
-            FieldModifier classModifier = parseFieldModifier(offset);
-            if (classModifier != null) {
-                elements.add(classModifier);
-                offset++;
-            } else
-                break;
-        }
-        return new SubParsing<FieldModifiers>(new FieldModifiers(elements), offset);
-    }
-
-    private FieldModifier parseFieldModifier(int offset)
-    {
-        Token token = getToken(offset);
-        if (token.text == Lang.KEYWORD_PUBLIC)
-            return FieldModifier.PUBLIC;
-        if (token.text == Lang.KEYWORD_PRIVATE)
-            return FieldModifier.PRIVATE;
-        if (token.text == Lang.KEYWORD_PROTECTED)
-            return FieldModifier.PROTECTED;
-        if (token.text == Lang.KEYWORD_STATIC)
-            return FieldModifier.STATIC;
-        if (token.text == Lang.KEYWORD_FINAL)
-            return FieldModifier.FINAL;
-        if (token.text == Lang.KEYWORD_VOLATILE)
-            return FieldModifier.VOLATILE;
-        if (token.text == Lang.KEYWORD_TRANSIENT)
-            return FieldModifier.TRANSIENT;
-        return null;
-    }
-
     private SubParsing<ConstructorDeclaration> parseConstructorDeclaration(int offset)
     {
-        SubParsing<MethodModifiers> methodModifiers = parseMethodModifiers(offset);
+        SubParsing<Modifiers> methodModifiers = parseModifiers(offset);
         if (methodModifiers == null)
             return null;
         offset = methodModifiers.end;
@@ -476,7 +442,7 @@ public final class Parser
 
     private SubParsing<MethodDeclaration> parseMethodDeclaration(int offset)
     {
-        SubParsing<MethodModifiers> methodModifiers = parseMethodModifiers(offset);
+        SubParsing<Modifiers> methodModifiers = parseModifiers(offset);
         if (methodModifiers == null)
             return null;
         offset = methodModifiers.end;
@@ -559,42 +525,6 @@ public final class Parser
             offset++;
         }
         return new SubParsing<ThrowsList>(new ThrowsList(elements), offset);
-    }
-
-    private SubParsing<MethodModifiers> parseMethodModifiers(int offset)
-    {
-        ArrayList<MethodModifier> elements = new ArrayList<MethodModifier>();
-        while (true) {
-            MethodModifier classModifier = parseMethodModifier(offset);
-            if (classModifier != null) {
-                elements.add(classModifier);
-                offset++;
-            } else
-                break;
-        }
-        return new SubParsing<MethodModifiers>(new MethodModifiers(elements), offset);
-    }
-
-    private MethodModifier parseMethodModifier(int offset)
-    {
-        Token token = getToken(offset);
-        if (token.text == Lang.KEYWORD_PUBLIC)
-            return MethodModifier.PUBLIC;
-        if (token.text == Lang.KEYWORD_PRIVATE)
-            return MethodModifier.PRIVATE;
-        if (token.text == Lang.KEYWORD_PROTECTED)
-            return MethodModifier.PROTECTED;
-        if (token.text == Lang.KEYWORD_STATIC)
-            return MethodModifier.STATIC;
-        if (token.text == Lang.KEYWORD_FINAL)
-            return MethodModifier.FINAL;
-        if (token.text == Lang.KEYWORD_SYNCHRONIZED)
-            return MethodModifier.SYNCHRONIZED;
-        if (token.text == Lang.KEYWORD_ABSTRACT)
-            return MethodModifier.ABSTRACT;
-        if (token.text == Lang.KEYWORD_STRICTFP)
-            return MethodModifier.STRICTFP;
-        return null;
     }
 
     private SubParsing<ArgumentDeclarations> parseArgumentDeclarations(int offset)

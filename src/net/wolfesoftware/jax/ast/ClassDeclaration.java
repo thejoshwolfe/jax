@@ -6,11 +6,11 @@ public class ClassDeclaration extends ParseElement
 {
     public LocalType localType;
 
-    public ClassModifiers classModifiers;
+    public Modifiers classModifiers;
     public String className;
     public MaybeImplements maybeImplements;
     public ClassBody classBody;
-    public ClassDeclaration(ClassModifiers classModifiers, String className, MaybeImplements maybeImplements, ClassBody classBody)
+    public ClassDeclaration(Modifiers classModifiers, String className, MaybeImplements maybeImplements, ClassBody classBody)
     {
         this.classModifiers = classModifiers;
         this.className = className;
