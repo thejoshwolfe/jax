@@ -13,10 +13,11 @@ public class DoWhileLoop extends ParseElement
     @Override
     protected void decompile(String indentation, StringBuilder out)
     {
-        out.append("while (");
+        out.append("do ");
         expression1.decompile(indentation, out);
-        out.append(") ");
+        out.append(" while (");
         expression2.decompile(indentation, out);
+        out.append(')');
     }
 
     public static final int TYPE = 0x18c70447;
