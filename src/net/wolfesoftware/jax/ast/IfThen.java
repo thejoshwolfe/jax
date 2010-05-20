@@ -2,8 +2,6 @@ package net.wolfesoftware.jax.ast;
 
 public class IfThen extends ParseElement
 {
-    public String label;
-
     public Expression expression1;
     public Expression expression2;
 

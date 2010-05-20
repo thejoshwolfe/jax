@@ -99,6 +99,7 @@ $VariableDeclaration = TypeId ID
     $QuestionColon = Expression(20) "?" Expression ":" Expression(20)
     $ForLoop = "for" "(" Expression ";" Expression ";" Expression ")" Expression
     $WhileLoop = "while" "(" Expression ")" Expression
+    $DoWhileLoop = "do" Expression "while" "(" Expression ")"
     |ControlStructure = IfThen | IfThenElse | ForLoop
 
     ### Control Statements

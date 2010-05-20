@@ -614,8 +614,6 @@ public class Semalysizer
         Type returnBehavior2 = semalysizeExpression(context, shortCircuitOperator.expression2);
         if (returnBehavior2 != RuntimeType.BOOLEAN)
             errors.add(SemalyticalError.mustBeBoolean(shortCircuitOperator.expression2));
-        shortCircuitOperator.label1 = context.nextLabel();
-        shortCircuitOperator.label2 = context.nextLabel();
         return RuntimeType.BOOLEAN;
     }
 
@@ -624,8 +622,6 @@ public class Semalysizer
         Type returnBehavior = semalysizeExpression(context, booleanNot.expression);
         if (returnBehavior != RuntimeType.BOOLEAN)
             errors.add(SemalyticalError.mustBeBoolean(booleanNot.expression));
-        booleanNot.label1 = context.nextLabel();
-        booleanNot.label2 = context.nextLabel();
         return RuntimeType.BOOLEAN;
     }
 
@@ -707,7 +703,6 @@ public class Semalysizer
 
     private Type semalysizeWhileLoop(LocalContext context, WhileLoop whileLoop)
     {
-        whileLoop.continueToLabel = context.nextLabel();
         Type returnBehavior1 = semalysizeExpression(context, whileLoop.expression1);
         if (returnBehavior1 != RuntimeType.BOOLEAN)
             errors.add(SemalyticalError.mustBeBoolean(whileLoop.expression1));
@@ -716,7 +711,6 @@ public class Semalysizer
         if (!isVoidLikeOrIrrelevant(returnBehavior2))
             errors.add(SemalyticalError.mustBeVoid(whileLoop.expression2));
 
-        whileLoop.breakToLabel = context.nextLabel();
         return RuntimeType.VOID;
     }
 
@@ -783,10 +777,8 @@ public class Semalysizer
         if (!isVoidLikeOrIrrelevant(returnType1))
             errors.add(SemalyticalError.mustBeVoid(forLoop.expression1));
 
-        forLoop.continueToLabel = innerContext.nextLabel();
         semalysizeExpression(innerContext, forLoop.expression3);
 
-        forLoop.initialGotoLabel = innerContext.nextLabel();
         Type returnType2 = semalysizeExpression(innerContext, forLoop.expression2);
         if (returnType2 != RuntimeType.BOOLEAN)
             errors.add(SemalyticalError.mustBeBoolean(forLoop.expression2));
@@ -794,8 +786,6 @@ public class Semalysizer
         Type returnType4 = semalysizeExpression(innerContext, forLoop.expression4);
         if (!isVoidLikeOrIrrelevant(returnType4))
             errors.add(SemalyticalError.mustBeVoid(forLoop.expression4));
-
-        forLoop.breakToLabel = innerContext.nextLabel();
 
         return RuntimeType.VOID;
     }
@@ -985,10 +975,8 @@ public class Semalysizer
         if (ifThenElse.expression1.returnType != RuntimeType.BOOLEAN)
             errors.add(SemalyticalError.mustBeBoolean(ifThenElse.expression1));
 
-        ifThenElse.label1 = context.nextLabel();
         semalysizeExpression(context, ifThenElse.expression2);
 
-        ifThenElse.label2 = context.nextLabel();
         semalysizeExpression(context, ifThenElse.expression3);
 
         if (ifThenElse.expression2.returnType != ifThenElse.expression3.returnType)
@@ -1000,7 +988,6 @@ public class Semalysizer
         semalysizeExpression(context, ifThen.expression1);
         if (ifThen.expression1.returnType != RuntimeType.BOOLEAN)
             errors.add(SemalyticalError.mustBeBoolean(ifThen.expression1));
-        ifThen.label = context.nextLabel();
 
         semalysizeExpression(context, ifThen.expression2);
         if (!isVoidLikeOrIrrelevant(ifThen.expression2.returnType))
@@ -1355,8 +1342,6 @@ public class Semalysizer
     }
     private Type semalysizeComparisonOperator(LocalContext context, ComparisonOperator operator, boolean allowReferenceOperands)
     {
-        operator.label1 = context.nextLabel();
-        operator.label2 = context.nextLabel();
         return semalysizeOperator(context, operator, RuntimeType.BOOLEAN, allowReferenceOperands);
     }
     private Type semalysizeOperator(LocalContext context, BinaryOperatorElement operator, Type returnType, boolean allowReferenceOperands)

@@ -228,6 +228,13 @@ public abstract class ExpressionOperator
             return new WhileLoop((Expression)innerElements.get(0), (Expression)innerElements.get(1));
         }
     };
+    public static final ExpressionOperator doWhileLoop = new ExpressionEnclosingOperator(-1, Lang.KEYWORD_DO, -1, 
+            Expression.TYPE, Lang.KEYWORD_WHILE, Lang.SYMBOL_OPEN_PARENS, Expression.TYPE, Lang.SYMBOL_CLOSE_PARENS) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return new DoWhileLoop((Expression)innerElements.get(0), (Expression)innerElements.get(1));
+        }
+    };
 
     public static final ExpressionOperator block = new ExpressionEnclosingOperator(-1, Lang.SYMBOL_OPEN_BRACE, -1,
             BlockContents.TYPE, Lang.SYMBOL_CLOSE_BRACE) {

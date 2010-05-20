@@ -67,10 +67,6 @@ public class LocalContext
         return rtnValue != null ? rtnValue : parentContext.getLocalVariable(name);
     }
 
-    public String nextLabel()
-    {
-        return rootContext.nextLabel();
-    }
     public LocalType getClassContext()
     {
         return rootContext.getClassContext();

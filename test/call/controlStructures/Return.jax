@@ -3,7 +3,7 @@ public class Return {
         if (!setTheSecond[0]) return;
         setTheSecond[1] = true;
     };
-    
+
     public static String returnExpression(String chopFirstLetterOff) {
         if (chopFirstLetterOff == null) return null;
         return (chopFirstLetterOff.length() == 0)

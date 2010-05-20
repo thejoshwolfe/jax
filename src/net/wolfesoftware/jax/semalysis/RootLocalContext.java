@@ -9,7 +9,6 @@ public final class RootLocalContext extends LocalContext
     public int stackSize = 0;
     public int stackCapacity = 0;
     public int localVariableCapacity = 0;
-    private int nextLabelNumber = 0;
     private LocalType classContext;
 
     public RootLocalContext(LocalType classContext, boolean isStatic)
@@ -24,12 +23,6 @@ public final class RootLocalContext extends LocalContext
     public LocalVariable getLocalVariable(String name)
     {
         return localVariableMap.get(name);
-    }
-
-    @Override
-    public String nextLabel()
-    {
-        return "label" + nextLabelNumber++;
     }
 
     @Override

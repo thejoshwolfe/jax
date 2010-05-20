@@ -16,6 +16,7 @@ public final class Lang
     KEYWORD_BYTE = "byte",
     KEYWORD_CATCH = "catch",
     KEYWORD_CLASS = "class",
+    KEYWORD_DO = "do",
     KEYWORD_DOUBLE = "double",
     KEYWORD_ELSE = "else",
     KEYWORD_FALSE = "false",
