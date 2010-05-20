@@ -1,5 +1,7 @@
 package net.wolfesoftware.jax.ast;
 
+import java.util.HashMap;
+
 public class Modifier extends ParseElement
 {
     public static final short ACC_PUBLIC = 0x0001;
@@ -23,6 +25,7 @@ public class Modifier extends ParseElement
     {
         this.keywordElement = keywordElement;
         this.bitmask = bitmask;
+        NAME_MAP.put(keywordElement.text, this);
     }
 
     @Override
@@ -41,6 +44,8 @@ public class Modifier extends ParseElement
     {
         return true;
     }
+
+    public static final HashMap<String, Modifier> NAME_MAP = new HashMap<String, Modifier>();
 
     public static final Modifier PUBLIC = new Modifier(KeywordElement.PUBLIC, ACC_PUBLIC);
     public static final Modifier PRIVATE = new Modifier(KeywordElement.PRIVATE, ACC_PRIVATE);

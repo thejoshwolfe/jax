@@ -222,7 +222,7 @@ public final class Parser
     {
         ArrayList<Modifier> elements = new ArrayList<Modifier>();
         while (true) {
-            Modifier classModifier = parseClassModifier(offset);
+            Modifier classModifier = parseModifier(offset);
             if (classModifier != null) {
                 elements.add(classModifier);
                 offset++;
@@ -232,14 +232,9 @@ public final class Parser
         return new SubParsing<Modifiers>(new Modifiers(elements), offset);
     }
 
-    private Modifier parseClassModifier(int offset)
+    private Modifier parseModifier(int offset)
     {
-        Token token = getToken(offset);
-        if (token.text == Lang.KEYWORD_FINAL)
-            return Modifier.FINAL;
-        if (token.text == Lang.KEYWORD_PUBLIC)
-            return Modifier.PUBLIC;
-        return null;
+        return Modifier.NAME_MAP.get(getToken(offset).text);
     }
 
     private SubParsing<MaybeImplements> parseMaybeImplements(int offset)
