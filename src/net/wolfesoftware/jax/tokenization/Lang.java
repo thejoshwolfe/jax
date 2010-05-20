@@ -28,6 +28,7 @@ public final class Lang
     KEYWORD_IMPORT = "import",
     KEYWORD_INSTANCEOF = "instanceof",
     KEYWORD_INT = "int",
+    KEYWORD_NATIVE = "native",
     KEYWORD_NEW = "new",
     KEYWORD_NULL = "null",
     KEYWORD_PACKAGE = "package",

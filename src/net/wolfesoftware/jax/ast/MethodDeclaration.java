@@ -7,7 +7,7 @@ public class MethodDeclaration extends ConstructorOrMethodDeclaration
     public String methodName;
     public Method method;
 
-    public MethodDeclaration(MethodModifiers methodModifiers, TypeId typeId, String methodName, ArgumentDeclarations argumentDeclarations, MaybeThrows maybeThrows, Expression expression)
+    public MethodDeclaration(Modifiers methodModifiers, TypeId typeId, String methodName, ArgumentDeclarations argumentDeclarations, MaybeThrows maybeThrows, Expression expression)
     {
         super(methodModifiers, typeId, argumentDeclarations, maybeThrows, expression);
         this.methodName = methodName;

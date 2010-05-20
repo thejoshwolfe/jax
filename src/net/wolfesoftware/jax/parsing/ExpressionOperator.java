@@ -1,6 +1,6 @@
 package net.wolfesoftware.jax.parsing;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
 import java.util.*;
 import net.wolfesoftware.jax.ast.*;
 import net.wolfesoftware.jax.tokenization.Lang;
@@ -346,11 +346,12 @@ public abstract class ExpressionOperator
             return len2 - len1;
         }
     };
+    private static final int PUBLIC_STATIC_FINAL = java.lang.reflect.Modifier.PUBLIC | java.lang.reflect.Modifier.STATIC | java.lang.reflect.Modifier.FINAL;
 
     static {
         Field[] fields = ExpressionOperator.class.getFields();
         for (Field field : fields) {
-            if (field.getModifiers() == (Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL) && field.getType() == ExpressionOperator.class) {
+            if (field.getModifiers() == PUBLIC_STATIC_FINAL && field.getType() == ExpressionOperator.class) {
                 ExpressionOperator op;
                 try {
                     op = (ExpressionOperator)field.get(null);

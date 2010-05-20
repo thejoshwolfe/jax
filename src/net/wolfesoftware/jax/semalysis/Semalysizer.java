@@ -5,6 +5,7 @@ import net.wolfesoftware.jax.ast.*;
 import net.wolfesoftware.jax.codegen.*;
 import net.wolfesoftware.jax.parsing.Parsing;
 import net.wolfesoftware.jax.tokenization.Lang;
+import net.wolfesoftware.jax.util.Util;
 
 public class Semalysizer
 {
@@ -131,10 +132,10 @@ public class Semalysizer
         semalysizeClassBody(classDeclaration.localType, classDeclaration.classBody);
     }
 
-    private void semalysizeClassModifiers(ClassModifiers classModifiers)
+    private void semalysizeClassModifiers(Modifiers classModifiers)
     {
         // TODO: code duplication
-        for (ClassModifier classModifier : classModifiers.elements) {
+        for (Modifier classModifier : classModifiers.elements) {
             if ((classModifiers.bitmask & classModifier.bitmask) != 0)
                 errors.add(new SemalyticalError(classModifier, "Please say that it's \"" + classModifier + "\" at most once."));
             classModifiers.bitmask |= classModifier.bitmask;
@@ -218,54 +219,65 @@ public class Semalysizer
     private void preSemalysizeAmbiguousInitializer(LocalType context, ClassMember classMember)
     {
         Initializer initializer = (Initializer)classMember.content;
-        semalysizeInitializerModifiers(initializer.methodModifiers);
+        semalysizeModifiers(initializer.methodModifiers, Modifier.INITIALIZER_MODIFIERS, "initializers");
         List<Expression> initializerExpressions;
-        if ((initializer.methodModifiers.bitmask & MethodInfo.ACC_STATIC) != 0)
+        if ((initializer.methodModifiers.bitmask & Modifier.ACC_STATIC) != 0)
             initializerExpressions = context.getStaticInitializerExpressions();
         else
             initializerExpressions = context.initializerExpressions;
         initializerExpressions.add(new Expression(initializer.block));
     }
 
-    private void semalysizeInitializerModifiers(MethodModifiers methodModifiers)
+    private void semalysizeModifiers(Modifiers methodModifiers, short allowedModifiers, String readableName)
     {
-        // TODO: code duplication
-        for (MethodModifier methodModifier : methodModifiers.elements) {
-            if (methodModifier != MethodModifier.STATIC) {
-                errors.add(new SemalyticalError(methodModifier, "Only the modifier \"static\" is allowed on initializers."));
+        short bitmask = 0;
+        boolean hasAccessModifierYet = false;
+        for (Modifier methodModifier : methodModifiers.elements) {
+            short methodModifierBitmask = methodModifier.bitmask;
+            if ((bitmask & methodModifierBitmask) != 0) {
+                errors.add(new SemalyticalError(methodModifier, "Please say that it's \"" + methodModifier + "\" at most once."));
                 continue;
             }
-            if ((methodModifiers.bitmask & methodModifier.bitmask) != 0)
-                errors.add(new SemalyticalError(methodModifier, "Please say that it's \"" + methodModifier + "\" at most once."));
-            methodModifiers.bitmask |= methodModifier.bitmask;
+            if ((methodModifierBitmask & allowedModifiers) == 0) {
+                errors.add(new SemalyticalError(methodModifier, "Modifier \"" + methodModifier + "\" not allowed on " + readableName + "."));
+                continue;
+            }
+            if ((methodModifierBitmask & Modifier.ACCESS_MODIFIERS) != 0) {
+                if (hasAccessModifierYet) {
+                    errors.add(new SemalyticalError(methodModifier, "You've got too many access modifiers here."));
+                    continue;
+                }
+                hasAccessModifierYet = true;
+            }
+            bitmask |= methodModifierBitmask;
         }
+
+        if ((bitmask & Modifier.ACC_ABSTRACT) != 0 && (bitmask & Modifier.ABSTRACT_METHOD_ENEMIES_MASK) != 0) {
+            // abstract method has conflicting modifiers
+            ArrayList<String> names = new ArrayList<String>();
+            for (Modifier modifier : Modifier.ABSTRACT_METHOD_ENEMIES_ARRAY)
+                if ((bitmask & modifier.bitmask) != 0)
+                    names.add(modifier.toString());
+            errors.add(new SemalyticalError(methodModifiers, "Abstract methods can't have these modifiers: " + Util.join(names, " ")));
+        }
+        methodModifiers.bitmask = bitmask;
     }
 
     private void preSemalysizeFieldDeclaration(LocalType context, FieldDeclaration fieldDeclaration)
     {
-        semalysizeFieldModifiers(fieldDeclaration.fieldModifiers);
+        semalysizeModifiers(fieldDeclaration.fieldModifiers, Modifier.FIELD_MODIFIERS, "fields");
         resolveType(fieldDeclaration.typeId, true);
         if (fieldDeclaration.typeId.type == RuntimeType.VOID) {
             errors.add(new SemalyticalError(fieldDeclaration.typeId, "No void fields allowed."));
             fieldDeclaration.typeId.type = UnknownType.INSTANCE;
         }
-        fieldDeclaration.field = new Field(context, fieldDeclaration.typeId.type, fieldDeclaration.fieldName, fieldDeclaration.fieldModifiers.isStatic());
+        fieldDeclaration.field = new Field(context, fieldDeclaration.typeId.type, fieldDeclaration.fieldName, fieldDeclaration.fieldModifiers.bitmask);
         context.addField(fieldDeclaration.field);
-    }
-
-    private void semalysizeFieldModifiers(FieldModifiers fieldModifiers)
-    {
-        // TODO: code duplication
-        for (FieldModifier fieldModifier : fieldModifiers.elements) {
-            if ((fieldModifiers.bitmask & fieldModifier.bitmask) != 0)
-                errors.add(new SemalyticalError(fieldModifier, "Please say that it's \"" + fieldModifier + "\" at most once."));
-            fieldModifiers.bitmask |= fieldModifier.bitmask;
-        }
     }
 
     private void preSemalysizeConstructorDeclaration(LocalType context, ConstructorDeclaration constructorDeclaration)
     {
-        semalysizeMethodModifiers(constructorDeclaration.methodModifiers);
+        semalysizeModifiers(constructorDeclaration.methodModifiers, Modifier.CONSTRUCTOR_MODIFIERS, "constructors");
         resolveType(constructorDeclaration.typeId, true);
         if (constructorDeclaration.typeId.type != context)
             errors.add(new SemalyticalError(constructorDeclaration.typeId, "you can't have a constructor for type \"" + constructorDeclaration.typeId.type + "\" in this class."));
@@ -275,19 +287,9 @@ public class Semalysizer
         context.addConstructor(constructorDeclaration.constructor);
     }
 
-    private void semalysizeMethodModifiers(MethodModifiers methodModifiers)
-    {
-        // TODO: code duplication
-        for (MethodModifier methodModifier : methodModifiers.elements) {
-            if ((methodModifiers.bitmask & methodModifier.bitmask) != 0)
-                errors.add(new SemalyticalError(methodModifier, "Please say that it's \"" + methodModifier + "\" at most once."));
-            methodModifiers.bitmask |= methodModifier.bitmask;
-        }
-    }
-
     private void preSemalysizeMethodDeclaration(LocalType context, MethodDeclaration methodDeclaration)
     {
-        semalysizeMethodModifiers(methodDeclaration.methodModifiers);
+        semalysizeModifiers(methodDeclaration.methodModifiers, Modifier.METHOD_MODIFIERS, "methods");
         resolveType(methodDeclaration.typeId, true);
         methodDeclaration.context = new RootLocalContext(context, methodDeclaration.isStatic());
         Type[] arguemntSignature = semalysizeArgumentDeclarations(methodDeclaration.context, methodDeclaration.argumentDeclarations);
@@ -308,7 +310,7 @@ public class Semalysizer
 
     private void semalysizeFieldCreation(LocalType context, FieldCreation fieldCreation)
     {
-        if (fieldCreation.field.isStatic) {
+        if (fieldCreation.field.isStatic()) {
             StaticFieldAssignment staticFieldAssignment = new StaticFieldAssignment(fieldCreation.field, Lang.SYMBOL_EQUALS, fieldCreation.expression);
             context.getStaticInitializerExpressions().add(new Expression(staticFieldAssignment));
         } else {
@@ -1134,7 +1136,7 @@ public class Semalysizer
         Field field = resolveField(context.getClassContext(), id.text);
         if (field != null) {
             // it's a field of this class
-            if (field.isStatic) {
+            if (field.isStatic()) {
                 // it's a static field
                 expression.content = new StaticFieldExpression(field);
             } else {

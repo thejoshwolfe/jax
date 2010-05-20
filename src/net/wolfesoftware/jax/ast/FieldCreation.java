@@ -3,7 +3,7 @@ package net.wolfesoftware.jax.ast;
 public class FieldCreation extends FieldDeclaration
 {
     public Expression expression;
-    public FieldCreation(FieldModifiers fieldModifiers, TypeId type, String fieldName, Expression expression)
+    public FieldCreation(Modifiers fieldModifiers, TypeId type, String fieldName, Expression expression)
     {
         super(fieldModifiers, type, fieldName);
         this.expression = expression;

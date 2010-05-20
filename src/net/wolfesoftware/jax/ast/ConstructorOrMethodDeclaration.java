@@ -1,6 +1,5 @@
 package net.wolfesoftware.jax.ast;
 
-import net.wolfesoftware.jax.codegen.MethodInfo;
 import net.wolfesoftware.jax.semalysis.*;
 
 public abstract class ConstructorOrMethodDeclaration extends ParseElement
@@ -8,13 +7,13 @@ public abstract class ConstructorOrMethodDeclaration extends ParseElement
     public Type returnType;
     public RootLocalContext context;
 
-    public MethodModifiers methodModifiers;
+    public Modifiers methodModifiers;
     public TypeId typeId;
     public ArgumentDeclarations argumentDeclarations;
     public MaybeThrows maybeThrows;
     public Expression expression;
 
-    protected ConstructorOrMethodDeclaration(MethodModifiers methodModifiers, TypeId typeId, ArgumentDeclarations argumentDeclarations, MaybeThrows maybeThrows, Expression expression)
+    protected ConstructorOrMethodDeclaration(Modifiers methodModifiers, TypeId typeId, ArgumentDeclarations argumentDeclarations, MaybeThrows maybeThrows, Expression expression)
     {
         this.methodModifiers = methodModifiers;
         this.typeId = typeId;
@@ -25,6 +24,6 @@ public abstract class ConstructorOrMethodDeclaration extends ParseElement
 
     public boolean isStatic()
     {
-        return (methodModifiers.bitmask & MethodInfo.ACC_STATIC) != 0;
+        return (methodModifiers.bitmask & Modifier.ACC_STATIC) != 0;
     }
 }
