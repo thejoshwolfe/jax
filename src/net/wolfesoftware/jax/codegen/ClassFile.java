@@ -1,7 +1,7 @@
 package net.wolfesoftware.jax.codegen;
 
 import java.io.*;
-import java.util.*;
+import java.util.LinkedList;
 import net.wolfesoftware.jax.ast.*;
 import net.wolfesoftware.jax.semalysis.*;
 

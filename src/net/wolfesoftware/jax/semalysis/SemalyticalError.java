@@ -1,6 +1,6 @@
 package net.wolfesoftware.jax.semalysis;
 
-import java.util.*;
+import java.util.Arrays;
 import net.wolfesoftware.jax.CompileError;
 import net.wolfesoftware.jax.ast.*;
 

@@ -2,7 +2,7 @@ package net.wolfesoftware.jax.semalysis;
 
 import java.util.*;
 import net.wolfesoftware.jax.ast.*;
-import net.wolfesoftware.jax.codegen.*;
+import net.wolfesoftware.jax.codegen.Instructions;
 import net.wolfesoftware.jax.parsing.Parsing;
 import net.wolfesoftware.jax.tokenization.Lang;
 import net.wolfesoftware.jax.util.Util;

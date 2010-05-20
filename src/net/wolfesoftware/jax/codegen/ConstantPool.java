@@ -1,7 +1,7 @@
 package net.wolfesoftware.jax.codegen;
 
 import java.io.*;
-import java.util.*;
+import java.util.HashMap;
 import java.util.Map.Entry;
 import net.wolfesoftware.jax.semalysis.*;
 

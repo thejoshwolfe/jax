@@ -1,6 +1,6 @@
 package net.wolfesoftware.jax.ast;
 
-import java.util.*;
+import java.util.List;
 
 public class ClassBody extends ListElement<ClassMember>
 {

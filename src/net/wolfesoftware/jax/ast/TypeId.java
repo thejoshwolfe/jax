@@ -1,6 +1,6 @@
 package net.wolfesoftware.jax.ast;
 
-import net.wolfesoftware.jax.semalysis.*;
+import net.wolfesoftware.jax.semalysis.Type;
 
 public class TypeId extends ParseElement
 {

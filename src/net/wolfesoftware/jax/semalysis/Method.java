@@ -1,7 +1,6 @@
 package net.wolfesoftware.jax.semalysis;
 
 import net.wolfesoftware.jax.ast.Modifier;
-import net.wolfesoftware.jax.codegen.MethodInfo;
 
 public class Method extends TakesArguments
 {

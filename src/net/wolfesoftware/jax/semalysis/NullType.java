@@ -1,6 +1,6 @@
 package net.wolfesoftware.jax.semalysis;
 
-import java.util.*;
+import java.util.LinkedList;
 
 public class NullType extends Type
 {

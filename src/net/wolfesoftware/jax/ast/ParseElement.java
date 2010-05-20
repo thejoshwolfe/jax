@@ -1,6 +1,6 @@
 package net.wolfesoftware.jax.ast;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
 
 public abstract class ParseElement implements Cloneable
 {

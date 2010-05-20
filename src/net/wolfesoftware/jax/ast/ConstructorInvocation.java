@@ -1,6 +1,6 @@
 package net.wolfesoftware.jax.ast;
 
-import net.wolfesoftware.jax.semalysis.*;
+import net.wolfesoftware.jax.semalysis.Constructor;
 import net.wolfesoftware.jax.util.Util;
 
 public class ConstructorInvocation extends ParseElement
