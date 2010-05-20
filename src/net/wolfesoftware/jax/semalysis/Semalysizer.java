@@ -481,6 +481,9 @@ public class Semalysizer
             case WhileLoop.TYPE:
                 returnType = semalysizeWhileLoop(context, (WhileLoop)content);
                 break;
+            case DoWhileLoop.TYPE:
+                returnType = semalysizeDoWhileLoop(context, (DoWhileLoop)content);
+                break;
             case ConstructorInvocation.TYPE:
                 returnType = semalysizeConstructorInvocation(context, (ConstructorInvocation)content);
                 break;
@@ -702,6 +705,18 @@ public class Semalysizer
         Type returnBehavior2 = semalysizeExpression(context, whileLoop.expression2);
         if (!isVoidLikeOrIrrelevant(returnBehavior2))
             errors.add(SemalyticalError.mustBeVoid(whileLoop.expression2));
+
+        return RuntimeType.VOID;
+    }
+    private Type semalysizeDoWhileLoop(LocalContext context, DoWhileLoop doWhileLoop)
+    {
+        Type returnBehavior1 = semalysizeExpression(context, doWhileLoop.expression1);
+        if (!isVoidLikeOrIrrelevant(returnBehavior1))
+            errors.add(SemalyticalError.mustBeVoid(doWhileLoop.expression1));
+
+        Type returnBehavior2 = semalysizeExpression(context, doWhileLoop.expression2);
+        if (returnBehavior2 != RuntimeType.BOOLEAN)
+            errors.add(SemalyticalError.mustBeBoolean(doWhileLoop.expression2));
 
         return RuntimeType.VOID;
     }

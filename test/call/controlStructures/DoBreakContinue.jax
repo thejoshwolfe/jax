@@ -5,7 +5,7 @@ public class DoBreakContinue {
         do {
             String item = arr[i];
             if (item == null) continue;
-            if (item.equals(findThis) {
+            if (item.equals(findThis)) {
                 foundYou = i;
                 break;
             };
