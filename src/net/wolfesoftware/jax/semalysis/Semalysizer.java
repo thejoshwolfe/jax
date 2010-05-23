@@ -719,17 +719,17 @@ public class Semalysizer
 
     private Type semalysizeWhileLoop(LocalContext context, WhileLoop whileLoop)
     {
-        Type returnBehavior1 = semalysizeExpression(context, whileLoop.expression1);
-        if (returnBehavior1 != RuntimeType.BOOLEAN)
-            errors.add(SemalyticalError.mustBeBoolean(whileLoop.expression1));
+        Type conditionType = semalysizeExpression(context, whileLoop.conditionExpression);
+        if (conditionType != RuntimeType.BOOLEAN)
+            errors.add(SemalyticalError.mustBeBoolean(whileLoop.conditionExpression));
 
         LocalContext innerContext = context.makeSubContext();
         innerContext.setBreakDestination(new BranchDestination());
         innerContext.setContinueDestination(new BranchDestination());
 
-        Type returnBehavior2 = semalysizeExpression(innerContext, whileLoop.expression2);
-        if (!isVoidLikeOrIrrelevant(returnBehavior2))
-            errors.add(SemalyticalError.mustBeVoid(whileLoop.expression2));
+        Type bodyType = semalysizeExpression(innerContext, whileLoop.bodyExpression);
+        if (!isVoidLikeOrIrrelevant(bodyType))
+            errors.add(SemalyticalError.mustBeVoid(whileLoop.bodyExpression));
 
         return RuntimeType.VOID;
     }
@@ -861,13 +861,11 @@ public class Semalysizer
 
     private Type semalysizeTryCatch(LocalContext context, TryCatch tryCatch)
     {
-        Type tryPartReturnBehavior = semalysizeTryPart(context, tryCatch.tryPart);
-        Type catchPartReturnBehavior = semalysizeCatchPart(context, tryCatch.catchPart);
-        if (tryPartReturnBehavior != catchPartReturnBehavior)
-            errors.add(new SemalyticalError(tryCatch, "return types must match")); // TODO code duplication
-        tryCatch.type = tryPartReturnBehavior;
-
-        return tryPartReturnBehavior;
+        Type tryPartReturnType = semalysizeTryPart(context, tryCatch.tryPart);
+        LinkedList<Type> returnTypes = semalysizeCatchPart(context, tryCatch.catchPart);
+        returnTypes.addFirst(tryPartReturnType);
+        tryCatch.type = resolveConflictingTypes(tryCatch, returnTypes.toArray(new Type[returnTypes.size()]));
+        return tryCatch.type;
     }
 
     private Type semalysizeTryPart(LocalContext context, TryPart tryPart)
@@ -876,24 +874,23 @@ public class Semalysizer
         return tryPart.expression.returnType;
     }
 
-    private Type semalysizeCatchPart(LocalContext context, CatchPart catchPart)
+    private LinkedList<Type> semalysizeCatchPart(LocalContext context, CatchPart catchPart)
     {
         return semalysizeCatchList(context, catchPart.catchList);
     }
 
-    private Type semalysizeCatchList(LocalContext context, CatchList catchList)
+    private LinkedList<Type> semalysizeCatchList(LocalContext context, CatchList catchList)
     {
-        Type returnType = null;
-        for (CatchBody catchBody : catchList.elements) {
-            Type returnBehavior = semalysizeCatchBody(context, catchBody);
-            if (returnType == null)
-                returnType = returnBehavior;
-            else if (returnType != returnBehavior)
-                errors.add(new SemalyticalError(catchList, "return types must match"));
-        }
-        if (returnType == null)
+        LinkedList<Type> returnTypes = new LinkedList<Type>();
+        if (catchList.elements.isEmpty()) {
             errors.add(new SemalyticalError(catchList, "must catch something"));
-        return returnType;
+        } else {
+            for (CatchBody catchBody : catchList.elements) {
+                Type returnBehavior = semalysizeCatchBody(context, catchBody);
+                returnTypes.add(returnBehavior);
+            }
+        }
+        return returnTypes;
     }
 
     private Type semalysizeCatchBody(LocalContext context, CatchBody catchBody)
@@ -1010,17 +1007,43 @@ public class Semalysizer
 
     private Type semalysizeIfThenElse(LocalContext context, IfThenElse ifThenElse)
     {
-        semalysizeExpression(context, ifThenElse.expression1);
-        if (ifThenElse.expression1.returnType != RuntimeType.BOOLEAN)
-            errors.add(SemalyticalError.mustBeBoolean(ifThenElse.expression1));
+        semalysizeExpression(context, ifThenElse.conditionExpression);
+        if (ifThenElse.conditionExpression.returnType != RuntimeType.BOOLEAN)
+            errors.add(SemalyticalError.mustBeBoolean(ifThenElse.conditionExpression));
 
-        semalysizeExpression(context, ifThenElse.expression2);
+        Type thenType = semalysizeExpression(context, ifThenElse.thenBodyExpression);
+        Type elseType = semalysizeExpression(context, ifThenElse.elseBodyExpression);
 
-        semalysizeExpression(context, ifThenElse.expression3);
-
-        if (ifThenElse.expression2.returnType != ifThenElse.expression3.returnType)
-            errors.add(new SemalyticalError(ifThenElse, "return types must match"));
-        return ifThenElse.expression2.returnType;
+        ifThenElse.returnType = resolveConflictingTypes(ifThenElse, thenType, elseType);
+        return ifThenElse.returnType;
+    }
+    private Type resolveConflictingTypes(ParseElement element, Type... types)
+    {
+        Type highestType = UnreachableType.INSTANCE;
+        for (Type type : types) {
+            if (type == UnreachableType.INSTANCE)
+                continue;
+            if (highestType == UnreachableType.INSTANCE) {
+                highestType = type;
+                continue;
+            }
+            if (highestType.isInstanceOf(type))
+                highestType = type;
+        }
+        boolean allGood = true;
+        for (Type type : types) {
+            if (type == UnreachableType.INSTANCE)
+                continue;
+            if (!type.isInstanceOf(highestType)) {
+                allGood = false;
+                break;
+            }
+        }
+        if (!allGood) {
+            errors.add(new SemalyticalError(element, "Conflicting types: " + Util.join(types, ", ")));
+            return UnknownType.INSTANCE;
+        }
+        return highestType;
     }
     private Type semalysizeIfThen(LocalContext context, IfThen ifThen)
     {

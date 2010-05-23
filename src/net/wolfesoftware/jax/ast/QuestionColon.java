@@ -10,11 +10,11 @@ public class QuestionColon extends IfThenElse
     @Override
     protected void decompile(String indentation, StringBuilder out)
     {
-        expression1.decompile(indentation, out);
+        conditionExpression.decompile(indentation, out);
         out.append(" ? ");
-        expression2.decompile(indentation, out);
+        thenBodyExpression.decompile(indentation, out);
         out.append(" : ");
-        expression3.decompile(indentation, out);
+        elseBodyExpression.decompile(indentation, out);
     }
 
     public static final int TYPE = 0x250f0554;

@@ -580,12 +580,12 @@ public class MethodInfo
     private void evalWhileLoop(WhileLoop whileLoop)
     {
         int continueToOffset = offset;
-        evalExpression(whileLoop.expression1);
+        evalExpression(whileLoop.conditionExpression);
         int ifOffset = offset;
         writeByte(Instructions.ifeq);
         context.popOperand();
         writeDummyShort();
-        evalExpression(whileLoop.expression2);
+        evalExpression(whileLoop.bodyExpression);
         short continueToDelta = (short)(continueToOffset - offset);
         writeByte(Instructions._goto);
         writeShort(continueToDelta);
@@ -844,19 +844,19 @@ public class MethodInfo
 
     private void evalIfThenElse(IfThenElse ifThenElse)
     {
-        evalExpression(ifThenElse.expression1);
+        evalExpression(ifThenElse.conditionExpression);
         int ifOffset = offset;
         writeByte(Instructions.ifeq);
         context.popOperand();
         writeDummyShort();
-        evalExpression(ifThenElse.expression2);
-        if (!ifThenElse.expression2.returnType.isVoidLike())
+        evalExpression(ifThenElse.thenBodyExpression);
+        if (!ifThenElse.returnType.isVoidLike())
             context.popOperand(); // take this off for now
         int gotoOffset = offset;
         writeByte(Instructions._goto);
         writeDummyShort();
         fillins.add(new Fillin(ifOffset));
-        evalExpression(ifThenElse.expression3); // leave this stack size on
+        evalExpression(ifThenElse.elseBodyExpression); // leave this stack size on
         fillins.add(new Fillin(gotoOffset));
     }
     private void evalIfThen(IfThen ifThen)
