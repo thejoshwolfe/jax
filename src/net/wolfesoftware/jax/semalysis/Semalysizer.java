@@ -723,7 +723,11 @@ public class Semalysizer
         if (returnBehavior1 != RuntimeType.BOOLEAN)
             errors.add(SemalyticalError.mustBeBoolean(whileLoop.expression1));
 
-        Type returnBehavior2 = semalysizeExpression(context, whileLoop.expression2);
+        LocalContext innerContext = context.makeSubContext();
+        innerContext.setBreakDestination(new BranchDestination());
+        innerContext.setContinueDestination(new BranchDestination());
+
+        Type returnBehavior2 = semalysizeExpression(innerContext, whileLoop.expression2);
         if (!isVoidLikeOrIrrelevant(returnBehavior2))
             errors.add(SemalyticalError.mustBeVoid(whileLoop.expression2));
 
@@ -731,13 +735,17 @@ public class Semalysizer
     }
     private Type semalysizeDoWhileLoop(LocalContext context, DoWhileLoop doWhileLoop)
     {
-        Type returnBehavior1 = semalysizeExpression(context, doWhileLoop.expression1);
-        if (!isVoidLikeOrIrrelevant(returnBehavior1))
-            errors.add(SemalyticalError.mustBeVoid(doWhileLoop.expression1));
+        LocalContext innerContext = context.makeSubContext();
+        innerContext.setBreakDestination(new BranchDestination());
+        innerContext.setContinueDestination(new BranchDestination());
 
-        Type returnBehavior2 = semalysizeExpression(context, doWhileLoop.expression2);
-        if (returnBehavior2 != RuntimeType.BOOLEAN)
-            errors.add(SemalyticalError.mustBeBoolean(doWhileLoop.expression2));
+        Type bodyType = semalysizeExpression(innerContext, doWhileLoop.bodyExpression);
+        if (!isVoidLikeOrIrrelevant(bodyType))
+            errors.add(SemalyticalError.mustBeVoid(doWhileLoop.bodyExpression));
+
+        Type conditionType = semalysizeExpression(context, doWhileLoop.conditionExpression);
+        if (conditionType != RuntimeType.BOOLEAN)
+            errors.add(SemalyticalError.mustBeBoolean(doWhileLoop.conditionExpression));
 
         return RuntimeType.VOID;
     }
@@ -801,19 +809,22 @@ public class Semalysizer
     private Type semalysizeForLoop(LocalContext context, ForLoop forLoop)
     {
         LocalContext innerContext = context.makeSubContext();
-        Type returnType1 = semalysizeExpression(innerContext, forLoop.expression1);
-        if (!isVoidLikeOrIrrelevant(returnType1))
-            errors.add(SemalyticalError.mustBeVoid(forLoop.expression1));
+        Type initType = semalysizeExpression(innerContext, forLoop.initExpression);
+        if (!isVoidLikeOrIrrelevant(initType))
+            errors.add(SemalyticalError.mustBeVoid(forLoop.initExpression));
 
-        semalysizeExpression(innerContext, forLoop.expression3);
+        semalysizeExpression(innerContext, forLoop.incrementExpression);
 
-        Type returnType2 = semalysizeExpression(innerContext, forLoop.expression2);
-        if (returnType2 != RuntimeType.BOOLEAN)
-            errors.add(SemalyticalError.mustBeBoolean(forLoop.expression2));
+        Type conditionType = semalysizeExpression(innerContext, forLoop.conditionExpression);
+        if (conditionType != RuntimeType.BOOLEAN)
+            errors.add(SemalyticalError.mustBeBoolean(forLoop.conditionExpression));
 
-        Type returnType4 = semalysizeExpression(innerContext, forLoop.expression4);
-        if (!isVoidLikeOrIrrelevant(returnType4))
-            errors.add(SemalyticalError.mustBeVoid(forLoop.expression4));
+        innerContext.setBreakDestination(new BranchDestination());
+        innerContext.setContinueDestination(new BranchDestination());
+
+        Type bodyType = semalysizeExpression(innerContext, forLoop.bodyExpression);
+        if (!isVoidLikeOrIrrelevant(bodyType))
+            errors.add(SemalyticalError.mustBeVoid(forLoop.bodyExpression));
 
         return RuntimeType.VOID;
     }

@@ -607,21 +607,21 @@ public class MethodInfo
 
     private void evalForLoop(ForLoop forLoop)
     {
-        evalExpression(forLoop.expression1);
+        evalExpression(forLoop.initExpression);
         int initialGotoOffset = offset;
         writeByte(Instructions._goto);
         writeDummyShort();
         int continueToOffset = offset;
-        evalExpression(forLoop.expression3);
-        if (!forLoop.expression3.returnType.isVoidLike())
-            pop(forLoop.expression3.returnType);
+        evalExpression(forLoop.incrementExpression);
+        if (!forLoop.incrementExpression.returnType.isVoidLike())
+            pop(forLoop.incrementExpression.returnType);
         fillins.add(new Fillin(initialGotoOffset));
-        evalExpression(forLoop.expression2);
+        evalExpression(forLoop.conditionExpression);
         int breakToOffset = offset;
         writeByte(Instructions.ifeq);
         context.popOperand();
         writeDummyShort();
-        evalExpression(forLoop.expression4);
+        evalExpression(forLoop.bodyExpression);
         short continueToDelta = (short)(continueToOffset - offset);
         writeByte(Instructions._goto);
         writeShort(continueToDelta);

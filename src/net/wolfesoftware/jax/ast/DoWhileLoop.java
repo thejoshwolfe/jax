@@ -2,21 +2,21 @@ package net.wolfesoftware.jax.ast;
 
 public class DoWhileLoop extends ParseElement
 {
-    public Expression expression1;
-    public Expression expression2;
+    public Expression bodyExpression;
+    public Expression conditionExpression;
     public DoWhileLoop(Expression expression1, Expression expression2)
     {
-        this.expression1 = expression1;
-        this.expression2 = expression2;
+        this.bodyExpression = expression1;
+        this.conditionExpression = expression2;
     }
 
     @Override
     protected void decompile(String indentation, StringBuilder out)
     {
         out.append("do ");
-        expression1.decompile(indentation, out);
+        bodyExpression.decompile(indentation, out);
         out.append(" while (");
-        expression2.decompile(indentation, out);
+        conditionExpression.decompile(indentation, out);
         out.append(')');
     }
 

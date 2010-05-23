@@ -57,8 +57,7 @@ public class LocalContext
 
     public final LocalContext makeSubContext()
     {
-        LocalContext subContext = new LocalContext(this);
-        return subContext;
+        return new LocalContext(this);
     }
 
     public LocalVariable getLocalVariable(String name)
@@ -104,8 +103,17 @@ public class LocalContext
     {
         return breakDestination != null ? breakDestination : parentContext.getBreakDestination();
     }
+    public void setBreakDestination(BranchDestination branchDestination)
+    {
+        breakDestination = branchDestination;
+    }
     public BranchDestination getContinueDestination()
     {
         return continueDestination != null ? continueDestination : parentContext.getContinueDestination();
     }
+    public void setContinueDestination(BranchDestination branchDestination)
+    {
+        continueDestination = branchDestination;
+    }
+
 }
