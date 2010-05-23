@@ -8,8 +8,8 @@ public class LocalContext
     private final RootLocalContext rootContext;
     protected final HashMap<String, LocalVariable> localVariableMap = new HashMap<String, LocalVariable>();
     protected BranchDestination returnDestination = null;
-//    protected BranchDestination breakDestination = null;
-//    protected BranchDestination continueDestination = null;
+    protected BranchDestination breakDestination = null;
+    protected BranchDestination continueDestination = null;
     private int nextLocalVariableNumber;
 
     protected LocalContext(LocalContext parentContext)
@@ -99,5 +99,13 @@ public class LocalContext
     public void setReturnDestination(BranchDestination branchDestination)
     {
         returnDestination = branchDestination;
+    }
+    public BranchDestination getBreakDestination()
+    {
+        return breakDestination != null ? breakDestination : parentContext.getBreakDestination();
+    }
+    public BranchDestination getContinueDestination()
+    {
+        return continueDestination != null ? continueDestination : parentContext.getContinueDestination();
     }
 }

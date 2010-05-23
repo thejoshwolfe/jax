@@ -85,4 +85,14 @@ public final class RootLocalContext extends LocalContext
     {
         return returnDestination;
     }
+    @Override
+    public BranchDestination getBreakDestination()
+    {
+        return breakDestination;
+    }
+    @Override
+    public BranchDestination getContinueDestination()
+    {
+        return continueDestination;
+    }
 }

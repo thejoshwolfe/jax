@@ -532,6 +532,12 @@ public class Semalysizer
             case ReturnVoid.TYPE:
                 returnType = semalysizeReturnVoid(context, (ReturnVoid)content);
                 break;
+            case BreakVoid.TYPE:
+                returnType = semalysizeBreakVoid(context, (BreakVoid)content);
+                break;
+            case ContinueVoid.TYPE:
+                returnType = semalysizeContinueVoid(context, (ContinueVoid)content);
+                break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
@@ -539,27 +545,42 @@ public class Semalysizer
         return returnType;
     }
 
+    private Type semalysizeBreakVoid(LocalContext context, BreakVoid breakVoid)
+    {
+        breakVoid.branchDestination = context.getBreakDestination();
+        if (breakVoid.branchDestination == null)
+            errors.add(new SemalyticalError(breakVoid, "Nowhere to break to."));
+        return UnreachableType.INSTANCE;
+    }
+
+    private Type semalysizeContinueVoid(LocalContext context, ContinueVoid continueVoid)
+    {
+        continueVoid.branchDestination = context.getContinueDestination();
+        if (continueVoid.branchDestination == null)
+            errors.add(new SemalyticalError(continueVoid, "Nowhere to continue to."));
+        return UnreachableType.INSTANCE;
+    }
+
     private Type semalysizeReturnExpression(LocalContext context, ReturnExpression returnExpression)
     {
         semalysizeExpression(context, returnExpression.expression);
-        BranchDestination returnDestination = context.getReturnDestination();
-        if (returnDestination == null) {
+        returnExpression.branchDestination = context.getReturnDestination();
+        if (returnExpression.branchDestination == null) {
             errors.add(new SemalyticalError(returnExpression, "Nowhere to return to."));
             return UnreachableType.INSTANCE;
         }
-        implicitCast(context, returnExpression.expression, returnDestination.type);
-        returnExpression.branchDestination = returnDestination;
+        implicitCast(context, returnExpression.expression, returnExpression.branchDestination.type);
         return UnreachableType.INSTANCE;
     }
 
     private Type semalysizeReturnVoid(LocalContext context, ReturnVoid returnVoid)
     {
-        BranchDestination returnDestination = context.getReturnDestination();
-        if (returnDestination == null) {
+        returnVoid.branchDestination = context.getReturnDestination();
+        if (returnVoid.branchDestination == null) {
             errors.add(new SemalyticalError(returnVoid, "Nowhere to return to."));
             return UnreachableType.INSTANCE;
         }
-        if (!isVoidLikeOrIrrelevant(returnDestination.type))
+        if (!isVoidLikeOrIrrelevant(returnVoid.branchDestination.type))
             errors.add(new SemalyticalError(returnVoid, "Need to return something"));
         return UnreachableType.INSTANCE;
     }

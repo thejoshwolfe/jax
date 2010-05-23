@@ -17,7 +17,7 @@ public class DoBreakContinue {
     public static void showOff(boolean[] sayTrue) {
         int i = 0;
         while (true) i++ < 10 ? continue : break;
-        do "hi guys" while (false);
+        do {"hi guys";} while (false);
         if (true) (1 + if (false) return else 2) else return;
         while (false) return;
         sayTrue[0] = true;
