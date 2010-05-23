@@ -5,7 +5,6 @@ import java.util.*;
 
 public final class Lang
 {
-    // http://www.fileformat.info/tool/hash.htm
     private Lang()
     {
     }
@@ -13,9 +12,11 @@ public final class Lang
     public static final String 
     KEYWORD_ABSTRACT = "abstract",
     KEYWORD_BOOLEAN = "boolean",
+    KEYWORD_BREAK = "break",
     KEYWORD_BYTE = "byte",
     KEYWORD_CATCH = "catch",
     KEYWORD_CLASS = "class",
+    KEYWORD_CONTINUE = "continue",
     KEYWORD_DO = "do",
     KEYWORD_DOUBLE = "double",
     KEYWORD_ELSE = "else",

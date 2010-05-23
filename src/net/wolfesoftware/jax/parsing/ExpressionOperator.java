@@ -162,6 +162,18 @@ public abstract class ExpressionOperator
             return new ReturnVoid();
         }
     };
+    public static final ExpressionOperator breakVoid = new ExpressionOperator(-1, Lang.KEYWORD_BREAK, -1) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return new BreakVoid();
+        }
+    };
+    public static final ExpressionOperator continueVoid = new ExpressionOperator(-1, Lang.KEYWORD_CONTINUE, -1) {
+        public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
+        {
+            return new ContinueVoid();
+        }
+    };
     public static final ExpressionOperator _throw = new ExpressionOperator(-1, Lang.KEYWORD_THROW, PRECEDENCE_LOWEST) {
         public ParseElement makeExpressionContent(Expression leftExpression, ArrayList<ParseElement> innerElements, Expression rightExpression)
         {

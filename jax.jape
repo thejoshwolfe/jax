@@ -105,6 +105,8 @@ $VariableDeclaration = TypeId ID
     ### Control Statements
     $ReturnExpression = "return" Expression
     $ReturnVoid = "return"
+    $BreakVoid = "break"
+    $ContinueVoid = "continue"
     $Throw = "throw" Expression
     |ControlStatement = ReturnExpression | ReturnVoid | Throw
 
