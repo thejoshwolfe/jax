@@ -1,13 +1,16 @@
 package net.wolfesoftware.jax.semalysis;
 
+import java.util.ArrayList;
+
 public class BranchDestination
 {
     public Type type;
+    public ArrayList<Integer> sources = new ArrayList<Integer>();
     public BranchDestination()
     {
     }
-    public BranchDestination(Type type)
+    public void addSource(int offset)
     {
-        this.type = type;
+        sources.add(offset);
     }
 }

@@ -1,6 +1,6 @@
 package net.wolfesoftware.jax.ast;
 
-public class DoWhileLoop extends ParseElement
+public class DoWhileLoop extends LoopElement
 {
     public Expression bodyExpression;
     public Expression conditionExpression;

@@ -1,6 +1,6 @@
 package net.wolfesoftware.jax.ast;
 
-public class WhileLoop extends ParseElement
+public class WhileLoop extends LoopElement
 {
     public Expression conditionExpression;
     public Expression bodyExpression;

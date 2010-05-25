@@ -1,6 +1,6 @@
 package net.wolfesoftware.jax.ast;
 
-public class ForLoop extends ParseElement
+public class ForLoop extends LoopElement
 {
     public Expression initExpression;
     public Expression conditionExpression;

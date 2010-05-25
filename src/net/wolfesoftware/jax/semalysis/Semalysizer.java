@@ -368,7 +368,8 @@ public class Semalysizer
 
     private void semalysizeMethodDeclaration(LocalType context, MethodDeclaration methodDeclaration)
     {
-        methodDeclaration.context.setReturnDestination(new BranchDestination(methodDeclaration.method.returnType));
+        methodDeclaration.returnDestination.type = methodDeclaration.method.returnType;
+        methodDeclaration.context.setReturnDestination(methodDeclaration.returnDestination);
         Type bodyType = semalysizeExpression(methodDeclaration.context, methodDeclaration.expression);
         if (bodyType != UnreachableType.INSTANCE)
             implicitCast(methodDeclaration.context, methodDeclaration.expression, methodDeclaration.method.returnType);
@@ -724,8 +725,8 @@ public class Semalysizer
             errors.add(SemalyticalError.mustBeBoolean(whileLoop.conditionExpression));
 
         LocalContext innerContext = context.makeSubContext();
-        innerContext.setBreakDestination(new BranchDestination());
-        innerContext.setContinueDestination(new BranchDestination());
+        innerContext.setBreakDestination(whileLoop.breakDestination);
+        innerContext.setContinueDestination(whileLoop.continueDestination);
 
         Type bodyType = semalysizeExpression(innerContext, whileLoop.bodyExpression);
         if (!isVoidLikeOrIrrelevant(bodyType))
@@ -736,8 +737,8 @@ public class Semalysizer
     private Type semalysizeDoWhileLoop(LocalContext context, DoWhileLoop doWhileLoop)
     {
         LocalContext innerContext = context.makeSubContext();
-        innerContext.setBreakDestination(new BranchDestination());
-        innerContext.setContinueDestination(new BranchDestination());
+        innerContext.setBreakDestination(doWhileLoop.breakDestination);
+        innerContext.setContinueDestination(doWhileLoop.continueDestination);
 
         Type bodyType = semalysizeExpression(innerContext, doWhileLoop.bodyExpression);
         if (!isVoidLikeOrIrrelevant(bodyType))
@@ -819,8 +820,8 @@ public class Semalysizer
         if (conditionType != RuntimeType.BOOLEAN)
             errors.add(SemalyticalError.mustBeBoolean(forLoop.conditionExpression));
 
-        innerContext.setBreakDestination(new BranchDestination());
-        innerContext.setContinueDestination(new BranchDestination());
+        innerContext.setBreakDestination(forLoop.breakDestination);
+        innerContext.setContinueDestination(forLoop.continueDestination);
 
         Type bodyType = semalysizeExpression(innerContext, forLoop.bodyExpression);
         if (!isVoidLikeOrIrrelevant(bodyType))

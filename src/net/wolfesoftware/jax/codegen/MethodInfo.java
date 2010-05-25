@@ -195,6 +195,9 @@ public class MethodInfo
             case WhileLoop.TYPE:
                 evalWhileLoop((WhileLoop)content);
                 break;
+            case DoWhileLoop.TYPE:
+                evalDoWhileLoop((DoWhileLoop)content);
+                break;
             case StringConcatenation.TYPE:
                 evalStringConcatenation((StringConcatenation)content);
                 break;
@@ -259,11 +262,21 @@ public class MethodInfo
             case ReturnExpression.TYPE:
                 evalReturnExpression((ReturnExpression)content);
                 break;
+            case ContinueVoid.TYPE:
+            case BreakVoid.TYPE:
+                evalBranchVoid((BranchStatement)content);
+                break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
     }
 
+    private void evalBranchVoid(BranchStatement branchStatement)
+    {
+        branchStatement.branchDestination.addSource(offset);
+        writeByte(Instructions._goto);
+        writeDummyShort();
+    }
     private void evalReturnVoid(ReturnVoid returnVoid)
     {
         writeByte(Instructions._return);
@@ -496,7 +509,7 @@ public class MethodInfo
         context.pushOperand(RuntimeType.OBJECT); // close enough
         evalArguments(constructorRedirect.arguments);
         writeByte(Instructions.invokespecial);
-        context.popOperands(1 + constructorRedirect.arguments.elements.size()); // TODO hard-coded for default constructor
+        context.popOperands(1 + constructorRedirect.arguments.elements.size());
         short index = constantPool.getMethod(constructorRedirect.constructor);
         writeShort(index);
     }
@@ -577,21 +590,6 @@ public class MethodInfo
         context.pushOperand(primitiveConversion.toType);
     }
 
-    private void evalWhileLoop(WhileLoop whileLoop)
-    {
-        int continueToOffset = offset;
-        evalExpression(whileLoop.conditionExpression);
-        int ifOffset = offset;
-        writeByte(Instructions.ifeq);
-        context.popOperand();
-        writeDummyShort();
-        evalExpression(whileLoop.bodyExpression);
-        short continueToDelta = (short)(continueToOffset - offset);
-        writeByte(Instructions._goto);
-        writeShort(continueToDelta);
-        fillins.add(new Fillin(ifOffset));
-    }
-
     private void evalConstructorInvocation(ConstructorInvocation constructorInvocation)
     {
         writeByte(Instructions._new);
@@ -626,6 +624,41 @@ public class MethodInfo
         writeByte(Instructions._goto);
         writeShort(continueToDelta);
         fillins.add(new Fillin(breakToOffset));
+        fillinLoopBranches(forLoop, continueToOffset, offset);
+    }
+    private void evalWhileLoop(WhileLoop whileLoop)
+    {
+        int continueToOffset = offset;
+        evalExpression(whileLoop.conditionExpression);
+        int ifOffset = offset;
+        writeByte(Instructions.ifeq);
+        context.popOperand();
+        writeDummyShort();
+        evalExpression(whileLoop.bodyExpression);
+        short continueToDelta = (short)(continueToOffset - offset);
+        writeByte(Instructions._goto);
+        writeShort(continueToDelta);
+        fillins.add(new Fillin(ifOffset));
+        fillinLoopBranches(whileLoop, continueToOffset, offset);
+    }
+    private void evalDoWhileLoop(DoWhileLoop doWhileLoop)
+    {
+        int jumpBackOffset = offset;
+        evalExpression(doWhileLoop.bodyExpression);
+        int continueToOffset = offset;
+        evalExpression(doWhileLoop.conditionExpression);
+        short jumpBackDelta = (short)(jumpBackOffset - offset);
+        writeByte(Instructions.ifne);
+        context.popOperand();
+        writeShort(jumpBackDelta);
+        fillinLoopBranches(doWhileLoop, continueToOffset, offset);
+    }
+    private void fillinLoopBranches(LoopElement loopElement, int continueToOffset, int breakToOffset)
+    {
+        for (int source : loopElement.continueDestination.sources)
+            fillins.add(new Fillin(source, continueToOffset));
+        for (int source : loopElement.breakDestination.sources)
+            fillins.add(new Fillin(source, breakToOffset));
     }
 
     private void evalArrayDereference(ArrayDereference arrayDereference)
@@ -850,13 +883,17 @@ public class MethodInfo
         context.popOperand();
         writeDummyShort();
         evalExpression(ifThenElse.thenBodyExpression);
-        if (!ifThenElse.returnType.isVoidLike())
+        if (!ifThenElse.thenBodyExpression.returnType.isVoidLike())
             context.popOperand(); // take this off for now
         int gotoOffset = offset;
         writeByte(Instructions._goto);
         writeDummyShort();
         fillins.add(new Fillin(ifOffset));
-        evalExpression(ifThenElse.elseBodyExpression); // leave this stack size on
+        evalExpression(ifThenElse.elseBodyExpression);
+        if (!ifThenElse.elseBodyExpression.returnType.isVoidLike())
+            context.popOperand(); // take this off for now
+        if (!ifThenElse.returnType.isVoidLike())
+            context.pushOperand(ifThenElse.returnType);
         fillins.add(new Fillin(gotoOffset));
     }
     private void evalIfThen(IfThen ifThen)

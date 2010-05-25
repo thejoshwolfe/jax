@@ -1,12 +1,13 @@
 package net.wolfesoftware.jax.ast;
 
-import net.wolfesoftware.jax.semalysis.Method;
+import net.wolfesoftware.jax.semalysis.*;
 
 public class MethodDeclaration extends ConstructorOrMethodDeclaration
 {
-    public String methodName;
     public Method method;
+    public BranchDestination returnDestination = new BranchDestination();
 
+    public String methodName;
     public MethodDeclaration(Modifiers methodModifiers, TypeId typeId, String methodName, ArgumentDeclarations argumentDeclarations, MaybeThrows maybeThrows, Expression expression)
     {
         super(methodModifiers, typeId, argumentDeclarations, maybeThrows, expression);
