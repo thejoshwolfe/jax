@@ -941,6 +941,8 @@ public class Semalysizer
             default: {
                 // instance field
                 Type declaringType = semalysizeExpression(context, fieldExpresion.leftExpression);
+                if (declaringType == UnknownType.INSTANCE)
+                    return UnknownType.INSTANCE;
                 Field field = resolveField(declaringType, fieldExpresion.fieldName.text);
                 if (field == null) {
                     errors.add(SemalyticalError.cantResolveField(declaringType, fieldExpresion.fieldName));

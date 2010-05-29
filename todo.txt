@@ -1,5 +1,9 @@
 This is a roadmap/todo.
 
+immediate:
+    pop non-void IfThen bodies
+    fully-qualified types
+
 Version 1.0:
 
 broken:

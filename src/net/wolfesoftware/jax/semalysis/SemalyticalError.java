@@ -61,7 +61,7 @@ public class SemalyticalError extends CompileError
 
     public static SemalyticalError cantResolveField(Type type, AmbiguousId id)
     {
-        return new SemalyticalError(id, "The type " + type + " doesn't have a field called " + id);
+        return new SemalyticalError(id, "The type \"" + type + "\" doesn't have a field called " + id);
     }
 
     public static SemalyticalError cantResolveMethod(Type type, AmbiguousId id, Type[] argumentSignature)

@@ -11,9 +11,9 @@ public class MiscTests
     public static TestCase[] getTests()
     {
         ArrayList<TestCase> tests = new ArrayList<TestCase>();
-        tests.add(new FancyZipTestCase());
-//        tests.add(new ScannerTestCase());
-        tests.add(new PackageTestCase());
+//        tests.add(new FancyZipTestCase());
+        tests.add(new ScannerTestCase());
+//        tests.add(new PackageTestCase());
         return tests.toArray(new TestCase[tests.size()]);
     }
     private static class FancyZipTestCase extends TestCase
