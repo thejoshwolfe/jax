@@ -268,9 +268,11 @@ public class Semalysizer
     private void preSemalysizeConstructorDeclaration(LocalType context, ConstructorDeclaration constructorDeclaration)
     {
         semalysizeModifiers(constructorDeclaration.methodModifiers, Modifier.CONSTRUCTOR_MODIFIERS, "constructors");
-        resolveType(constructorDeclaration.typeId, true);
-        if (constructorDeclaration.typeId.type != context)
-            errors.add(new SemalyticalError(constructorDeclaration.typeId, "you can't have a constructor for type \"" + constructorDeclaration.typeId.type + "\" in this class."));
+        resolveType(constructorDeclaration.typeId, false);
+        if (constructorDeclaration.typeId.type != context) {
+            // probably just forgot the return type on a method declaration
+            errors.add(new SemalyticalError(constructorDeclaration.typeId, "Method declaration is missing a return type."));
+        }
         constructorDeclaration.context = new RootLocalContext(context, false);
         Type[] arguemntSignature = semalysizeArgumentDeclarations(constructorDeclaration.context, constructorDeclaration.argumentDeclarations);
         constructorDeclaration.constructor = new Constructor(context, arguemntSignature);
@@ -542,11 +544,22 @@ public class Semalysizer
             case ContinueVoid.TYPE:
                 returnType = semalysizeContinueVoid(context, (ContinueVoid)content);
                 break;
+            case Throw.TYPE:
+                returnType = semalysizeThrow(context, (Throw)content);
+                break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
         expression.returnType = returnType;
         return returnType;
+    }
+
+    private Type semalysizeThrow(LocalContext context, Throw _throw)
+    {
+        Type thrownType = semalysizeExpression(context, _throw.expression);
+        if (!isTypeIrrelevant(thrownType) && !thrownType.isInstanceOf(RuntimeType.THROWABLE))
+            errors.add(new SemalyticalError(_throw.expression, "Must throw a Throwable"));
+        return UnreachableType.INSTANCE;
     }
 
     private Type semalysizeBreakVoid(LocalContext context, BreakVoid breakVoid)
@@ -901,7 +914,7 @@ public class Semalysizer
     {
         LocalContext nestedContext = context.makeSubContext();
         semalysizeVariableDeclaration(nestedContext, catchBody.variableDeclaration);
-        if (!catchBody.variableDeclaration.typeId.type.isInstanceOf(RuntimeType.getType(Throwable.class))) {
+        if (!catchBody.variableDeclaration.typeId.type.isInstanceOf(RuntimeType.THROWABLE)) {
             errors.add(new SemalyticalError(catchBody.variableDeclaration, "Type must descend from Throwable. Can't catch a " + catchBody.variableDeclaration.typeId));
             catchBody.variableDeclaration.typeId.type = UnknownType.INSTANCE;
         }

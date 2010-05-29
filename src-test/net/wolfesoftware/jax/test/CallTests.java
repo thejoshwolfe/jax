@@ -32,6 +32,7 @@ public class CallTests
         "controlStructures/ForLoop",
         "controlStructures/Return",
         "controlStructures/ShortCircuit",
+        "controlStructures/Throw",
         "controlStructures/WhileLoop",
         "oop/ConstructorDeclaration",
         "oop/FunctionInvocation",

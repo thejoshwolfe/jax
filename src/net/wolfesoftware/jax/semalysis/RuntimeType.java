@@ -159,6 +159,7 @@ public class RuntimeType extends Type
     public static final RuntimeType OBJECT = getType(Object.class);
     public static final RuntimeType STRING = getType(String.class);
     public static final RuntimeType STRING_BUILDER = getType(StringBuilder.class);
+    public static final RuntimeType THROWABLE = getType(Throwable.class);
     public static RuntimeType getType(Class<?> underlyingType)
     {
         RuntimeType type = cache.get(underlyingType);
