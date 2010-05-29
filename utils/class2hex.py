@@ -569,7 +569,7 @@ def main(input, output):
                 elif argumentType == ARG_LOCAL_VARIABLE_INDEX:
                     (h, value) = readUByte()
                     instructionHex = opcodeHex + h
-                    argsStr = " = " + str(value)
+                    argsStr = " " + str(value)
                 elif argumentType == ARG_BRANCH_OFFSET:
                     (h, value) = readShort()
                     instructionHex = opcodeHex + h
