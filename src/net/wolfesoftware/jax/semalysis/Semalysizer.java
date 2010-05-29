@@ -503,6 +503,9 @@ public class Semalysizer
             case AmbiguousFieldExpression.TYPE:
                 returnType = semalysizeAmbiguousFieldExpression(context, expression);
                 break;
+            case InstanceFieldExpression.TYPE:
+                returnType = ((InstanceFieldExpression)content).field.returnType;
+                break;
             case ArrayDereference.TYPE:
                 returnType = semalysizeArrayDereference(context, (ArrayDereference)content);
                 break;
