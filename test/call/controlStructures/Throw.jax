@@ -1,0 +1,5 @@
+public class Throw {
+    public static void throwThis(Throwable t) {
+        throw t;
+    };
+}

@@ -266,11 +266,20 @@ public class MethodInfo
             case BreakVoid.TYPE:
                 evalBranchVoid((BranchStatement)content);
                 break;
+            case Throw.TYPE:
+                evalThrow((Throw)content);
+                break;
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
     }
 
+    private void evalThrow(Throw _throw)
+    {
+        evalExpression(_throw.expression);
+        writeByte(Instructions.athrow);
+        context.popOperand();
+    }
     private void evalBranchVoid(BranchStatement branchStatement)
     {
         branchStatement.branchDestination.addSource(offset);
