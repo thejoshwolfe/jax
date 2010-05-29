@@ -1,15 +1,14 @@
 public class DoBreakContinue {
     public static int findThis(String[] arr, String findThis) {
-        int foundYou;
+        int foundYou = 0;
         int i = 0;
         do {
-            String item = arr[i];
+            String item = arr[i++];
             if (item == null) continue;
             if (item.equals(findThis)) {
                 foundYou = i;
                 break;
             };
-            item.toString(); // this is important stuff right here.
         } while (i < arr.length);
         return foundYou;
     };
