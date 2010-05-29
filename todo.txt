@@ -11,14 +11,12 @@ semalysis:
 
 ast:
     loops with else's
-    continue and break
     forbidding assignment to final fields
     extends and implements
     abstract classes/methods
     class literals (ex: String.class)
     array initializers (new int[] { 1, 2 })
     javaMode abridged array initializers (int[] a = { 1, 2 })
-    do-while loops
     finally
     synchronized blocks
 
