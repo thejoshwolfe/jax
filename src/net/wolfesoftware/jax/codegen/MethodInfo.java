@@ -269,11 +269,18 @@ public class MethodInfo
             case Throw.TYPE:
                 evalThrow((Throw)content);
                 break;
+            case PopWrapper.TYPE:
+                evalPopWrapper((PopWrapper)content);
             default:
                 throw new RuntimeException(content.getClass().toString());
         }
     }
 
+    private void evalPopWrapper(PopWrapper popWrapper)
+    {
+        evalExpression(popWrapper.expression);
+        pop(context.peekOperandType());
+    }
     private void evalThrow(Throw _throw)
     {
         evalExpression(_throw.expression);

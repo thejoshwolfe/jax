@@ -471,12 +471,12 @@ public class Semalysizer
             case InstanceFieldAssignment.TYPE:
                 returnType = semalysizeInstanceFieldAssignment(context, (InstanceFieldAssignment)expression.content);
                 break;
+            case IfThen.TYPE:
+                returnType = semalysizeIfThen(context, (IfThen)content);
+                break;
             case IfThenElse.TYPE:
             case QuestionColon.TYPE:
                 returnType = semalysizeIfThenElse(context, (IfThenElse)content);
-                break;
-            case IfThen.TYPE:
-                returnType = semalysizeIfThen(context, (IfThen)content);
                 break;
             case ForLoop.TYPE:
                 returnType = semalysizeForLoop(context, (ForLoop)content);
@@ -1072,7 +1072,7 @@ public class Semalysizer
 
         semalysizeExpression(context, ifThen.expression2);
         if (!isVoidLikeOrIrrelevant(ifThen.expression2.returnType))
-            errors.add(SemalyticalError.mustBeVoid(ifThen.expression2));
+            ifThen.expression2 = PopWrapper.wrap(ifThen.expression2);
 
         return RuntimeType.VOID;
     }
