@@ -30,7 +30,7 @@ public class Semalysizer
 
         // import built-in types
         RuntimeType.initPrimitives(importedTypes);
-        BuiltinPackageLister.importPackageStar(QualifiedName.fromString("java.lang"), importedTypes, errors);
+        BuiltinPackageLister.importPackageStar(QualifiedName.JAVA_LANG, importedTypes, errors);
     }
 
     private Semalysization semalysizeRoot()
@@ -430,6 +430,7 @@ public class Semalysizer
                 returnType = semalysizeBooleanNot(context, (BooleanNot)content);
                 break;
             case AmbiguousId.TYPE:
+                // TODO: catch void problems
                 returnType = semalysizeAmbiguousId(context, expression);
                 break;
             case Block.TYPE:
@@ -938,6 +939,11 @@ public class Semalysizer
                 // left side is unknown.
                 return UnknownType.INSTANCE;
             }
+            case PackageName.TYPE: {
+                // part of a fully qualified name
+                PackageName fullyQualifiedType = (PackageName)fieldExpresion.leftExpression.content;
+                
+            }
             default: {
                 // instance field
                 Type declaringType = semalysizeExpression(context, fieldExpresion.leftExpression);
@@ -961,15 +967,21 @@ public class Semalysizer
             semalysizeAmbiguousId(context, methodInvocation.leftExpression);
         else
             semalysizeExpression(context, methodInvocation.leftExpression);
-        if (methodInvocation.leftExpression.content.getElementType() == TypeId.TYPE) {
-            // static method invocation
-            StaticMethodInvocation staticMethodInvocation = new StaticMethodInvocation((TypeId)methodInvocation.leftExpression.content, methodInvocation.methodName, methodInvocation.arguments);
-            expression.content = staticMethodInvocation;
-            return semalysizeStaticMethodInvocation(context, staticMethodInvocation);
-        } else {
-            InstanceMethodInvocation instanceMethodInvocation = new InstanceMethodInvocation(methodInvocation.leftExpression, methodInvocation.methodName, methodInvocation.arguments);
-            expression.content = instanceMethodInvocation;
-            return semalysizeInstanceMethodInvocation(context, instanceMethodInvocation);
+        switch (methodInvocation.leftExpression.content.getElementType()) {
+            case TypeId.TYPE: {
+                // static method invocation
+                StaticMethodInvocation staticMethodInvocation = new StaticMethodInvocation((TypeId)methodInvocation.leftExpression.content, methodInvocation.methodName, methodInvocation.arguments);
+                expression.content = staticMethodInvocation;
+                return semalysizeStaticMethodInvocation(context, staticMethodInvocation);
+            }
+            case PackageName.TYPE: {
+                
+            }
+            default: {
+                InstanceMethodInvocation instanceMethodInvocation = new InstanceMethodInvocation(methodInvocation.leftExpression, methodInvocation.methodName, methodInvocation.arguments);
+                expression.content = instanceMethodInvocation;
+                return semalysizeInstanceMethodInvocation(context, instanceMethodInvocation);
+            }
         }
     }
     private Type semalysizeAmbiguousImplicitThisMethodInvocation(LocalContext context, Expression expression)
@@ -1218,6 +1230,11 @@ public class Semalysizer
             // it's a class name
             expression.content = typeId;
             // isn't a valid expression. we'll return void, even though it's not true.
+            return RuntimeType.VOID;
+        }
+        if (BuiltinPackageLister.topLevelPackages.contains(id.text)) {
+            // it's a top-level type, probably the start of a fully-qualified type
+            expression.content = new PackageName(id.text);
             return RuntimeType.VOID;
         }
         errors.add(new SemalyticalError(id, "Can't resolve this identifier"));

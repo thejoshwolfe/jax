@@ -27,4 +27,5 @@ public class QualifiedName extends ParseElement
     {
         return new QualifiedName(Util.arrayToList(string));
     }
+    public static final QualifiedName JAVA_LANG = fromString("java.lang");
 }
