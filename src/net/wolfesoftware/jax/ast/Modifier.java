@@ -69,7 +69,7 @@ public class Modifier extends ParseElement
     public static final short CONSTRUCTOR_MODIFIERS = ACC_PRIVATE | ACC_PROTECTED | ACC_PUBLIC | ACC_STRICT;
     public static final short INITIALIZER_MODIFIERS = ACC_STATIC;
     // http://java.sun.com/docs/books/jvms/second_edition/html/ClassFile.doc.html#1513
-    // If such a method has its ACC_ABSTRACT flag set it may not have any of its ACC_FINAL, ACC_NATIVE, ACC_PRIVATE, ACC_STATIC, ACC_STRICT, or ACC_SYNCHRONIZED  flags set (§2.13.3.2).
+    // If such a method has its ACC_ABSTRACT flag set it may not have any of its ACC_FINAL, ACC_NATIVE, ACC_PRIVATE, ACC_STATIC, ACC_STRICT, or ACC_SYNCHRONIZED  flags set (2.13.3.2).
     public static final short ABSTRACT_METHOD_ENEMIES_MASK = ACC_FINAL | ACC_NATIVE | ACC_PRIVATE | ACC_STATIC | ACC_STRICT | ACC_SYNCHRONIZED;
     public static final Modifier[] ABSTRACT_METHOD_ENEMIES_ARRAY = { FINAL, NATIVE, PRIVATE, STATIC, STRICTFP, SYNCHRONIZED };
 }
